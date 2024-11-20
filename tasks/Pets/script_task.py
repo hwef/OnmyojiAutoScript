@@ -34,7 +34,8 @@ class ScriptTask(OrochiScriptTask, PetsAssets):
         self.ui_click(self.I_PET_EXIT, self.I_CHECK_MAIN)
 
         # 打一次魂十
-        self.orochi_ten()
+        if con.orochi_enable:
+            self.orochi_ten()
 
         self.set_next_run(task='Pets', success=True, finish=True)
         raise TaskEnd('Pets')
