@@ -32,13 +32,13 @@ class Layer(str, Enum):
     ELEVEN = '悲鸣'
     TWELVE = '神罚'
 
-class Liao30Config(BaseModel):
-    # 120模式
-    orochi120_enable: bool = Field(title='120模式', default=True, description='120模式')
+class NextDayOrochiConfig(BaseModel):
+    # 设定时间为第二天的启动时间
+    next_day_orochi_enable: bool = Field(title='设定时间为第二天的启动时间', default=True, description='设定时间为第二天的启动时间')
+    # 层数
+    layer: Layer = Field(default=Layer.ELEVEN, description='layer_help')
     # 限制次数
-    limit_count: int = Field(default=120, description='limit_count_help')
-    # 寮30模式
-    liao30_enable: bool = Field(title='寮30模式', default=True, description='寮30模式')
+    limit_count: int = Field(default=30, description='limit_count_help')
     # 启动时间
     start_time: Time = Field(default=Time(hour=11), description='启动时间')
 
@@ -46,12 +46,8 @@ class Liao30Config(BaseModel):
 class OrochiConfig(ConfigBase):
     # 身份
     user_status: UserStatus = Field(default=UserStatus.LEADER, description='user_status_help')
-    # 层数
-    layer: Layer = Field(default=Layer.ELEVEN, description='layer_help')
     # 限制时间
     limit_time: Time = Field(default=Time(minute=30), description='limit_time_help')
-    # 限制次数
-    limit_count: int = Field(default=30, description='limit_count_help')
     # 是否开启御魂加成
     soul_buff_enable: bool = Field(default=False, description='soul_buff_enable_help')
 
@@ -67,7 +63,7 @@ class SwitchSoulConfig(BaseModel):
 
 class Orochi(ConfigBase):
     scheduler: Scheduler = Field(default_factory=Scheduler)
-    liao30_config: Liao30Config = Field(default_factory=Liao30Config)
+    next_day_orochi_config: NextDayOrochiConfig = Field(default_factory=NextDayOrochiConfig)
     orochi_config: OrochiConfig = Field(default_factory=OrochiConfig)
     invite_config: InviteConfig = Field(default_factory=InviteConfig)
     general_battle_config: GeneralBattleConfig = Field(default_factory=GeneralBattleConfig)

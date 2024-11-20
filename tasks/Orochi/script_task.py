@@ -22,15 +22,15 @@ from module.exception import TaskEnd
 class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi, SwitchSoul, OrochiAssets):
 
     def run(self):
-        if self.config.orochi.liao30_config.orochi120_enable:
-            limit_count = self.config.orochi.liao30_config.limit_count
-            layer = Layer.TWELVE
-        elif self.config.orochi.liao30_config.liao30_enable:
-            limit_count = 30
-            layer = Layer.ELEVEN
-        else:
-            limit_count = self.config.orochi.orochi_config.limit_count
-            layer = self.config.orochi.orochi_config.layer
+        # if self.config.orochi.next_day_orochi_config.next_day_orochi_enable:
+        #     limit_count = self.config.orochi.next_day_orochi_config.limit_count
+        #     layer = self.config.orochi.next_day_orochi_config.layer
+        # else:
+        #     limit_count = self.config.orochi.orochi_config.limit_count
+        #     layer = self.config.orochi.orochi_config.layer
+
+        limit_count = self.config.orochi.next_day_orochi_config.limit_count
+        layer = self.config.orochi.next_day_orochi_config.layer
 
         # 根据选层切换御魂
         orochi_switch_soul = self.config.orochi.switch_soul
@@ -82,8 +82,8 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             self.close_buff()
 
         # 下一次运行时间
-        if self.config.orochi.liao30_config.liao30_enable:
-            start_time = self.config.orochi.liao30_config.start_time
+        if self.config.orochi.next_day_orochi_config.next_day_orochi_enable:
+            start_time = self.config.orochi.next_day_orochi_config.start_time
             next_run = parse_tomorrow_server(start_time)
             self.set_next_run('Orochi', target=next_run)
         else:
@@ -143,7 +143,6 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
         self.ui_get_current_page()
         self.ui_goto(page_soul_zones)
         self.orochi_enter()
-        # layer = self.config.orochi.orochi_config.layer
         self.check_layer(layer)
         self.check_lock(self.config.orochi.general_battle_config.lock_team_enable)
         # 创建队伍
@@ -299,7 +298,6 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
         self.ui_get_current_page()
         self.ui_goto(page_soul_zones)
         self.orochi_enter()
-        # layer = self.config.orochi.orochi_config.layer
         self.check_layer(layer)
         self.check_lock(self.config.orochi.general_battle_config.lock_team_enable)
 
@@ -354,7 +352,6 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             self.ui_get_current_page()
             self.ui_goto(page_soul_zones)
             self.orochi_enter()
-            # layer = self.config.orochi.orochi_config.layer
             self.check_layer(layer)
             self.check_lock(self.config.orochi.general_battle_config.lock_team_enable)
             # 创建队伍
