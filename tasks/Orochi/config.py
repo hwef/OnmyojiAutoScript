@@ -16,7 +16,7 @@ class UserStatus(str, Enum):
     LEADER = 'leader'
     MEMBER = 'member'
     ALONE = 'alone'
-    WILD = 'wild'  # 还不打算实现
+    # WILD = 'wild'  # 还不打算实现
 
 class Layer(str, Enum):
     # ONE = '壹层'
