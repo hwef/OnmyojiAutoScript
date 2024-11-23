@@ -172,6 +172,9 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             # 检查猫咪奖励
             if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
                 continue
+            # 检查自选御魂弹窗
+            if self.appear_then_click(self.I_UI_BACK_RED, action=self.C_WIN_3, interval=1):
+                continue
 
             if self.current_count >= self.limit_count:
                 if self.is_in_room():
@@ -256,6 +259,9 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             # 检查猫咪奖励
             if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
                 continue
+            # 检查自选御魂弹窗
+            if self.appear_then_click(self.I_UI_BACK_RED, action=self.C_WIN_3, interval=1):
+                continue
 
             if self.current_count >= self.limit_count:
                 logger.info('Orochi count limit out')
@@ -311,6 +317,9 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
 
             # 检查猫咪奖励
             if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
+                continue
+            # 检查自选御魂弹窗
+            if self.appear_then_click(self.I_UI_BACK_RED, action=self.C_WIN_3, interval=1):
                 continue
 
             if not is_in_orochi():
@@ -377,6 +386,9 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
 
             # 检查猫咪奖励
             if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
+                continue
+            # 检查自选御魂弹窗
+            if self.appear_then_click(self.I_UI_BACK_RED, action=self.C_WIN_3, interval=1):
                 continue
 
             if self.current_count >= self.limit_count:
