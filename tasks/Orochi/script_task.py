@@ -172,9 +172,6 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             # 检查猫咪奖励
             if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
                 continue
-            # 检查自选御魂弹窗
-            if self.appear_then_click(self.I_UI_BACK_RED, action=self.C_WIN_3, interval=1):
-                continue
 
             if self.current_count >= self.limit_count:
                 if self.is_in_room():
@@ -259,9 +256,6 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             # 检查猫咪奖励
             if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
                 continue
-            # 检查自选御魂弹窗
-            if self.appear_then_click(self.I_UI_BACK_RED, action=self.C_WIN_3, interval=1):
-                continue
 
             if self.current_count >= self.limit_count:
                 logger.info('Orochi count limit out')
@@ -318,10 +312,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             # 检查猫咪奖励
             if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
                 continue
-            # 检查自选御魂弹窗
-            if self.appear_then_click(self.I_UI_BACK_RED, action=self.C_WIN_3, interval=1):
-                continue
-
+            
             if not is_in_orochi():
                 continue
 
@@ -386,9 +377,6 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
 
             # 检查猫咪奖励
             if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
-                continue
-            # 检查自选御魂弹窗
-            if self.appear_then_click(self.I_UI_BACK_RED, action=self.C_WIN_3, interval=1):
                 continue
 
             if self.current_count >= self.limit_count:
@@ -493,6 +481,9 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                 appear_greed_ghost = self.appear(self.I_GREED_GHOST)
                 while 1:
                     self.screenshot()
+                    # 检查自选御魂弹窗
+                    if self.appear_then_click(self.I_UI_BACK_RED):
+                        continue
                     action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
                     if self.appear_then_click(self.I_REWARD, action=action_click, interval=1.5):
                         continue
