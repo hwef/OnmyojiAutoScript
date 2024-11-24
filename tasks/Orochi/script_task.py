@@ -461,7 +461,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                 continue
             if self.appear(self.I_GREED_GHOST):
                 # 贪吃鬼
-                logger.info('Win battle')
+                logger.info('I_GREED_GHOST Orochi Win battle')
                 self.wait_until_appear(self.I_REWARD, wait_time=1.5)
                 self.screenshot()
                 if not self.appear(self.I_GREED_GHOST):
@@ -469,6 +469,9 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                     continue
                 while 1:
                     self.screenshot()
+                    # 检查自选御魂弹窗
+                    if self.appear_then_click(self.I_UI_BACK_RED):
+                        continue
                     action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
                     if not self.appear(self.I_GREED_GHOST):
                         break
@@ -477,7 +480,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                 return True
             if self.appear(self.I_REWARD):
                 # 魂
-                logger.info('Win battle')
+                logger.info('I_REWARD Orochi Win battle')
                 appear_greed_ghost = self.appear(self.I_GREED_GHOST)
                 while 1:
                     self.screenshot()
@@ -508,5 +511,5 @@ if __name__ == '__main__':
     c = Config('oas1')
     d = Device(c)
     t = ScriptTask(c, d)
-
+    t.battle_wait(False)
     t.run()
