@@ -163,7 +163,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                 continue
 
             # 检查猫咪奖励
-            if self.current_count == 1:
+            if self.current_count <= 1:
                 if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
                     continue
 
@@ -305,7 +305,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             self.screenshot()
 
             # 检查猫咪奖励
-            if self.current_count == 1:
+            if self.current_count <= 1:
                 if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
                     continue
             
@@ -381,7 +381,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                 while 1:
                     self.screenshot()
                     # 检查自选御魂弹窗
-                    if self.current_count == 1:
+                    if self.current_count <= 1:
                         if self.appear_then_click(self.I_UI_BACK_RED):
                             continue
                     action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
@@ -397,7 +397,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                 while 1:
                     self.screenshot()
                     # 检查自选御魂弹窗
-                    if self.current_count == 1:
+                    if self.current_count <= 1:
                         if self.appear_then_click(self.I_UI_BACK_RED):
                             continue
                     action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
