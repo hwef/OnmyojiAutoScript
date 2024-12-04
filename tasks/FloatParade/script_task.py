@@ -84,6 +84,11 @@ class ScriptTask(GameUi, FloatParadeAssets, TalismanPassAssets):
         check_timer.start()
         while 1:
             self.screenshot()
+            if self.appear_then_click(self.I_CLICK_SURE, interval=1):
+                logger.info('Get I_CLICK_SURE reward')
+                check_timer.reset()
+                continue
+
             if self.appear_then_click(match_level[level], interval=0.8):
                 logger.info(f'Select {level} reward')
                 check_timer.reset()

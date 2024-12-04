@@ -88,5 +88,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "经验的"
+  },
+  {
+    "itemName": "click_sure",
+    "imageName": "click_sure.png",
+    "roiFront": "544,393,189,81",
+    "roiBack": "544,393,189,81",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "樱饼移溢出确认"
   }
 ]
