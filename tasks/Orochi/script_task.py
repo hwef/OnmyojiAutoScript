@@ -248,7 +248,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             self.screenshot()
 
             # 检查猫咪奖励
-            if self.current_count == 1:
+            if self.current_count <= 1:
                 if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
                     continue
 
