@@ -19,10 +19,19 @@ class ScriptTask(GameUi, SoulsTidyAssets):
         self.ui_get_current_page()
         self.ui_goto(page_shikigami_records)
         con = self.config.souls_tidy
-        if con.simple_tidy.greed_maneki:
-            self.goto_souls()
-            self.greed_maneki()
-            self.back_records()
+
+        # 进入到御魂的主界面
+        self.goto_souls()
+
+        # 贪吃鬼
+        if con.simple_tidy.only_greed:
+            self.only_greed()
+        # 奉纳御魂
+        if con.simple_tidy.only_maneki:
+            self.only_maneki()
+
+        # 退回到式神录
+        self.back_records()
 
         self.set_next_run(task='SoulsTidy', success=True, finish=False)
         raise TaskEnd('SoulsTidy')
@@ -54,9 +63,9 @@ class ScriptTask(GameUi, SoulsTidyAssets):
         """
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_RECORDS)
 
-    def greed_maneki(self):
+    def only_greed(self):
         """
-        贪吃鬼和招财猫
+        贪吃鬼
         :return:
         """
         # 先是贪吃鬼
@@ -89,6 +98,20 @@ class ScriptTask(GameUi, SoulsTidyAssets):
             if self.appear_then_click(self.I_ST_BONGNA, interval=1, threshold=0.6):
                 continue
         logger.hr('Enter bongna')
+
+
+    def only_maneki(self):
+        """
+        奉纳御魂
+        :return:
+        """
+        while 1:
+            self.screenshot()
+            if self.appear(self.I_ST_CAT):
+                # 出现招财猫
+                break
+            if self.appear_then_click(self.I_ST_BONGNA, interval=1, threshold=0.6):
+                continue
         # 确保是按照等级来排序的
         while 1:
             self.screenshot()
@@ -154,7 +177,6 @@ class ScriptTask(GameUi, SoulsTidyAssets):
             logger.info('Donate one')
 
         logger.info('Bongna done')
-
 
 
 
