@@ -23,12 +23,6 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
                                                seconds=limit_time.second)
         self.ui_get_current_page()
         self.ui_goto(page_duel)
-        # 识别到名仕星星
-        if self.appear(self.I_D_CELEB_STAR):
-            # 记得退回去到町中
-            self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_TOWN)
-            self.set_next_run(task='Duel', success=True, finish=False)
-            raise TaskEnd('Duel')
         if con.switch_all_soul:
             self.switch_all_soul()
 
@@ -44,6 +38,10 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
                 # 任务执行时间超过限制时间，退出
                 logger.info('Duel task is over time')
                 break
+            # if con.honor_full_exit and self.check_honor():
+            #     # 荣誉满了，退出
+            #     logger.info('Duel task is over honor')
+            #     break
             current_score = self.check_score(con.target_score)
             if not current_score:
                 # 分数够了
@@ -51,8 +49,7 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
                 if con.honor_full_exit and self.check_honor():
                     # 荣誉满了，退出
                     logger.info('Duel task is over honor')
-                    break
-
+                break
             self.duel_one(current_score, con.green_enable, con.green_mark)
 
         # 记得退回去到町中
@@ -67,7 +64,7 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
         """
         if screenshot:
             self.screenshot()
-        return self.appear(self.I_D_HELP)
+        return self.appear(self.I_D_HELP) or self.appear(self.I_D_CELEB_STAR) or self.appear(self.I_D_CELEB_HONOR)
 
     def switch_all_soul(self):
         """
@@ -159,7 +156,7 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
                 self.device.stuck_record_add('BATTLE_STATUS_S')
                 self.wait_until_disappear(self.I_D_WORD_BATTLE)
                 break
-            if self.appear(self.I_D_PREPARE):
+            if current_score <= 1800 and self.appear(self.I_D_PREPARE):
                 # 低段位有的准备
                 self.ui_click(self.I_D_PREPARE, self.I_D_PREPARE_DONE)
                 self.wait_until_disappear(self.I_D_PREPARE_DONE)
