@@ -1,7 +1,7 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-
+from datetime import datetime
 
 from tasks.Restart.config_scheduler import Scheduler
 from tasks.Restart.login import LoginHandler
@@ -13,8 +13,6 @@ from module.logger import logger
 from module.exception import TaskEnd, RequestHumanTakeover
 
 
-
-
 class ScriptTask(LoginHandler):
 
     def run(self) -> None:
@@ -22,9 +20,9 @@ class ScriptTask(LoginHandler):
         主要就是登录的模块
         :return:
         """
-        self.app_restart()
+        if not self.delay_pending_tasks():
+            self.app_restart()
         raise TaskEnd('ScriptTask end')
-
 
     def app_stop(self):
         logger.hr('App stop')
@@ -57,6 +55,21 @@ class ScriptTask(LoginHandler):
             else:
                 self.custom_next_run(task='Restart', custom_time=Time(hour=12, minute=0, second=0), time_delta=1)
 
+    def delay_pending_tasks(self) -> bool:
+        """
+        周三更新游戏的时候延迟
+        @return:
+        """
+        datetime_now = datetime.now()
+        if not (datetime_now.weekday() == 2 and 6 <= datetime_now.hour <= 8):
+            return False
+        logger.info("The game server is updating, delay the pending tasks to 9:00")
+        logger.warning('Delay pending tasks')
+        # running 中的必然是 Restart
+        for task in self.config.pending_task:
+            print(task.command)
+            self.set_next_run(task=task.command, target=datetime_now.replace(hour=9, minute=0, second=0, microsecond=0))
+        return True
 
 
 if __name__ == '__main__':
@@ -66,6 +79,8 @@ if __name__ == '__main__':
     config = Config('oas1')
     device = Device(config)
     task = ScriptTask(config, device)
+    task.config.update_scheduler()
+    task.delay_pending_tasks()
     task.app_restart()
     # task.screenshot()
     # print(task.appear_then_click(task.I_LOGIN_SCROOLL_CLOSE, threshold=0.9))
