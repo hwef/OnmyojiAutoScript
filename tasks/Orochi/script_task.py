@@ -383,6 +383,8 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                     # 检查自选御魂弹窗
                     if self.current_count <= 1:
                         if self.appear_then_click(self.I_UI_BACK_RED):
+                            # 出现关闭御魂弹窗，说明没选择自选御魂，当前自选次数减一
+                            self.current_count -= 1
                             continue
                     action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
                     if not self.appear(self.I_GREED_GHOST):
@@ -399,6 +401,8 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                     # 检查自选御魂弹窗
                     if self.current_count <= 1:
                         if self.appear_then_click(self.I_UI_BACK_RED):
+                            # 出现关闭御魂弹窗，说明没选择自选御魂，当前自选次数减一
+                            self.current_count -= 1
                             continue
                     action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
                     if self.appear_then_click(self.I_REWARD, action=action_click, interval=1.5):
