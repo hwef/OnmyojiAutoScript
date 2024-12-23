@@ -49,8 +49,8 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
                 if con.honor_full_exit and self.check_honor():
                     # 荣誉满了，退出
                     logger.info('Duel task is over honor')
-                break
-            self.duel_one(current_score, con.green_enable, con.green_mark)
+                    break
+            self.duel_one(con.green_enable, con.green_mark)
 
         # 记得退回去到町中
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_TOWN)
@@ -123,7 +123,7 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
                 continue
             return current_score if current_score <= target else None
 
-    def duel_one(self, current_score: int, enable: bool=False,
+    def duel_one(self, enable: bool=False,
                  mark_mode: GreenMarkType=GreenMarkType.GREEN_MAIN) -> bool:
         """
         进行一次斗技， 返回输赢结果
@@ -156,7 +156,7 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
                 self.device.stuck_record_add('BATTLE_STATUS_S')
                 self.wait_until_disappear(self.I_D_WORD_BATTLE)
                 break
-            if current_score <= 1800 and self.appear(self.I_D_PREPARE):
+            if self.appear(self.I_D_PREPARE):
                 # 低段位有的准备
                 self.ui_click(self.I_D_PREPARE, self.I_D_PREPARE_DONE)
                 self.wait_until_disappear(self.I_D_PREPARE_DONE)
