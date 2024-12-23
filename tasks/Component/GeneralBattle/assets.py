@@ -107,9 +107,9 @@ class GeneralBattleAssets:
 	I_DE_WIN = RuleImage(roi_front=(472,49,100,100), roi_back=(239,36,399,133), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_de_win.png")
 	# description 
 	I_PRESENT_LESS_THAN_5 = RuleImage(roi_front=(222,648,418,43), roi_back=(222,648,418,43), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_present_less_than_5.png")
-	# 御魂溢出确认
+	# 御魂溢出确认 
 	I_SOUL_FULL_ENSURE = RuleImage(roi_front=(573,388,35,63), roi_back=(573,388,35,63), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_exit_ensure.png")
-	# 结算时左下角统计图标
+	# 结算时左下角统计图标 
 	I_REWARD_STATISTICS = RuleImage(roi_front=(51,629,54,59), roi_back=(17,305,643,389), threshold=0.7, method="Template matching mask", file="./tasks/Component/GeneralBattle/gb/gb_reward_statistics.png")
 
 
@@ -123,8 +123,8 @@ class GeneralBattleAssets:
 	O_BATTLE_PREPARE = RuleOcr(roi=(1122,546,92,51), area=(1122,546,92,51), mode="Single", method="Default", keyword="准备", name="battle_prepare")
 	# 预设,部分场景预设按钮上的文字为'预设'+数字,导致点击preset失败 
 	O_PRESET = RuleOcr(roi=(20,620,60,80), area=(20,620,60,80), mode="Single", method="Default", keyword="预", name="preset")
-    # 预设
-	O_PRESET_FULL = RuleOcr(roi=(20,620,60,80), area=(20,620,60,80), mode="Single", method="Default", keyword="预设", name="preset")
+	# 预设 
+	O_PRESET_FULL = RuleOcr(roi=(20,620,60,80), area=(20,620,60,80), mode="Single", method="Default", keyword="预设", name="preset_full")
 
 
 	# Swipe Rule Assets
