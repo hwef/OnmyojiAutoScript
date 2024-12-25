@@ -89,7 +89,7 @@ class GeneralInvite(BaseTask, GeneralInviteAssets):
 
             fire = False  # 是否开启挑战
             # 如果这个房间最多只容纳两个人（意思是只可以邀请一个人），且已经邀请一个人了，那就开启挑战
-            if self.room_type == RoomType.NORMAL_2 and not self.appear(self.I_ADD_2):
+            if self.room_type == RoomType.NORMAL_2 and not self.appear(self.I_ADD_1):
                 logger.info('Start challenge and this room can only invite one friend')
                 fire = True
             # 如果这个房间最多容纳三个人（意思是可以邀请两个人），且设定邀请一个就开启挑战，那就开启挑战
@@ -188,9 +188,6 @@ class GeneralInvite(BaseTask, GeneralInviteAssets):
             if not self.appear(self.I_GI_SURE) and self.appear_then_click(self.I_BACK_YELLOW, interval=0.8):
                 self.wait_until_appear(self.I_GI_SURE, wait_time=0.8)
                 continue
-            if not self.appear(self.I_GI_SURE) and self.appear_then_click(self.I_BACK_YELLOW_SEA, interval=0.8):
-                self.wait_until_appear(self.I_GI_SURE, wait_time=0.8)
-                continue
         return True
 
     def click_fire(self):
@@ -200,8 +197,7 @@ class GeneralInvite(BaseTask, GeneralInviteAssets):
                 break
             if self.appear_then_click(self.I_FIRE, interval=1, threshold=0.7):
                 continue
-            if self.appear_then_click(self.I_FIRE_SEA, interval=1, threshold=0.7):
-                continue
+
     @cached_property
     def room_type(self) -> RoomType:
         """
@@ -230,7 +226,7 @@ class GeneralInvite(BaseTask, GeneralInviteAssets):
 
         def check_2(img) -> bool:
             appear = False
-            if not self.I_ADD_1.match(img) and self.I_ADD_2.match(img):
+            if self.I_ADD_1.match(img) and not self.I_ADD_2.match(img):
                 appear = True
             return appear
 
@@ -345,9 +341,9 @@ class GeneralInvite(BaseTask, GeneralInviteAssets):
                 break
             if self.appear_then_click(self.I_ADD_2, interval=1):
                 continue
-            if self.appear_then_click(self.I_ADD_5_4, interval=1):
+            if self.appear_then_click(self.I_ADD_1, interval=1):
                 continue
-            if self.appear_then_click(self.I_ADD_SEA, interval=1):
+            if self.appear_then_click(self.I_ADD_5_4, interval=1):
                 continue
 
         friend_class = []

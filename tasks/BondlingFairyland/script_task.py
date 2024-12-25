@@ -8,7 +8,7 @@ import numpy as np
 from time import sleep
 from cached_property import cached_property
 from datetime import datetime, timedelta
-from tasks.Component.GeneralInvite.general_invite import GeneralInvite
+from tasks.BondlingFairyland.general_invite import GeneralInvite
 from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
 
 from tasks.base_task import BaseTask
@@ -896,7 +896,7 @@ if __name__ == '__main__':
     from module.device.device import Device
     import cv2
 
-    config = Config('oas1')
+    config = Config('du')
     device = Device(config)
     task = ScriptTask(config, device)
     image = task.screenshot()
