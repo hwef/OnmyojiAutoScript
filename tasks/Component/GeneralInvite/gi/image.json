@@ -65,8 +65,8 @@
   {
     "itemName": "fire_fail_sea",
     "imageName": "gi_fire_fail_sea.png",
-    "roiFront": "1160,585,100,100",
-    "roiBack": "1160,585,100,100",
+    "roiFront": "1160,585,100,70",
+    "roiBack": "1160,585,100,70",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "永生之海挑战（还未有队友的图片）"
@@ -74,8 +74,8 @@
   {
     "itemName": "fire_sea",
     "imageName": "gi_fire_sea.png",
-    "roiFront": "1160,586,100,97",
-    "roiBack": "1160,586,100,97",
+    "roiFront": "1160,586,100,68",
+    "roiBack": "1160,586,100,68",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"
@@ -358,5 +358,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "三人御魂组队左上角的协站队伍"
+  },
+  {
+    "itemName": "back_yellow_sea",
+    "imageName": "gi_back_yellow_sea.png",
+    "roiFront": "31,16,42,42",
+    "roiBack": "31,16,42,42",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "description"
   }
 ]
