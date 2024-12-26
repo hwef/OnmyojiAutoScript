@@ -46,9 +46,9 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
             #     # 荣誉满了，退出
             #     logger.info('Duel task is over honor')
             #     break
-            current_score = self.check_score(con.target_score)
+            current_score = self.check_score()
             # 当前分数跟目标分数比较
-            if current_score >= target:
+            if current_score >= con.target_score:
                 # 分数够了
                 logger.info('Duel task is over score')
                 # 是否刷满荣誉就退出
@@ -106,7 +106,7 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
             return True
         return False
 
-    def check_score(self, target: int) -> int or None:
+    def check_score(self) -> int or None:
         """
         检查是否达到目标分数
         :param target: 目标分数
