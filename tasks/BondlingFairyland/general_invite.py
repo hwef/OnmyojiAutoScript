@@ -13,6 +13,8 @@ from tasks.base_task import BaseTask
 from tasks.Component.GeneralInvite.assets import GeneralInviteAssets
 from tasks.Component.GeneralInvite.config_invite import InviteConfig, InviteNumber, FindMode
 from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
+from tasks.BondlingFairyland.assets import BondlingFairylandAssets
+
 from module.logger import logger
 
 
@@ -34,7 +36,7 @@ class RoomType(str, Enum):
     NORMAL_5 = 'normal_5'
 
 
-class GeneralInvite(BaseTask, GeneralInviteAssets):
+class GeneralInvite(BaseTask, BondlingFairylandAssets, GeneralInviteAssets):
     timer_invite = None
     timer_wait = None
     timer_emoji = None  # 等待期间如果没有操作的话，可能会导致长时间无响应报错
