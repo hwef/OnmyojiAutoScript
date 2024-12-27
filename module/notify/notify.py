@@ -102,4 +102,12 @@ class Notifier:
         return True
 
 
+if __name__ == '__main__':
+    from module.config.config import Config
+    from module.device.device import Device
+
+    config = Config('oas1')
+    device = Device(config)
+    config.notifier.push(title='契灵之境', content='契灵数量已达上限500，请及时处理')
+
 
