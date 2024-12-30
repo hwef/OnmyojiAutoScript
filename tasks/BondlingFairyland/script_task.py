@@ -106,7 +106,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             #     logger.info('Orochi count limit out')
             #     break
             if datetime.now() - self.start_time >= self.limit_time:
-                logger.info('Orochi time limit out')
+                logger.info('BondlingFairyland time limit out')
                 break
 
             if self.check_then_accept():
@@ -682,6 +682,8 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
 
             if self.current_count >= self.limit_count:
                 if self.appear(self.I_GI_IN_ROOM):
+                    # 等待三秒让队员进房间,避免队员没进房间出现异常
+                    sleep(3)
                     logger.info('bondling_fairyland count limit out')
                     break
 
@@ -865,6 +867,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
                 break
 
             if self.is_in_room():
+                logger.info("进入到组队房间！is_in_room")
                 return True
             # 被秒开
             # https://github.com/runhey/OnmyojiAutoScript/issues/230
