@@ -90,4 +90,4 @@ class WantedQuestsConfig(BaseModel):
 class WantedQuests(ConfigBase):
     scheduler: Scheduler = Field(default_factory=Scheduler)
     wanted_quests_config: WantedQuestsConfig = Field(default_factory=WantedQuestsConfig)
-    switch_soul_config: SwitchSoulConfig = Field(default_factory=SwitchSoulConfig)
+    # switch_soul_config: SwitchSoulConfig = Field(default_factory=SwitchSoulConfig)
