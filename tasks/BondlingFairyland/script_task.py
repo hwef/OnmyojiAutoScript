@@ -70,6 +70,17 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
         self.current_count = 0
         self.limit_count: int = limit_count
 
+        if UserStatus.handoff1 == cong.bondling_config.user_status:
+            self.limit_count: int = limit_count//2
+            self.switch_ball()
+        if UserStatus.handoff2 == cong.bondling_config.user_status:
+            self.limit_count: int = limit_count//2
+            self.run_member()
+            self.current_count = 0
+            self.ui_get_current_page()
+            self.ui_goto(page_bondling_fairyland)
+            self.switch_ball()
+
         match cong.bondling_config.user_status:
             case UserStatus.LEADER:
                 self.switch_ball()
@@ -139,14 +150,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             if self.exit_battle():
                 pass
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
 
-        if success:
-            self.set_next_run(task='BondlingFairyland', finish=True, success=True)
-        else:
-            self.set_next_run(task='BondlingFairyland', finish=True, success=False)
-        raise TaskEnd
 
     def switch_ball(self):
         cong = self.config.bondling_fairyland
@@ -213,11 +217,6 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
         self.ui_get_current_page()
         self.ui_goto(page_main)
 
-        if success:
-            self.set_next_run(task='BondlingFairyland', finish=True, success=True)
-        else:
-            self.set_next_run(task='BondlingFairyland', finish=True, success=False)
-        raise TaskEnd
 
     def run_stone(self, bondling_stone_enable: bool, bondling_stone_class: BondlingClass):
         """
@@ -382,6 +381,12 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             cong = self.config.bondling_fairyland
             match cong.bondling_config.user_status:
                 case UserStatus.LEADER:
+                    if self.run_leader():
+                        return success
+                case UserStatus.handoff1:
+                    if self.run_leader():
+                        return success
+                case UserStatus.handoff2:
                     if self.run_leader():
                         return success
                 case UserStatus.ALONE:
@@ -724,12 +729,14 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             pass
 
         self.ui_get_current_page()
+        self.ui_goto(page_bondling_fairyland)
+        # 引用配置
+        if UserStatus.handoff1 == self.config.bondling_fairyland.bondling_config.user_status:
+            self.current_count = 0
+            self.run_member()
+        self.ui_get_current_page()
         self.ui_goto(page_main)
-
-        if success:
-            self.set_next_run(task='BondlingFairyland', finish=True, success=True)
-        else:
-            self.set_next_run(task='BondlingFairyland', finish=True, success=False)
+        self.set_next_run(task='BondlingFairyland', finish=True, success=True)
         raise TaskEnd
 
     def wait_battle(self, wait_time: time) -> bool:
