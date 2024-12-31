@@ -289,6 +289,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         """
         # 获取真蛇成功次数
         global current_success, true_orochi_config
+        days_num = 1
         if task == 'TrueOrochi':
             current_success = self.model.true_orochi.true_orochi_config.current_success
 
@@ -321,7 +322,14 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             )
             if isinstance(interval, str):
                 interval = timedelta(interval)
-            run.append(start_time + interval)
+
+            if interval.days > 1:
+                days_num = interval.days
+                days7 = datetime.now() + timedelta(days=interval.days)
+                run.append(datetime.combine(days7, scheduler.server_update))
+            else:
+                days_num = 1
+                run.append(start_time + interval)
         # if server is not None:
         #     if server:
         #         server = scheduler.server_update
@@ -349,7 +357,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             random_float = random.randint(-float_seconds, float_seconds)
             # 如果有强制运行时间
 
-            if target is None and success:
+            if target is None and success and days_num == 1:
                 if scheduler.server_update == time(hour=9):
                     next_run += timedelta(seconds=random_float)
                 else:
