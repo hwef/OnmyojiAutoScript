@@ -149,7 +149,12 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             # 如果还在战斗中，就退出战斗
             if self.exit_battle():
                 pass
-
+                # 引用配置
+        if UserStatus.MEMBER == self.config.bondling_fairyland.bondling_config.user_status:
+            self.ui_get_current_page()
+            self.ui_goto(page_main)
+            self.set_next_run(task='BondlingFairyland', finish=True, success=True)
+            raise TaskEnd
 
 
     def switch_ball(self):
@@ -216,6 +221,8 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
 
         self.ui_get_current_page()
         self.ui_goto(page_main)
+        self.set_next_run(task='BondlingFairyland', finish=True, success=True)
+        raise TaskEnd
 
 
     def run_stone(self, bondling_stone_enable: bool, bondling_stone_class: BondlingClass):
@@ -687,6 +694,8 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
 
             if self.current_count >= self.limit_count:
                 if self.appear(self.I_GI_IN_ROOM):
+                    # 次数达到也要邀请好友进房间,然后退出,不然队员无法判断是否完成契灵,出现异常
+                    self.run_invite(config=self.config.bondling_fairyland.invite_config, is_over=False)
                     # 等待三秒让队员进房间,避免队员没进房间出现异常
                     sleep(3)
                     logger.info('bondling_fairyland count limit out')
@@ -906,7 +915,7 @@ if __name__ == '__main__':
     from module.device.device import Device
     import cv2
 
-    config = Config('oas1')
+    config = Config('du')
     device = Device(config)
     task = ScriptTask(config, device)
     image = task.screenshot()

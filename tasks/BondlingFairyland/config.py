@@ -31,8 +31,8 @@ class BondlingClass(str, Enum):
 # 中级契灵盘 Medium Bondling Discs
 # 高级契灵盘 High Bondling Discs
 class UserStatus(str, Enum):
-    # LEADER = 'leader'
-    # MEMBER = 'member'
+    LEADER = 'leader'
+    MEMBER = 'member'
     ALONE = 'alone'
     handoff1 = 'handoff1'
     handoff2 = 'handoff2'
