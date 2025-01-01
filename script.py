@@ -90,11 +90,14 @@ class Script:
         from module.handler.sensitive_info import (handle_sensitive_image,
                                                    handle_sensitive_logs)
         if self.config.script.error.save_error:
-            if not os.path.exists('./log/error'):
-                os.mkdir('./log/error')
+            # error_path ='./log/error/'
+            error_path ='F:\OneDrive\log/error/'
+            if not os.path.exists(error_path):
+                os.mkdir(error_path)
             config_name = self.config.config_name
             today_date = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-            folder = f'./log/error/{today_date}'
+            folder = f'{error_path}{today_date}'
+            # folder = f'./log/error/{today_date}'
             logger.warning(f'Saving error: {folder}')
             os.mkdir(folder)
             for data in self.device.screenshot_deque:

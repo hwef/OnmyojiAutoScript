@@ -694,7 +694,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         time.sleep(2)
         self.screenshot()
 
-        logger.info("保存道馆奖励截图")
         image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
 
         # 获取今日日期并格式化为字符串
@@ -703,7 +702,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
         config_name = self.config.config_name
         # 设置保存图像的文件夹，包含今日日期
-        save_folder = Path(f'./log/Dokan/{today_date}')
+        # save_folder = Path(f'./log/Dokan/{today_date}')
+        save_folder = Path(f'F:\OneDrive/log\Dokan/{today_date}')
+
         save_folder.mkdir(parents=True, exist_ok=True)
 
         # 设置图像名称
@@ -711,6 +712,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
         # 保存图像
         cv2.imwrite(str(save_folder / f'{image_name}.png'), image)
+        logger.info("保存道馆奖励截图")
 
 if __name__ == "__main__":
     from module.config.config import Config
@@ -719,7 +721,8 @@ if __name__ == "__main__":
     config = Config('oas1')
     device = Device(config)
     t = ScriptTask(config, device)
-    t.run()
+    t.save_image()
+    # t.run()
 
     # test_ocr_locate_dokan_target()
     # test_anti_detect_random_click()

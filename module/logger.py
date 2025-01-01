@@ -99,13 +99,14 @@ pyw_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
 
 def set_file_logger(name=pyw_name):
+    log_home ='F:\OneDrive\log/'
     if '_' in name:
         name = name.split('_', 1)[0]
-    log_file = f'./log/{datetime.date.today()}_{name}.txt'
+    log_file = f'{log_home}{datetime.date.today()}_{name}.txt'
     try:
         file = open(log_file, mode='a', encoding='utf-8')
     except FileNotFoundError:
-        os.mkdir('./log')
+        os.mkdir(log_home)
         file = open(log_file, mode='a', encoding='utf-8')
 
     file_console = Console(
