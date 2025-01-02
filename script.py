@@ -91,7 +91,7 @@ class Script:
                                                    handle_sensitive_logs)
         if self.config.script.error.save_error:
             # error_path ='./log/error/'
-            error_path ='F:\OneDrive\log/error/'
+            error_path ='F:\OneDrive/error/'
             if not os.path.exists(error_path):
                 os.mkdir(error_path)
             config_name = self.config.config_name

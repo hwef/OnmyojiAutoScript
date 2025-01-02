@@ -703,7 +703,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         config_name = self.config.config_name
         # 设置保存图像的文件夹，包含今日日期
         # save_folder = Path(f'./log/Dokan/{today_date}')
-        save_folder = Path(f'F:\OneDrive/log\Dokan/{today_date}')
+        save_folder = Path(f'F:\OneDrive\Dokan/{today_date}')
 
         save_folder.mkdir(parents=True, exist_ok=True)
 
