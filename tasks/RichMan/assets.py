@@ -22,7 +22,7 @@ class RichManAssets:
 	# 黑蛋碎片 
 	I_GUILD_SCRAP = RuleImage(roi_front=(570,439,71,68), roi_back=(331,160,559,372), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_scrap.png")
 	# 皮肤券 
-	I_GUILD_SKIN = RuleImage(roi_front=(795,438,71,72), roi_back=(320,162,573,371), threshold=0.6, method="Template matching", file="./tasks/RichMan/guild/guild_guild_skin.png")
+	I_GUILD_SKIN = RuleImage(roi_front=(795,438,71,72), roi_back=(320,162,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_skin.png")
 	# 购买检查 
 	I_GUILD_CHECK_SCRAP = RuleImage(roi_front=(561,429,90,88), roi_back=(561,429,90,88), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_check_scrap.png")
 
@@ -198,7 +198,7 @@ class RichManAssets:
 	# 左数第二个 
 	O_MALL_RESOURCE_2 = RuleOcr(roi=(326,8,124,39), area=(326,8,124,39), mode="Digit", method="Default", keyword="", name="mall_resource_2")
 	# 左数第二个 
-	O_MALL_RESOURCE_3 = RuleOcr(roi=(533,9,107,38), area=(533,9,107,38), mode="Digit", method="Default", keyword="", name="mall_resource_3")
+	O_MALL_RESOURCE_3 = RuleOcr(roi=(550,9,107,38), area=(550,9,107,38), mode="Single", method="Default", keyword="", name="mall_resource_3")
 	# 左数第二个 
 	O_MALL_RESOURCE_4 = RuleOcr(roi=(739,8,100,39), area=(739,8,100,39), mode="Digit", method="Default", keyword="", name="mall_resource_4")
 	# 左数第二个 
@@ -301,7 +301,7 @@ class RichManAssets:
 
 	# Click Rule Assets
 	# description 
-	C_C_SHRINE = RuleClick(roi_front=(1098,261,56,100), roi_back=(1098,261,56,100), name="c_shrine")
+	C_C_SHRINE = RuleClick(roi_front=(1167,303,102,164), roi_back=(1167,303,102,164), name="c_shrine")
 
 
 	# Image Rule Assets
