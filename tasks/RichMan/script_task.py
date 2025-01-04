@@ -22,7 +22,9 @@ class ScriptTask(Mall, Guild, ThousandThings, Shrine):
         con: RichMan = self.config.rich_man
         self.execute_tt(con.thousand_things)
         self.execute_shrine(con.shrine)
+        # 功勋商店
         self.execute_guild(con.guild_store)
+        # 商店
         self.execute_mall()
 
         self.set_next_run(task='RichMan', success=True, finish=False)
