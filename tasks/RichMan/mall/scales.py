@@ -130,7 +130,7 @@ class Scales(Buy, MallNavbar):
             # 检查剩余数量
             remain_number = self.O_SCA_NUMBER_OROCHI.ocr(self.device.image)
             if remain_number == 0:
-                logger.warning(f'The remaining purchase quantity of xx is {remain_number}')
+                logger.warning(f'朴素御魂可购买数量: {remain_number}')
                 return
             # 检查钱是否够
             cu, res, total = self.O_SCA_RES_OROCHI.ocr(self.device.image)
@@ -138,7 +138,7 @@ class Scales(Buy, MallNavbar):
                 logger.warning('OCR error')
                 continue
             if cu < 50:
-                logger.warning('Scales orochi money can not buy two')
+                logger.warning(f'紫色蛇皮不足,数量:{cu}')
                 return
             # 购买
             self._scales_buy_more(self.I_SCA_OROCHI_SCALES)
