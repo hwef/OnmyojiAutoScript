@@ -41,6 +41,8 @@ class NextDayOrochiConfig(BaseModel):
     limit_count: int = Field(default=30, description='limit_count_help')
     # 启动时间
     start_time: Time = Field(default=Time(hour=11), description='启动时间')
+    # 清理御魂
+    soulstidy_enabled: bool = Field(default=False, description='清理御魂')
 
 
 class OrochiConfig(ConfigBase):

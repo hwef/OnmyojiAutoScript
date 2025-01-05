@@ -86,7 +86,8 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
 
         self.set_next_run(task='RealmRaid', target=datetime.now())
         self.set_next_run(task='TalismanPass', target=datetime.now())
-        self.set_next_run(task='SoulsTidy',target=datetime.now())
+        if self.config.orochi.next_day_orochi_config.soulstidy_enabled:
+            self.set_next_run(task='SoulsTidy',target=datetime.now())
 
         raise TaskEnd
 
