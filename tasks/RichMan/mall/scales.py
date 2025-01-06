@@ -121,12 +121,13 @@ class Scales(Buy, MallNavbar):
         if buy_number == 0:
             logger.info('The purchase quantity of Scales orochi is 0')
             return
+        self.screenshot()
+        # 检查是否出现了购买按钮
+        if not self.appear(self.I_SCA_OROCHI_SCALES):
+            logger.warning('Scales orochi is not appear')
+            return
         while True:
             self.screenshot()
-            # 检查是否出现了购买按钮
-            if not self.appear(self.I_SCA_OROCHI_SCALES):
-                logger.warning('Scales orochi is not appear')
-                return
             # 检查剩余数量
             remain_number = self.O_SCA_NUMBER_OROCHI.ocr(self.device.image)
             if remain_number == 0:

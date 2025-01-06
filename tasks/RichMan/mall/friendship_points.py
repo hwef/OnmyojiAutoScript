@@ -57,9 +57,11 @@ class FriendshipPoints(Special):
         if '万' in current_money:
             # 点击购买
             return self.buy_one(buy_button, buy_check)
-        if not isinstance(current_money, int):
-            logger.warning('Money ocr failed')
-            return False
+        else:
+            current_money = int(current_money)
+        # if not isinstance(current_money, int):
+        #     logger.warning('Money ocr failed')
+        #     return False
         money_enough = current_money >= buy_money
         if not money_enough:
             logger.warning(f'No enough money {current_money}')
@@ -104,9 +106,11 @@ class FriendshipPoints(Special):
             match = re.search(r'\d+', current_money)
             if match:
                 current_money = int(match.group()) * 10000
-        if not isinstance(current_money, int):
-            logger.warning('Money ocr failed')
-            return
+        else:
+            current_money = int(current_money)
+        # if not isinstance(current_money, int):
+        #     logger.warning('Money ocr failed')
+        #     return
         money_enough = current_money >= buy_money * buy_number
         if not money_enough:
             logger.warning(f'Money is not enough {current_money}')
