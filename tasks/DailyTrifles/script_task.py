@@ -37,7 +37,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets):
             self.run_luck_msg()
         # 商店签到 or 购买寿司
         if con.store_sign or con.buy_sushi_count > 0:
-            self.run_store_sign()
+            self.run_store()
         self.set_next_run('DailyTrifles', success=True, finish=False)
         raise TaskEnd('DailyTrifles')
 
@@ -141,6 +141,8 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets):
             self.screenshot()
             if self.appear(self.I_LUCK_TITLE):
                 break
+            if self.appear_then_click(self.I_FRIENDSHIP_UP, interval=1):
+                continue
             if self.appear_then_click(self.I_LUCK_MSG, interval=1):
                 continue
         logger.info('Start luck msg')
@@ -169,6 +171,8 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets):
             self.screenshot()
             if self.appear(self.I_L_LOVE):
                 break
+            if self.appear_then_click(self.I_FRIENDSHIP_UP, interval=1):
+                continue
             if self.appear_then_click(self.I_L_FRIENDS, interval=1):
                 continue
         logger.info('Start friend love')
