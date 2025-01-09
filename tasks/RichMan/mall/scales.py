@@ -138,7 +138,7 @@ class Scales(Buy, MallNavbar):
             if cu + res != total:
                 logger.warning('OCR error')
                 continue
-            if cu < 50:
+            if cu < 100:
                 logger.warning(f'紫色蛇皮不足,数量:{cu}')
                 return
             # 购买
@@ -355,10 +355,14 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas2')
+    c = Config('oas1')
     d = Device(c)
     t = Scales(c, d)
 
-    t.execute_scales()
+    # t.execute_scales()
+
+    # 朴素的御魂
+    con = c.rich_man.scales
+    t._scales_orochi_new(con.orochi_scales)
 
 
