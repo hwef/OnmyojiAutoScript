@@ -27,6 +27,15 @@
     "description": "description"
   },
   {
+    "itemName": "login_red_close_1",
+    "imageName": "login_login_red_close_1.png",
+    "roiFront": "800,0,480,290",
+    "roiBack": "800,0,480,290",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "description"
+  },
+  {
     "itemName": "login_yellow_close",
     "imageName": "login_login_yellow_close.png",
     "roiFront": "29,17,46,44",

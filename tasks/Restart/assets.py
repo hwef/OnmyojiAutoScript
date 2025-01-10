@@ -73,9 +73,11 @@ class RestartAssets:
 	I_LOGIN_SCROOLL_OPEN = RuleImage(roi_front=(1208,609,33,83), roi_back=(1208,609,33,83), threshold=0.8, method="Template matching", file="./tasks/Restart/login/login_login_scrooll_open.png")
 	# 庭院卷轴关闭 
 	I_LOGIN_SCROOLL_CLOSE = RuleImage(roi_front=(1181,634,28,39), roi_back=(1162,595,77,112), threshold=0.7, method="Template matching", file="./tasks/Restart/login/login_login_scrooll_close.png")
-	# description 
+	# description
 	I_LOGIN_RED_CLOSE = RuleImage(roi_front=(912,0,360,290), roi_back=(912,0,360,290), threshold=0.8, method="Template matching", file="./tasks/Restart/login/login_login_red_close.png")
-	# description 
+	# description
+	I_LOGIN_RED_CLOSE_1 = RuleImage(roi_front=(800,0,480,290), roi_back=(800,0,480,290), threshold=0.8, method="Template matching", file="./tasks/Restart/login/login_login_red_close_1.png")
+	# description
 	I_LOGIN_YELLOW_CLOSE = RuleImage(roi_front=(29,17,46,44), roi_back=(0,0,94,86), threshold=0.8, method="Template matching", file="./tasks/Restart/login/login_login_yellow_close.png")
 	# 用于判断是否出现登录选区的 
 	I_LOGIN_8 = RuleImage(roi_front=(178,572,53,60), roi_back=(1,547,241,105), threshold=0.8, method="Template matching", file="./tasks/Restart/login/login_login_8.png")
