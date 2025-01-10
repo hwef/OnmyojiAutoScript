@@ -192,10 +192,20 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         # f = Filter(regex=r"(.*)", attr=["command"])
         # f.load(self.SCHEDULER_PRIORITY)
         if pending_task:
+            # 先按照过滤器排序
+            pending_task = TaskScheduler.filter.apply(pending_task)
+            # 再按照优先级排序
             pending_task = TaskScheduler.schedule(rule=self.model.script.optimization.schedule_rule,
                                                   pending=pending_task)
         if waiting_task:
             # waiting_task = f.apply(waiting_task)
+            #
+            # 先按照过滤器排序
+            waiting_task = TaskScheduler.filter.apply(waiting_task)
+            # 再按照优先级排序
+            waiting_task = TaskScheduler.schedule(rule=self.model.script.optimization.schedule_rule,
+                                                  pending=waiting_task)
+            # 最后按照执行时间排序
             waiting_task = sorted(waiting_task, key=operator.attrgetter("next_run"))
         if error:
             pending_task = error + pending_task
