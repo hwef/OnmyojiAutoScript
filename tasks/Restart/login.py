@@ -69,10 +69,6 @@ class LoginHandler(BaseTask, RestartAssets):
             if self.appear_then_click(self.I_LOGIN_RED_CLOSE, interval=0.6):
                 logger.info('Close red close')
                 continue
-            # 右上角的红色的关闭
-            if self.appear_then_click(self.I_LOGIN_RED_CLOSE_1, interval=0.6):
-                logger.info('Close red close')
-                continue
             # 左上角的黄色关闭
             if self.appear_then_click(self.I_LOGIN_YELLOW_CLOSE, interval=0.6):
                 logger.info('Close yellow close')
@@ -212,6 +208,11 @@ class LoginHandler(BaseTask, RestartAssets):
 
             # 红色的关闭
             if self.appear_then_click(self.I_UI_BACK_RED, interval=2.3):
+                timer_harvest.reset()
+                continue
+            # 红色的关闭
+            if self.appear(self.I_LOGIN_RED_CLOSE_1):
+                self.click(self.I_LOGIN_RED_CLOSE_1, interval=2)
                 timer_harvest.reset()
                 continue
 
