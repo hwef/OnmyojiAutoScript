@@ -51,7 +51,7 @@ class ScriptTask(LoginHandler):
             if now.time() < time(12, 0):
                 self.custom_next_run(task='Restart', custom_time=Time(hour=12, minute=0, second=0), time_delta=0)
             # 如果时间在12:00-20:00之间则设定时间为当日 20 时
-            elif now.time() >= time(12, 0) and now.time() < time(20, 0):
+            elif time(12, 0) <= now.time() < time(20, 0):
                 self.custom_next_run(task='Restart', custom_time=Time(hour=20, minute=0, second=0), time_delta=0)
             # 如果时间在20:00-23:59之间则设定时间为次日 12 时
             else:
