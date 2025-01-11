@@ -30,6 +30,8 @@ from tasks.Component.Costume.costume_base import CostumeBase
 
 from module.exception import GameStuckError, ScriptError
 from tasks.Component.config_base import ConfigBase, Time
+from pathlib import Path
+import cv2
 
 
 class BaseTask(GlobalGameAssets, CostumeBase):
@@ -94,7 +96,8 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             case FriendInvitation.JADE_SUSHI_FOOD:
                 # 如果是接受勾协和粮协和体协
                 logger.info(f"Accept jade and food and sushi invitation")
-                if self.appear(self.I_G_JADE) or self.appear(self.I_G_CAT_FOOD) or self.appear(self.I_G_DOG_FOOD) or self.appear(self.I_G_SUSHI):
+                if self.appear(self.I_G_JADE) or self.appear(self.I_G_CAT_FOOD) or self.appear(
+                        self.I_G_DOG_FOOD) or self.appear(self.I_G_SUSHI):
                     click_button = self.I_G_ACCEPT
                 else:
                     click_button = self.I_G_IGNORE
@@ -523,6 +526,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                                                                             minute=custom_time.minute,
                                                                             second=custom_time.second)
         self.set_next_run(task, target=target_time)
+
     #  ---------------------------------------------------------------------------------------------------------------
     #
     #  ---------------------------------------------------------------------------------------------------------------
@@ -535,7 +539,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             self.screenshot()
         return self.appear_then_click(self.I_UI_REWARD, action=self.C_UI_REWARD, interval=0.4, threshold=0.6)
 
-    def ui_get_reward(self, click_image: RuleImage or RuleOcr or RuleClick, click_interval: float=1):
+    def ui_get_reward(self, click_image: RuleImage or RuleOcr or RuleClick, click_interval: float = 1):
         """
         传进来一个点击图片 或是 一个ocr， 会点击这个图片，然后等待‘获得奖励’，
         最后当获得奖励消失后 退出
@@ -575,7 +579,6 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 if self.click(click_image, interval=click_interval):
                     continue
 
-
         return True
 
     def ui_click(self, click, stop, interval=1):
@@ -597,7 +600,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             elif isinstance(click, RuleOcr) and self.ocr_appear_click(click, interval=interval):
                 continue
 
-    def ui_click_until_disappear(self, click, interval: float =1):
+    def ui_click_until_disappear(self, click, interval: float = 1):
         """
         点击一个按钮直到消失
         :param interval:
@@ -611,4 +614,21 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             elif self.appear_then_click(click, interval=interval):
                 continue
 
-
+    def save_image(self, file: str):
+        path = "F:/OneDrive"
+        sleep(2)
+        self.screenshot()
+        image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
+        # 获取今日日期并格式化为字符串
+        today_date = datetime.now().strftime('%Y-%m-%d')
+        today_time = datetime.now().strftime('%H-%M-%S')
+        config_name = self.config.config_name
+        # 设置保存图像的文件夹，包含今日日期
+        # save_folder = Path(f'./log/Dokan/{today_date}')
+        save_folder = Path(f'{path}/{file}/{today_date}')
+        save_folder.mkdir(parents=True, exist_ok=True)
+        # 设置图像名称
+        image_name = config_name + " " + today_time
+        # 保存图像
+        cv2.imwrite(str(save_folder / f'{image_name}.png'), image)
+        logger.info("保存截图")
