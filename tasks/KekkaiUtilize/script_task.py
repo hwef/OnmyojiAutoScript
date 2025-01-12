@@ -18,7 +18,7 @@ from tasks.KekkaiUtilize.utils import CardClass, target_to_card_class
 from tasks.Component.ReplaceShikigami.replace_shikigami import ReplaceShikigami
 from tasks.GameUi.page import page_main, page_guild
 
-
+# 结界蹭卡
 last_best_index = 99
 
 class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):

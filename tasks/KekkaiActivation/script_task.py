@@ -20,7 +20,7 @@ from tasks.KekkaiActivation.config import ActivationConfig
 from tasks.Utils.config_enum import ShikigamiClass
 from tasks.GameUi.page import page_main, page_guild
 
-
+# 结界挂卡
 class ScriptTask(KU, KekkaiActivationAssets):
 
     def run(self):

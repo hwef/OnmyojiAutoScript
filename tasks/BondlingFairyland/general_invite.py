@@ -94,29 +94,6 @@ class GeneralInvite(BaseTask, BondlingFairylandAssets, GeneralInviteAssets):
             if self.room_type == RoomType.NORMAL_2 and not self.appear(self.I_ADD_1):
                 logger.info('Start challenge and this room can only invite one friend')
                 fire = True
-            # 如果这个房间最多容纳三个人（意思是可以邀请两个人），且设定邀请一个就开启挑战，那就开启挑战
-            elif self.room_type == RoomType.NORMAL_3 and config.invite_number == InviteNumber.ONE and not self.appear(self.I_ADD_1):
-                logger.info('Start challenge and user only invite one friend')
-                fire = True
-            # 如果这个房间最多容纳三个人（意思是可以邀请两个人），且设定邀请两个就开启挑战，那就开启挑战
-            elif self.room_type == RoomType.NORMAL_3 \
-                    and config.invite_number == InviteNumber.TWO and not self.appear(self.I_ADD_2):
-                logger.info('Start challenge and user invite two friends')
-                fire = True
-            # 如果这个房间是五人的，且设定邀请一个就开启挑战，那就开启挑战
-            elif self.room_type == RoomType.NORMAL_5 \
-                    and config.invite_number == InviteNumber.ONE and not self.appear(self.I_ADD_5_1):
-                logger.info('Start challenge and user only invite one friend')
-                fire = True
-            # 如果这个房间是五人的，且设定邀请两个就开启挑战，那就开启挑战
-            elif self.room_type == RoomType.NORMAL_5 \
-                    and config.invite_number == InviteNumber.TWO and not self.appear(self.I_ADD_5_2):
-                logger.info('Start challenge and user invite two friends')
-                fire = True
-            # 如果是永生之海
-            elif self.room_type == RoomType.ETERNITY_SEA and not self.appear(self.I_ADD_SEA):
-                logger.info('Start challenge and this is lock sea')
-                fire = True
 
             # 点击挑战
             if fire:
