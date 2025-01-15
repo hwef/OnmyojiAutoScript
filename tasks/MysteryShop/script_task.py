@@ -18,6 +18,7 @@ from tasks.MysteryShop.assets import MysteryShopAssets
 from tasks.Component.GeneralInvite.general_invite import GeneralInvite
 from tasks.Component.GeneralInvite.config_invite import InviteConfig, InviteNumber, FindMode
 
+"""神秘商店"""
 class ScriptTask(FriendshipPoints, MysteryShopAssets, GeneralInvite):
 
     def run(self):

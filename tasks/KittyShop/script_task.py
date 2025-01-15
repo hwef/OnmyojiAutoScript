@@ -13,6 +13,7 @@ from tasks.GameUi.page import page_main
 from tasks.ActivityShikigami.assets import ActivityShikigamiAssets
 from tasks.KittyShop.assets import KittyShopAssets
 
+""" 猫咪经营 """
 class ScriptTask(GameUi, ActivityShikigamiAssets, KittyShopAssets):
 
     MAIN_BUSY: list = [KittyShopAssets.I_MAIN_BUSY_1,

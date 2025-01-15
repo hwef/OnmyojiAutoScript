@@ -17,6 +17,7 @@ from tasks.Component.GeneralInvite.general_invite import GeneralInvite
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.Hunt.assets import HuntAssets
 
+""" 狩猎战 """
 class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
     kirin_day = True  # 不是麒麟就是阴界之门
 

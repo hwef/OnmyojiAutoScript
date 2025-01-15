@@ -13,6 +13,8 @@ from module.logger import logger
 from module.exception import TaskEnd
 from module.base.timer import Timer
 
+
+""" 花车 巡游 """
 class ScriptTask(GameUi, FloatParadeAssets, TalismanPassAssets):
 
     def run(self):

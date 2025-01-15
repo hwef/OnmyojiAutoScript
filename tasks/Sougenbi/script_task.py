@@ -13,6 +13,7 @@ from tasks.GameUi.page import page_main, page_soul_zones, page_shikigami_records
 from module.logger import logger
 from module.exception import TaskEnd
 
+""" 业原火 """
 class ScriptTask(GeneralBattle, GameUi, SwitchSoul, SougenbiAssets):
 
     def run(self):
@@ -129,6 +130,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, SougenbiAssets):
             self.close_buff()
 
         self.set_next_run("Sougenbi", success=True, finish=True)
+        # 个人突破
         self.set_next_run(task='RealmRaid', target=datetime.now())
 
         raise TaskEnd

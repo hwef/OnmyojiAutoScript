@@ -18,6 +18,7 @@ from tasks.GoldYoukai.assets import GoldYoukaiAssets
 from tasks.GoldYoukai.config import GoldYoukaiConfig
 
 
+""" 金币妖怪 """
 class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, GoldYoukaiAssets):
 
     def run(self):

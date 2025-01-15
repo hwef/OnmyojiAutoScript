@@ -17,6 +17,7 @@ from module.logger import logger
 from module.exception import TaskEnd
 
 
+""" 觉醒 """
 class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi, EvoZoneAssets, SwitchSoul):
 
     def run(self) -> bool:

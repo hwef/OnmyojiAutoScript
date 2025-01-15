@@ -21,6 +21,7 @@ from tasks.FrogBoss.assets import FrogBossAssets
 from tasks.FrogBoss.config import Strategy
 
 
+"""对弈竞猜 呱老板"""
 class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
     def run(self):
         self.enter(self.I_FROG_BOSS_ENTER)

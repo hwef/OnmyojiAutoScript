@@ -41,10 +41,6 @@ class GeneralInvite(BaseTask, BondlingFairylandAssets, GeneralInviteAssets):
     timer_wait = None
     timer_emoji = None  # 等待期间如果没有操作的话，可能会导致长时间无响应报错
 
-    """
-
-    """
-
     def run_invite(self, config: InviteConfig, is_first: bool = False, is_over: bool = True) -> bool:
         """
         队长！！身份。。。在组队界面邀请好友（ 如果开启is_first） 等待队员进入开启挑战

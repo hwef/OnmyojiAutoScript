@@ -18,7 +18,7 @@ from module.exception import TaskEnd
 from module.logger import logger
 from module.base.timer import Timer
 
-
+"""年兽"""
 class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, NianAssets):
 
     def run(self) -> None:

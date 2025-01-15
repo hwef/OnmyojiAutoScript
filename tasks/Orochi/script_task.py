@@ -19,6 +19,7 @@ from tasks.Orochi.config import Orochi, UserStatus, Layer
 from module.logger import logger
 from module.exception import TaskEnd
 
+"""八岐大蛇"""
 class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi, SwitchSoul, OrochiAssets):
 
     def run(self):

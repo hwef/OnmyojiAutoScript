@@ -16,6 +16,8 @@ from tasks.Component.GeneralInvite.general_invite import GeneralInvite
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.ExperienceYoukai.assets import ExperienceYoukaiAssets
 
+
+""" 经验妖怪 """
 class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, ExperienceYoukaiAssets):
 
     def run(self):

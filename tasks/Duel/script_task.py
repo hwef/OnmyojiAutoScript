@@ -15,6 +15,7 @@ from tasks.GameUi.page import page_main, page_duel
 from tasks.Duel.config import Duel
 from tasks.Duel.assets import DuelAssets
 
+""" 斗技 """
 class ScriptTask(GameUi, GeneralBattle, DuelAssets):
     def run(self):
         con = self.config.duel.duel_config

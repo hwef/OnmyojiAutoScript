@@ -20,7 +20,7 @@ from module.atom.image_grid import ImageGrid
 from module.atom.image import RuleImage
 from module.atom.click import RuleClick
 
-
+"""个人突破"""
 class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
     medal_grid: ImageGrid = None
 

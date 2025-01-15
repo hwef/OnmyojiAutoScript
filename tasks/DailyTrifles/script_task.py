@@ -20,6 +20,8 @@ from module.base.timer import Timer
 from tasks.DailyTrifles.config import SummonType
 import re
 
+
+""" 每日琐事 """
 class ScriptTask(GameUi, Summon, DailyTriflesAssets):
 
     def run(self):

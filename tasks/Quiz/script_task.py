@@ -18,9 +18,12 @@ from module.atom.image_grid import ImageGrid
 from module.atom.image import RuleImage
 from module.atom.click import RuleClick
 
+
 class NoTicket(Exception):
     pass
 
+
+"""答题"""
 class ScriptTask(GameUi, QuizAssets, ActivityShikigamiAssets, Debugger):
 
     answer_cnt = 0

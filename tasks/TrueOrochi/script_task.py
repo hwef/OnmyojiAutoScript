@@ -17,7 +17,7 @@ from tasks.Orochi.config import Layer
 from tasks.GameUi.page import page_main, page_soul_zones, page_shikigami_records
 from tasks.TrueOrochi.assets import TrueOrochiAssets
 
-
+""" 真八岐大蛇 """
 class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
 
     def run(self):

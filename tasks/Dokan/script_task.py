@@ -27,6 +27,8 @@ from tasks.GameUi.page import page_main, page_shikigami_records, page_guild
 from tasks.RichMan.assets import RichManAssets
 from pathlib import Path
 
+
+""" 道馆 """
 class DokanScene(Enum):
     # 未知界面
     RYOU_DOKAN_SCENE_UNKNOWN = 0

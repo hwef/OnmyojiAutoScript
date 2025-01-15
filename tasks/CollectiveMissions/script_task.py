@@ -17,7 +17,7 @@ from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_guild
 from tasks.CollectiveMissions.assets import CollectiveMissionsAssets
 
-
+""" 集体任务 """
 class MC(str, Enum):
     BL = '契灵'
     AW1 = '觉醒一'
@@ -31,6 +31,7 @@ class MC(str, Enum):
     FRIEND = '结伴同行'
     UNKNOWN = '未知'
     FEED = '远远不够'  # 喂N卡
+
 
 class ScriptTask(GameUi, CollectiveMissionsAssets):
     missions: list = []  # 用于记录三个的任务的种类

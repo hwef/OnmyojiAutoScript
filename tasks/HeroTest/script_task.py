@@ -13,7 +13,7 @@ from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from module.logger import logger
 from module.exception import TaskEnd
 
-
+""" 英杰试炼 """
 class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
 
     is_update = False

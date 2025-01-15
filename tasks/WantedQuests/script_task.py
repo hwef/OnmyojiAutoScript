@@ -27,8 +27,7 @@ from typing import List
 from tasks.GameUi.page import page_shikigami_records
 from tasks.Secret.config import Secret
 
-
-
+""" 悬赏封印 """
 class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
     # 定义检查次数
     play_count = 0

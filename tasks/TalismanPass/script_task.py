@@ -13,7 +13,7 @@ from module.exception import TaskEnd
 from module.base.timer import Timer
 from datetime import timedelta, time, datetime
 
-
+""" 花合战 """
 class ScriptTask(GameUi, TalismanPassAssets):
 
     def run(self):

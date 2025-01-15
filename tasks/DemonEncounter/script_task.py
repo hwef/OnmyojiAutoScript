@@ -19,6 +19,8 @@ from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleCon
 from tasks.DemonEncounter.data.answer import Answer
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 
+
+""" 逢魔之时 """
 class LanternClass(Enum):
     BATTLE = 0  # 打怪  --> 无法判断因为怪的图片不一样，用排除法
     BOX = 1  # 开宝箱

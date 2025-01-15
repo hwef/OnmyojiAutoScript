@@ -28,7 +28,7 @@ from tasks.Hyakkiyakou.agent.agent import Agent
 from tasks.Hyakkiyakou.slave.hya_slave import HyaSlave
 from tasks.Hyakkiyakou.debugger import Debugger
 
-
+""" 百鬼夜行 """
 def plot_save(image, boxes):
     color_palette = np.random.uniform(0, 255, size=(226, 3))
     for box in boxes:

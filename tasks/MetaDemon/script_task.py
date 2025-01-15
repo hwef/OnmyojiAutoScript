@@ -17,6 +17,7 @@ from tasks.MetaDemon.assets import MetaDemonAssets
 from module.logger import logger
 from module.exception import TaskEnd
 
+"""超鬼王"""
 class ScriptTask(GeneralBattle, SwitchSoul, GameUi, MetaDemonAssets):
 
     def run(self):

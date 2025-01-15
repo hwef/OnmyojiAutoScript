@@ -20,6 +20,7 @@ from module.atom.image import RuleImage
 from typing import List
 
 
+""" 地域鬼王 """
 class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
 
     def run(self) -> bool:
@@ -483,7 +484,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('日常1')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
     # time.sleep(3)

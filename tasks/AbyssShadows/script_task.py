@@ -29,6 +29,7 @@ from pathlib import Path
 from tasks.AbyssShadows.config import AbyssShadows
 from tasks.AbyssShadows.assets import AbyssShadowsAssets
 
+""" 狭间暗域 """
 class AreaType:
     """ 暗域类型 """
     DRAGON = AbyssShadowsAssets.I_ABYSS_DRAGON  # 神龙暗域

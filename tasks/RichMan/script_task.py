@@ -15,7 +15,7 @@ from tasks.RichMan.guild import Guild
 from tasks.RichMan.shrine import Shrine
 from tasks.RichMan.thousand_things import ThousandThings
 
-
+"""大富翁"""
 class ScriptTask(Mall, Guild, ThousandThings, Shrine):
 
     def run(self):

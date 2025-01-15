@@ -20,7 +20,7 @@ from module.base.utils import point2str
 from module.base.timer import Timer
 from module.exception import GamePageUnknownError
 
-
+""" 寮突 """
 
 area_map = (
     {
@@ -72,6 +72,7 @@ def random_delay(min_value: float = 1.0, max_value: float = 2.0, decimal: int = 
     """
     random_float_in_range = random.uniform(min_value, max_value)
     return (round(random_float_in_range, decimal))
+
 
 class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
     medal_grid: ImageGrid = None

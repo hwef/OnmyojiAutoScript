@@ -10,7 +10,7 @@ from tasks.Orochi.script_task import ScriptTask as OrochiScriptTask
 from tasks.Pets.assets import PetsAssets
 from tasks.Pets.config import PetsConfig
 
-
+"""喂宠物 猫咪"""
 class ScriptTask(OrochiScriptTask, PetsAssets):
 
     def run(self):

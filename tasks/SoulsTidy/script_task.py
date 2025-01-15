@@ -14,6 +14,7 @@ from tasks.GameUi.page import page_main, page_shikigami_records
 from tasks.SoulsTidy.assets import SoulsTidyAssets
 from tasks.SoulsTidy.config import SimpleTidy
 
+""" 整理御魂 """
 class ScriptTask(GameUi, SoulsTidyAssets):
     def run(self):
         self.ui_get_current_page()

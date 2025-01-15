@@ -14,6 +14,7 @@ from tasks.Delegation.config import DelegationConfig
 from tasks.Delegation.assets import DelegationAssets
 
 
+""" 委派 """
 class ScriptTask(GameUi, DelegationAssets):
 
     def run(self):

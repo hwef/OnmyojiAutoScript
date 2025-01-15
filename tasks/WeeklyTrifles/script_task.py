@@ -12,8 +12,8 @@ from tasks.GameUi.page import page_main, page_collection, page_area_boss, page_s
 from tasks.WeeklyTrifles.config import Trifles
 from tasks.WeeklyTrifles.assets import WeeklyTriflesAssets
 
+""" 每周任务 """
 class ScriptTask(GameUi, WeeklyTriflesAssets):
-
     def run(self):
         con = self.config.weekly_trifles.trifles
         if con.share_collect:
@@ -27,7 +27,6 @@ class ScriptTask(GameUi, WeeklyTriflesAssets):
 
         self.set_next_run(task='WeeklyTrifles', success=True, finish=False)
         raise TaskEnd('WeeklyTrifles')
-
 
     def click_share(self, wechat) -> bool:
         """

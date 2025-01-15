@@ -17,7 +17,7 @@ from module.logger import logger
 from module.exception import RequestHumanTakeover, TaskEnd
 from module.atom.image_grid import ImageGrid
 
-
+""" 探索 """
 class ScriptTask(SoloScriptTask):
     pass
 

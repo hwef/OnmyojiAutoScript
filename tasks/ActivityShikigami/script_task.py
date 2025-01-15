@@ -18,7 +18,7 @@ from module.logger import logger
 from module.exception import TaskEnd
 from module.base.protect import random_sleep
 
-
+""" 爬塔 """
 class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
 
     def run(self) -> None:

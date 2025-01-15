@@ -16,6 +16,8 @@ from tasks.FallenSun.config import FallenSun, UserStatus
 from module.logger import logger
 from module.exception import TaskEnd
 
+
+""" 日陨 """
 class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi, SwitchSoul, FallenSunAssets):
 
     def run(self) -> bool:

@@ -19,8 +19,7 @@ from tasks.Component.ReplaceShikigami.replace_shikigami import ReplaceShikigami
 from tasks.GameUi.page import page_main, page_guild
 
 
-last_best_index = 99
-
+""" 结界蹭卡 """
 class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
     def run(self):

@@ -23,7 +23,7 @@ from tasks.GameUi.page import page_main, page_six_gates
 from tasks.SixRealms.moon_sea.moon_sea import MoonSea
 from module.logger import logger
 
-
+""" 六道之门 """
 class ScriptTask(GameUi, SwitchSoul, MoonSea):
 
     @property
