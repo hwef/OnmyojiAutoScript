@@ -21,6 +21,7 @@ from tasks.GameUi.page import page_main, page_guild
 
 """ 结界蹭卡 """
 class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
+    last_best_index = 99
 
     def run(self):
         con = self.config.kekkai_utilize.utilize_config
@@ -401,8 +402,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 logger.info('No target card found')
                 return None
             card_class = target_to_card_class(target)
-            global last_best_index
-            last_best_index = self.order_cards.index(card_class)
+            self.last_best_index = self.order_cards.index(card_class)
 
             logger.info('Current find best card: %s', target)
             # 如果当前的卡比记录的最好的卡还要好,那么就更新最好的卡
@@ -413,7 +413,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 if current_index >= last_index:
                     # 不比上一张卡好就退出不执行操作
                     logger.info('Current card is not better than last best card')
-                    last_best_index = last_best
+                    self.last_best_index = last_best
                     return last_best
             logger.info('Current select card: %s', card_class)
 
