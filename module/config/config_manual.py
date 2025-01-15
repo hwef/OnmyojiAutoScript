@@ -13,7 +13,7 @@ class ConfigManual:
         > WantedQuests > DemonEncounter > SoulsTidy
         > AreaBoss > GoldYoukai > ExperienceYoukai > Nian > Tako > RealmRaid > RyouToppa > DailyTrifles > Exploration
         > Dokan > AbyssShadows > Hunt 
-        > Pets > Orochi > OrochiMoans > OrochiJudgement > Sougenbi > FallenSun > EternitySea 
+        > Pets > Orochi > OrochiJudgement > Sougenbi > FallenSun > EternitySea 
         > ActivityShikigami 
         > BondlingFairyland > EvoZone > GoryouRealm > HeroTest
         > TrueOrochi > RichMan > Secret > WeeklyTrifles > SixRealms
