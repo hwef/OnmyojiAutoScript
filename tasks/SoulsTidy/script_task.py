@@ -16,6 +16,8 @@ from tasks.SoulsTidy.config import SimpleTidy
 
 """ 整理御魂 """
 class ScriptTask(GameUi, SoulsTidyAssets):
+    click_num = 0
+
     def run(self):
         self.ui_get_current_page()
         self.ui_goto(page_shikigami_records)
@@ -26,10 +28,10 @@ class ScriptTask(GameUi, SoulsTidyAssets):
 
         # 贪吃鬼
         if con.simple_tidy.only_greed:
-            self.only_greed()
+            self.greed()
         # 奉纳御魂
         if con.simple_tidy.only_maneki:
-            self.only_maneki()
+            self.maneki()
 
         # 退回到式神录
         self.back_records()
@@ -64,7 +66,7 @@ class ScriptTask(GameUi, SoulsTidyAssets):
         """
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_RECORDS)
 
-    def only_greed(self):
+    def greed(self):
         """
         贪吃鬼
         :return:
@@ -101,7 +103,7 @@ class ScriptTask(GameUi, SoulsTidyAssets):
         logger.hr('Enter bongna')
 
 
-    def only_maneki(self):
+    def maneki(self):
         """
         奉纳御魂
         :return:
@@ -140,12 +142,18 @@ class ScriptTask(GameUi, SoulsTidyAssets):
             while 1:
                 self.screenshot()
                 self.click(self.L_ONE, interval=2.5)
+                self.click_num += 1
                 gold_amount = self.O_ST_GOLD.ocr(self.device.image)
                 if not isinstance(gold_amount, int):
                     logger.warning('Gold amount not int, skip')
                     continue
                 if gold_amount > 0:
+                    self.click_num = 0
                     break
+                if self.click_num >= 3:
+                    logger.warning(f'长按选中弃置御魂次数：{self.click_num},结束')
+                    return
+
             # 点击奉纳收取奖励
             if not self.appear(self.I_ST_DONATE):
                 logger.warning('Donate button not appear, skip')
