@@ -139,6 +139,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
                     False       挑战失败
         @rtype:
         """
+        logger.info("开始挑战boss")
         reward_floor = self.config.area_boss.boss.reward_floor
         if fileter_open and not self.appear(self.I_AB_FILTER_OPENED):
             self.open_filter()
@@ -148,6 +149,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
 
         # 如果已经打过该BOSS,直接跳过不打了
         if self.is_group_ranked():
+            logger.info("该BOSS已经打过了,已经获得小组排名")
             self.ui_click_until_disappear(self.I_AB_CLOSE_RED, interval=3)
             return True
 
@@ -343,6 +345,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         BOSS_REWARD_PHOTO1 = [self.C_AB_BOSS_REWARD_PHOTO_1, self.C_AB_BOSS_REWARD_PHOTO_2, self.C_AB_BOSS_REWARD_PHOTO_3]
         BOSS_REWARD_PHOTO2 = [self.C_AB_BOSS_REWARD_PHOTO_MINUS_2, self.C_AB_BOSS_REWARD_PHOTO_MINUS_1]
         filter_statue, bossName = self.get_hot_in_reward() # 获取挑战人数最多的Boss的名字
+        logger.info(f'Boss名字{bossName}')
         if bossName == "direct_attack":
             return self.boss_fight(self.I_BATTLE_1, True, fileter_open=False)
         else:
@@ -515,11 +518,12 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         """
             判断该鬼王是否已经获取到小组排名
         """
+        self.save_image(file="AreaBoss")
         return not self.appear(self.I_AB_GROUP_RANK_NONE)
         pass
 
     def open_filter(self):
-        logger.info("openFilter")
+        logger.info("打开筛选")
         self.ui_click(self.I_FILTER, self.I_AB_FILTER_OPENED, interval=3)
 
     def switch_to_collect(self):
