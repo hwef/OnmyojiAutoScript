@@ -387,7 +387,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         num = self.get_num_challenge(self.C_AB_BOSS_REWARD_PHOTO_1)
         #如果num为0则不在进行nameOcr
         if num:
-            if num > 12000:
+            if num > 20000:
                 return filter_open_flag, str("direct_attack")
             name = self.get_bossName(self.C_AB_BOSS_REWARD_PHOTO_1)
         else:
@@ -399,7 +399,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         self.open_filter()
         num = self.get_num_challenge(self.C_AB_BOSS_REWARD_PHOTO_2)
         if num:
-            if num > 12000:
+            if num > 20000:
                 return filter_open_flag, str("direct_attack")
             name = self.get_bossName(self.C_AB_BOSS_REWARD_PHOTO_1)
         else:
@@ -411,7 +411,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         self.open_filter()
         num = self.get_num_challenge(self.C_AB_BOSS_REWARD_PHOTO_3)
         if num:
-            if num > 12000:
+            if num > 20000:
                 return filter_open_flag, str("direct_attack")
             name = self.get_bossName(self.C_AB_BOSS_REWARD_PHOTO_1)
         else:
@@ -426,7 +426,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         self.wait_until_appear(self.C_AB_BOSS_REWARD_PHOTO_MINUS_2, wait_time=1)
         num = self.get_num_challenge(self.C_AB_BOSS_REWARD_PHOTO_MINUS_2)
         if num:
-            if num > 12000:
+            if num > 20000:
                 return filter_open_flag, str("direct_attack")
             name = self.get_bossName(self.C_AB_BOSS_REWARD_PHOTO_1)
         else:
@@ -441,7 +441,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         self.wait_until_appear(self.C_AB_BOSS_REWARD_PHOTO_MINUS_1, wait_time=1)
         num = self.get_num_challenge(self.C_AB_BOSS_REWARD_PHOTO_MINUS_1)
         if num:
-            if num > 12000:
+            if num > 20000:
                 return filter_open_flag, str("direct_attack")
             name = self.get_bossName(self.C_AB_BOSS_REWARD_PHOTO_1)
         else:
@@ -518,7 +518,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         """
             判断该鬼王是否已经获取到小组排名
         """
-        self.save_image(file="AreaBoss")
         return not self.appear(self.I_AB_GROUP_RANK_NONE)
         pass
 
