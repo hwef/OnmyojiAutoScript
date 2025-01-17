@@ -54,9 +54,9 @@ class ScriptTask(
             self.set_next_run(self.task_name, finish=True, success=True)
         else:
             self.set_next_run(self.task_name, finish=False, success=False)
-
+        # 个人突破
+        self.set_next_run(task='RealmRaid', target=datetime.now())
         raise TaskEnd(self.task_name)
-
 
     def run_leader(self):
         logger.info('Start run leader')

@@ -85,8 +85,11 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             else:
                 self.set_next_run('Orochi', finish=False, success=False)
 
+        # 个人突破
         self.set_next_run(task='RealmRaid', target=datetime.now())
+        # 花合战
         self.set_next_run(task='TalismanPass', target=datetime.now())
+        # 御魂整理
         if self.config.orochi.next_day_orochi_config.soulstidy_enabled:
             self.set_next_run(task='SoulsTidy',target=datetime.now())
 
