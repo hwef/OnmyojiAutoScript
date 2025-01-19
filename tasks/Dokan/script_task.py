@@ -237,7 +237,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         # 状态：战斗结算，可能是打完小朋友了，也可能是失败了。
         if self.appear(self.I_RYOU_DOKAN_BATTLE_OVER, threshold=0.85):
             logger.info(f"打完看到魂奖励中")
-            self.save_image()
+            self.save_image('Dokan')
             self.appear_then_click(self.I_RYOU_DOKAN_BATTLE_OVER)
             return True, DokanScene.RYOU_DOKAN_SCENE_BATTLE_OVER
         # 如果出现失败 就点击
@@ -354,7 +354,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             # 如果领奖励
             if self.appear(self.I_RYOU_DOKAN_BATTLE_OVER, threshold=0.6):
                 logger.info("领奖励,那个魂")
-                self.save_image()
+                self.save_image('Dokan')
                 self.ui_click_until_disappear(self.I_RYOU_DOKAN_BATTLE_OVER)
                 break
 
@@ -692,29 +692,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         else:
             return False
 
-    def save_image(self):
-        time.sleep(2)
-        self.screenshot()
-
-        image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
-
-        # 获取今日日期并格式化为字符串
-        today_date = datetime.now().strftime('%Y-%m-%d')
-        today_time = datetime.now().strftime('%H-%M-%S')
-
-        config_name = self.config.config_name
-        # 设置保存图像的文件夹，包含今日日期
-        # save_folder = Path(f'./log/Dokan/{today_date}')
-        save_folder = Path(f'F:\OneDrive\Dokan/{today_date}')
-
-        save_folder.mkdir(parents=True, exist_ok=True)
-
-        # 设置图像名称
-        image_name = config_name + " " + today_time
-
-        # 保存图像
-        cv2.imwrite(str(save_folder / f'{image_name}.png'), image)
-        logger.info("保存道馆奖励截图")
 
 if __name__ == "__main__":
     from module.config.config import Config

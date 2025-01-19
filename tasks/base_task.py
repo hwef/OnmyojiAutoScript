@@ -19,7 +19,7 @@ from module.atom.list import RuleList
 from module.atom.gif import RuleGif
 from module.ocr.base_ocr import OcrMode, OcrMethod
 from module.atom.animate import RuleAnimate
-from module.logger import logger
+from module.logger import logger, log_path
 from module.base.timer import Timer
 from module.config.config import Config
 from module.config.utils import get_server_next_update, nearest_future, dict_to_kv, parse_tomorrow_server
@@ -615,20 +615,26 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 continue
 
     def save_image(self, file: str):
-        path = "F:/OneDrive"
+        path = log_path
         sleep(2)
         self.screenshot()
+
         image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
+
         # 获取今日日期并格式化为字符串
         today_date = datetime.now().strftime('%Y-%m-%d')
         today_time = datetime.now().strftime('%H-%M-%S')
         config_name = self.config.config_name
+
         # 设置保存图像的文件夹，包含今日日期
         # save_folder = Path(f'./log/Dokan/{today_date}')
         save_folder = Path(f'{path}/{file}/{today_date}')
         save_folder.mkdir(parents=True, exist_ok=True)
+
         # 设置图像名称
-        image_name = config_name + " " + today_time
+        image_name = config_name + "_" + today_date + "_" + today_time
+
         # 保存图像
         cv2.imwrite(str(save_folder / f'{image_name}.png'), image)
-        logger.info("保存截图")
+
+        logger.info(f"保存{file}截图")

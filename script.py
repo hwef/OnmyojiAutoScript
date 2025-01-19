@@ -29,7 +29,7 @@ from module.config.config_model import ConfigModel
 from module.device.device import Device
 from module.base.utils import load_module
 from module.base.decorator import del_cached_property
-from module.logger import logger
+from module.logger import logger, log_path
 from module.exception import *
 
 class Script:
@@ -91,7 +91,7 @@ class Script:
                                                    handle_sensitive_logs)
         if self.config.script.error.save_error:
             # error_path ='./log/error/'
-            error_path ='F:\OneDrive/error/'
+            error_path = log_path + '/error/'
             if not os.path.exists(error_path):
                 os.mkdir(error_path)
             config_name = self.config.config_name
@@ -101,7 +101,7 @@ class Script:
             logger.warning(f'Saving error: {folder}')
             os.mkdir(folder)
             for data in self.device.screenshot_deque:
-                image_time = datetime.strftime(data['time'], config_name + ' %H-%M-%S')
+                image_time = datetime.strftime(data['time'], config_name + '_' + today_date)
                 image = handle_sensitive_image(data['image'])
                 save_image(image, f'{folder}/{image_time}.png')
             with open(logger.log_file, 'r', encoding='utf-8') as f:

@@ -84,6 +84,18 @@ console_hdlr = RichHandler(
 )
 console_hdlr.setFormatter(console_formatter)
 logger.addHandler(console_hdlr)
+# logger.py
+
+log_path = './log/'
+# log_path = 'F:\OneDrive'
+
+class Logger:
+    def __init__(self):
+        self.log_file_path = log_path
+
+    def log(self, message):
+        with open(self.log_file_path, 'a') as file:
+            file.write(message + '\n')
 
 
 # ======================================================================================================================
@@ -99,7 +111,9 @@ pyw_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
 
 def set_file_logger(name=pyw_name):
-    log_home ='F:\OneDrive\log/'
+
+    log_home = log_path
+
     if '_' in name:
         name = name.split('_', 1)[0]
     log_file = f'{log_home}{datetime.date.today()}_{name}.txt'
@@ -114,7 +128,7 @@ def set_file_logger(name=pyw_name):
         no_color=True,
         highlight=False,
         width=160,
-    ) 
+    )
 
     hdlr = RichFileHandler(
         console=file_console,
