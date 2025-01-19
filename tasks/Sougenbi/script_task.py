@@ -22,6 +22,16 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, SougenbiAssets):
         limit_time = con.sougenbi_config.limit_time
         self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute,
                                                seconds=limit_time.second)
+
+        if con.switch_soul_config.enable:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul(con.switch_soul_config.switch_group_team)
+        if con.switch_soul_config.enable_switch_by_name:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul_by_name(con.switch_soul_config.group_name, con.switch_soul_config.team_name)
+
         if s_con.buff_enable:
             self.ui_get_current_page()
             self.ui_goto(page_main)
@@ -35,15 +45,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, SougenbiAssets):
             if s_con.buff_exp_100_click:
                 self.exp_100(True)
             self.close_buff()
-
-        if con.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
-            self.run_switch_soul(con.switch_soul_config.switch_group_team)
-        if con.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
-            self.run_switch_soul_by_name(con.switch_soul_config.group_name, con.switch_soul_config.team_name)
 
         self.ui_get_current_page()
         self.ui_goto(page_soul_zones)
@@ -94,7 +95,10 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, SougenbiAssets):
                 logger.info('Sougenbi time limit out')
                 break
             ticket = number_target.ocr(self.device.image)
+            logger.info(f'current ticket:{ticket}')
             if ticket == 0:
+                # 门票不足
+                logger.warning('ticket not enough')
                 break
 
             # 点击挑战
