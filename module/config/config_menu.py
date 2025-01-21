@@ -19,7 +19,7 @@ class ConfigMenu:
         # 脚本设置
         self.menu['Script'] = ['Script', 'Restart', 'GlobalGame']
         # 刷御魂
-        self.menu["Soul Zones"] = ['Orochi', 'Sougenbi', 'FallenSun', 'EternitySea', 'SixRealms']
+        self.menu["Soul Zones"] = ['Orochi', 'Sougenbi', 'FallenSun']
         # 日常的任务
         self.menu["Daily Task"] = ['DailyTrifles', 'AreaBoss', 'GoldYoukai', 'ExperienceYoukai', 'Nian',
                                    'TalismanPass', 'DemonEncounter', 'Pets', 'SoulsTidy', 'Delegation', 'WantedQuests',
@@ -34,10 +34,11 @@ class ConfigMenu:
             "HeroTest",
         ]
         # 阴阳寮
-        self.menu["Guild"] = ['KekkaiUtilize', 'KekkaiActivation', 'RealmRaid', 'RyouToppa', 'Dokan', 'CollectiveMissions',
-                              'Hunt' , 'AbyssShadows']
+        self.menu["Guild"] = ['KekkaiUtilize', 'KekkaiActivation', 'RealmRaid', 'RyouToppa', 'Dokan',
+                              'CollectiveMissions', 'Hunt', 'AbyssShadows']
         # 每周任务
-        self.menu["Weekly Task"] = ['TrueOrochi', 'RichMan', 'Secret', 'WeeklyTrifles', 'MysteryShop', 'Duel']
+        self.menu["Weekly Task"] = ['RichMan', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms',
+                                    'MysteryShop', 'Duel', 'TrueOrochi']
         # 活动的任务
         self.menu["Activity Task"] = ['ActivityShikigami', 'MetaDemon', 'FrogBoss', 'FloatParade', 'Quiz', 'KittyShop']
         # 开发工具
