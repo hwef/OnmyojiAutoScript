@@ -96,6 +96,7 @@ class ScriptTask(GameUi, WeeklyTriflesAssets):
                 break
 
             if self.appear_then_click(self.I_WT_QR_CODE, self.C_WT_WECHAT, interval=0.8):
+                self.save_image("WeeklyTrifles")
                 continue
             if get_timer.reached():
                 logger.warning('Share timeout. The reward may have been obtained')

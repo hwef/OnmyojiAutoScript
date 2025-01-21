@@ -136,6 +136,7 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
         while 1:
             self.screenshot()
             if self.appear(self.I_GREED_GHOST):
+                self.save_image("TrueOrochi")
                 sleep(0.7)
                 self.screenshot()
                 if not self.appear(self.I_GREED_GHOST):
@@ -161,6 +162,7 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
 
         logger.info("Battle process end")
         self.check_times(battle)
+        self.config.notifier.push(title='真·八岐大蛇', content='任务已完成，请查看截图')
         raise TaskEnd('TrueOrochi')
 
     def check_true_orochi(self, screenshot=False) -> bool:

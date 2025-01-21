@@ -112,7 +112,7 @@ pyw_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
 def set_file_logger(name=pyw_name):
 
-    log_home = log_path
+    log_home = log_path + 'log/'
 
     if '_' in name:
         name = name.split('_', 1)[0]
