@@ -26,5 +26,5 @@ class TeamFlow(BaseModel):
 class GlobalGame(BaseModel):
     emergency: Emergency = Field(default_factory=Emergency)
     costume_config: CostumeConfig = Field(default_factory=CostumeConfig)
-    team_flow: TeamFlow = Field(default_factory=TeamFlow)
+    # team_flow: TeamFlow = Field(default_factory=TeamFlow)
 

@@ -38,6 +38,6 @@ class LoginCharacterConfig(BaseModel):
 
 class Restart(ConfigBase):
     scheduler: RestartScheduler = Field(default_factory=RestartScheduler)
-    tasks_config_reset: TasksReset = Field(default_factory=TasksReset)
+    # tasks_config_reset: TasksReset = Field(default_factory=TasksReset)
     harvest_config: HarvestConfig = Field(default_factory=HarvestConfig)
-    login_character_config: LoginCharacterConfig = Field(default_factory=LoginCharacterConfig)
+    # login_character_config: LoginCharacterConfig = Field(default_factory=LoginCharacterConfig)
