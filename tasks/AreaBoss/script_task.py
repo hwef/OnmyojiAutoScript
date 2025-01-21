@@ -47,28 +47,24 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         self.ui_goto(page_area_boss)
 
         self.open_filter()
-        # 已挑战鬼王数量
-        boss_fought = 0
+
+        # 打一次悬赏
         if con.boss_reward:
-            if self.fight_reward_boss(): #挑战成功则加一
-                boss_fought += 1
+            self.fight_reward_boss()
 
         self.open_filter()
-        # 切换到对应集合(热门/收藏)
+
+        # 切换到对应集合(收藏)
         if con.use_collect:
             self.switch_to_collect()
         else:
+            # 热门
             self.switch_to_famous()
 
-        if con.boss_number - boss_fought == 3:
-            self.boss_fight(self.I_BATTLE_1)
-            self.boss_fight(self.I_BATTLE_2)
-            self.boss_fight(self.I_BATTLE_3)
-        elif con.boss_number - boss_fought == 2:
-            self.boss_fight(self.I_BATTLE_1)
-            self.boss_fight(self.I_BATTLE_2)
-        elif con.boss_number - boss_fought == 1:
-            self.boss_fight(self.I_BATTLE_1)
+        self.boss_fight(self.I_BATTLE_1,True)
+        self.boss_fight(self.I_BATTLE_2,True)
+        self.boss_fight(self.I_BATTLE_3,True)
+
         # 退出
         self.go_back()
         self.set_next_run(task='AreaBoss', success=True, finish=False)
@@ -90,43 +86,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
             if self.appear(self.I_CHECK_MAIN, threshold=0.6):
                 break
 
-    def boss(self, battle: RuleImage, collect: bool = False):
-
-        # 点击右上角的鬼王选择
-        logger.info("Script filter")
-        while 1:
-            self.screenshot()
-            # 如果筛选界面已经打开 点击热门按钮
-            if self.appear(self.I_AB_FILTER_OPENED):
-                self.click(self.C_AB_FAMOUS_BTN)
-                break
-            if self.appear_then_click(self.I_FILTER, interval=3):
-                continue
-
-        if collect:
-            self.switch_to_collect()
-        # 页面没有可挑战的BOSS
-        if not (self.appear(self.I_BATTLE_1) or self.appear(self.I_BATTLE_2) or self.appear(self.I_BATTLE_3)):
-            logger.error("There is no boss could be challenged")
-            return
-        # 点击第几个鬼王
-        logger.info(f'Script area boss {battle}')
-        self.ui_click(battle, self.I_AB_CLOSE_RED)
-        # 点击挑战
-        logger.info("Script fire ")
-        while 1:
-            self.screenshot()
-            if self.appear_then_click(self.I_FIRE, interval=1):
-                continue
-            if not self.appear(self.I_AB_CLOSE_RED):  # 如果这个红色的关闭不见了才可以进行继续
-                break
-        if not self.run_general_battle(self.config.area_boss.general_battle):
-            logger.info("地域鬼王第2只战斗失败")
-        # 红色关闭
-        logger.info("Script close red")
-        self.wait_until_appear(self.I_AB_CLOSE_RED)
-        self.ui_click(self.I_AB_CLOSE_RED, self.I_FILTER)
-
     def boss_fight(self, battle: RuleImage, ultra: bool = False, fileter_open: bool = True) -> bool:
         """
             完成挑战一个鬼王的全流程
@@ -139,7 +98,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
                     False       挑战失败
         @rtype:
         """
-        logger.info("开始挑战boss")
         reward_floor = self.config.area_boss.boss.reward_floor
         if fileter_open and not self.appear(self.I_AB_FILTER_OPENED):
             self.open_filter()
@@ -159,7 +117,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
                 if not self.appear(self.I_AB_DIFFICULTY_NORMAL) and self.config.area_boss.boss.Attack_60:
                     self.switch_to_level_60()
                     if not self.start_fight():
-                        logger.warning("you are so weakness!")
+                        logger.warning("you are so weakness! battle failed")
                         self.wait_until_appear(self.I_AB_CLOSE_RED)
                         self.ui_click_until_disappear(self.I_AB_CLOSE_RED, interval=3)
                         return False
@@ -345,7 +303,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         BOSS_REWARD_PHOTO1 = [self.C_AB_BOSS_REWARD_PHOTO_1, self.C_AB_BOSS_REWARD_PHOTO_2, self.C_AB_BOSS_REWARD_PHOTO_3]
         BOSS_REWARD_PHOTO2 = [self.C_AB_BOSS_REWARD_PHOTO_MINUS_2, self.C_AB_BOSS_REWARD_PHOTO_MINUS_1]
         filter_statue, bossName = self.get_hot_in_reward() # 获取挑战人数最多的Boss的名字
-        logger.info(f'Boss名字{bossName}')
         if bossName == "direct_attack":
             return self.boss_fight(self.I_BATTLE_1, True, fileter_open=False)
         else:
@@ -568,7 +525,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('du')
+    c = Config('oas1')
     d = Device(c)
     t = ScriptTask(c, d)
     # time.sleep(3)
