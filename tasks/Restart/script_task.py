@@ -61,7 +61,7 @@ class ScriptTask(LoginHandler):
         @return:
         """
         datetime_now = datetime.now()
-        if not (datetime_now.weekday() == 2 and 6 <= datetime_now.hour <= 8):
+        if not (datetime_now.weekday() == 2 and 7 <= datetime_now.hour <= 8):
             return False
         logger.info("The game server is updating, delay the pending tasks to 9:00")
         logger.warning('Delay pending tasks')
