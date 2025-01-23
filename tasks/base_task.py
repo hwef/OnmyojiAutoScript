@@ -125,7 +125,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         return self.device.image
 
     def appear_mask(self, target: RuleImage, threshold: float = None, mask_path: str = None):
-        appear = target.match_mask(self.device.image, threshold=threshold, mask_path=mask_path)
+        appear = target.match_mask(self.device.image, mask_path=mask_path, threshold=threshold)
         return appear
 
     def appear(self,

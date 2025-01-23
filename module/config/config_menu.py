@@ -44,7 +44,7 @@ class ConfigMenu:
                                       'NianTrue']
 
         self.menu["other"] = ['FallenSun', 'ExperienceYoukai', 'Nian', 'Delegation', 'Tako',  "EvoZone",   "Hyakkiyakou",
-                              "HeroTest",  'MysteryShop','BackUp',]
+                              "HeroTest",  'MysteryShop', 'MainStory', 'BackUp']
 
 
     @cached_property
