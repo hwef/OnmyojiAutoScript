@@ -52,7 +52,8 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "左下角小指针"
-  },    {
+  },
+  {
     "itemName": "blue_piao",
     "imageName": "blue_piao.png",
     "roiFront": "420,226,444,262",
