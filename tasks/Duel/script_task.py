@@ -65,7 +65,10 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
         # 记得退回去到町中
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_TOWN)
         self.set_next_run(task='Duel', success=True, finish=False)
-        raise TaskEnd('Duel')
+        # 调起花合战
+        self.set_next_run(task='TalismanPass', target=datetime.now())
+
+    raise TaskEnd('Duel')
 
     def duel_main(self, screenshot=False) -> bool:
         """

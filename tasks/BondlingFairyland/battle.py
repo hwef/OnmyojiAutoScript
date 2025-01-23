@@ -1,6 +1,8 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
+from datetime import timedelta, datetime
+
 import random
 
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
@@ -20,7 +22,12 @@ class BondlingBattle(GeneralBattle, BondlingFairylandAssets):
         """
         logger.hr("General battle start", 2)
         self.current_count += 1
-        logger.info(f"Current count: {self.current_count} / " + str(limit_count))
+        logger.info(f'Current count: {self.current_count} / {limit_count}')
+
+        task_run_time = datetime.now() - self.start_time
+        # 格式化时间，只保留整数部分的秒
+        task_run_time_seconds = timedelta(seconds=int(task_run_time.total_seconds()))
+        logger.info(f'Task run time:  {task_run_time_seconds} / {self.limit_time}')
 
         if self.check_load():
             # 首先要判断进入战斗的界面

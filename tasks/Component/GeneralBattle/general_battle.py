@@ -3,6 +3,7 @@
 # github https://github.com/runhey
 import time
 import random
+from datetime import datetime, timedelta
 
 from tasks.base_task import BaseTask
 from tasks.Component.GeneralBattle.config_general_battle import GreenMarkType, GeneralBattleConfig
@@ -26,7 +27,13 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
         # 本人选择的策略是只要进来了就算一次，不管是不是打完了
         logger.hr("General battle start", 2)
         self.current_count += 1
-        logger.info(f"Current count: {self.current_count} / " + str(limit_count))
+        logger.info(f'Current count: {self.current_count} / {limit_count}')
+
+        task_run_time = datetime.now() - self.start_time
+        # 格式化时间，只保留整数部分的秒
+        task_run_time_seconds = timedelta(seconds=int(task_run_time.total_seconds()))
+        logger.info(f'Task run time:  {task_run_time_seconds} / {self.limit_time}')
+
         if config is None:
             config = GeneralBattleConfig()
 
