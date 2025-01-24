@@ -61,9 +61,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
             # 热门
             self.switch_to_famous()
 
-        self.boss_fight(self.I_BATTLE_1,True)
-        self.boss_fight(self.I_BATTLE_2,True)
-        self.boss_fight(self.I_BATTLE_3,True)
+        self.boss_fight(self.I_BATTLE_1)
+        self.boss_fight(self.I_BATTLE_2)
+        self.boss_fight(self.I_BATTLE_3)
 
         # 退出
         self.go_back()
@@ -141,7 +141,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         return result
 
     def start_fight(self) -> bool:
-        self.save_image(file="AreaBoss")
+        self.save_image()
         while 1:
             self.screenshot()
             if self.appear_then_click(self.I_FIRE, interval=1):
@@ -175,20 +175,20 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
 
             # 如果出现失败 就点击，返回False
             if self.appear(self.I_FALSE, threshold=0.8):
-                self.save_image(file="AreaBoss")
+                self.save_image()
                 logger.info("Battle result is false")
                 win = False
                 break
 
             # 如果领奖励
             if self.appear(self.I_REWARD, threshold=0.6):
-                self.save_image(file="AreaBoss")
+                self.save_image()
                 win = True
                 break
 
             # 如果领奖励出现金币
             if self.appear(self.I_REWARD_GOLD, threshold=0.8):
-                self.save_image(file="AreaBoss")
+                self.save_image()
                 win = True
                 break
             # 如果开启战斗过程随机滑动
@@ -205,7 +205,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
                 if self.appear_then_click(self.I_WIN, action=action_click, interval=0.5):
                     continue
                 if not self.appear(self.I_WIN):
-                    self.save_image(file="AreaBoss")
+                    self.save_image()
                     break
             else:
                 # 如果失败且 点击失败后
