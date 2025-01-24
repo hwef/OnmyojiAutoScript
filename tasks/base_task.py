@@ -614,7 +614,8 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             elif self.appear_then_click(click, interval=interval):
                 continue
 
-    def save_image(self, file: str):
+    def save_image(self):
+        file = self.config.task.command
         path = log_path
         sleep(2)
         self.screenshot()
