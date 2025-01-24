@@ -27,7 +27,7 @@ class BondlingBattle(GeneralBattle, BondlingFairylandAssets):
         task_run_time = datetime.now() - self.start_time
         # 格式化时间，只保留整数部分的秒
         task_run_time_seconds = timedelta(seconds=int(task_run_time.total_seconds()))
-        logger.info(f'Task run time:  {task_run_time_seconds} / {self.limit_time}')
+        logger.info(f'Current times: {task_run_time_seconds} / {self.limit_time}')
 
         if self.check_load():
             # 首先要判断进入战斗的界面
