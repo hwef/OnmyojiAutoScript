@@ -68,7 +68,7 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
         # 调起花合战
         self.set_next_run(task='TalismanPass', target=datetime.now())
 
-    raise TaskEnd('Duel')
+        raise TaskEnd('Duel')
 
     def duel_main(self, screenshot=False) -> bool:
         """
