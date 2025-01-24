@@ -194,8 +194,11 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         if pending_task:
             # 先按照过滤器排序
             pending_task = TaskScheduler.filter.apply(pending_task)
+            # logger.info(f'过滤器排序 pending_task: {pending_task}')
+
             # 再按照优先级排序
-            waiting_task = TaskScheduler.priority(waiting_task)
+            pending_task = TaskScheduler.priority(pending_task)
+            # logger.info(f'优先级排序 pending_task: {pending_task}')
 
             # pending_task = TaskScheduler.schedule(rule=self.model.script.optimization.schedule_rule,
             #                                       pending=pending_task)
@@ -206,10 +209,16 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
 
             # 先按照过滤器排序
             waiting_task = TaskScheduler.filter.apply(waiting_task)
+            # logger.info(f'过滤器排序 waiting_task: {waiting_task}')
+
             # 再按照优先级排序
             waiting_task = TaskScheduler.priority(waiting_task)
+            # logger.info(f'优先级排序 waiting_task: {waiting_task}')
+
             # 最后按照执行时间排序
             waiting_task = sorted(waiting_task, key=operator.attrgetter("next_run"))
+            # logger.info(f'时间排序 waiting_task: {waiting_task}')
+
 
         if error:
             pending_task = error + pending_task
