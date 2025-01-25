@@ -42,18 +42,18 @@ class ScriptTask(LoginHandler):
 
         # self.config.task_delay(server_update=True)
         self.set_next_run(task='Restart', success=True, finish=True, server=True)
-        # 如果启用了定时领体力（每天 12-14、20-22 时内各有 20 体力）
-        if self.config.restart.harvest_config.enable_ap:
-            now = datetime.now()
-            # 如果时间在00:00-12:30之间则设定时间为当日 12:30 时
-            if now.time() < time(12, 30):
-                self.custom_next_run(task='Restart', custom_time=Time(hour=12, minute=30, second=0), time_delta=0)
-            # 如果时间在12:30-21:00之间则设定时间为当日 21 时
-            elif time(12, 30) <= now.time() < time(21, 0):
-                self.custom_next_run(task='Restart', custom_time=Time(hour=21, minute=0, second=0), time_delta=0)
-            # 如果时间在21:00-23:59之间则设定时间为次日 12:30 时
-            else:
-                self.custom_next_run(task='Restart', custom_time=Time(hour=12, minute=30, second=0), time_delta=1)
+        # # 如果启用了定时领体力（每天 12-14、20-22 时内各有 20 体力）
+        # if self.config.restart.harvest_config.enable_ap:
+        #     now = datetime.now()
+        #     # 如果时间在00:00-12:30之间则设定时间为当日 12:30 时
+        #     if now.time() < time(12, 30):
+        #         self.custom_next_run(task='Restart', custom_time=Time(hour=12, minute=30, second=0), time_delta=0)
+        #     # 如果时间在12:30-21:00之间则设定时间为当日 21 时
+        #     elif time(12, 30) <= now.time() < time(21, 0):
+        #         self.custom_next_run(task='Restart', custom_time=Time(hour=21, minute=0, second=0), time_delta=0)
+        #     # 如果时间在21:00-23:59之间则设定时间为次日 12:30 时
+        #     else:
+        #         self.custom_next_run(task='Restart', custom_time=Time(hour=12, minute=30, second=0), time_delta=1)
 
     def delay_pending_tasks(self) -> bool:
         """
