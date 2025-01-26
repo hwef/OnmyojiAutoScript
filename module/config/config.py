@@ -202,6 +202,27 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
 
             # pending_task = TaskScheduler.schedule(rule=self.model.script.optimization.schedule_rule,
             #                                       pending=pending_task)
+
+            if self.model.task_current_runing and pending_task:
+                try:
+                    restart_tasks = []
+                    current_running_tasks = []
+                    other_tasks = []
+
+                    for f in pending_task:
+                        if f.command == 'Restart':
+                            restart_tasks.append(f)
+                        elif f.command == self.model.task_current_runing:
+                            current_running_tasks.append(f)
+                        else:
+                            other_tasks.append(f)
+
+                    # 将 pending_task 列表重新构建为：首先包含 Restart 任务，然后是当前正在运行的任务，最后是其他任务。
+                    pending_task[:] = restart_tasks + current_running_tasks + other_tasks
+
+                except (ValueError, IndexError) as e:
+                    logger.error(f"Error processing task: {e}, Current task list: {pending_task}")
+
         if waiting_task:
             # waiting_task = f.apply(waiting_task)
             # waiting_task = TaskScheduler.schedule(rule=self.model.script.optimization.schedule_rule,
@@ -219,7 +240,6 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             waiting_task = sorted(waiting_task, key=operator.attrgetter("next_run"))
             # logger.info(f'时间排序 waiting_task: {waiting_task}')
 
-
         if error:
             pending_task = error + pending_task
 
@@ -236,6 +256,8 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         if self.pending_task:
             logger.info(f"Pending tasks: {[f.command for f in self.pending_task]}")
             task = self.pending_task[0]
+            self.model.task_current_runing = task.command
+            self.save()
             self.task = task
             logger.attr("Task", task)
             return task
@@ -274,8 +296,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         data = {"running": running, "pending": pending, "waiting": waiting}
         return data
 
-
-    def task_call(self, task: str=None, force_call=True):
+    def task_call(self, task: str = None, force_call=True):
         """
         回调任务，这会是在任务结束后调用
         :param task: 调用的任务的大写名称
@@ -404,6 +425,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             if task == 'true_orochi':
                 true_orochi_config = getattr(task_object, 'true_orochi_config', None)
                 true_orochi_config.current_success = current_success
+            self.model.task_current_runing = None
             self.save()
         finally:
             self.lock_config.release()
