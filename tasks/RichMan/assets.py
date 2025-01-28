@@ -153,8 +153,8 @@ class RichManAssets:
 	I_ME_SOULS = RuleImage(roi_front=(173,391,148,133), roi_back=(121,116,898,476), threshold=0.8, method="Template matching", file="./tasks/RichMan/mall/medal/medal_me_souls.png")
 	# 白蛋 
 	I_ME_WHITE = RuleImage(roi_front=(399,391,142,131), roi_back=(115,114,908,452), threshold=0.8, method="Template matching", file="./tasks/RichMan/mall/medal/medal_me_white.png")
-	# 御灵挑战券 
-	I_ME_CHALLENGE_PASS = RuleImage(roi_front=(618,390,146,129), roi_back=(114,102,914,478), threshold=0.8, method="Template matching", file="./tasks/RichMan/mall/medal/medal_me_challenge_pass.png")
+	# 挑战券
+	I_ME_CHALLENGE_PASS = RuleImage(roi_front=(638,176,100,100), roi_back=(121,92,898,500), threshold=0.8, method="Template matching", file="./tasks/RichMan/mall/medal/medal_me_challenge_pass.png")
 	# 红蛋 
 	I_ME_RED = RuleImage(roi_front=(847,146,137,129), roi_back=(141,129,864,454), threshold=0.8, method="Template matching", file="./tasks/RichMan/mall/medal/medal_me_red.png")
 	# 破碎的咒符 

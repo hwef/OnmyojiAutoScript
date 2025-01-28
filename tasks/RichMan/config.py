@@ -60,6 +60,7 @@ class MedalRoom(BaseModel):
     ap_100: bool = Field(title='AP 100', default=False)
     random_soul: bool = Field(title='Random Soul', default=False)
     white_daruma: bool = Field(title='White Daruma', default=False)
+    # 挑战券
     challenge_pass: int = Field(title='Challenge Pass', default=0, description='challenge_pass_help')
     red_daruma: int = Field(title='Red Daruma', default=0)
     broken_amulet: int = Field(title='Broken Amulet', default=0)

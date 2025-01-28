@@ -29,10 +29,15 @@ class Mall(Medal, Charisma, Honor, Consignment, Scales, Bondlings):
         self.execute_bondlings()
 
         # 杂货铺
+        # 特殊
         self.execute_special()
+        # 荣誉
         self.execute_honor()
+        # 友情点
         self.execute_friendship()
+        # 勋章
         self.execute_medal()
+        # 魅力
         self.execute_charisma()
 
         # 退出
