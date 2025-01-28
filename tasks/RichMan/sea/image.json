@@ -1,0 +1,11 @@
+[
+  {
+    "itemName": "haiyue",
+    "imageName": "Screenshots_haiyue.png",
+    "roiFront": "962,240,95,95",
+    "roiBack": "151,165,984,220",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "海月火玉"
+  }
+]
