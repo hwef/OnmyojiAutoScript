@@ -32,6 +32,11 @@ class Guild(Buy, GameUi, RichManAssets):
                 continue
         logger.info('Enter guild store success')
         time.sleep(0.5)
+        # 功勋礼包
+        self._guild_libao()
+        # 经验手札
+        self._guild_exp()
+
         while 1:
             self.screenshot()
             # 功勋商店 购买皮肤券 现在问题是皮肤券作为下滑判断标志,下滑过程中roi_front[1]发生了变化,
@@ -52,7 +57,8 @@ class Guild(Buy, GameUi, RichManAssets):
         if con.skin_ticket:
             # 皮肤券
             self._guild_skin_ticket(con.skin_ticket)
-
+        # 御魂
+        self._guild_yuhun()
         # 回去
         while 1:
             self.screenshot()
@@ -74,6 +80,39 @@ class Guild(Buy, GameUi, RichManAssets):
             logger.warning('No mystery amulet can buy')
             return False
         self.buy_more(self.I_GUILD_BLUE, number)
+        time.sleep(0.5)
+        return True
+
+    def _guild_libao(self):
+        # 礼包
+        self.screenshot()
+        number = self.check_remain(self.I_LIAOBAO)
+        if number == 0:
+            logger.warning('No mystery amulet can buy')
+            return False
+        self.buy_more(self.I_LIAOBAO)
+        time.sleep(0.5)
+        return True
+
+    def _guild_exp(self):
+        # 经验御札
+        self.screenshot()
+        number = self.check_remain(self.I_EXP)
+        if number == 0:
+            logger.warning('No mystery amulet can buy')
+            return False
+        self.buy_more(self.I_EXP)
+        time.sleep(0.5)
+        return True
+
+    def _guild_yuhun(self):
+        # 御魂
+        self.screenshot()
+        number = self.check_remain(self.I_YUHUN)
+        if number == 0:
+            logger.warning('No mystery amulet can buy')
+            return False
+        self.buy_more(self.I_YUHUN)
         time.sleep(0.5)
         return True
 

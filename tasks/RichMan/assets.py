@@ -41,7 +41,14 @@ class RichManAssets:
 	I_GUILD_SCRAP = RuleImage(roi_front=(570,439,71,68), roi_back=(331,160,559,372), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_scrap.png")
 	# 皮肤券 
 	I_GUILD_SKIN = RuleImage(roi_front=(795,438,71,72), roi_back=(320,162,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_skin.png")
-	# 皮肤券判断是否到末端
+	# 经验御札
+	I_EXP = RuleImage(roi_front=(569,465,73,72), roi_back=(320,200,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/Screenshots_exp.png")
+	# 寮礼包
+	I_LIAOBAO = RuleImage(roi_front=(566,208,76,80), roi_back=(320,162,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/Screenshots_libao.png")
+	# 御魂
+	I_YUHUN = RuleImage(roi_front=(344,188,71,70), roi_back=(320,162,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/Screenshots_yuhun.png")
+
+# 皮肤券判断是否到末端
 	I_GUILD_SKIN_CHECK = RuleImage(roi_front=(795,438,71,72), roi_back=(320,162,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_skin.png")
 	# 购买检查
 	I_GUILD_CHECK_SCRAP = RuleImage(roi_front=(561,429,90,88), roi_back=(561,429,90,88), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_check_scrap.png")

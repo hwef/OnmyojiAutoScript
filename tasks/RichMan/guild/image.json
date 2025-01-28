@@ -70,5 +70,32 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "购买检查"
+  },
+  {
+    "itemName": "exp",
+    "imageName": "Screenshots_exp.png",
+    "roiFront": "569,465,73,72",
+    "roiBack": "569,465,73,72",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "经验御札"
+  },
+  {
+    "itemName": "libao",
+    "imageName": "Screenshots_libao.png",
+    "roiFront": "566,208,76,80",
+    "roiBack": "566,208,76,80",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "寮礼包"
+  },
+  {
+    "itemName": "yuhun",
+    "imageName": "Screenshots_yuhun.png",
+    "roiFront": "344,188,71,70",
+    "roiBack": "344,188,71,70",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "御魂"
   }
 ]
