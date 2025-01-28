@@ -614,10 +614,10 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             elif self.appear_then_click(click, interval=interval):
                 continue
 
-    def save_image(self):
+    def save_image(self, save_time=2):
         file = self.config.task.command
         path = log_path
-        sleep(2)
+        sleep(save_time)
         self.screenshot()
 
         image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
