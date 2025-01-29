@@ -17,6 +17,8 @@ class RichManAssets:
 	I_KUANGGU = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/Screenshots_kuanggu.png")
 	# 隐念
 	I_YINNIAN = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/Screenshots_yinnian.png")
+	# 网切
+	I_WANGQIE = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/Screenshots_wangqie.png")
 	# 其他
 	I_1 = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/Screenshots_1.png")
 	I_2 = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/Screenshots_2.png")
