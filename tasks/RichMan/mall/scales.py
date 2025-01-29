@@ -30,15 +30,19 @@ class Scales(Buy, MallNavbar):
         # 海国御魂
         self._scales_sea(con.picture_book_scrap, con.picture_book_rule)
 
-
     def _scales_buy_confirm(self, start_click, number: int = None):
+        count_click = 0
         while 1:
             self.screenshot()
+            if count_click > 3:
+                logger.warning("潮汐御魂兑换点击次数过多无反应，应该无兑换次数，退出")
+                return True
             if self.appear(self.I_SCA_SELECT_1):
                 return
             if self.appear(self.I_BUY_PLUS):
                 break
             if self.appear_then_click(start_click, interval=1):
+                count_click += 1
                 continue
         # 设置购买的数量
         if number is None:
@@ -64,8 +68,8 @@ class Scales(Buy, MallNavbar):
 
     def _scales_buy_more(self, start_click, number: int = None):
         # 重写
-        self._scales_buy_confirm(start_click, number)
-
+        if not self._scales_buy_confirm(start_click, number):
+            return
         # 购买确认
         while 1:
             self.screenshot()
@@ -86,7 +90,7 @@ class Scales(Buy, MallNavbar):
                 continue
 
     def _scales_buy_sea_more(self, start_click, number: int = None):
-        self._scales_buy_confirm(start_click, number)
+        self._scales_buy_confirm(start_click)
         while 1:
             self.screenshot()
             if self.appear(self.I_SCA_SELECT_1):
@@ -95,13 +99,14 @@ class Scales(Buy, MallNavbar):
                 continue
         logger.info('Scales start select souls')
 
-        sea_list = [self.I_HAIYUE, self.I_KUANGGU, self.I_YINNIAN, self.I_1, self.I_2, self.I_3, self.I_4, self.I_5, self.I_6, self.I_7]
+        sea_list = [self.I_HAIYUE, self.I_KUANGGU, self.I_YINNIAN,self.I_WANGQIE, self.I_1, self.I_2, self.I_3, self.I_4, self.I_5, self.I_6, self.I_7]
         # 选择魂
         while 1:
             self.screenshot()
+            self.save_image(save_time=0.7)
+
             self.appear_then_click(self.I_SCA_PICTURE_BOOK, interval=1)
 
-            self.save_image(save_time=0.7)
             if self.appear(self.I_SCA_SIX_STAR):
                 logger.info('Scales buy success')
                 time.sleep(1.8)
@@ -331,13 +336,16 @@ class Scales(Buy, MallNavbar):
             logger.warning('Scales sea is not appear')
             return
         # 检查剩余数量
-        remain_number = int(self.O_SCA_NUMBER_SEA.ocr(self.device.image))
-        if remain_number == 0:
-            logger.warning(f'The remaining purchase quantity of xx is {remain_number}')
-            return
-        if remain_number < buy_number:
-            buy_number = remain_number
-            logger.warning(f'Remaining purchase quantity is {remain_number}, buy_number is {buy_number}')
+        # remain_number = self.O_SCA_NUMBER_SEA.ocr(self.device.image)
+        # if remain_number == '':
+        #     return
+        # remain_number = abs(int(remain_number))
+        # if remain_number == 0:
+        #     logger.warning(f'The remaining purchase quantity of xx is {remain_number}')
+        #     return
+        # if remain_number < buy_number:
+        #     buy_number = remain_number
+        #     logger.warning(f'Remaining purchase quantity is {remain_number}, buy_number is {buy_number}')
         # 检查钱是否够
         current_money = self.O_SCA_RES_SEA.ocr(self.device.image)
         if not isinstance(current_money, int):
@@ -364,7 +372,7 @@ class Scales(Buy, MallNavbar):
                 self._scales_buy_sea_more(self.I_SCA_PICTURE_BOOK)
                 time.sleep(0.5)
         if buy_res_number and buy_res_number >= 2:
-            self._scales_buy_sea_more(self.I_SCA_PICTURE_BOOK, buy_res_number)
+            self._scales_buy_sea_more(self.I_SCA_PICTURE_BOOK)
             time.sleep(0.5)
 
 
