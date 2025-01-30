@@ -1,6 +1,8 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
+import time
+
 from cached_property import cached_property
 from datetime import datetime
 import requests
@@ -25,6 +27,7 @@ from tasks.FrogBoss.config import Strategy
 class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
     def run(self):
         self.enter(self.I_FROG_BOSS_ENTER)
+        time.sleep(3)
         # 进入主界面
         while 1:
             self.screenshot()
@@ -32,10 +35,14 @@ class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
             # 已经下注
             if self.appear(self.I_BETTED):
                 logger.info('You have betted')
+                self.save_image()
+                self.config.notifier.push(title='对弈竞猜', content='已经下注成功，请查看截图')
                 break
             # 休息中
             if self.appear(self.I_FROG_BOSS_REST):
                 logger.info('Frog Boss Rest')
+                self.save_image()
+                self.config.notifier.push(title='对弈竞猜', content='休息中....')
                 break
             # 竞猜成功
             if self.appear(self.I_BET_SUCCESS):
@@ -124,6 +131,7 @@ class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
         logger.info('Formal bet')
         while 1:
             self.screenshot()
+            # 已竞猜
             if self.appear(self.I_BETTED):
                 break
             if self.appear_then_click(self.I_GOLD_30, interval=2):
