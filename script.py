@@ -341,8 +341,8 @@ class Script:
                         time.sleep(30)
                         self.device.emulator_stop()
                         self.device_status = False
-                    logger.warning(f"emulator status [{self.device_status}]")
-                    logger.warning(f'Wait until {task.next_run} for task `{task.command}`')
+                    logger.hr(f"emulator status {self.device_status}", level=1)
+                    logger.info(f'Wait until {task.next_run} for task `{task.command}`')
                     self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
@@ -356,15 +356,15 @@ class Script:
                     except Exception as e:
                         logger.error("app stop error")
                         logger.error(e)
-                    logger.warning(f"emulator status [{self.device_status}]")
-                    logger.warning(f'Wait until {task.next_run} for task `{task.command}`')
+                    logger.hr(f"emulator status {self.device_status}", level=1)
+                    logger.info(f'Wait until {task.next_run} for task `{task.command}`')
                     self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
                 else:
-                    logger.warning(f"emulator status [{self.device_status}]")
-                    logger.warning(f'Wait until {task.next_run} for task `{task.command}`')
+                    logger.hr(f"emulator status {self.device_status}", level=1)
+                    logger.info(f'Wait until {task.next_run} for task `{task.command}`')
                     self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
@@ -484,9 +484,9 @@ class Script:
             self.device.stuck_record_clear()
             self.device.click_record_clear()
 
-            logger.hr(f'{task}  START', 1)
+            logger.hr(f'{task}  Start', 0)
             success = self.run(inflection.camelize(task))
-            logger.hr(f'{task}  END', 1)
+            logger.hr(f'{task}  End', 0)
             self.is_first_task = False
 
             # Check failures
