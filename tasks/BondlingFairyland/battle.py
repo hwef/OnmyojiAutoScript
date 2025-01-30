@@ -22,6 +22,7 @@ class BondlingBattle(GeneralBattle, BondlingFairylandAssets):
         """
         logger.hr("General battle start", 2)
         self.current_count += 1
+        logger.info(f'Current tasks: {self.config.task.command}')
         logger.info(f'Current count: {self.current_count} / {limit_count}')
 
         task_run_time = datetime.now() - self.start_time
