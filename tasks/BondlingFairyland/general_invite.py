@@ -50,7 +50,7 @@ class GeneralInvite(BaseTask, BondlingFairylandAssets, GeneralInviteAssets):
         :param is_first: 如果是第一次开房间的那就要邀请队员，其他情况等待队员进入
         :return:
         """
-        logger.hr('Invite friend', 2)
+        logger.hr('Invite friend')
         if not self.ensure_enter():
             logger.warning('Not enter invite page')
             return False

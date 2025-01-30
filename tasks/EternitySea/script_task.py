@@ -56,6 +56,8 @@ class ScriptTask(
             self.set_next_run(self.task_name, finish=False, success=False)
         # 个人突破
         self.set_next_run(task='RealmRaid', target=datetime.now())
+
+        self.config.notifier.push(title=self.config.task.command, content=f'任务已完成{self.current_count}次,用时: {timedelta(seconds=int((datetime.now() - self.start_time).total_seconds()))}')
         raise TaskEnd(self.task_name)
 
     def run_leader(self):
