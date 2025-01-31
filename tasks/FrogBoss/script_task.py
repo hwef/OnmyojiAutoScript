@@ -25,6 +25,7 @@ from tasks.FrogBoss.config import Strategy
 
 """对弈竞猜 呱老板"""
 class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
+    betted_status = None
     def run(self):
         self.enter(self.I_FROG_BOSS_ENTER)
         time.sleep(3)
@@ -36,7 +37,7 @@ class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
             if self.appear(self.I_BETTED):
                 logger.info('You have betted')
                 self.save_image()
-                self.config.notifier.push(title='对弈竞猜', content='已经下注成功，请查看截图')
+                self.config.notifier.push(title='对弈竞猜', content=f'下注: {self.betted_status}，请查看截图')
                 break
             # 休息中
             if self.appear(self.I_FROG_BOSS_REST):
@@ -116,6 +117,12 @@ class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
                 raise ValueError(f'Unknown bet mode: {self.config.model.frog_boss.frog_boss_config.strategy_frog}')
         logger.info(f'You strategy is {self.config.model.frog_boss.frog_boss_config.strategy_frog} and bet on {click_image}')
         self.ui_click_until_disappear(click_image)
+
+        if click_image == self.I_BET_LEFT:
+            self.betted_status = '左'
+        elif click_image == self.I_BET_RIGHT:
+            self.betted_status = '右'
+
         gold_30_timer = Timer(10)
         gold_30_timer.start()
         while 1:
