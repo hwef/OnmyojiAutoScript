@@ -1,7 +1,7 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from time import sleep
+import time
 
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_daily
@@ -11,7 +11,6 @@ from tasks.TalismanPass.config import TalismanConfig, LevelReward
 from module.logger import logger
 from module.exception import TaskEnd
 from module.base.timer import Timer
-from datetime import timedelta, time, datetime
 
 """ 花合战 """
 class ScriptTask(GameUi, TalismanPassAssets):
@@ -28,17 +27,9 @@ class ScriptTask(GameUi, TalismanPassAssets):
         # 收取花合战等级奖励
         self.get_flower(con.level_reward)
 
-        now_datetime = datetime.now()
-        now_time = now_datetime.time()
-        if time(hour=21) > now_time > time(hour=9):
-            # 如果是在9点到21点之间，那就设定下一次运行的时间
-            next_run_datetime = datetime.combine(now_datetime.date(), time(hour=21, minute=30))
-        else:
-            next_run_datetime = datetime.combine(now_datetime.date() + timedelta(days=1), time(hour=9, minute=5))
-
-        self.set_next_run(task='TalismanPass', target=next_run_datetime)
-
+        self.set_next_run(task='TalismanPass', success=True, finish=True)
         raise TaskEnd('TalismanPass')
+
 
     def get_all(self):
         """
@@ -50,7 +41,7 @@ class ScriptTask(GameUi, TalismanPassAssets):
             logger.info('No appear get all button')
         self.ui_get_reward(self.I_TP_GET_ALL)
         logger.info('Get all reward')
-        sleep(0.5)
+        time.sleep(0.5)
 
     def get_flower(self, level: LevelReward = LevelReward.TWO):
         """
@@ -73,13 +64,10 @@ class ScriptTask(GameUi, TalismanPassAssets):
         check_timer.start()
         while 1:
             self.screenshot()
-            if self.appear_then_click(self.I_CLICK_SURE, interval=1):
-                logger.info('Get I_CLICK_SURE reward')
-                check_timer.reset()
-                continue
-
             if self.appear_then_click(match_level[level], interval=0.8):
                 logger.info(f'Select {level} reward')
+                if self.appear_then_click(self.I_OVERFLOW_CONFIRME):
+                    pass
                 check_timer.reset()
                 continue
 
@@ -106,10 +94,10 @@ class ScriptTask(GameUi, TalismanPassAssets):
         return False
 
 
+
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-
     c = Config('oas1')
     d = Device(c)
     t = ScriptTask(c, d)

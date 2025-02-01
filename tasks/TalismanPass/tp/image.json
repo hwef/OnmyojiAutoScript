@@ -90,12 +90,12 @@
     "description": "经验的"
   },
   {
-    "itemName": "click_sure",
-    "imageName": "click_sure.png",
-    "roiFront": "544,393,189,81",
-    "roiBack": "544,393,189,81",
+    "itemName": "overflow_confirme",
+    "imageName": "tp_overflow_confirme.png",
+    "roiFront": "585,410,116,44",
+    "roiBack": "585,410,116,44",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "樱饼移溢出确认"
+    "description": "溢出确认"
   }
 ]
