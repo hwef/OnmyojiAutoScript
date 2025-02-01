@@ -27,7 +27,7 @@ class Scales(Buy, MallNavbar):
         self._scales_orochi_new(con.orochi_scales)
         # 首领御魂
         self._scales_demon(con.demon_souls, con.demon_class, con.demon_position)
-        # 海国御魂
+        # 潮汐御魂
         self._scales_sea(con.picture_book_scrap, con.picture_book_rule)
 
     def _scales_buy_confirm(self, start_click, number: int = None):
@@ -35,7 +35,7 @@ class Scales(Buy, MallNavbar):
         while 1:
             self.screenshot()
             if count_click > 3:
-                logger.warning("潮汐御魂兑换点击次数过多无反应，应该无兑换次数，退出")
+                logger.warning(f"{start_click},无兑换次数，退出")
                 return True
             if self.appear(self.I_SCA_SELECT_1):
                 return
@@ -68,7 +68,7 @@ class Scales(Buy, MallNavbar):
 
     def _scales_buy_more(self, start_click, number: int = None):
         # 重写
-        if not self._scales_buy_confirm(start_click, number):
+        if self._scales_buy_confirm(start_click, number):
             return
         # 购买确认
         while 1:
@@ -90,7 +90,8 @@ class Scales(Buy, MallNavbar):
                 continue
 
     def _scales_buy_sea_more(self, start_click, number: int = None):
-        self._scales_buy_confirm(start_click)
+        if self._scales_buy_confirm(start_click):
+            return
         while 1:
             self.screenshot()
             if self.appear(self.I_SCA_SELECT_1):
@@ -103,13 +104,14 @@ class Scales(Buy, MallNavbar):
         # 选择魂
         while 1:
             self.screenshot()
-            time.sleep(1)
 
-            self.appear_then_click(self.I_SCA_PICTURE_BOOK, interval=1)
+            # 出现兑换重新截图
+            if self.appear_then_click(self.I_SCA_PICTURE_BOOK, interval=1):
+                continue
 
             if self.appear(self.I_SCA_SIX_STAR):
                 logger.info('Scales buy success')
-                time.sleep(1.8)
+                time.sleep(2)
                 while 1:
                     self.screenshot()
                     if not self.appear(self.I_SCA_SIX_STAR):
@@ -119,11 +121,13 @@ class Scales(Buy, MallNavbar):
                 # 收获购买的东西
                 logger.info('Scales get success')
                 break
+
             result = False
             for targe in sea_list:
                 result = targe.test_match(self.device.image)
                 logger.info(f'[{targe.name}]: {result}')
                 if result:
+                    self.save_image(save_time=0.5)
                     front0 = targe.roi_front[0]
                     # 962 595 229
                     if front0 < 300:
@@ -146,7 +150,7 @@ class Scales(Buy, MallNavbar):
         :param buy_number:
         :return:
         """
-        logger.hr('Scales orochi', 3)
+        logger.hr('Scales orochi 朴素的御魂', 2)
         if buy_number == 0:
             logger.info('The purchase quantity of Scales orochi is 0')
             return
@@ -224,7 +228,7 @@ class Scales(Buy, MallNavbar):
         :param buy_position:
         :return:
         """
-        logger.hr('Scales demon', 3)
+        logger.hr('Scales demon 首领御魂', 2)
         if buy_number == 0:
             logger.info('The purchase quantity of Scales demon is 0')
             return
@@ -327,7 +331,7 @@ class Scales(Buy, MallNavbar):
         :param buy_rule:
         :return:
         """
-        logger.hr('Scales sea', 3)
+        logger.hr('Scales sea 潮汐御魂', 2)
         if buy_number == 0:
             logger.info('The purchase quantity of Scales sea is 0')
             return
@@ -337,16 +341,16 @@ class Scales(Buy, MallNavbar):
             logger.warning('Scales sea is not appear')
             return
         # 检查剩余数量
-        # remain_number = self.O_SCA_NUMBER_SEA.ocr(self.device.image)
-        # if remain_number == '':
-        #     return
-        # remain_number = abs(int(remain_number))
-        # if remain_number == 0:
-        #     logger.warning(f'The remaining purchase quantity of xx is {remain_number}')
-        #     return
-        # if remain_number < buy_number:
-        #     buy_number = remain_number
-        #     logger.warning(f'Remaining purchase quantity is {remain_number}, buy_number is {buy_number}')
+        remain_number = self.O_SCA_NUMBER_SEA.ocr(self.device.image)
+        if remain_number == '':
+            return
+        remain_number = abs(int(remain_number))
+        if remain_number == 0:
+            logger.warning(f'The remaining purchase quantity of xx is {remain_number}')
+            return
+        if remain_number < buy_number:
+            buy_number = remain_number
+            logger.warning(f'Remaining purchase quantity is {remain_number}, buy_number is {buy_number}')
         # 检查钱是否够
         current_money = self.O_SCA_RES_SEA.ocr(self.device.image)
         if not isinstance(current_money, int):
