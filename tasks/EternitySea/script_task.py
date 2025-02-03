@@ -40,6 +40,10 @@ class ScriptTask(
             self.run_switch_soul_by_name(config.group_name, config.team_name)
 
     def run(self) -> None:
+
+        self.limit_count = self._task_config.eternity_sea_config.limit_count
+        self.limit_time = self._limit_time
+
         self._two_teams_switch_sous(self._task_config.switch_soul_config_1)
         self._two_teams_switch_sous(self._task_config.switch_soul_config_2)
         self.ui_get_current_page()
@@ -92,10 +96,10 @@ class ScriptTask(
                 continue
 
             #限制
-            if self.current_count >= self._task_config.eternity_sea_config.limit_count:
+            if self.current_count >= self.limit_count:
                 logger.info("EternitySea count limit out")
                 break
-            if datetime.now() - self.start_time >= self._limit_time:
+            if datetime.now() - self.start_time >= self.limit_time:
                 logger.info("EternitySea time limit out")
                 break
 
@@ -155,10 +159,10 @@ class ScriptTask(
             self.screenshot()
 
             #限制
-            if self.current_count >= self._task_config.eternity_sea_config.limit_count:
+            if self.current_count >= self.limit_count:
                 logger.info("EternitySea count limit out")
                 break
-            if datetime.now() - self.start_time >= self._limit_time:
+            if datetime.now() - self.start_time >= self.limit_time:
                 logger.info("EternitySea time limit out")
                 break
 
@@ -206,10 +210,10 @@ class ScriptTask(
             if not self._is_in_eternity_sea():
                 continue
 
-            if self.current_count >= self._task_config.eternity_sea_config.limit_count:
+            if self.current_count >= self.limit_count:
                 logger.info("EternitySea count limit out")
                 break
-            if datetime.now() - self.start_time >= self._limit_time:
+            if datetime.now() - self.start_time >= self.limit_time:
                 logger.info("EternitySea time limit out")
                 break
 
@@ -220,9 +224,7 @@ class ScriptTask(
                     pass
 
                 if not self.appear(self.I_ETERNITY_SEA_FIRE):
-                    self.run_general_battle(
-                        config=self._task_config.general_battle_config
-                    )
+                    self.run_general_battle(config=self._task_config.general_battle_config)
                     break
         return True
 

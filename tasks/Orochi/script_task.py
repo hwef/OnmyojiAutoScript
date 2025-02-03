@@ -193,7 +193,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             # 点击挑战
             if not is_first:
                 if self.run_invite(config=self.config.orochi.invite_config):
-                    self.run_general_battle(config=self.config.orochi.general_battle_config,limit_count=self.limit_count)
+                    self.run_general_battle(config=self.config.orochi.general_battle_config)
                 else:
                     # 邀请失败，退出任务
                     logger.warning('Invite failed and exit this orochi task')
@@ -208,7 +208,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                     break
                 else:
                     is_first = False
-                    self.run_general_battle(config=self.config.orochi.general_battle_config,limit_count=self.limit_count)
+                    self.run_general_battle(config=self.config.orochi.general_battle_config)
 
         # 当结束或者是失败退出循环的时候只有两个UI的可能，在房间或者是在组队界面
         # 如果在房间就退出
@@ -270,7 +270,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             if self.is_in_room():
                 self.device.stuck_record_clear()
                 if self.wait_battle(wait_time=self.config.orochi.invite_config.wait_time):
-                    self.run_general_battle(config=self.config.orochi.general_battle_config,limit_count=self.limit_count)
+                    self.run_general_battle(config=self.config.orochi.general_battle_config)
                 else:
                     break
             # 队长秒开的时候，检测是否进入到战斗中
@@ -331,7 +331,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                     pass
 
                 if not self.appear(self.I_OROCHI_FIRE):
-                    self.run_general_battle(config=self.config.orochi.general_battle_config,limit_count=self.limit_count)
+                    self.run_general_battle(config=self.config.orochi.general_battle_config)
                     break
 
         # 回去

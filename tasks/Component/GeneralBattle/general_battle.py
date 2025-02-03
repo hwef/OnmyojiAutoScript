@@ -19,7 +19,7 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
     使用这个通用的战斗必须要求这个任务的config有config_general_battle
     """
 
-    def run_general_battle(self, config: GeneralBattleConfig = None, buff: BuffClass or list[BuffClass] = None, limit_count: int = None) -> bool:
+    def run_general_battle(self, config: GeneralBattleConfig = None, buff: BuffClass or list[BuffClass] = None) -> bool:
         """
         运行脚本
         :return:
@@ -28,7 +28,7 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
         logger.hr("General battle start", 2)
         self.current_count += 1
         logger.info(f'Current tasks: {self.config.task.command}')
-        logger.info(f'Current count: {self.current_count} / {limit_count}')
+        logger.info(f'Current count: {self.current_count} / {self.limit_count}')
 
         task_run_time = datetime.now() - self.start_time
         # 格式化时间，只保留整数部分的秒

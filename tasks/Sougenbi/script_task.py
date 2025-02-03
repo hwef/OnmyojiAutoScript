@@ -20,6 +20,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, SougenbiAssets):
         con = self.config.sougenbi
         s_con: SougenbiConfig = con.sougenbi_config
         limit_time = con.sougenbi_config.limit_time
+        self.limit_count = con.sougenbi_config.limit_count
         self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute,
                                                seconds=limit_time.second)
 
@@ -88,7 +89,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, SougenbiAssets):
 
             if not self.appear(self.I_S_CHECK_SOUGENBI):
                 continue
-            if self.current_count >= con.sougenbi_config.limit_count:
+            if self.current_count >= self.limit_count:
                 logger.info('Sougenbi count limit out')
                 break
             if datetime.now() - self.start_time >= self.limit_time:
