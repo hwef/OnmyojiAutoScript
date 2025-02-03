@@ -614,28 +614,31 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             elif self.appear_then_click(click, interval=interval):
                 continue
 
-    def save_image(self, save_time=2):
-        file = self.config.task.command
-        path = log_path
-        sleep(save_time)
+    def save_image(self, wait_time=2, task_name=None):
+
+        if task_name is None:
+            task_name = self.config.task.command
+        # 截图等待时间
+        sleep(wait_time)
         self.screenshot()
 
         image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
 
         # 获取今日日期并格式化为字符串
-        today_date = datetime.now().strftime('%Y-%m-%d')
-        today_time = datetime.now().strftime('%H-%M-%S')
+        datetime_now = datetime.now()
+        now_date = datetime_now.strftime('%Y-%m-%d')
+        now_time = datetime_now.strftime('%H-%M-%S')
         config_name = self.config.config_name
 
         # 设置保存图像的文件夹，包含今日日期
         # save_folder = Path(f'./log/Dokan/{today_date}')
-        save_folder = Path(f'{path}/{file}/{today_date}')
+        save_folder = Path(f'{log_path}/{task_name}/{now_date}')
         save_folder.mkdir(parents=True, exist_ok=True)
 
         # 设置图像名称
-        image_name = config_name + "_" + today_date + "_" + today_time
+        image_name = f'{config_name}_{now_time}'
 
         # 保存图像
         cv2.imwrite(str(save_folder / f'{image_name}.png'), image)
 
-        logger.info(f"保存{file}截图")
+        logger.info(f"保存{task_name}截图")

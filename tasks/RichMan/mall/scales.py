@@ -127,7 +127,7 @@ class Scales(Buy, MallNavbar):
                 result = targe.test_match(self.device.image)
                 logger.info(f'[{targe.name}]: {result}')
                 if result:
-                    self.save_image(save_time=0.5)
+                    self.save_image(wait_time=0.5)
                     front0 = targe.roi_front[0]
                     # 962 595 229
                     if front0 < 300:
@@ -141,7 +141,7 @@ class Scales(Buy, MallNavbar):
                         break
             if not result:
                 # 如果御魂都没找到选第一个
-                self.save_image(save_time=0.5)
+                self.save_image(wait_time=0.5)
                 self.appear_then_click(self.I_SCA_SELECT_1, interval=1.6)
 
     def _scales_orochi_new(self, buy_number: int):
