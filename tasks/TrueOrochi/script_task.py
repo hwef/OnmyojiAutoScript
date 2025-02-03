@@ -136,8 +136,8 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
         while 1:
             self.screenshot()
             if self.appear(self.I_GREED_GHOST):
-                self.save_image()
                 sleep(0.7)
+                self.save_image(wait_time=5)
                 self.screenshot()
                 if not self.appear(self.I_GREED_GHOST):
                     continue

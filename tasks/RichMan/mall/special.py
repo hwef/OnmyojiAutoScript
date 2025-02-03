@@ -159,6 +159,7 @@ class Special(Buy, MallNavbar):
         # logger.info(f'数字的ROI是: {self.O_SP_RES_NUMBER.roi}')
         result = self.O_SP_RES_NUMBER.ocr(self.device.image)
         result = result.replace('？', '2').replace('?', '2').replace(':', '；').replace('火', '次').replace('教', '数')
+        result = result.replace('刺', '剩')
         try:
             if '：' in result:
                 result = re.findall(r'剩余购买次数：(\d+)', result)[0]

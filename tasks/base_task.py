@@ -642,3 +642,11 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         cv2.imwrite(str(save_folder / f'{image_name}.png'), image)
 
         logger.info(f"保存{task_name}截图")
+
+if __name__ == '__main__':
+    logger.hr('INVITE FRIEND')
+    logger.hr('INVITE FRIEND',0)
+    logger.hr('INVITE FRIEND',1)
+    logger.hr('INVITE FRIEND',2)
+    logger.hr('INVITE FRIEND',3)
+    logger.hr('INVITE FRIEND')

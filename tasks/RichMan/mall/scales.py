@@ -47,7 +47,9 @@ class Scales(Buy, MallNavbar):
         # 设置购买的数量
         if number is None:
             self.appear_then_click(self.I_BUY_PLUS, interval=0.4)
-            time.sleep(0.5)
+            time.sleep(1)
+            self.appear_then_click(self.I_BUY_PLUS, interval=0.4)
+            time.sleep(1)
             self.appear_then_click(self.I_BUY_PLUS, interval=0.4)
         else:
             # 四次截图数字都一样，就可以退出了
@@ -94,15 +96,22 @@ class Scales(Buy, MallNavbar):
             return
         while 1:
             self.screenshot()
+            time.sleep(0.5)
             if self.appear(self.I_SCA_SELECT_1):
                 break
             if self.click(self.C_BUY_MORE, interval=3):
+                continue
+            if self.appear_then_click(self.I_BUY_PLUS, interval=0.4):
+                continue
+            # 出现兑换重新截图
+            if self.appear_then_click(self.I_SCA_PICTURE_BOOK, interval=1):
                 continue
         logger.info('Scales start select souls')
 
         sea_list = [self.I_HAIYUE, self.I_KUANGGU, self.I_YINNIAN,self.I_WANGQIE, self.I_1, self.I_2, self.I_3, self.I_4, self.I_5, self.I_6, self.I_7]
         # 选择魂
         while 1:
+            time.sleep(1)
             self.screenshot()
 
             # 出现兑换重新截图
@@ -112,9 +121,10 @@ class Scales(Buy, MallNavbar):
             if self.appear(self.I_SCA_SIX_STAR):
                 logger.info('Scales buy success')
                 time.sleep(2)
+                self.save_image(wait_time=1)
                 while 1:
                     self.screenshot()
-                    if not self.appear(self.I_SCA_SIX_STAR):
+                    if not self.appear(self.I_SCA_SIX_STAR) and self.appear(self.I_SCA_PICTURE_BOOK, interval=1):
                         break
                     if self.click(self.C_SCA_SOULS_GET, interval=1.6):
                         continue
@@ -374,6 +384,7 @@ class Scales(Buy, MallNavbar):
             buy_res_number = buy_number
         if buy_cycles_number:
             for i in range(buy_cycles_number):
+                logger.info(f"第{i}次兑换潮汐御魂")
                 self._scales_buy_sea_more(self.I_SCA_PICTURE_BOOK)
                 time.sleep(0.5)
         if buy_res_number and buy_res_number >= 2:

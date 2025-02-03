@@ -89,6 +89,11 @@ class ScriptTask(GameUi, KekkaiUtilizeAssets, RestartAssets):
         self.ui_get_current_page()
         self.ui_goto(page_main)
 
+        current_time = datetime.now().time()
+        if not (time(12, 00) <= current_time < time(14, 00) or
+                time(20, 00) <= current_time < time(22, 00)):
+            return
+
         timer_harvest = Timer(3)  # 如果连续3秒没有发现任何奖励，退出
         timer_harvest.start()
         while 1:

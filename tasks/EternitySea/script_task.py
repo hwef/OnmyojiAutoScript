@@ -133,6 +133,7 @@ class ScriptTask(
 
         # 当结束或者是失败退出循环的时候只有两个UI的可能，在房间或者是在组队界面
         # 如果在房间就退出
+        self.save_image()
         if self.exit_room():
             pass
         # 如果在组队界面就退出
@@ -179,6 +180,7 @@ class ScriptTask(
             elif self.check_take_over_battle(False, config=self._task_config.general_battle_config):
                 continue
 
+        self.save_image()
         while 1:
             # 有一种情况是本来要退出的，但是队长邀请了进入的战斗的加载界面
             if self.appear(self.I_GI_HOME) or self.appear(self.I_GI_EXPLORE):
