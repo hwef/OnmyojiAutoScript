@@ -1,0 +1,14 @@
+[
+  {
+    "itemName": "c_share1",
+    "roiFront": "743,612,46,67",
+    "roiBack": "743,612,46,67",
+    "description": "description"
+  },
+  {
+    "itemName": "c_share2",
+    "roiFront": "967,271,46,67",
+    "roiBack": "967,271,46,67",
+    "description": "description"
+  }
+]

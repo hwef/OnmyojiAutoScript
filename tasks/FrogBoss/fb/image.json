@@ -87,7 +87,7 @@
     "roiBack": "49,283,1192,161",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "description"
+    "description": "已竞猜"
   },
   {
     "itemName": "success_right",

@@ -20,7 +20,7 @@ class ScriptTask(Mall, Guild, ThousandThings, Shrine):
 
     def run(self):
         con: RichMan = self.config.rich_man
-        # 千物宝箱
+        # 千物宝箱 珍旅居
         self.execute_tt(con.thousand_things)
         # 神龛
         self.execute_shrine(con.shrine)

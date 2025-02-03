@@ -401,6 +401,19 @@ class RichManAssets:
 	I_TT_BUY_UP = RuleImage(roi_front=(755,427,59,57), roi_back=(740,386,80,146), threshold=0.8, method="Template matching", file="./tasks/RichMan/tt/tt_tt_buy_up.png")
 	# description 
 	I_TT_BUY_CONFIRM = RuleImage(roi_front=(584,512,53,53), roi_back=(553,487,169,115), threshold=0.8, method="Template matching", file="./tasks/RichMan/tt/tt_tt_buy_confirm.png")
+	# 唤妖借处
+	I_TT_SHARE0 = RuleImage(roi_front=(1044,280,30,100), roi_back=(1044,280,30,100), threshold=0.8, method="Template matching", file="./tasks/RichMan/tt/tt_share0.png")
+	# 配置
+	I_TT_SHARE1 = RuleImage(roi_front=(1135,615,47,48), roi_back=(1135,615,47,48), threshold=0.8, method="Template matching", file="./tasks/RichMan/tt/tt_share1.png")
+	# 确认
+	I_TT_SHARE2 = RuleImage(roi_front=(1135,615,47,48), roi_back=(1135,615,47,48), threshold=0.8, method="Template matching", file="./tasks/RichMan/tt/tt_share2.png")
+	# 确定更换
+	I_TT_SHARE_OK = RuleImage(roi_front=(711,408,100,48), roi_back=(711,408,100,48), threshold=0.8, method="Template matching", file="./tasks/RichMan/tt/tt_share_ok.png")
+	# 借出
+	I_TT_SHARE3 = RuleImage(roi_front=(976,523,47,48), roi_back=(976,523,47,48), threshold=0.8, method="Template matching", file="./tasks/RichMan/tt/tt_share3.png")
+
+	C_C_SHARE1 = RuleClick(roi_front=(743,612,46,67), roi_back=(743,612,46,67), name="c_shrine")
+	C_C_SHARE2 = RuleClick(roi_front=(967,271,46,67), roi_back=(967,271,46,67), name="c_shrine")
 
 
 	# Ocr Rule Assets
