@@ -40,7 +40,7 @@ class ConfigMenu:
         self.menu["Weekly Task"] = ['RichMan', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms',
                                     'MysteryShop', 'Duel', 'TrueOrochi']
         # 活动的任务
-        self.menu["Activity Task"] = ['ActivityShikigami', 'MetaDemon', 'FrogBoss', 'FloatParade', 'Quiz', 'KittyShop']
+        self.menu["Activity Task"] = ['ActivityShikigami', 'MetaDemon', 'FrogBoss', 'FloatParade', 'Quiz', 'KittyShop', 'NianTrue']
         # 开发工具
         self.menu["Tools"] = ['Image Rule', 'Ocr Rule', 'Click Rule', 'Long Click Rule', 'Swipe Rule', 'List Rule']
 

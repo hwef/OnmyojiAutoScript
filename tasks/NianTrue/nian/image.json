@@ -1,0 +1,65 @@
+[
+  {
+    "itemName": "auto_matching",
+    "imageName": "nian_auto_matching.png",
+    "roiFront": "698,598,180,64",
+    "roiBack": "698,598,180,64",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "自动匹配"
+  },
+  {
+    "itemName": "n_check",
+    "imageName": "nian_n_check.png",
+    "roiFront": "793,279,242,246",
+    "roiBack": "793,279,242,246",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "判断是否在年的界面"
+  },
+  {
+    "itemName": "n_waiting",
+    "imageName": "nian_n_waiting.png",
+    "roiFront": "735,28,54,51",
+    "roiBack": "735,28,54,51",
+    "method": "Template matching",
+    "threshold": 0.7,
+    "description": "等待进入，也是关闭按钮"
+  },
+  {
+    "itemName": "n_huabei",
+    "imageName": "nian_n_huabei.png",
+    "roiFront": "409,330,156,45",
+    "roiBack": "409,330,156,45",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "西北年兽"
+  },
+  {
+    "itemName": "battle_over",
+    "imageName": "nian_battle_over.png",
+    "roiFront": "531,212,205,61",
+    "roiBack": "531,212,205,61",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "年兽战斗结束，通关奖励"
+  },
+  {
+    "itemName": "n_page",
+    "imageName": "nian_n_page.png",
+    "roiFront": "94,29,129,40",
+    "roiBack": "94,29,129,40",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "年兽来袭页面"
+  },
+  {
+    "itemName": "n_ok",
+    "imageName": "nian_n_ok.png",
+    "roiFront": "593,442,100,65",
+    "roiBack": "593,442,100,65",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "description"
+  }
+]

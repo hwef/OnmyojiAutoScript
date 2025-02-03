@@ -11,7 +11,7 @@ class ConfigManual:
         Restart 
         > KekkaiUtilize > KekkaiActivation  
         > WantedQuests > DemonEncounter > SoulsTidy > GuildSushi
-        > AreaBoss > GoldYoukai > ExperienceYoukai > Nian > Tako > RealmRaid > RyouToppa > DailyTrifles > Exploration
+        > AreaBoss > GoldYoukai > ExperienceYoukai > Nian > NianTrue > Tako > RealmRaid > RyouToppa > DailyTrifles > Exploration
         > Dokan > AbyssShadows > Hunt 
         > Pets > Orochi > OrochiJudgement > Sougenbi > FallenSun > EternitySea 
         > ActivityShikigami 
