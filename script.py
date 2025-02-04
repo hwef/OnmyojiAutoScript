@@ -95,13 +95,18 @@ class Script:
             if not os.path.exists(error_path):
                 os.mkdir(error_path)
             config_name = self.config.config_name
-            today_date = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-            folder = f'{error_path}{today_date}'
+            datetime_now = datetime.now()
+            now_date = datetime_now.strftime('%Y-%m-%d')
+            now_time = datetime_now.strftime('%H-%M-%S')
+            config_name = self.config.config_name
+            folder = f'{error_path}{now_date}'
+            image_name = f'{config_name}_{now_time}'
             # folder = f'./log/error/{today_date}'
             logger.warning(f'Saving error: {folder}')
-            os.mkdir(folder)
+            if not os.path.exists(folder):
+                os.mkdir(folder)
             for data in self.device.screenshot_deque:
-                image_time = datetime.strftime(data['time'], config_name + '_' + today_date)
+                image_time = datetime.strftime(data['time'], image_name)
                 image = handle_sensitive_image(data['image'])
                 save_image(image, f'{folder}/{image_time}.png')
             with open(logger.log_file, 'r', encoding='utf-8') as f:
@@ -113,7 +118,7 @@ class Script:
                         start = index
                 lines = lines[start - 2:]
                 lines = handle_sensitive_logs(lines)
-            with open(f'{folder}/log.txt', 'w', encoding='utf-8') as f:
+            with open(f'{folder}/{image_name}.txt', 'w', encoding='utf-8') as f:
                 f.writelines(lines)
 
     def init_server(self, port: int) -> int:

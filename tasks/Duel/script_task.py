@@ -17,7 +17,15 @@ from tasks.Duel.assets import DuelAssets
 
 """ 斗技 """
 class ScriptTask(GameUi, GeneralBattle, DuelAssets):
+
     def run(self):
+
+        current_time = datetime.now().time()
+        if not (time(12, 00) <= current_time < time(23, 00)):
+            logger.warning('不在斗技时间段')
+            self.set_next_run(task='Duel', success=True, finish=False)
+            raise TaskEnd('Duel')
+
         con = self.config.duel.duel_config
         limit_time = con.limit_time
         self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute,
