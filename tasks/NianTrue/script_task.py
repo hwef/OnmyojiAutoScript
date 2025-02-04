@@ -119,21 +119,23 @@ class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, NianTrueAsse
         self.device.click_record_clear()
         # 战斗过程 随机点击和滑动 防封
         logger.info("NianTrue Start battle process")
+        is_first = True
         while 1:
             self.screenshot()
             if self.appear(self.I_N_PAGE):
-                logger.info('NianTrue Win battle 年兽来袭页面')
+                logger.info('现世年兽来袭页面')
                 return True
             if self.appear(self.I_BATTLE_OVER):
-                self.save_image()
-                logger.info('NianTrue Win battle 年兽战斗结束，通关奖励')
-                self.click(self.C_CLIC_SAFE, interval=1)
+                if is_first:
+                    self.save_image()
+                    is_first = False
+                logger.info('现世年兽战斗结束，通关奖励')
                 self.click(self.C_CLIC_SAFE, interval=1)
                 continue
             if self.appear(self.I_N_OK):
                 self.save_image()
                 self.appear_then_click(self.I_N_OK)
-                logger.info('NianTrue Win battle 年兽战斗结束，已经拥有转为金币，点击确认')
+                logger.info('现世年兽战斗结束，已拥有物品转为金币，点击确认')
                 continue
 
     def next_nian_true(self):

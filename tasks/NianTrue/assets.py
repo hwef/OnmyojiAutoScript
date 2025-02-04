@@ -16,10 +16,6 @@ class NianTrueAssets:
 
 
 	# Image Rule Assets
-	# 自动匹配 
-	I_AUTO_MATCHING = RuleImage(roi_front=(698,598,180,64), roi_back=(698,598,180,64), threshold=0.8, method="Template matching", file="./tasks/NianTrue/nian/nian_auto_matching.png")
-	# 判断是否在年的界面 
-	I_N_CHECK = RuleImage(roi_front=(793,279,242,246), roi_back=(793,279,242,246), threshold=0.8, method="Template matching", file="./tasks/NianTrue/nian/nian_n_check.png")
 	# 等待进入，也是关闭按钮 
 	I_N_WAITING = RuleImage(roi_front=(735,28,54,51), roi_back=(735,28,54,51), threshold=0.7, method="Template matching", file="./tasks/NianTrue/nian/nian_n_waiting.png")
 	# 华北年兽 
@@ -30,12 +26,5 @@ class NianTrueAssets:
 	I_N_PAGE = RuleImage(roi_front=(94,29,129,40), roi_back=(94,29,129,40), threshold=0.8, method="Template matching", file="./tasks/NianTrue/nian/nian_n_page.png")
 	# 年兽战斗结束，已经拥有转为金币，点击确认 
 	I_N_OK = RuleImage(roi_front=(593,442,100,65), roi_back=(593,442,100,65), threshold=0.8, method="Template matching", file="./tasks/NianTrue/nian/nian_n_ok.png")
-
-
-	# Ocr Rule Assets
-	# 再次挑战 
-	O_N_BATTLE_AGAIN = RuleOcr(roi=(612,251,123,37), area=(612,251,123,37), mode="Single", method="Default", keyword="再次挑战", name="n_battle_again")
-	# 冷却的时间 
-	O_N_CD = RuleOcr(roi=(578,218,172,41), area=(578,218,172,41), mode="Single", method="Default", keyword="", name="n_cd")
 
 

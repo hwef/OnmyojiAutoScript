@@ -6,6 +6,10 @@
   "description": "description",
   "list": [
     {
+      "itemName": "现世年兽",
+      "roiFront": "145,305,216,53"
+    },
+    {
       "itemName": "全部",
       "roiFront": "138,237,222,59"
     },
