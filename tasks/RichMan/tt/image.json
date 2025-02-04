@@ -63,48 +63,48 @@
     "description": "description"
   },
   {
-    "itemName": "share0",
+    "itemName": "tt_share0",
     "imageName": "tt_share0.png",
     "roiFront": "1044,280,30,100",
     "roiBack": "1044,280,30,100",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "description"
+    "description": "唤妖借处"
   },
   {
-    "itemName": "share1",
+    "itemName": "tt_share1",
     "imageName": "tt_share1.png",
     "roiFront": "1135,615,47,48",
     "roiBack": "1135,615,47,48",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "description"
+    "description": "配置"
   },
   {
-    "itemName": "share2",
+    "itemName": "tt_share2",
     "imageName": "tt_share2.png",
     "roiFront": "1135,615,47,48",
     "roiBack": "1135,615,47,48",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "description"
+    "description": "确认"
   },
   {
-    "itemName": "share3",
-    "imageName": "tt_share3.png",
-    "roiFront": "976,523,47,48",
-    "roiBack": "976,523,47,48",
-    "method": "Template matching",
-    "threshold": 0.8,
-    "description": "description"
-  },
-  {
-    "itemName": "share_ok",
+    "itemName": "tt_share_ok",
     "imageName": "tt_share_ok.png",
     "roiFront": "711,408,100,48",
     "roiBack": "711,408,100,48",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "description"
+    "description": "确定更换"
+  },
+  {
+    "itemName": "tt_share3",
+    "imageName": "tt_share3.png",
+    "roiFront": "976,523,47,48",
+    "roiBack": "976,523,47,48",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "借出"
   }
 ]

@@ -19,9 +19,9 @@
   },
   {
     "itemName": "mall_resource_3",
-    "roiFront": "533,9,107,38",
-    "roiBack": "533,9,107,38",
-    "mode": "Digit",
+    "roiFront": "550,9,107,38",
+    "roiBack": "550,9,107,38",
+    "mode": "Single",
     "method": "Default",
     "keyword": "",
     "description": "左数第二个"

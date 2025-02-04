@@ -12,7 +12,7 @@ from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
 from tasks.Component.GeneralRoom.general_room import GeneralRoom
 from tasks.Component.GeneralInvite.general_invite import GeneralInvite
-from tasks.NianTrue.assets import NianTrueAsset
+from tasks.NianTrue.assets import NianTrueAssets
 from tasks.Component.GeneralBuff.config_buff import BuffClass
 
 from module.exception import TaskEnd
@@ -22,7 +22,7 @@ from module.base.timer import Timer
 """ 现世年兽 """
 
 
-class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, NianTrueAsset):
+class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, NianTrueAssets):
 
     def run(self) -> None:
 

@@ -15,7 +15,7 @@ from tasks.Utils.config_enum import DemonClass
 
 class Scales(Buy, MallNavbar):
 
-    def execute_scales(self, con: ScalesConfig=None):
+    def execute_scales(self, con: ScalesConfig = None):
         if not con:
             con = self.config.rich_man.scales
         if not con.enable:
@@ -108,7 +108,8 @@ class Scales(Buy, MallNavbar):
                 continue
         logger.info('Scales start select souls')
 
-        sea_list = [self.I_HAIYUE, self.I_KUANGGU, self.I_YINNIAN,self.I_WANGQIE, self.I_1, self.I_2, self.I_3, self.I_4, self.I_5, self.I_6, self.I_7]
+        sea_list = [self.I_YINNIAN, self.I_KUANGGU, self.I_WANGQIE, self.I_HAIYUE, self.I_BANGJING,
+                    self.I_1, self.I_2, self.I_3, self.I_4, self.I_5, self.I_6, self.I_7]
         # 选择魂
         while 1:
             time.sleep(1)
@@ -187,6 +188,7 @@ class Scales(Buy, MallNavbar):
             # 购买
             self._scales_buy_more(self.I_SCA_OROCHI_SCALES)
             time.sleep(0.5)
+
     def _scales_orochi(self, buy_number: int):
         """
         要求必须是在御魂礼盒界面
@@ -215,7 +217,7 @@ class Scales(Buy, MallNavbar):
         if cu + res != total:
             logger.warning('OCR error')
             return
-        money_enough = cu >= 50*buy_number
+        money_enough = cu >= 50 * buy_number
         if not money_enough:
             logger.warning('Scales orochi money is not enough')
             # 判断够不够买2个
@@ -229,8 +231,7 @@ class Scales(Buy, MallNavbar):
             self._scales_buy_more(self.I_SCA_OROCHI_SCALES, buy_number)
         time.sleep(0.5)
 
-
-    def _scales_demon(self, buy_number: int, buy_class: DemonClass=DemonClass.ODOKURO, buy_position: int=1):
+    def _scales_demon(self, buy_number: int, buy_class: DemonClass = DemonClass.ODOKURO, buy_position: int = 1):
         """
         要求必须是在御魂礼盒界面
         :param buy_number:
@@ -260,7 +261,7 @@ class Scales(Buy, MallNavbar):
         if not isinstance(current_money, int):
             logger.warning('OCR error')
             return
-        money_enough = current_money >= 50*buy_number
+        money_enough = current_money >= 50 * buy_number
         if not money_enough:
             logger.warning('Scales demon money is not enough')
             # 判断够不够买2个
@@ -334,7 +335,7 @@ class Scales(Buy, MallNavbar):
             if self.click(self.C_SCA_SOULS_BACK, interval=1):
                 continue
 
-    def _scales_sea(self, buy_number: int, buy_rule: str='auto'):
+    def _scales_sea(self, buy_number: int, buy_rule: str = 'auto'):
         """
 
         :param buy_number:
@@ -366,7 +367,7 @@ class Scales(Buy, MallNavbar):
         if not isinstance(current_money, int):
             logger.warning('OCR error')
             return
-        money_enough = current_money >= 200*buy_number
+        money_enough = current_money >= 200 * buy_number
         if not money_enough:
             logger.warning('Scales sea money is not enough')
             # 判断够不够买2个
@@ -392,12 +393,6 @@ class Scales(Buy, MallNavbar):
             time.sleep(0.5)
 
 
-
-
-
-
-
-
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
@@ -412,5 +407,3 @@ if __name__ == '__main__':
     con = c.rich_man.scales
     t._scales_orochi_new(con.orochi_scales)
     t._scales_sea(buy_number=30)
-
-

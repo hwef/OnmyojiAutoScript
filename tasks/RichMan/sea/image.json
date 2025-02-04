@@ -1,11 +1,110 @@
 [
   {
     "itemName": "haiyue",
-    "imageName": "Screenshots_haiyue.png",
+    "imageName": "haiyue.png",
     "roiFront": "962,240,95,95",
     "roiBack": "151,165,984,220",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "海月火玉"
+  },
+  {
+    "itemName": "kuanggu",
+    "imageName": "kuanggu.png",
+    "roiFront": "962,240,95,95",
+    "roiBack": "151,165,984,220",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "狂骨"
+  },
+  {
+    "itemName": "yinnian",
+    "imageName": "yinnian.png",
+    "roiFront": "962,240,95,95",
+    "roiBack": "151,165,984,220",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "隐念"
+  },
+  {
+    "itemName": "wangqie",
+    "imageName": "wangqie.png",
+    "roiFront": "962,240,95,95",
+    "roiBack": "151,165,984,220",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "网切"
+  },
+  {
+    "itemName": "bangjing",
+    "imageName": "bangjing.png",
+    "roiFront": "962,240,95,95",
+    "roiBack": "151,165,984,220",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "蚌精"
+  },
+  {
+    "itemName": "1",
+    "imageName": "Screenshots_1.png",
+    "roiFront": "962,240,95,95",
+    "roiBack": "151,165,984,220",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "元兴寺"
+  },
+  {
+    "itemName": "2",
+    "imageName": "Screenshots_2.png",
+    "roiFront": "962,240,95,95",
+    "roiBack": "151,165,984,220",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "心眼"
+  },
+  {
+    "itemName": "3",
+    "imageName": "Screenshots_3.png",
+    "roiFront": "962,240,95,95",
+    "roiBack": "151,165,984,220",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "破势"
+  },
+  {
+    "itemName": "4",
+    "imageName": "Screenshots_4.png",
+    "roiFront": "962,240,95,95",
+    "roiBack": "151,165,984,220",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "遗念火"
+  },
+  {
+    "itemName": "5",
+    "imageName": "Screenshots_5.png",
+    "roiFront": "962,240,95,95",
+    "roiBack": "151,165,984,220",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "吊瓶火"
+  },
+  {
+    "itemName": "6",
+    "imageName": "Screenshots_6.png",
+    "roiFront": "962,240,95,95",
+    "roiBack": "151,165,984,220",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "火灵"
+  },
+  {
+    "itemName": "7",
+    "imageName": "Screenshots_7.png",
+    "roiFront": "962,240,95,95",
+    "roiBack": "151,165,984,220",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "恶楼"
   }
 ]

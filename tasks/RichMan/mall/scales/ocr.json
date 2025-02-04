@@ -19,12 +19,12 @@
   },
   {
     "itemName": "sca_number_sea",
-    "roiFront": "926,321,30,23",
-    "roiBack": "926,321,30,23",
-    "mode": "Digit",
+    "roiFront": "918,318,42,25",
+    "roiBack": "918,318,42,25",
+    "mode": "Single",
     "method": "Default",
     "keyword": "",
-    "description": "永生之海"
+    "description": "永生之海潮汐御魂"
   },
   {
     "itemName": "sca_demon_postion",

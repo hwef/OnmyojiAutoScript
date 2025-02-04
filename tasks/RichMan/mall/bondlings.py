@@ -60,7 +60,6 @@ class Bondlings(Buy, MallNavbar):
                 # 契灵御魂已经买光
                 logger.warning('本周契灵御魂已经买光')
                 return
-        pos = self.O_BL_RES_SOULS_new.ocr_full(self.device.image)
 
         # 检查是否出现了购买按钮
         if not self.appear(buy_button):
