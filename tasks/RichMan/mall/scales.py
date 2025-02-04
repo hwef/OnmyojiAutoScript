@@ -114,10 +114,6 @@ class Scales(Buy, MallNavbar):
             time.sleep(1)
             self.screenshot()
 
-            # 出现兑换重新截图
-            if self.appear_then_click(self.I_SCA_PICTURE_BOOK, interval=1):
-                continue
-
             if self.appear(self.I_SCA_SIX_STAR):
                 logger.info('Scales buy success')
                 time.sleep(2)
@@ -131,6 +127,10 @@ class Scales(Buy, MallNavbar):
                 # 收获购买的东西
                 logger.info('Scales get success')
                 break
+
+            # 出现兑换重新截图
+            if self.appear_then_click(self.I_SCA_PICTURE_BOOK, interval=1):
+                continue
 
             result = False
             for targe in sea_list:
