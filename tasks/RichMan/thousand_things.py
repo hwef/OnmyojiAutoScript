@@ -36,8 +36,6 @@ class ThousandThings(GameUi, RichManAssets):
                 break
             if self.appear_then_click(self.I_TT_ENTER, interval=1):
                 continue
-            if self.appear_then_click(self.I_UI_BACK_RED, interval=1):
-                continue
         logger.info('Enter Thousand Things')
         self.screenshot()
         if not self.appear(self.I_TT_TICKET_BULE) and not self.appear(self.I_TT_BLACK) and not self.appear(self.I_TT_AP):
@@ -147,8 +145,12 @@ class ThousandThings(GameUi, RichManAssets):
                 break
             if timer_check.reached():
                 break
-
-
+        while 1:
+            self.screenshot()
+            if self.appear(self.I_TT_ENTER):
+                break
+            if self.appear_then_click(self.I_UI_BACK_RED, interval=1):
+                continue
 
     def tt_buy_ap(self):
         self.screenshot()
