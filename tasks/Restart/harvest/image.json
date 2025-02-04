@@ -50,7 +50,7 @@
     "roiFront": "732,489,34,33",
     "roiBack": "177,451,973,141",
     "method": "Template matching",
-    "threshold": 0.8,
+    "threshold": 0.7,
     "description": "点击勾玉"
   },
   {

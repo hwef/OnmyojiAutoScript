@@ -23,7 +23,7 @@
     "roiFront": "661,466,43,46",
     "roiBack": "661,466,43,46",
     "method": "Template matching",
-    "threshold": 0.8,
+    "threshold": 0.6,
     "description": "勾玉"
   },
     {
@@ -32,7 +32,7 @@
     "roiFront": "661,466,43,46",
     "roiBack": "661,466,43,46",
     "method": "Template matching",
-    "threshold": 0.8,
+    "threshold": 0.6,
     "description": "体力"
   },
   {
@@ -41,7 +41,7 @@
     "roiFront": "565,463,59,65",
     "roiBack": "565,463,59,65",
     "method": "Template matching",
-    "threshold": 0.8,
+    "threshold": 0.6,
     "description": "猫粮"
   },
   {
@@ -50,7 +50,7 @@
     "roiFront": "565,464,60,63",
     "roiBack": "565,464,60,63",
     "method": "Template matching",
-    "threshold": 0.8,
+    "threshold": 0.6,
     "description": "狗粮"
   },
   {

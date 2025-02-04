@@ -176,17 +176,17 @@
     "roiFront": "33,476,70,49",
     "roiBack": "2,130,135,406",
     "method": "Template matching",
-    "threshold": 0.7,
+    "threshold": 0.6,
     "description": "宝箱"
-  },  {
+  },
+  {
     "itemName": "map_box_click",
     "imageName": "res_treasure_box_click.png",
     "roiFront": "680,203,100,100",
     "roiBack": "680,203,100,100",
     "method": "Template matching",
-    "threshold": 0.7,
+    "threshold": 0.6,
     "description": "地图宝箱"
-  },
   },
   {
     "itemName": "swipe_end",
