@@ -127,9 +127,14 @@ class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, NianTrueAsse
             if self.appear(self.I_BATTLE_OVER):
                 self.save_image()
                 logger.info('NianTrue Win battle 年兽战斗结束，通关奖励')
-                self.click(self.C_CLIC_SAFE)
-            if self.appear_then_click(self.I_N_OK):
+                self.click(self.C_CLIC_SAFE, interval=1)
+                self.click(self.C_CLIC_SAFE, interval=1)
+                continue
+            if self.appear(self.I_N_OK):
+                self.save_image()
+                self.appear_then_click(self.I_N_OK)
                 logger.info('NianTrue Win battle 年兽战斗结束，已经拥有转为金币，点击确认')
+                continue
 
     def next_nian_true(self):
         # 退出结束

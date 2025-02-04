@@ -33,7 +33,7 @@
     "roiBack": "409,330,156,45",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "西北年兽"
+    "description": "华北年兽"
   },
   {
     "itemName": "battle_over",
@@ -60,6 +60,6 @@
     "roiBack": "593,442,100,65",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "description"
+    "description": "年兽战斗结束，已经拥有转为金币，点击确认"
   }
 ]
