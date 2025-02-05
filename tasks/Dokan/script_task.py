@@ -326,6 +326,10 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 self.device.click_record_clear()
                 self.device.stuck_record_clear()
                 self.device.stuck_record_add('BATTLE_STATUS_S')
+            # 战斗时间已到，无奖励，在等待馆主战场景
+            if self.appear(self.I_DOKAN_BOSS_WAITING, threshold=0.8):
+                logger.info(f"战斗时间已到，无奖励，等待馆主战中")
+                break
 
             # 如果出现赢 就点击
             if self.appear(GeneralBattle.I_WIN, threshold=0.8):
