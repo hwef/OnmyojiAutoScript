@@ -124,9 +124,9 @@ pyw_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
 
 def set_file_logger(name=pyw_name):
-    log_home = f'{log_path}/log/{date.today()}'
-    log_file = f'{log_home}/{date.today()}_{name}.txt'
-    logger.info(f'Log file : {log_file}')
+    log_home = log_path + f'log/{date.today()}'
+    log_file = f'{log_home}/{name}.txt'
+    # logger.info(f'Log file : {log_file}')
     os.makedirs(log_home, exist_ok=True)
 
     # 确保日志文件路径正确
@@ -161,9 +161,9 @@ def set_file_logger(name=pyw_name):
     # 删除旧处理器时，增加调试输出
     logger.handlers = [h for h in logger.handlers if not isinstance(
         h, (logging.FileHandler, RichFileHandler))]
-    print(logger.handlers)  # 确认只剩控制台处理器
+    # print(logger.handlers)  # 确认只剩控制台处理器
     logger.addHandler(hdlr)
-    print(logger.handlers)  # 确认只剩控制台处理器
+    # print(logger.handlers)  # 确认只剩控制台处理器
     logger.log_file = log_file
 
 

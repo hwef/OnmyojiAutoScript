@@ -64,6 +64,7 @@ class ScriptTask(LoginHandler):
         if not (datetime_now.weekday() == 2 and 7 <= datetime_now.hour <= 8):
             return False
         logger.info("The game server is updating, delay the pending tasks to 9:00")
+        logger.warning("周三游戏更新,7:00-8:59的任务延迟到9:00")
         logger.warning('Delay pending tasks')
         # running 中的必然是 Restart
         for task in self.config.pending_task:

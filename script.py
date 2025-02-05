@@ -413,7 +413,7 @@ class Script:
         Main loop of scheduler.
         :return:
         """
-        logger.set_file_logger(self.config_name)
+        # logger.set_file_logger(self.config_name)
         logger.info(f'Start scheduler loop: {self.config_name}')
 
         while 1:
@@ -451,8 +451,10 @@ class Script:
             logger.info(f'Scheduler: Start task `{task}`')
             self.device.stuck_record_clear()
             self.device.click_record_clear()
+
             # 每次任务看看需不需要切日日志文件
             logger.set_file_logger(self.config_name)
+
             logger.hr(task, level=0)
             success = self.run(inflection.camelize(task))
             logger.info(f'Scheduler: End task `{task}`')
