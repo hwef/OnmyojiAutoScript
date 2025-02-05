@@ -614,39 +614,66 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             elif self.appear_then_click(click, interval=interval):
                 continue
 
-    def save_image(self, wait_time=2, task_name=None):
+    def save_image(self, task_name=None, wait_time=2):
+        try:
+            if task_name is None:
+                task_name = self.config.task.command
+            # 截图等待时间
+            sleep(wait_time)
 
-        if task_name is None:
-            task_name = self.config.task.command
-        # 截图等待时间
-        sleep(wait_time)
-        self.screenshot()
+            # 获取今日日期并格式化为字符串
+            datetime_now = datetime.now()
+            today_date = datetime_now.strftime('%Y-%m-%d')
+            today_time = datetime_now.strftime('%H-%M-%S')
+            today_weekday = datetime.now().strftime("%A")
+            config_name = self.config.config_name
 
-        image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
+            # 设置保存图像的文件夹，包含今日日期
+            # './log/2025-02-05_Wednesday/Duel'
+            folder_name = f'{log_path}/{today_date}_{today_weekday}/{task_name}'
+            folder_path = Path(folder_name)
+            folder_path.mkdir(parents=True, exist_ok=True)
 
-        # 获取今日日期并格式化为字符串
-        datetime_now = datetime.now()
-        now_date = datetime_now.strftime('%Y-%m-%d')
-        now_time = datetime_now.strftime('%H-%M-%S')
-        config_name = self.config.config_name
+            # 设置图像名称
+            image_name = f'{config_name}_{today_time}'
+            image_path = f'{folder_name}/{image_name}.png'
 
-        # 设置保存图像的文件夹，包含今日日期
-        # save_folder = Path(f'./log/Dokan/{today_date}')
-        save_folder = Path(f'{log_path}/{task_name}/{now_date}')
-        save_folder.mkdir(parents=True, exist_ok=True)
+            # 保存图像
+            self.screenshot()
+            image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
+            cv2.imwrite(image_path, image)
 
-        # 设置图像名称
-        image_name = f'{config_name}_{now_time}'
+            logger.info(f"保存{task_name}截图")
+        except Exception as e:
+            logger.info(f"保存{task_name}截图异常，{e}")
 
-        # 保存图像
-        cv2.imwrite(str(save_folder / f'{image_name}.png'), image)
-
-        logger.info(f"保存{task_name}截图")
 
 if __name__ == '__main__':
-    logger.hr('INVITE FRIEND')
-    logger.hr('INVITE FRIEND',0)
-    logger.hr('INVITE FRIEND',1)
-    logger.hr('INVITE FRIEND',2)
-    logger.hr('INVITE FRIEND',3)
-    logger.hr('INVITE FRIEND')
+    from module.config.config import Config
+    from module.device.device import Device
+
+    c = Config('oas1')
+    d = Device(c)
+    t = BaseTask(c, d)
+
+    t.save_image("SoulsTidy")
+
+    # t.save_image()
+
+    # logger.hr('INVITE FRIEND')
+    # logger.hr('INVITE FRIEND', 0)
+    # logger.hr('INVITE FRIEND', 1)
+    # logger.hr('INVITE FRIEND', 2)
+    # logger.hr('INVITE FRIEND', 3)
+    # logger.hr('INVITE FRIEND')
+
+    # datetime_now = datetime.now().strftime("%A")
+    # logger.info(datetime_now)
+
+    # # 获取当前日期
+    # today = date.today()
+    # # 获取星期几，返回值为 0（周一）到 6（周日）
+    # weekday = today.weekday()
+    # # 将数字转换为星期几的名称
+    # weekdays = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+    # print("今天是：", weekdays[weekday])

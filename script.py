@@ -118,7 +118,7 @@ class Script:
                         start = index
                 lines = lines[start - 2:]
                 lines = handle_sensitive_logs(lines)
-            with open(f'{folder}/{image_name}.txt', 'w', encoding='utf-8') as f:
+            with open(f'{folder}/{image_name}.log', 'w', encoding='utf-8') as f:
                 f.writelines(lines)
 
     def init_server(self, port: int) -> int:

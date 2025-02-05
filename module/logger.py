@@ -125,7 +125,7 @@ pyw_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
 def set_file_logger(name=pyw_name):
     log_home = log_path + f'log/{date.today()}'
-    log_file = f'{log_home}/{name}.txt'
+    log_file = f'{log_home}/{name}.log'
     # logger.info(f'Log file : {log_file}')
     os.makedirs(log_home, exist_ok=True)
 
