@@ -350,6 +350,7 @@ class Script:
         :param command:  大写驼峰命名的任务名字
         :return:
         """
+
         if command == 'start' or command == 'goto_main':
             logger.error(f'Invalid command `{command}`')
 
@@ -450,6 +451,8 @@ class Script:
             logger.info(f'Scheduler: Start task `{task}`')
             self.device.stuck_record_clear()
             self.device.click_record_clear()
+            # 每次任务看看需不需要切日日志文件
+            logger.set_file_logger(self.config_name)
             logger.hr(task, level=0)
             success = self.run(inflection.camelize(task))
             logger.info(f'Scheduler: End task `{task}`')

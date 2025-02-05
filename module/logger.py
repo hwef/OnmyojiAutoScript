@@ -1,6 +1,10 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
+from logging.handlers import TimedRotatingFileHandler
+import time
+from datetime import datetime, date
+import pytz
 import datetime
 import logging
 import os
@@ -61,12 +65,12 @@ logger_debug = False
 logger = logging.getLogger('oas')
 logger.setLevel(logging.DEBUG if logger_debug else logging.INFO)
 file_formatter = logging.Formatter(
-    fmt='%(asctime)s.%(msecs)03d | %(filename)20s:%(lineno)04d | %(levelname)8s | %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    fmt='%(asctime)s.%(msecs)03d | %(filename)20s:%(lineno)04d | %(levelname)8s | %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S')
 console_formatter = logging.Formatter(
     fmt='%(asctime)s.%(msecs)03d │ %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 flutter_formatter = logging.Formatter(
     fmt='| %(asctime)s.%(msecs)03d | %(message)08s', datefmt='%H:%M:%S')
-
 
 # ======================================================================================================================
 #            Set console logger
@@ -87,6 +91,8 @@ logger.addHandler(console_hdlr)
 # logger.py
 
 log_path = './log/'
+
+
 # log_path = 'F:\OneDrive'
 
 class Logger:
@@ -106,25 +112,34 @@ class RichFileHandler(RichHandler):
     pass
 
 
+class SafeTimedRotatingFileHandler(TimedRotatingFileHandler):
+    def doRollover(self):
+        if self.stream:
+            self.stream.close()  # 显式关闭当前文件流
+        super().doRollover()
+
+
 # Add file logger
 pyw_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
 
 def set_file_logger(name=pyw_name):
+    log_home = f'{log_path}/log/{date.today()}'
+    log_file = f'{log_home}/{date.today()}_{name}.txt'
+    logger.info(f'Log file : {log_file}')
+    os.makedirs(log_home, exist_ok=True)
 
-    log_home = log_path + 'log/'
-
-    if '_' in name:
-        name = name.split('_', 1)[0]
-    log_file = f'{log_home}{datetime.date.today()}_{name}.txt'
-    try:
-        file = open(log_file, mode='a', encoding='utf-8')
-    except FileNotFoundError:
-        os.mkdir(log_home)
-        file = open(log_file, mode='a', encoding='utf-8')
-
+    # 确保日志文件路径正确
+    file_handler = SafeTimedRotatingFileHandler(
+        filename=log_file,
+        when='midnight',
+        interval=1,
+        backupCount=7,
+        encoding='utf-8',
+        utc=False,  # 使用本地时区
+    )
     file_console = Console(
-        file=file,
+        file=file_handler.stream,
         no_color=True,
         highlight=False,
         width=160,
@@ -143,9 +158,12 @@ def set_file_logger(name=pyw_name):
     )
     hdlr.setFormatter(file_formatter)
 
+    # 删除旧处理器时，增加调试输出
     logger.handlers = [h for h in logger.handlers if not isinstance(
         h, (logging.FileHandler, RichFileHandler))]
+    print(logger.handlers)  # 确认只剩控制台处理器
     logger.addHandler(hdlr)
+    print(logger.handlers)  # 确认只剩控制台处理器
     logger.log_file = log_file
 
 
@@ -210,6 +228,7 @@ def set_func_logger(func):
     )
     hdlr.setFormatter(flutter_formatter)
     logger.addHandler(hdlr)
+
 
 # ======================================================================================================================
 #            Set print format
@@ -319,7 +338,8 @@ def show():
     logger.info(r'Brace { [ ( ) ] }')
     logger.info(r'True, False, None')
     logger.info(r'E:/path\\to/alas/alas.exe, /root/alas/, ./relative/path/log.txt')
-    logger.info('Tests very long strings. Tests very long strings. Tests very long strings. Tests very long strings. Tests very long strings.')
+    logger.info(
+        'Tests very long strings. Tests very long strings. Tests very long strings. Tests very long strings. Tests very long strings.')
     local_var1 = 'This is local variable'
     # Line before exception
     raise Exception("Exception")
