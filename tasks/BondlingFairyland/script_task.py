@@ -216,6 +216,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             # logger.warning("开始等待队长拉人:" + str(wait_timer.current()))
             if wait_timer.reached():
                 logger.warning(f"等待队长拉人超时:{wait_timer.current()},退出")
+                self.config.notifier.push(title=self.config.task.command, content=f"组队等待超时...")
                 break
 
             # if self.current_count >= self.limit_count:
@@ -880,6 +881,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             # 等待超时
             if accept_timer.reached():
                 logger.warning(f"等待队长拉人超时:{accept_timer.current()},退出")
+                self.config.notifier.push(title=self.config.task.command, content=f"组队等待超时...")
                 break
 
             if self.is_in_room():
