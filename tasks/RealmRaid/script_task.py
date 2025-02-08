@@ -27,18 +27,18 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
     def run(self):
         self.run_2()
 
-    def is_ticket(self) -> bool:
-        """
-        如果没有票了，那么就返回False
-        :return:
-        """
-        self.wait_until_appear(self.I_BACK_RED)
-        self.screenshot()
-        cu, res, total = self.O_NUMBER.ocr(self.device.image)
-        if cu == 0 and cu + res == total:
-            logger.warning(f'Execute round failed, no ticket')
-            return False
-        return True
+    # def is_ticket(self) -> bool:
+    #     """
+    #     如果没有票了，那么就返回False
+    #     :return:
+    #     """
+    #     self.wait_until_appear(self.I_BACK_RED)
+    #     self.screenshot()
+    #     cu, res, total = self.O_NUMBER.ocr(self.device.image)
+    #     if cu == 0 and cu + res == total:
+    #         logger.warning(f'Execute round failed, no ticket')
+    #         return False
+    #     return True
 
     def medal_fire(self) -> bool:
         """
@@ -310,16 +310,35 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
         self.wait_until_appear(self.I_BACK_RED)
         self.screenshot()
         cu, res, total = self.O_NUMBER.ocr(self.device.image)
+        logger.info(f'Ticket cu={cu} res={res} total={total}')
 
         if total == 0:
             self.reward_detect_click(False)
             # 增加出现聊天框遮挡，处理奖励之后，重新识别票数
             cu, res, total = self.O_NUMBER.ocr(self.device.image)
-        if cu == 0 and cu + res == total:
-            logger.warning(f'Execute raid failed, no ticket')
+
+        # 持续循环，直到成功读取到数字
+        while 1:
+            # 如果cu、res和total都为0，表示尚未读取到数字
+            if cu == 0 and res == 0 and total == 0:
+                # 增加出现聊天框遮挡，处理奖励之后，重新识别票数
+                self.reward_detect_click(False)
+                # 使用O_NUMBER.ocr方法尝试读取数字
+                cu, res, total = self.O_NUMBER.ocr(self.device.image)
+                logger.info(f'Ticket cu={cu} res={res} total={total}')
+            else:
+                # 如果已经读取到数字，跳出循环
+                break
+
+        if total != 30:
+            # 识别出错直接返回
+            logger.warning(f'识别出错直接返回')
+            return True
+        if cu == 0 and res == 30 and cu + res == total:
+            logger.warning(f'Ticket is 0')
             return False
         elif cu + res == total and cu < base:
-            logger.warning(f'Execute raid failed, ticket is not enough')
+            logger.warning(f'Ticket is not enough')
             return False
         return True
 
