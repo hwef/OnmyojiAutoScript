@@ -15,7 +15,7 @@ from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_soul_zones, page_shikigami_records
 from tasks.Orochi.assets import OrochiAssets
-from tasks.Orochi.config import Orochi, UserStatus, Layer
+from tasks.Orochi.config import Orochi, UserStatus, Layer, Plan
 from module.logger import logger
 from module.exception import TaskEnd
 
@@ -25,18 +25,45 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
     def run(self):
 
         limit_count = self.config.orochi.next_day_orochi_config.limit_count
+        # 御魂层数
         layer = self.config.orochi.next_day_orochi_config.layer
-
+        # 御魂任务选择
+        plan = self.config.orochi.next_day_orochi_config.plan
         # 根据选层切换御魂
         orochi_switch_soul = self.config.orochi.switch_soul
+
+        match plan:
+            case Plan.TEN30:
+                limit_count = 30
+                group_team = orochi_switch_soul.ten_switch
+                layer = Layer.TEN
+            case Plan.ELEVEN30:
+                limit_count = 30
+                group_team = orochi_switch_soul.eleven_switch
+                layer = Layer.ELEVEN
+            case Plan.TWELVE50:
+                limit_count = 50
+                group_team = orochi_switch_soul.twelve_switch
+                layer = Layer.TWELVE
+            case Plan.TWELVE120:
+                limit_count = 120
+                group_team = orochi_switch_soul.twelve_switch
+                layer = Layer.TWELVE
+            case Plan.other:
+                pass
+            case _:
+                logger.error('Unknown user plan')
+
         if orochi_switch_soul.auto_enable:
-            match layer:
-                case Layer.TEN:
-                    group_team = orochi_switch_soul.ten_switch
-                case Layer.ELEVEN:
-                    group_team = orochi_switch_soul.eleven_switch
-                case Layer.TWELVE:
-                    group_team = orochi_switch_soul.twelve_switch
+            # 如果是循环根据选层，换御魂
+            if plan == Plan.other:
+                match layer:
+                    case Layer.TEN:
+                        group_team = orochi_switch_soul.ten_switch
+                    case Layer.ELEVEN:
+                        group_team = orochi_switch_soul.eleven_switch
+                    case Layer.TWELVE:
+                        group_team = orochi_switch_soul.twelve_switch
 
             self.ui_get_current_page()
             self.ui_goto(page_shikigami_records)
@@ -75,22 +102,22 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             self.close_buff()
 
         # 下一次运行时间
-        if self.config.orochi.next_day_orochi_config.next_day_orochi_enable:
-            start_time = self.config.orochi.next_day_orochi_config.start_time
-            next_run = parse_tomorrow_server(start_time)
-            self.set_next_run('Orochi', target=next_run)
-        else:
+        if plan == Plan.other:
             if success:
                 self.set_next_run('Orochi', finish=True, success=True)
             else:
                 self.set_next_run('Orochi', finish=False, success=False)
+        else:
+            start_time = self.config.orochi.next_day_orochi_config.start_time
+            next_run = parse_tomorrow_server(start_time)
+            self.set_next_run('Orochi', target=next_run)
 
         # 个人突破
         self.set_next_run(task='RealmRaid', target=datetime.now())
         # 花合战
         self.set_next_run(task='TalismanPass', target=datetime.now())
         # 御魂整理
-        if self.config.orochi.next_day_orochi_config.soulstidy_enabled:
+        if self.config.orochi.next_day_orochi_config.soulstidy_enabled or self.limit_count >= 99:
             self.set_next_run(task='SoulsTidy',target=datetime.now())
 
         raise TaskEnd

@@ -32,9 +32,17 @@ class Layer(str, Enum):
     ELEVEN = '悲鸣'
     TWELVE = '神罚'
 
+class Plan(str, Enum):
+    TEN30 = '拾层-30'
+    ELEVEN30 = '悲鸣-30'
+    TWELVE50 = '神罚-50'
+    TWELVE120 = '神罚-120'
+    other = '任务循环'
+
 class NextDayOrochiConfig(BaseModel):
     # 设定时间为第二天的启动时间
-    next_day_orochi_enable: bool = Field(title='设定时间为第二天的启动时间', default=True, description='设定时间为第二天的启动时间')
+    # next_day_orochi_enable: bool = Field(title='设定时间为第二天的启动时间', default=True, description='设定时间为第二天的启动时间')
+    plan: Plan = Field(default=Plan.TEN30, description='御魂任务选择')
     # 层数
     layer: Layer = Field(default=Layer.ELEVEN, description='layer_help')
     # 限制次数
