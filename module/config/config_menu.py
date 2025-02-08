@@ -19,30 +19,30 @@ class ConfigMenu:
         # 脚本设置
         self.menu['Script'] = ['Script', 'Restart', 'GlobalGame']
         # 刷御魂
-        self.menu["Soul Zones"] = ['Orochi', 'Sougenbi', 'FallenSun']
+        self.menu["Soul Zones"] = ['Orochi', 'Sougenbi']
         # 日常的任务
-        self.menu["Daily Task"] = ['DailyTrifles', 'AreaBoss', 'GoldYoukai', 'ExperienceYoukai', 'Nian',
-                                   'TalismanPass', 'DemonEncounter', 'Pets', 'SoulsTidy', 'Delegation', 'WantedQuests',
-                                   'Tako']
+        self.menu["Daily Task"] = ['Pets', 'DailyTrifles', 'WantedQuests', 'GoldYoukai', 'AreaBoss',
+                                   'DemonEncounter',  'SoulsTidy',  'TalismanPass', ]
         # 很肝的任务
         self.menu["Liver Emperor Exclusive"] = [
             "BondlingFairyland",
-            "EvoZone",
             "GoryouRealm",
             "Exploration",
-            "Hyakkiyakou",
-            "HeroTest",
         ]
         # 阴阳寮
-        self.menu["Guild"] = ['KekkaiUtilize', 'KekkaiActivation', 'RealmRaid', 'RyouToppa', 'Dokan',
-                              'CollectiveMissions', 'Hunt', 'AbyssShadows', 'GuildSushi']
+        self.menu["Guild"] = ['KekkaiUtilize', 'KekkaiActivation', 'RyouToppa', 'RealmRaid', 'Dokan',
+                              'Hunt', 'AbyssShadows', 'GuildSushi', 'CollectiveMissions',]
         # 每周任务
         self.menu["Weekly Task"] = ['RichMan', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms',
-                                    'MysteryShop', 'Duel', 'TrueOrochi']
+                                    'Duel', 'TrueOrochi']
         # 活动的任务
-        self.menu["Activity Task"] = ['ActivityShikigami', 'MetaDemon', 'FrogBoss', 'FloatParade', 'Quiz', 'KittyShop', 'NianTrue']
+        self.menu["Activity Task"] = ['ActivityShikigami', 'MetaDemon', 'FrogBoss', 'FloatParade', 'Quiz', 'KittyShop',
+                                      'NianTrue']
         # 开发工具
         self.menu["Tools"] = ['Image Rule', 'Ocr Rule', 'Click Rule', 'Long Click Rule', 'Swipe Rule', 'List Rule']
+
+        self.menu["other"] = ['FallenSun', 'ExperienceYoukai', 'Nian', 'Delegation', 'Tako',  "EvoZone",   "Hyakkiyakou",
+                              "HeroTest",  'MysteryShop',]
 
     @cached_property
     def gui_menu(self) -> str:
