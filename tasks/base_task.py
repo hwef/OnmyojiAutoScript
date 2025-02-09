@@ -614,7 +614,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             elif self.appear_then_click(click, interval=interval):
                 continue
 
-    def save_image(self, task_name=None, wait_time=2):
+    def save_image(self, task_name=None, wait_time=2, save_flag=False):
         try:
             if task_name is None:
                 task_name = self.config.task.command
@@ -634,14 +634,25 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             folder_path = Path(folder_name)
             folder_path.mkdir(parents=True, exist_ok=True)
 
-            # 设置图像名称
-            image_name = f'{config_name}_{today_time}'
-            image_path = f'{folder_name}/{image_name}.png'
-
-            # 保存图像
             self.screenshot()
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
-            cv2.imwrite(image_path, image)
+            image_path = f'{folder_name}/{config_name}_{today_time}'
+
+            if save_flag:
+                # 保存图像正常大小
+                image_path = f'{image_path}.png'  # 修改为.webp格式
+                cv2.imwrite(image_path, image)
+            else:
+                # 修改图像为.webp格式, 调整图像分辨率原来的一半
+                image_path = f'{image_path}.webp'
+                # 调整图像分辨率
+                scale_percent = 50  # 缩放到原来的一半
+                width = int(image.shape[1] * scale_percent / 100)
+                height = int(image.shape[0] * scale_percent / 100)
+                dim = (width, height)
+                resized_image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
+                # 调整图像质量并保存为WebP格式
+                cv2.imwrite(image_path, resized_image, [int(cv2.IMWRITE_WEBP_QUALITY), 50])  # 质量设置为50
 
             logger.info(f"保存{task_name}截图")
         except Exception as e:
