@@ -256,6 +256,8 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
                     continue
             self.battle_config.lock_team_enable = False
             success = self.run_general_battle(self.battle_config)
+            # 战斗结束对话
+            self.ui_click(self.C_SECRET_CHAT, self.I_WQSE_FIRE)
         while 1:
             self.screenshot()
             if self.appear(self.I_CHECK_EXPLORATION):
