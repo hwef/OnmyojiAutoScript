@@ -40,15 +40,17 @@ class ScriptTask(OrochiScriptTask, PetsAssets):
         if con.orochi_enable:
             self.orochi_ten()
 
-        # 获取当前日期和时间
-        now = datetime.now()
-        # 判断当前时间是否大于12点
-        if now.time() > time(12, 00):
-            # 如果当前时间大于12点，则将任务'Pets'的下一次运行时间设置为明天凌晨0点01分
-            self.custom_next_run(task='Pets', custom_time=Time(hour=0, minute=1, second=0), time_delta=1)
-        elif now.time() <= time(12, 00):
-            # 如果当前时间小于或等于12点，则将任务'Pets'的下一次运行时间设置为明天晚上23点30分
-            self.custom_next_run(task='Pets', custom_time=Time(hour=23, minute=30, second=0), time_delta=1)
+        # # 获取当前日期和时间
+        # now = datetime.now()
+        # # 判断当前时间是否大于12点
+        # if now.time() > time(12, 00):
+        #     # 如果当前时间大于12点，则将任务'Pets'的下一次运行时间设置为明天凌晨0点01分
+        #     self.custom_next_run(task='Pets', custom_time=Time(hour=0, minute=1, second=0), time_delta=1)
+        # elif now.time() <= time(12, 00):
+        #     # 如果当前时间小于或等于12点，则将任务'Pets'的下一次运行时间设置为明天晚上23点30分
+        #     self.custom_next_run(task='Pets', custom_time=Time(hour=23, minute=30, second=0), time_delta=1)
+
+        self.set_next_run(task='Pets', success=True, finish=True)
 
         raise TaskEnd('Pets')
 
