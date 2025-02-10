@@ -30,6 +30,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         # 收体力或者资金
         # 进入寮主页会有一个动画，等一等，让小纸人跑一会儿
         time.sleep(3)
+        # 在寮的主界面 检查是否有收取体力或者是收取寮资金
         self.check_guild_ap_or_assets(ap_enable=con.guild_ap_enable, assets_enable=con.guild_assets_enable)
         # 进入寮结界
         self.goto_realm()
@@ -136,6 +137,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
             # 收体力
             if self.appear_then_click(self.I_GUILD_AP, interval=1.5):
+                self.save_image(wait_time=1)
                 timer_check.reset()
                 continue
             # 收资金

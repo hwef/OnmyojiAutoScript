@@ -53,7 +53,6 @@ class LoginHandler(BaseTask, RestartAssets):
             #     logger.error('Network error')
             #     raise RequestHumanTakeover('Network error')
 
-
             # 跳过观看视频
             # if self.ocr_appear_click(self.O_LOGIN_SKIP_1, interval=1):
             #     continue
@@ -85,7 +84,6 @@ class LoginHandler(BaseTask, RestartAssets):
 
         return login_success
 
-
     def app_handle_login(self) -> bool:
         for _ in range(2):
             self.device.stuck_record_clear()
@@ -104,8 +102,6 @@ class LoginHandler(BaseTask, RestartAssets):
         logger.critical('Login failed more than 3')
         logger.critical('Onmyoji server may be under maintenance, or you may lost network connection')
         raise RequestHumanTakeover
-
-
 
     def harvest(self):
         """
@@ -192,9 +188,11 @@ class LoginHandler(BaseTask, RestartAssets):
                             continue
             # 体力
             if self.appear_then_click(self.I_HARVEST_AP, interval=1, threshold=0.7):
+                self.save_image(wait_time=1)
                 timer_harvest.reset()
                 continue
             if self.appear_then_click(self.I_HARVEST_AP_9, interval=1, threshold=0.7):
+                self.save_image(wait_time=1)
                 timer_harvest.reset()
                 continue
             # 御魂觉醒加成
@@ -204,7 +202,6 @@ class LoginHandler(BaseTask, RestartAssets):
             if self.appear_then_click(self.I_HARVEST_SOUL_9, interval=1):
                 timer_harvest.reset()
                 continue
-
 
             # 红色的关闭
             if self.appear_then_click(self.I_UI_BACK_RED, interval=2.3):
