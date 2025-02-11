@@ -34,23 +34,27 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
 
         match plan:
             case Plan.TEN30:
+                logger.info('Ten 30')
                 limit_count = 30
                 group_team = orochi_switch_soul.ten_switch
                 layer = Layer.TEN
             case Plan.ELEVEN30:
+                logger.info('Eleven 30')
                 limit_count = 30
                 group_team = orochi_switch_soul.eleven_switch
                 layer = Layer.ELEVEN
             case Plan.TWELVE50:
+                logger.info('Twelve 50')
                 limit_count = 50
                 group_team = orochi_switch_soul.twelve_switch
                 layer = Layer.TWELVE
             case Plan.TWELVE120:
+                logger.info('Twelve 120')
                 limit_count = 120
                 group_team = orochi_switch_soul.twelve_switch
                 layer = Layer.TWELVE
             case Plan.other:
-                pass
+                logger.info('Other')
             case _:
                 logger.error('Unknown user plan')
 
@@ -196,8 +200,10 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
 
             # 检查猫咪奖励
             if self.current_count <= 1:
-                if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
-                    continue
+                if self.appear(self.I_PET_PRESENT, interval=1):
+                    self.save_image(task_name='Pets', wait_time=1)
+                    if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
+                        continue
 
             if self.current_count >= self.limit_count:
                 if self.is_in_room():
@@ -281,8 +287,10 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
 
             # 检查猫咪奖励
             if self.current_count <= 1:
-                if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
-                    continue
+                if self.appear(self.I_PET_PRESENT, interval=1):
+                    self.save_image(task_name='Pets', wait_time=1)
+                    if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
+                        continue
 
             if self.current_count >= self.limit_count:
                 logger.info('Orochi count limit out')
@@ -338,8 +346,10 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
 
             # 检查猫咪奖励
             if self.current_count <= 1:
-                if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
-                    continue
+                if self.appear(self.I_PET_PRESENT, interval=1):
+                    self.save_image(task_name='Pets', wait_time=1)
+                    if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
+                        continue
             
             if not is_in_orochi():
                 continue
