@@ -167,6 +167,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         保存配置文件
         :return:
         """
+        logger.info(f'save config {self.config_name}')
         self.model.write_json(self.config_name, self.model.dict())
 
     def update_scheduler(self) -> None:
@@ -256,8 +257,11 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         if self.pending_task:
             logger.info(f"Pending tasks: {[f.command for f in self.pending_task]}")
             task = self.pending_task[0]
-            self.model.task_current_runing = task.command
-            self.save()
+            logger.info(f'task_current_runing: {self.model.task_current_runing}')
+            logger.info(f'task: {task.command}')
+            if self.model.task_current_runing != task.command:
+                self.model.task_current_runing = task.command
+                self.save()
             self.task = task
             logger.attr("Task", task)
             return task
@@ -425,7 +429,12 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             if task == 'true_orochi':
                 true_orochi_config = getattr(task_object, 'true_orochi_config', None)
                 true_orochi_config.current_success = current_success
-            self.model.task_current_runing = None
+            # 避免任务运行中途修改task_current_runing，例如任务中间接到悬赏
+            logger.info(f'task_current_runing: {self.model.task_current_runing}')
+            logger.info(f'task: {task}')
+            if self.model.task_current_runing is not None:
+                if convert_to_underscore(self.model.task_current_runing) == task:
+                    self.model.task_current_runing = None
             self.save()
         finally:
             self.lock_config.release()
@@ -439,6 +448,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         notifier.config_name = self.config_name.upper()
         logger.info(f'Notifier: {notifier.config_name}')
         return notifier
+
 
 if __name__ == '__main__':
     config = Config(config_name='oas1')

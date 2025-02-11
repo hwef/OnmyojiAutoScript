@@ -416,6 +416,13 @@ class Script:
         # logger.set_file_logger(self.config_name)
         logger.info(f'Start scheduler loop: {self.config_name}')
 
+        # 线程启动设置task_current_runing is None
+        if self.config.model.task_current_runing is not None:
+            logger.info(f'task_current_runing: {self.config.model.task_current_runing}')
+            logger.info(f'设置 task_current_runing is None')
+            self.config.model.task_current_runing = None
+            self.config.save()
+
         while 1:
             # Check update event from GUI
             # if self.stop_event is not None:

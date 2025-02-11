@@ -145,6 +145,7 @@ async def websocket_endpoint(websocket: WebSocket, script_name: str):
         while True:
             # 初次进入，广播state schedule
             data = await websocket.receive_text()
+            logger.info(f'[{script_name}] websocket receive: {data}')
             if data == 'get_state':
                 await script_process.broadcast_state({"state": script_process.state})
             elif data == 'get_schedule':
