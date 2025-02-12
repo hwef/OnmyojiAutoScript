@@ -125,7 +125,7 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
             self.screenshot()
             if self.appear(self.I_BOSS_FIRE) or self.appear(self.I_BEST_BOSS_FIRE):
                 current, remain, total = self.O_DE_BOSS_PEOPLE.ocr(self.device.image)
-                if total == 300 and current >= 290:
+                if total == 300 and current >= 200:
                     logger.info('Boss battle people is full')
                     if not self.appear(self.I_UI_BACK_RED):
                         logger.warning('Boss battle people is full but no red back')
@@ -172,6 +172,7 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
                 break
             if boss_fire_count >= 5:
                 logger.warning('Boss battle already done')
+                self.config.notifier.push(title=self.config.task.command, content=f"封魔boss点击5次未进入...")
                 self.ui_click_until_disappear(self.I_UI_BACK_RED)
                 return
             if self.appear_then_click(self.I_BOSS_FIRE, interval=3) or self.appear_then_click(self.I_BEST_BOSS_FIRE, interval=3):
