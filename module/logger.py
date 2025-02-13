@@ -124,10 +124,10 @@ pyw_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
 
 def set_file_logger(name=pyw_name):
-    log_home = log_path + f'log/{date.today()}'
-    log_file = f'{log_home}/{name}.log'
+    # log_home = log_path + f'log/{date.today()}'
+    log_file = f'{log_path}/{date.today()}_{name}.log'
     # logger.info(f'Log file : {log_file}')
-    os.makedirs(log_home, exist_ok=True)
+    os.makedirs(log_path, exist_ok=True)
 
     # 确保日志文件路径正确
     file_handler = SafeTimedRotatingFileHandler(

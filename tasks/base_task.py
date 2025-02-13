@@ -630,7 +630,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
 
             # 设置保存图像的文件夹，包含今日日期
             # './log/2025-02-05_Wednesday/Duel'
-            folder_name = f'{log_path}/{today_date}_{today_weekday}/{task_name}'
+            folder_name = f'{log_path}/{task_name}'
             folder_path = Path(folder_name)
             folder_path.mkdir(parents=True, exist_ok=True)
 

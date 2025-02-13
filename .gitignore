@@ -274,3 +274,4 @@ console.bat
 .vscode/*
 
 /tasks/AbyssShadows/__pycache__
+/backup
