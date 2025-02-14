@@ -7,7 +7,6 @@ from enum import Enum
 from cached_property import cached_property
 from datetime import datetime, timedelta
 
-
 from module.logger import logger
 from module.exception import TaskEnd
 from module.base.timer import Timer
@@ -19,6 +18,7 @@ from tasks.DemonEncounter.assets import DemonEncounterAssets
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
 from tasks.DemonEncounter.data.answer import Answer
+
 
 class LanternClass(Enum):
     BATTLE = 0  # 打怪  --> 无法判断因为怪的图片不一样，用排除法
@@ -112,6 +112,8 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
                 group, team = soul_config.demon_kiryou_utahime_supplementary.split(",")
             self.run_switch_soul_by_name(group, team)
 
+    boss_count = 0
+
     def execute_boss(self):
         """
         打boss
@@ -172,10 +174,16 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
                 break
             if boss_fire_count >= 5:
                 logger.warning('Boss battle already done')
-                self.config.notifier.push(title=self.config.task.command, content=f"封魔boss点击5次未进入...")
+                self.config.notifier.push(title=self.config.task.command, content=f"封魔BOSS, 5次点击未进入...")
                 self.ui_click_until_disappear(self.I_UI_BACK_RED)
+                logger.info('重新选择封魔BOSS')
+                self.config.notifier.push(title=self.config.task.command, content=f"重新选择封魔BOSS...")
+                if self.boss_count <= 3:
+                    self.boss_count += 1
+                    self.execute_boss()
                 return
-            if self.appear_then_click(self.I_BOSS_FIRE, interval=3) or self.appear_then_click(self.I_BEST_BOSS_FIRE, interval=3):
+            if self.appear_then_click(self.I_BOSS_FIRE, interval=3) or self.appear_then_click(self.I_BEST_BOSS_FIRE,
+                                                                                              interval=3):
                 boss_fire_count += 1
                 continue
         logger.info('Boss battle confirm and enter')
@@ -263,7 +271,7 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
     def con(self) -> GeneralBattleConfig:
         return GeneralBattleConfig()
 
-    def check_lantern(self, index: int=1):
+    def check_lantern(self, index: int = 1):
         """
         检查灯笼的类型
         :param index: 四个灯笼，从1开始
@@ -370,7 +378,7 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
             if self.click(target_click, interval=1):
                 continue
         logger.info('Question answering Start')
-        for i in range(1,4):
+        for i in range(1, 4):
             # 还未测试题库无法识别的情况
             logger.hr(f'Answer {i}', 3)
             answer_click = answer()
@@ -460,7 +468,6 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
                 break
             if self.click(target_click, interval=2.3):
                 continue
-
 
     def check_time(self):
         """
