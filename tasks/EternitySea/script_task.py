@@ -147,7 +147,6 @@ class ScriptTask(
             return False
         return True
 
-
     def run_member(self):
         logger.info('Start run member')
         self.ui_get_current_page()
