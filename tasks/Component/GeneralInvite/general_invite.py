@@ -99,8 +99,8 @@ class GeneralInvite(BaseTask, GeneralInviteAssets):
                 (RoomType.NORMAL_3, InviteNumber.ONE): "I_ADD_1",  # 邀请1人时检测 I_ADD_1
                 (RoomType.NORMAL_3, InviteNumber.TWO): "I_ADD_2",  # 邀请2人时检测 I_ADD_2
                 # 5人普通房间
-                (RoomType.NORMAL_5, InviteNumber.ONE): "I_ADD_5_1",  # 邀请1人配置
-                (RoomType.NORMAL_5, InviteNumber.TWO): "I_ADD_5_2",  # 邀请2人配置
+                (RoomType.NORMAL_5, InviteNumber.ONE): "I_ADD_5_1",  # 邀请1人时检测 I_ADD_5_1
+                (RoomType.NORMAL_5, InviteNumber.TWO): "I_ADD_5_2",  # 邀请2人时检测 I_ADD_5_2
                 # 永生之海特殊房间（固定检测 I_ADD_SEA）
                 (RoomType.ETERNITY_SEA, None): "I_ADD_SEA"
             }
@@ -123,6 +123,7 @@ class GeneralInvite(BaseTask, GeneralInviteAssets):
 
             # 当存在需要检测的标识，且该标识未出现时触发挑战
             if required_flag and not self.appear(getattr(self, required_flag, None)):
+                logger.info(f'Room type: {self.room_type}, invite number: {config.invite_number}')
                 fire = True
 
             # 点击挑战

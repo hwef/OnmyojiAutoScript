@@ -100,6 +100,8 @@ class DemonEncounterAssets:
 	I_DE_AWARD = RuleImage(roi_front=(1216,214,42,36), roi_back=(1195,198,74,67), threshold=0.8, method="Template matching", file="./tasks/DemonEncounter/demon/demon_de_award.png")
 	# 信 
 	I_DE_LETTER = RuleImage(roi_front=(1236,358,33,35), roi_back=(1177,261,100,294), threshold=0.8, method="Template matching", file="./tasks/DemonEncounter/demon/demon_de_letter.png")
+	# 封魔密信 
+	I_MALL = RuleImage(roi_front=(510,70,95,48), roi_back=(510,70,95,48), threshold=0.8, method="Template matching", file="./tasks/DemonEncounter/demon/demon_mall.png")
 	# 关闭封魔密信 
 	I_LETTER_CLOSE = RuleImage(roi_front=(851,43,45,45), roi_back=(851,43,45,45), threshold=0.8, method="Template matching", file="./tasks/DemonEncounter/demon/demon_letter_close.png")
 	# 小鬼王的挑战 

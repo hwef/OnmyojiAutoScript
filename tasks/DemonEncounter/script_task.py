@@ -398,10 +398,10 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
                             continue
                     break
                 # 如果没有出现红色关闭按钮，说明答题结束
-                if not self.appear(self.I_LETTER_CLOSE):
-                    time.sleep(0.5)
+                if not self.appear(self.I_LETTER_CLOSE) and not self.appear(self.I_MALL):
+                    time.sleep(1)
                     self.screenshot()
-                    if self.appear(self.I_LETTER_CLOSE):
+                    if self.appear(self.I_LETTER_CLOSE) or self.appear(self.I_MALL):
                         continue
                     else:
                         logger.warning('Answer finish')
