@@ -188,11 +188,9 @@ class LoginHandler(BaseTask, RestartAssets):
                             continue
             # 体力
             if self.appear_then_click(self.I_HARVEST_AP, interval=1, threshold=0.7):
-                self.save_image(task_name='GuildSushi', wait_time=1)
                 timer_harvest.reset()
                 continue
             if self.appear_then_click(self.I_HARVEST_AP_9, interval=1, threshold=0.7):
-                self.save_image(task_name='GuildSushi', wait_time=1)
                 timer_harvest.reset()
                 continue
             # 御魂觉醒加成

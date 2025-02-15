@@ -137,7 +137,6 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
             # 收体力
             if self.appear_then_click(self.I_GUILD_AP, interval=1.5):
-                self.save_image(wait_time=1)
                 timer_check.reset()
                 continue
             # 收资金
