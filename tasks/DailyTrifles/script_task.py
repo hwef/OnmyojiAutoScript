@@ -26,6 +26,8 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets):
 
     def run(self):
         con = self.config.daily_trifles.trifles_config
+        if con.backup_flag:
+            self.move_old_files_to_backup()
         # 每日召唤
         if con.one_summon:
             self.run_one_summon()
