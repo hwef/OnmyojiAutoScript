@@ -627,7 +627,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             # 统一时间获取
             datetime_now = datetime.now()
             today_date = datetime_now.strftime('%Y-%m-%d')
-            today_time = datetime_now.strftime('%Hh%Mm%Ss')  # 修复重复赋值
+            today_time = datetime_now.strftime('%H-%M-%S')
             today_weekday = datetime_now.strftime("%A")
             config_name = self.config.config_name.upper()
 

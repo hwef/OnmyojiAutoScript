@@ -196,5 +196,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "小组内未取得名次"
-  }
+  },
+  {
+  "itemName": "ab_full_20000",
+  "imageName": "ab_full_20000.png",
+  "roiFront": "874,643,38,21",
+  "roiBack": "874,643,38,21",
+  "method": "Template matching",
+  "threshold": 0.8,
+  "description": "地鬼识别到满20000攻打人数标志"
+}
 ]

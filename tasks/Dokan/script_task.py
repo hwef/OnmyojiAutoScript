@@ -689,7 +689,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
     def appear_rbg(self, target, image):
         # 加载图像
         average_color = cv2.mean(cv2.imread(target.file))
-        print("三原色：", average_color)
+        logger.info("图像三原色：", average_color)
 
         if target.match_mean_color(image, average_color, 10):
             return True

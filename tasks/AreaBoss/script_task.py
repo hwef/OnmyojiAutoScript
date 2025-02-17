@@ -149,7 +149,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         return result
 
     def start_fight(self) -> bool:
-        self.save_image()
+        self.save_image(save_flag=True)
         while 1:
             self.screenshot()
             if self.appear_then_click(self.I_FIRE, interval=1):
@@ -457,7 +457,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
 
             num = self.get_num_challenge(photo_param)
             if num:
-                if self.confirm_num_over_threshold(photo_param):
+                if num > 20000 and self.appear(self.I_AB_FULL_20000):
                     return filter_open_flag, "direct_attack"
                 name = self.get_bossName(self.C_AB_BOSS_REWARD_PHOTO_1)  # 修正参数传递
             else:
