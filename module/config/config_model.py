@@ -75,6 +75,11 @@ from tasks.MysteryShop.config import MysteryShop
 from tasks.Duel.config import Duel
 # ----------------------------------------------------------------------------------------------------------------------
 
+# Tools----------------------------------------------------------------------------------------------------------------------
+from tasks.BackUp.config import BackUp
+# ----------------------------------------------------------------------------------------------------------------------
+
+
 class ConfigModel(ConfigBase):
     config_name: str = "oas"
     task_current_runing: str = None
@@ -138,6 +143,9 @@ class ConfigModel(ConfigBase):
     dokan: Dokan = Field(default_factory=Dokan)
     abyss_shadows: AbyssShadows = Field(default_factory=AbyssShadows)
     guild_sushi: GuildSushi = Field(default_factory=GuildSushi)
+
+    # Tools
+    back_up: BackUp = Field(default_factory=BackUp)
 
     # @validator('script')
     # def script_validator(cls, v):

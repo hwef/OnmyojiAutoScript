@@ -44,6 +44,8 @@ class ConfigMenu:
         self.menu["other"] = ['FallenSun', 'ExperienceYoukai', 'Nian', 'Delegation', 'Tako',  "EvoZone",   "Hyakkiyakou",
                               "HeroTest",  'MysteryShop',]
 
+        self.menu["Tool"] = ['BackUp',]
+
     @cached_property
     def gui_menu(self) -> str:
         """

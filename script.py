@@ -96,13 +96,14 @@ class Script:
             error_path = log_path + '/error/'
             if not os.path.exists(error_path):
                 os.mkdir(error_path)
-            config_name = self.config.config_name
+            config_name = self.config.config_name.upper()
             datetime_now = datetime.now()
             now_date = datetime_now.strftime('%Y-%m-%d')
             now_time = datetime_now.strftime('%H-%M-%S')
-            config_name = self.config.config_name
+            now_time = datetime_now.strftime('%Hh%Mm%s')
+
             folder = f'{error_path}'
-            image_name = f'{config_name}_{now_time}'
+            image_name = f'{config_name} {now_time} ({now_date})'
             # folder = f'./log/error/{today_date}'
             logger.warning(f'Saving error: {folder}')
             if not os.path.exists(folder):
@@ -465,6 +466,7 @@ class Script:
                 logger.critical("Possible reason #2: There is a problem with this task. "
                                 "Please contact developers or try to fix it yourself.")
                 logger.critical('Request human takeover')
+                self.config.notifier.push(title=task, content=f"<{self.config_name}> Task failed 3 or more times")
                 exit(1)
 
             if success:

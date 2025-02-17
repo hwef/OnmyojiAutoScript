@@ -618,147 +618,49 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             elif self.appear_then_click(click, interval=interval):
                 continue
 
-    def remove_empty_folders(self, path):
-        """
-        递归删除空文件夹
-        :param path: 要检查的路径
-        """
-        logger.info('开始删除空文件夹....')
-        for root, dirs, files in os.walk(path, topdown=False):
-            for dir_name in dirs:
-                dir_path = os.path.join(root, dir_name)
-                if not os.listdir(dir_path):  # 检查文件夹是否为空
-                    os.rmdir(dir_path)
-                    logger.info(f"Removed empty folder: {dir_path}")
-        logger.info('删除空文件夹完成!')
-
-    def get_real_path(self, path):
-        """
-        获取给定路径的真实路径，并检查目录是否存在。
-
-        :param base_path: 相对于当前工作目录的路径
-        :return: 真实路径，如果目录不存在则返回 None
-        """
-        try:
-            # 获取当前工作目录
-            current_directory = os.getcwd()
-
-            # 构建 base_path 的完整路径
-            full_path = os.path.join(current_directory, path)
-
-            # 获取 base_path 的真实路径
-            real_path = os.path.realpath(full_path)
-
-            # 检查目录是否存在
-            if os.path.exists(real_path) and os.path.isdir(real_path):
-                # logger.info(f"真实目录路径: {real_path}")
-                return real_path
-            else:
-                logger.info(f"目录 {real_path} 不存在")
-                return None
-        except Exception as e:
-            logger.error(f"获取真实路径时发生错误: {e}")
-            return None
-
-    def move_old_files_to_backup(self, base_path: str = log_path, days_threshold: int = 1):
-        """
-        递归遍历所有子文件夹，根据文件创建时间移动旧文件到动态备份目录
-        :param base_path: 基础路径，包含需要检查的文件和子文件夹
-        :param days_threshold: 天数阈值，默认为7天
-        """
-
-        logger.info('开始执行文件备份....')
-        logger.info(f"文件路径：{self.get_real_path(base_path)}")
-        backup_root = r'.\backup'
-        logger.info(f"备份路径：{self.get_real_path(backup_root)}")
-
-        # 递归遍历目录
-        for root, dirs, files in os.walk(base_path):
-            # 忽略隐藏文件和目录
-            dirs[:] = [d for d in dirs if not d.startswith('.')]
-            files = [f for f in files if not f.startswith('.')]
-
-            for file_name in files:
-                if file_name.split('.')[0] in log_names:
-                    logger.warning(f'Skip [{file_name}]')
-                    continue
-                file_path = os.path.join(root, file_name)
-                try:
-                    file_stat = os.stat(file_path)
-                    # 获取文件创建时间（跨平台兼容）
-                    file_time = datetime.fromtimestamp(file_stat.st_ctime)
-                    # 获取文件修改时间（跨平台兼容）
-                    # file_time = datetime.fromtimestamp(file_stat.st_mtime)
-
-                    # 计算时间差
-                    today = datetime.now().date()
-                    time_diff = (today - file_time.date()).days
-
-                    if time_diff >= days_threshold:
-                        # 构建动态备份路径（按年-月-日组织）
-                        locale.setlocale(locale.LC_TIME, 'chinese')
-                        date = file_time.strftime('%Y-%m-%d %A')
-                        relative_path = os.path.relpath(root, base_path)  # 保留相对路径
-                        backup_path = os.path.join(backup_root, date, relative_path)
-                        # 检查并创建备份目录
-                        os.makedirs(backup_path, exist_ok=True)
-
-                        # 移动文件，避免覆盖
-                        backup_file_path = os.path.join(backup_path, file_name)
-                        if not os.path.exists(backup_file_path):
-                            shutil.move(file_path, backup_file_path)
-                            logger.info(f'Move [{file_name}] ({time_diff} days ago) to [{backup_path}]')
-                        else:
-                            logger.warning(f'Skip [{file_name}] is exists [{backup_path}]')
-                except Exception as e:
-                    logger.error(f"Error processing [{file_name}]: {str(e)}")
-        logger.info(f"文件备份已完成!")
-        # 递归删除空文件夹
-        self.remove_empty_folders(base_path)
-
     def save_image(self, task_name=None, wait_time=2, save_flag=False):
+        image_path = None  # 初始化防止未定义异常
         try:
-            if task_name is None:
-                task_name = self.config.task.command
-            # 截图等待时间
-            sleep(wait_time)
+            # 参数预处理
+            task_name = task_name or self.config.task.command
 
-            # 获取今日日期并格式化为字符串
+            # 统一时间获取
             datetime_now = datetime.now()
             today_date = datetime_now.strftime('%Y-%m-%d')
-            today_time = datetime_now.strftime('%H-%M-%S')
-            today_weekday = datetime.now().strftime("%A")
-            config_name = self.config.config_name
+            today_time = datetime_now.strftime('%Hh%Mm%Ss')  # 修复重复赋值
+            today_weekday = datetime_now.strftime("%A")
+            config_name = self.config.config_name.upper()
 
-            # 设置保存图像的文件夹，包含今日日期
-            # './log/2025-02-05_Wednesday/Duel'
-            folder_name = f'{log_path}/{task_name}'
-            folder_path = Path(folder_name)
+            # 使用Path对象构建路径
+            folder_path = Path(log_path) / task_name
             folder_path.mkdir(parents=True, exist_ok=True)
 
+            # 执行截图操作
+            sleep(wait_time)
             self.screenshot()
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
-            image_path = f'{folder_name}/{config_name}_{today_time}'
 
+            # 构建基础路径
+            base_path = folder_path / f"{config_name} {today_time} ({today_date})"
+            image_path = base_path.with_suffix('.png' if save_flag else '.webp')
+
+            # 图像处理分支
             if save_flag:
-                # 保存图像正常大小
-                image_path = f'{image_path}.png'  # 修改为.webp格式
-                cv2.imwrite(image_path, image)
+                cv2.imwrite(str(image_path), image)
             else:
-                # 修改图像为.webp格式, 调整图像分辨率原来的一半
-                image_path = f'{image_path}.webp'
-                # 调整图像分辨率
-                scale_percent = 50  # 缩放到原来的一半
-                width = int(image.shape[1] * scale_percent / 100)
-                height = int(image.shape[0] * scale_percent / 100)
-                dim = (width, height)
-                resized_image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
-                # 调整图像质量并保存为WebP格式
-                cv2.imwrite(image_path, resized_image, [int(cv2.IMWRITE_WEBP_QUALITY), 50])  # 质量设置为50
+                # 优化尺寸计算方式
+                height, width = image.shape[:2]
+                new_dim = (width//2, height//2)  # 整除确保整数尺寸
+                resized_image = cv2.resize(image, new_dim, interpolation=cv2.INTER_AREA)
+                cv2.imwrite(str(image_path), resized_image,
+                          [int(cv2.IMWRITE_WEBP_QUALITY), 50])
 
-            logger.info(f"保存{task_name}截图")
-        except Exception as e:
-            logger.info(f"保存{task_name}截图异常，{e}")
+            logger.info(f"保存截图：{image_path}")
+        except (IOError, cv2.error) as e:  # 指定具体异常类型
+            logger.exception(f"截图保存失败 | 路径：{image_path} | 错误类型：{type(e).__name__}")
+        finally:  # 资源清理
+            if hasattr(self.device, 'image'):
+                self.device.image = None
 
 
 if __name__ == '__main__':

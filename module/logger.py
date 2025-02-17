@@ -121,13 +121,16 @@ class SafeTimedRotatingFileHandler(TimedRotatingFileHandler):
 pyw_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
 # 定义常量
-log_names = {'server', 'script', 'script_task', 'assets_test'}
+log_names = {'assets_test', 'assets_extract', 'script', 'script_task', 'base_task', 'config'}
 
 
 def set_file_logger(name=pyw_name):
     log_home = log_path + f''
     if name in log_names:
-        log_file = os.path.join(log_home, f"{name}.log")
+        return
+        # log_file = os.path.join(log_home, f"{name}.log")
+    elif name == 'server':
+        log_file = os.path.join(log_home, "server.log")
     else:
         log_file = os.path.join(log_home, f"{date.today()}_{name}.log")
     # logger.info(f'Log file : {log_file}')

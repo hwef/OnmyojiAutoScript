@@ -34,27 +34,27 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
 
         match plan:
             case Plan.TEN30:
-                logger.info('Ten 30')
+                logger.info('Orochi Plan Ten 30')
                 limit_count = 30
                 group_team = orochi_switch_soul.ten_switch
                 layer = Layer.TEN
             case Plan.ELEVEN30:
-                logger.info('Eleven 30')
+                logger.info('Orochi Plan Eleven 30')
                 limit_count = 30
                 group_team = orochi_switch_soul.eleven_switch
                 layer = Layer.ELEVEN
             case Plan.TWELVE50:
-                logger.info('Twelve 50')
+                logger.info('Orochi Plan Twelve 50')
                 limit_count = 50
                 group_team = orochi_switch_soul.twelve_switch
                 layer = Layer.TWELVE
             case Plan.TWELVE120:
-                logger.info('Twelve 120')
+                logger.info('Orochi Plan Twelve 120')
                 limit_count = 120
                 group_team = orochi_switch_soul.twelve_switch
                 layer = Layer.TWELVE
             case Plan.other:
-                logger.info('Other')
+                logger.info('Orochi Plan Other')
             case _:
                 logger.error('Unknown user plan')
 
