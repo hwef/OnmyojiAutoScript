@@ -619,48 +619,48 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 continue
 
     def save_image(self, task_name=None, wait_time=2, save_flag=False):
-        image_path = None  # 初始化防止未定义异常
         try:
-            # 参数预处理
-            task_name = task_name or self.config.task.command
+            if task_name is None:
+                task_name = self.config.task.command
 
-            # 统一时间获取
+            # 获取今日日期并格式化为字符串
             datetime_now = datetime.now()
             today_date = datetime_now.strftime('%Y-%m-%d')
             today_time = datetime_now.strftime('%H-%M-%S')
-            today_weekday = datetime_now.strftime("%A")
+            today_weekday = datetime.now().strftime("%A")
             config_name = self.config.config_name.upper()
 
-            # 使用Path对象构建路径
-            folder_path = Path(log_path) / task_name
+            # 设置保存图像的文件夹
+            folder_name = f'{log_path}/{task_name}'
+            folder_path = Path(folder_name)
             folder_path.mkdir(parents=True, exist_ok=True)
 
-            # 执行截图操作
+            # 截图等待时间
             sleep(wait_time)
             self.screenshot()
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
+            image_path = f'{folder_name}/{config_name} {today_time} ({today_date})'
 
-            # 构建基础路径
-            base_path = folder_path / f"{config_name} {today_time} ({today_date})"
-            image_path = base_path.with_suffix('.png' if save_flag else '.webp')
-
-            # 图像处理分支
             if save_flag:
-                cv2.imwrite(str(image_path), image)
+                # 保存图像正常大小
+                image_path = f'{image_path}.png'  # 修改为.webp格式
+                cv2.imwrite(image_path, image)
             else:
-                # 优化尺寸计算方式
-                height, width = image.shape[:2]
-                new_dim = (width//2, height//2)  # 整除确保整数尺寸
-                resized_image = cv2.resize(image, new_dim, interpolation=cv2.INTER_AREA)
-                cv2.imwrite(str(image_path), resized_image,
-                          [int(cv2.IMWRITE_WEBP_QUALITY), 50])
+                # 修改图像为.webp格式, 调整图像分辨率原来的一半
+                image_path = f'{image_path}.webp'
+                # 调整图像分辨率
+                scale_percent = 50  # 缩放到原来的一半
+                width = int(image.shape[1] * scale_percent / 100)
+                height = int(image.shape[0] * scale_percent / 100)
+                dim = (width, height)
+                resized_image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
+                # 调整图像质量并保存为WebP格式
+                cv2.imwrite(image_path, resized_image, [int(cv2.IMWRITE_WEBP_QUALITY), 50])  # 质量设置为50
 
-            logger.info(f"保存截图：{image_path}")
-        except (IOError, cv2.error) as e:  # 指定具体异常类型
-            logger.exception(f"截图保存失败 | 路径：{image_path} | 错误类型：{type(e).__name__}")
-        finally:  # 资源清理
-            if hasattr(self.device, 'image'):
-                self.device.image = None
+            logger.info(f"保存{image_path}截图")
+        except Exception as e:
+            self.config.notifier.push(title=task_name, content=f"保存{image_path}截图异常，{e}")
+            logger.info(f"保存{image_path}截图异常，{e}")
 
 
 if __name__ == '__main__':
@@ -671,7 +671,7 @@ if __name__ == '__main__':
     d = Device(c)
     t = BaseTask(c, d)
 
-    t.save_image("SoulsTidy")
+    t.save_image("test")
 
     # t.save_image()
 

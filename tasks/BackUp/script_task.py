@@ -19,6 +19,7 @@ from module.exception import TaskEnd
 class ScriptTask(BaseTask):
 
     def run(self):
+        logger.set_file_logger(Config.config_name)
         con = self.config.back_up.back_up_config
         if con.backup_flag:
             # 根据文件创建时间移动旧文件到动态备份目录
@@ -47,7 +48,7 @@ class ScriptTask(BaseTask):
             files = [f for f in files if not f.startswith('.')]
 
             for file_name in files:
-                if file_name.split('.')[0] in log_names:
+                if file_name.split('.')[0] in log_names or file_name == 'server.log':
                     logger.warning(f'Skip [{file_name}]')
                     continue
                 file_path = os.path.join(root, file_name)
@@ -90,13 +91,23 @@ class ScriptTask(BaseTask):
         :param path: 要检查的路径
         """
         logger.info('开始删除空文件夹....')
+        abs_path = os.path.abspath(path)
         for root, dirs, files in os.walk(path, topdown=False):
             for dir_name in dirs:
                 dir_path = os.path.join(root, dir_name)
-                if not os.listdir(dir_path):  # 检查文件夹是否为空
-                    os.rmdir(dir_path)
-                    logger.info(f"Removed empty folder: {dir_path}")
+                # 排除符号链接目录和根目录
+                is_symbolic_link = os.path.islink(dir_path)
+                is_root_dir = os.path.samefile(dir_path, abs_path)
+                is_empty = not os.listdir(dir_path)
+
+                if not is_symbolic_link and not is_root_dir and is_empty:
+                    try:
+                        os.rmdir(dir_path)
+                        logger.info(f"Removed empty folder: {dir_path}")
+                    except OSError as e:
+                        logger.warning(f"Failed to remove {dir_path}: {str(e)}")
         logger.info('删除空文件夹完成!')
+
 
     def get_real_path(self, path: str = log_path):
         """

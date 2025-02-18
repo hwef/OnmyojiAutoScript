@@ -201,6 +201,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         self.device.stuck_record_add('BATTLE_STATUS_S')
 
         # logger.info(f"检测当前场景")
+        if self.appear(self.I_CONTINUE_DOKAN):
+            logger.info("再战道馆，投票场景")
+            return True, DokanScene.RYOU_DOKAN_SCENE_FAILED_VOTE_NO
         # 场景检测：阴阳竂
         if self.appear(self.I_SCENE_RYOU, threshold=0.8):
             logger.info(f"在阴阳寮中")
@@ -274,9 +277,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         # # 状态：战斗中，左上角的加油图标
         # if self.appear(self.I_RYOU_DOKAN_FIGHTING, threshold=0.8):
         #     return True, DokanScene.RYOU_DOKAN_SCENE_FIGHTING
-        if self.appear(self.I_CONTINUE_DOKAN):
-            logger.info("再战道馆，投票场景")
-            return True, DokanScene.RYOU_DOKAN_SCENE_FAILED_VOTE_NO
 
         # 状态：道馆已经结束，图片位置会偏移，换OCR
         # if self.ocr_appear(self.O_DOKAN_SUCCEEDED):
@@ -687,13 +687,26 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         self.ui_goto(page_main)
 
     def appear_rbg(self, target, image):
-        # 加载图像
+        """
+       检查目标图像的平均颜色是否与给定图像相似。
+
+       参数:
+       - target: 目标图像对象，期望包含文件路径的属性。
+       - image: 给定的图像对象，用于比较。
+
+       返回:
+       - True: 如果目标图像的平均颜色与给定图像匹配。
+       - False: 如果目标图像的平均颜色与给定图像不匹配。
+       """
+        # 加载图像并计算其平均颜色
         average_color = cv2.mean(cv2.imread(target.file))
-        logger.info("图像三原色：", average_color)
+        logger.info(f"图像三原色: {average_color}")
 
         if target.match_mean_color(image, average_color, 10):
+            logger.info(f"图像平均颜色匹配成功")
             return True
         else:
+            logger.warning(f"图像平均颜色匹配失败")
             return False
 
 

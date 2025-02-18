@@ -100,7 +100,6 @@ class Script:
             datetime_now = datetime.now()
             now_date = datetime_now.strftime('%Y-%m-%d')
             now_time = datetime_now.strftime('%H-%M-%S')
-            now_time = datetime_now.strftime('%Hh%Mm%s')
 
             folder = f'{error_path}'
             image_name = f'{config_name} {now_time} ({now_date})'
@@ -392,9 +391,11 @@ class Script:
             # 这个还不重要 留着坑填
             logger.critical('Game page unknown')
             self.save_error_log()
+            self.config.task_call('Restart')
+            self.device.sleep(10)
             self.config.notifier.push(title=command, content=f"<{self.config_name}> GamePageUnknownError")
             exit(1)
-            return False
+            # return False
         except ScriptError as e:
             logger.critical(e)
             logger.critical('This is likely to be a mistake of developers, but sometimes just random issues')
@@ -428,6 +429,9 @@ class Script:
             self.config.save()
 
         while 1:
+            # 每次任务看看需不需要切日日志文件
+            logger.set_file_logger(self.config_name)
+
             # Get task
             task = self.get_next_task()
             # 更新 gui的任务
@@ -444,9 +448,6 @@ class Script:
             logger.info(f'Scheduler: Start task `{task}`')
             self.device.stuck_record_clear()
             self.device.click_record_clear()
-
-            # 每次任务看看需不需要切日日志文件
-            logger.set_file_logger(self.config_name)
 
             logger.hr(task, level=0)
             success = self.run(inflection.camelize(task))
@@ -493,6 +494,7 @@ class Script:
 if __name__ == "__main__":
     script = Script("MI")
     # script.start_loop()
+    script.save_error_log()
     # locale.setlocale(locale.LC_TIME, 'chinese')
     # today = datetime.now()
     # date = today.strftime('%Y-%m-%d %A')
