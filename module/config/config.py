@@ -434,6 +434,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             logger.info(f'task: {task}')
             if self.model.task_current_runing is not None:
                 if convert_to_underscore(self.model.task_current_runing) == task:
+                    logger.info(f'Setup task_current_runing is None')
                     self.model.task_current_runing = None
             self.save()
         finally:

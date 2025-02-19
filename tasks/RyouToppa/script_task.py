@@ -252,11 +252,11 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
         self.screenshot()
         # 如果该区域已经被攻破则退出
         # Ps: 这时候能打过的都打过了，没有能攻打的结界了, 代表任务已经完成，set_next_run time=1d
-        if self.appear(f3, threshold=0.8) or self.appear(f4, threshold=0.8):
+        if self.appear(f3, threshold=0.7) or self.appear(f4, threshold=0.7):
             self.set_next_run(task='RyouToppa', finish=True, success=True)
             self.set_next_run_talismanpass()
         # 如果该区域攻略失败返回 False
-        if self.appear(f1, threshold=0.8) or self.appear(f2, threshold=0.8):
+        if self.appear(f1, threshold=0.7) or self.appear(f2, threshold=0.7):
             logger.info('Area [%s] is futile attack, skip.' % str(index + 1))
             return False
         return True

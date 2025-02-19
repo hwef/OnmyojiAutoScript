@@ -124,6 +124,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         self.device.detect_record = detect_record
         # 如果接受邀请则立即执行悬赏任务
         if click_button == self.I_G_ACCEPT:
+            logger.info('Accept friend invitation, Setup WantedQuests set_next_run')
             self.set_next_run(task='WantedQuests', target=datetime.now().replace(microsecond=0))
         return True
 

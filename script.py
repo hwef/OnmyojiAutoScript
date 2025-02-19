@@ -424,7 +424,7 @@ class Script:
         # 线程启动设置task_current_runing is None
         if self.config.model.task_current_runing is not None:
             logger.info(f'task_current_runing: {self.config.model.task_current_runing}')
-            logger.info(f'设置 task_current_runing is None')
+            logger.info(f'Setup task_current_runing is None')
             self.config.model.task_current_runing = None
             self.config.save()
 
