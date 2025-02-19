@@ -122,23 +122,38 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
         logger.hr('Start boss battle', 1)
         # 判断今天是周几
         today = datetime.now().weekday()
-
+        wait_timer = Timer(60)
+        wait_timer.start()
         while 1:
             self.screenshot()
+
+            # 等待超时
+            if wait_timer.reached():
+                self.config.notifier.push(title=self.config.task.command, content=f"逢魔Boss 搜寻超时...")
+                wait_timer.reset()
+                break
+
             if self.appear(self.I_BOSS_FIRE) or self.appear(self.I_BEST_BOSS_FIRE):
                 current, remain, total = self.O_DE_BOSS_PEOPLE.ocr(self.device.image)
-                if total == 300 and current >= 200:
+                if total == 300 and current >= 260:
                     logger.info('Boss battle people is full')
                     if not self.appear(self.I_UI_BACK_RED):
                         logger.warning('Boss battle people is full but no red back')
                         continue
                     self.ui_click_until_disappear(self.I_UI_BACK_RED)
-                    # 退出重新选一个没人慢的boss
+                    # 退出重新选一个没满员的boss
                     logger.info('Exit and reselect')
                     continue
                 else:
                     logger.info('Boss battle people is not full')
                     break
+
+            if self.config.demon_encounter.best_demon_boss_config.enable and today < 5:
+                if self.appear_then_click(self.I_DE_BOSS_BEST, interval=4):
+                    continue
+            else:
+                if self.appear_then_click(self.I_DE_BOSS, interval=4):
+                    continue
 
             if self.appear_then_click(self.I_BOSS_NAMAZU, interval=1):
                 continue
@@ -152,12 +167,7 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
                 continue
             if self.appear_then_click(self.I_BOSS_SONGSTRESS, interval=1):
                 continue
-            if self.config.demon_encounter.best_demon_boss_config.enable and today < 5:
-                if self.appear_then_click(self.I_DE_BOSS_BEST, interval=4):
-                    continue
-            else:
-                if self.appear_then_click(self.I_DE_BOSS, interval=4):
-                    continue
+
             if self.click(self.C_DM_BOSS_CLICK, interval=1.7):
                 continue
 
