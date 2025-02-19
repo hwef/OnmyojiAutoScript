@@ -27,8 +27,13 @@ class ScriptTask(KU, KekkaiActivationAssets):
         con = self.config.kekkai_activation.activation_config
         self.ui_get_current_page()
         self.ui_goto(page_guild)
+
+        # 在寮的主界面 检查是否有收取体力或者是收取寮资金
+        self.check_guild_ap_or_assets()
+
         # 进入寮结界
         self.goto_realm()
+
         if con.exchange_before:
             self.check_max_lv(con.shikigami_class)
         # 收取经验

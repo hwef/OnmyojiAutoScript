@@ -45,7 +45,6 @@ from tasks.RealmRaid.config import RealmRaid
 from tasks.CollectiveMissions.config import CollectiveMissions
 from tasks.Hunt.config import Hunt
 from tasks.AbyssShadows.config import AbyssShadows
-from tasks.GuildSushi.config import GuildSushi
 
 # 这一部分是活动的配置-----------------------------------------------------------------------------------------------------
 from tasks.ActivityShikigami.config import ActivityShikigami
@@ -142,7 +141,6 @@ class ConfigModel(ConfigBase):
     hunt: Hunt = Field(default_factory=Hunt)
     dokan: Dokan = Field(default_factory=Dokan)
     abyss_shadows: AbyssShadows = Field(default_factory=AbyssShadows)
-    guild_sushi: GuildSushi = Field(default_factory=GuildSushi)
 
     # Tools
     back_up: BackUp = Field(default_factory=BackUp)

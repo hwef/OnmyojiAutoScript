@@ -29,9 +29,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         self.ui_goto(page_guild)
         # 收体力或者资金
         # 进入寮主页会有一个动画，等一等，让小纸人跑一会儿
-        time.sleep(3)
-        # 在寮的主界面 检查是否有收取体力或者是收取寮资金
-        self.check_guild_ap_or_assets(ap_enable=con.guild_ap_enable, assets_enable=con.guild_assets_enable)
+        time.sleep(2)
+
         # 进入寮结界
         self.goto_realm()
         # 查看满级
@@ -44,6 +43,16 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         self.check_utilize_harvest()
 
         self.check_utilize_add()
+
+        for i in range(3):
+            self.ui_get_current_page()
+            self.ui_goto(page_guild)
+            # 在寮的主界面 检查是否有收取体力或者是收取寮资金
+            self.check_guild_ap_or_assets(ap_enable=con.guild_ap_enable, assets_enable=con.guild_assets_enable)
+            self.ui_get_current_page()
+            self.ui_goto(page_main)
+
+        raise TaskEnd
 
     def check_utilize_add(self):
         con = self.config.kekkai_utilize.utilize_config
@@ -68,7 +77,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 self.back_guild()
                 next_time = datetime.now() + remaining_time
                 self.set_next_run(task='KekkaiUtilize', target=next_time)
-                raise TaskEnd
+                return
             if not self.grown_goto_utilize():
                 logger.info('Utilize failed, exit')
             self.run_utilize(con.select_friend_list, con.shikigami_class, con.shikigami_order)
@@ -112,13 +121,13 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         如果有就顺带收取
         :return:
         """
-        if ap_enable or assets_enable:
-            self.screenshot()
-            if not self.appear(self.I_GUILD_AP) and not self.appear(self.I_GUILD_ASSETS):
-                logger.info('No ap or assets to collect')
-                return False
-        else:
-            return False
+        # if ap_enable or assets_enable:
+        #     self.screenshot()
+        #     if not self.appear(self.I_GUILD_AP) and not self.appear(self.I_GUILD_ASSETS):
+        #         logger.info('No ap or assets to collect')
+        #         return False
+        # else:
+        #     return False
 
         # 如果有就收取
         timer_check = Timer(2)
