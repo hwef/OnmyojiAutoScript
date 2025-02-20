@@ -394,8 +394,8 @@ class Script:
             self.config.task_call('Restart')
             self.device.sleep(10)
             self.config.notifier.push(title=command, content=f"<{self.config_name}> GamePageUnknownError")
-            exit(1)
-            # return False
+            # exit(1)
+            return False
         except ScriptError as e:
             logger.critical(e)
             logger.critical('This is likely to be a mistake of developers, but sometimes just random issues')
@@ -421,11 +421,11 @@ class Script:
         # logger.set_file_logger(self.config_name)
         logger.info(f'Start scheduler loop: {self.config_name}')
 
-        # 线程启动设置task_current_runing is None
-        if self.config.model.task_current_runing is not None:
-            logger.info(f'task_current_runing: {self.config.model.task_current_runing}')
-            logger.info(f'Setup task_current_runing is None')
-            self.config.model.task_current_runing = None
+        # 线程启动设置task_runing is None
+        if self.config.model.task_runing is not None:
+            logger.info(f'task_runing: {self.config.model.task_runing}')
+            logger.info(f'Setup task_runing is None')
+            self.config.model.task_runing = None
             self.config.save()
 
         while 1:

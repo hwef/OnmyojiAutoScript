@@ -19,7 +19,7 @@ from module.exception import TaskEnd
 class ScriptTask(BaseTask):
 
     def run(self):
-        logger.set_file_logger(Config.config_name)
+        logger.set_file_logger(self.config.config_name)
         con = self.config.back_up.back_up_config
         if con.backup_flag:
             # 根据文件创建时间移动旧文件到动态备份目录
