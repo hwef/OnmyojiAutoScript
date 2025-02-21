@@ -2,7 +2,7 @@
 # @author runhey
 # github https://github.com/runhey
 from time import sleep
-from datetime import datetime, time
+from datetime import datetime, time, timedelta, date
 
 from module.logger import logger
 from module.exception import TaskEnd
@@ -16,24 +16,26 @@ from tasks.Orochi.script_task import ScriptTask as OrochiScriptTask
 from tasks.Orochi.config import Layer
 from tasks.GameUi.page import page_main, page_soul_zones, page_shikigami_records
 from tasks.TrueOrochi.assets import TrueOrochiAssets
+from tasks.base_task import Time
 
 """ 真八岐大蛇 """
+
+
 class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
 
     def run(self):
-    
+
         conf = self.config.true_orochi.true_orochi_config
 
-        # 周一重置真蛇次数
-        now = datetime.now()
-        day_of_week = now.weekday()
-        if day_of_week == 0:
-            conf.current_success = 0
-
+        # 超过两次就说明这周打完了,设置下次运行时间为下周一，次数重置为0
         if conf.current_success >= 2:
-            # 超过两次就说明这周打完了没有必要再打了
-            logger.warning('This week is full')
-            self.check_times(True)
+            today = date.today()
+            # 直接计算到下周一的天数差
+            next_monday = (7 - today.weekday()) % 7
+            logger.info(f'TrueOrochi next Monday is {next_monday}, set current_success to 0')
+            conf.current_success = 0
+            self.custom_next_run(task='TrueOrochi', custom_time=Time(hour=10, minute=0, second=0),
+                                 time_delta=next_monday)
             raise TaskEnd('TrueOrochi')
 
         # 御魂切换方式一
@@ -211,4 +213,3 @@ if __name__ == '__main__':
     t.screenshot()
 
     t.run()
-
