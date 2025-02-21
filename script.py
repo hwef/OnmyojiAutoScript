@@ -36,6 +36,7 @@ from module.exception import *
 
 class Script:
     def __init__(self, config_name: str ='oas') -> None:
+        self.device = None
         logger.hr('Start', level=0)
         self.server = None
         self.state_queue: Queue = None
@@ -62,18 +63,18 @@ class Script:
             logger.exception(e)
             exit(1)
 
-    @cached_property
-    def device(self) -> "Device":
-        try:
-            from module.device.device import Device
-            device = Device(config=self.config)
-            return device
-        except RequestHumanTakeover:
-            logger.critical('Request human takeover')
-            exit(1)
-        except Exception as e:
-            logger.exception(e)
-            exit(1)
+    # @cached_property
+    # def device(self) -> "Device":
+    #     try:
+    #         from module.device.device import Device
+    #         device = Device(config=self.config)
+    #         return device
+    #     except RequestHumanTakeover:
+    #         logger.critical('Request human takeover')
+    #         exit(1)
+    #     except Exception as e:
+    #         logger.exception(e)
+    #         exit(1)
 
     @cached_property
     def checker(self):
@@ -336,12 +337,21 @@ class Script:
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
+                elif method == 'close_emulator':
+                    logger.info('close emulator during wait')
+                    if task.next_run > datetime.now() + timedelta(minutes=30):
+                        self.device.emulator_stop()
+                    self.device.release_during_wait()
+                    if not self.wait_until(task.next_run):
+                        del_cached_property(self, 'config')
+                        continue
                 else:
                     logger.warning(f'Invalid Optimization_WhenTaskQueueEmpty: {method}, fallback to stay_there')
                     self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
+
             break
 
         return task.command
@@ -432,17 +442,20 @@ class Script:
             # 每次任务看看需不需要切日日志文件
             logger.set_file_logger(self.config_name)
 
+            if self.is_first_task:
+                self.device = Device(self.config)
             # Get task
             task = self.get_next_task()
             # 更新 gui的任务
             # Init device and change server
-            _ = self.device
+            # _ = self.device
             # Skip first restart
             if self.is_first_task and task == 'Restart':
                 logger.info('Skip task `Restart` at scheduler start')
                 self.config.task_delay(task='Restart', success=True, server=True)
                 del_cached_property(self, 'config')
                 continue
+            self.device = Device(self.config)
 
             # Run
             logger.info(f'Scheduler: Start task `{task}`')
@@ -492,9 +505,23 @@ class Script:
 
 
 if __name__ == "__main__":
-    script = Script("MI")
+    script = Script("oas3")
+    script.loop()
+    # while 1:
+        # script = Script("oas3")
+        # device = Device("oas3")
+        # device.app_start()
+        # time.sleep(10)
+        # logger.info('Start app')
+        # device.app_stop()
+        # logger.info('Stop app')
+        # time.sleep(5)
+        # device.emulator_stop()
+        # time.sleep(5)
+        # del_cached_property(script, 'device')
+        # del_cached_property(script, 'config')
     # script.start_loop()
-    script.save_error_log()
+    # script.save_error_log()
     # locale.setlocale(locale.LC_TIME, 'chinese')
     # today = datetime.now()
     # date = today.strftime('%Y-%m-%d %A')
