@@ -24,7 +24,7 @@ class ScriptTask(BaseTask):
 
     def run(self):
         logger.set_file_logger(self.config.config_name)
-
+        logger.hr('BackUp', 2)
         con = self.config.back_up.back_up_config
         if con.backup_flag:
             sleep(10)
