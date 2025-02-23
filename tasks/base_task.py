@@ -690,6 +690,28 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             self.config.notifier.push(title=task_name, content=f"保存{image_path}截图异常，{e}")
             logger.info(f"保存{image_path}截图异常，{e}")
 
+    def appear_rbg(self, target, difference: int = 10):
+        """
+       检查目标图像的平均颜色是否与给定图像相似。
+
+       参数:
+       - target: 目标图像对象，期望包含文件路径的属性。
+       - image: 给定的图像对象，用于比较。
+
+       返回:
+       - True: 如果目标图像的平均颜色与给定图像匹配。
+       - False: 如果目标图像的平均颜色与给定图像不匹配。
+       """
+        # 加载图像并计算其平均颜色
+        average_color = cv2.mean(cv2.imread(target.file))
+        logger.info(f"图像三原色: {average_color}")
+
+        if target.match_mean_color(self.device.image, average_color, difference):
+            logger.warning(f"图像平均颜色匹配成功")
+            return True
+        else:
+            logger.warning(f"图像平均颜色匹配失败")
+            return False
 
 if __name__ == '__main__':
     from module.config.config import Config

@@ -525,7 +525,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             if self.appear_then_click(self.I_CREATE_DAOGUAN_SURE, interval=1):
                 time.sleep(3)
                 continue
-            if self.appear_rbg(self.I_CREATE_DAOGUAN_OK, self.device.image):
+            if self.appear_rbg(self.I_CREATE_DAOGUAN_OK):
                 break
             # if self.I_CREATE_DAOGUAN_OK.match_mean_color(self.device.image, self.CREATE_DAOGUAN_OK, 10):
             #     break
@@ -685,29 +685,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
         self.ui_get_current_page()
         self.ui_goto(page_main)
-
-    def appear_rbg(self, target, image):
-        """
-       检查目标图像的平均颜色是否与给定图像相似。
-
-       参数:
-       - target: 目标图像对象，期望包含文件路径的属性。
-       - image: 给定的图像对象，用于比较。
-
-       返回:
-       - True: 如果目标图像的平均颜色与给定图像匹配。
-       - False: 如果目标图像的平均颜色与给定图像不匹配。
-       """
-        # 加载图像并计算其平均颜色
-        average_color = cv2.mean(cv2.imread(target.file))
-        logger.info(f"图像三原色: {average_color}")
-
-        if target.match_mean_color(image, average_color, 10):
-            logger.info(f"图像平均颜色匹配成功")
-            return True
-        else:
-            logger.warning(f"图像平均颜色匹配失败")
-            return False
 
 
 if __name__ == "__main__":
