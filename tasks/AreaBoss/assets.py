@@ -104,6 +104,7 @@ class AreaBossAssets:
 	# 地鬼识别到满20000攻打人数标志 
 	I_AB_FULL_20000 = RuleImage(roi_front=(874,643,38,21), roi_back=(874,643,38,21), threshold=0.8, method="Template matching", file="./tasks/AreaBoss/res/ab_full_20000.png")
 
+
 	# Ocr Rule Assets
 	# 击杀最多 
 	O_AB_KILL_BEST = RuleOcr(roi=(942,123,157,52), area=(942,123,157,52), mode="Single", method="Default", keyword="击杀最多", name="ab_kill_best")

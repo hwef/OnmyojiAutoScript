@@ -29,7 +29,7 @@
   {
     "itemName": "me_souls",
     "imageName": "medal_me_souls.png",
-    "roiFront": "173,349,148,175",
+    "roiFront": "173,391,148,133",
     "roiBack": "121,116,898,476",
     "method": "Template matching",
     "threshold": 0.8,
@@ -47,8 +47,8 @@
   {
     "itemName": "me_challenge_pass",
     "imageName": "medal_me_challenge_pass.png",
-    "roiFront": "638,176,100,100",
-    "roiBack": "121,92,898,500",
+    "roiFront": "618,390,146,129",
+    "roiBack": "114,102,914,478",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "挑战券"
