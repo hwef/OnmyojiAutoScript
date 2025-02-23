@@ -167,7 +167,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         保存配置文件
         :return:
         """
-        logger.info(f'save config {self.config_name}')
+        # logger.info(f'save config {self.config_name}')
         self.model.write_json(self.config_name, self.model.dict())
 
     def update_scheduler(self) -> None:
@@ -335,11 +335,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         :param finish: 是完成任务后的时间为基准还是开始任务的时间为基准
         :return:
         """
-        # 获取真蛇成功次数
-        global current_success, true_orochi_config
         days_num = 1
-        if task == 'TrueOrochi':
-            current_success = self.model.true_orochi.true_orochi_config.current_success
 
         # 加载配置文件
         self.reload()
@@ -373,8 +369,8 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
 
             if interval.days > 1:
                 days_num = interval.days
-                days7 = datetime.now() + timedelta(days=interval.days)
-                run.append(datetime.combine(days7, scheduler.server_update))
+                next_days_time = datetime.now() + timedelta(days=interval.days)
+                run.append(datetime.combine(next_days_time, scheduler.server_update))
             else:
                 days_num = 1
                 run.append(start_time + interval)
@@ -426,9 +422,6 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         self.lock_config.acquire()
         try:
             scheduler.next_run = next_run
-            if task == 'true_orochi':
-                true_orochi_config = getattr(task_object, 'true_orochi_config', None)
-                true_orochi_config.current_success = current_success
             # 避免任务运行中途修改task_runing，例如任务中间接到悬赏
             logger.info(f'task_runing: {self.model.task_runing}')
             logger.info(f'task: {task}')

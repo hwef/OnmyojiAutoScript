@@ -27,17 +27,6 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
 
         conf = self.config.true_orochi.true_orochi_config
 
-        # 超过两次就说明这周打完了,设置下次运行时间为下周一，次数重置为0
-        if conf.current_success >= 2:
-            today = date.today()
-            # 直接计算到下周一的天数差
-            next_monday = (7 - today.weekday()) % 7
-            logger.info(f'TrueOrochi next Monday is {next_monday}, set current_success to 0')
-            conf.current_success = 0
-            self.custom_next_run(task='TrueOrochi', custom_time=Time(hour=10, minute=0, second=0),
-                                 time_delta=next_monday)
-            raise TaskEnd('TrueOrochi')
-
         # 御魂切换方式一
         if self.config.true_orochi.switch_soul.enable:
             self.ui_get_current_page()
@@ -53,8 +42,10 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
         self.ui_get_current_page()
         self.ui_goto(page_soul_zones)
         self.orochi_enter()
+        # 检查是否出现真蛇
         battle = self.check_true_orochi(True)
         if not battle:
+            # 没有发现真蛇
             logger.warning('Not find true orochi')
             logger.warning('Try to battle orochi for ten times')
 
@@ -95,7 +86,6 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
             raise TaskEnd('TrueOrochi')
         # 如果有真蛇，那么就开始战斗
         logger.hr('True Orochi Battle')
-        conf.current_success += 1
         while 1:
             self.screenshot()
             if self.appear(self.I_ST_CREATE_ROOM):
@@ -163,9 +153,11 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
             sleep(0.5)
 
         logger.info("Battle process end")
+        # 真蛇战斗完成，次数加一
+        conf.current_success += 1
+        self.config.save()
+
         self.check_times(battle)
-        self.config.notifier.push(title='真·八岐大蛇', content='任务已完成，请查看截图')
-        raise TaskEnd('TrueOrochi')
 
     def check_true_orochi(self, screenshot=False) -> bool:
         """
@@ -183,21 +175,28 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
         :param current_success: 这周的成功次数
         :return:
         """
-        # now = datetime.now()
-        # now_year, now_week_number, now_weekday = now.isocalendar()
-        # if battle:
-        #     next_run = now + self.config.true_orochi.scheduler.success_interval
-        # else:
-        #     next_run = now + self.config.true_orochi.scheduler.failure_interval
-        # next_run_year, next_run_week_number, next_run_weekday = next_run.isocalendar()
-        # # 如果下次运行的时间是下一周，那么就重置成功次数
-        # if now_week_number != next_run_week_number:
-        #     self.config.true_orochi.true_orochi_config.current_success = 0
-        # else:
-        #     # 如果不是下一周，那么就加一
-        #     self.config.true_orochi.true_orochi_config.current_success += 1
-        # self.set_next_run(task='TrueOrochi', target=next_run)
-        self.set_next_run('TrueOrochi', finish=True, success=True)
+        conf = self.config.true_orochi.true_orochi_config
+
+        # 超过两次就说明这周打完了,设置下次运行时间为下周一，次数重置为0
+        if conf.current_success >= 2:
+            self.config.notifier.push(title='真·八岐大蛇', content=f'本周已完成{conf.current_success}次，请查看截图')
+            conf.current_success = 0
+            self.config.save()
+
+            today = date.today()
+            # 直接计算到下周一的天数差
+            next_monday = (7 - today.weekday()) % 7
+            logger.info(f'TrueOrochi next Monday is {next_monday}, set current_success to 0')
+
+            server_update = self.config.true_orochi.scheduler.server_update
+            self.custom_next_run(task='TrueOrochi',
+                                 custom_time=Time(hour=server_update.hour, minute=server_update.minute, second=server_update.second),
+                                 time_delta=next_monday)
+            raise TaskEnd('TrueOrochi')
+        else:
+            self.config.notifier.push(title='真·八岐大蛇', content=f'本周已完成{conf.current_success}次，请查看截图')
+            self.set_next_run('TrueOrochi', finish=True, success=True)
+            raise TaskEnd('TrueOrochi')
 
     def run_true_orochi(self) -> bool:
         pass

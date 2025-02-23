@@ -24,10 +24,9 @@ class ScriptTask(BaseTask):
 
     def run(self):
         logger.set_file_logger(self.config.config_name)
-        logger.hr('BackUp', 2)
+        logger.hr('BackUp', 0)
         con = self.config.back_up.back_up_config
         if con.backup_flag:
-            sleep(10)
             # 根据文件创建时间移动旧文件到动态备份目录
             self.move_old_files_to_backup()
             # 递归删除空文件夹
