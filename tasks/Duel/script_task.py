@@ -77,18 +77,25 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
                 if con.honor_full_exit:
                     if  self.check_honor():
                         # 荣誉满了，退出
+                        self.save_image()
                         logger.info('Duel task is over honor')
+                        duel_week_over = True
                         break
                 else:
                     break
             self.duel_one(current_score, con.green_enable, con.green_mark)
-
         # 记得退回去到町中
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_TOWN)
-        self.set_next_run(task='Duel', success=True, finish=False)
+
+        if duel_week_over:
+            self.config.notifier.push(title='Duel', content=f'本周斗技已完成，请查看截图')
+            # 设置下一次运行时间是周一
+            self.monday_next_run()
+        else:
+            self.set_next_run(task='Duel', success=True, finish=False)
+
         # 调起花合战
         self.set_next_run(task='TalismanPass', target=datetime.now())
-
         raise TaskEnd('Duel')
 
     def duel_main(self, screenshot=False) -> bool:

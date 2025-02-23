@@ -3,6 +3,7 @@
 # github https://github.com/runhey
 from time import sleep
 from datetime import datetime, time, timedelta, date
+from module.config.utils import convert_to_underscore
 
 from module.logger import logger
 from module.exception import TaskEnd
@@ -176,27 +177,17 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
         :return:
         """
         conf = self.config.true_orochi.true_orochi_config
+        self.config.notifier.push(title='真·八岐大蛇', content=f'本周已完成{conf.current_success}次，请查看截图')
 
         # 超过两次就说明这周打完了,设置下次运行时间为下周一，次数重置为0
         if conf.current_success >= 2:
-            self.config.notifier.push(title='真·八岐大蛇', content=f'本周已完成{conf.current_success}次，请查看截图')
             conf.current_success = 0
             self.config.save()
-
-            today = date.today()
-            # 直接计算到下周一的天数差
-            next_monday = (7 - today.weekday()) % 7
-            logger.info(f'TrueOrochi next Monday is {next_monday}, set current_success to 0')
-
-            server_update = self.config.true_orochi.scheduler.server_update
-            self.custom_next_run(task='TrueOrochi',
-                                 custom_time=Time(hour=server_update.hour, minute=server_update.minute, second=server_update.second),
-                                 time_delta=next_monday)
-            raise TaskEnd('TrueOrochi')
+            # 设置下一次运行时间是周一
+            self.monday_next_run()
         else:
-            self.config.notifier.push(title='真·八岐大蛇', content=f'本周已完成{conf.current_success}次，请查看截图')
             self.set_next_run('TrueOrochi', finish=True, success=True)
-            raise TaskEnd('TrueOrochi')
+        raise TaskEnd('TrueOrochi')
 
     def run_true_orochi(self) -> bool:
         pass

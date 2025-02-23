@@ -532,6 +532,33 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                                                                             second=custom_time.second)
         self.set_next_run(task, target=target_time)
 
+    def monday_next_run(self):
+        """
+        计算下一个运行时间到周一的天数，并进行相应的设置。
+
+        本函数首先确定今天的日期，然后计算距离下周一的天数差。
+        计算出的天数差用于设置任务的下一次运行时间。
+        """
+        # 获取今天的日期
+        today = datetime.today()
+        # 直接计算到下周一的天数差
+        next_monday = (7 - today.weekday()) % 7
+        # 记录任务完成，并指出下一次运行时间是周一，以及距离今天多少天
+        TaskName = self.config.task.command
+        logger.info(f'{TaskName} is over, next run time Monday is {next_monday} days later')
+
+        # 获取服务更新时间配置
+        task_name = convert_to_underscore(TaskName)
+        task_object = getattr(self.config.model, task_name, None)
+        scheduler = getattr(task_object, 'scheduler', None)
+        server_update = scheduler.server_update
+
+        # 调用自定义函数设置下一次运行时间
+        self.custom_next_run(task=TaskName,
+                             custom_time=Time(hour=server_update.hour, minute=server_update.minute,
+                                              second=server_update.second),
+                             time_delta=next_monday)
+
     #  ---------------------------------------------------------------------------------------------------------------
     #
     #  ---------------------------------------------------------------------------------------------------------------
