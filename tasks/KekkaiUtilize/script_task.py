@@ -31,6 +31,9 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         # 进入寮主页会有一个动画，等一等，让小纸人跑一会儿
         time.sleep(2)
 
+        # 育成界面去蹭卡
+        self.check_utilize_add()
+
         # 进入寮结界
         self.goto_realm()
         # 查看满级
@@ -41,8 +44,6 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
         # 在寮结界界面检查是否有收获
         self.check_utilize_harvest()
-
-        self.check_utilize_add()
 
         for i in range(3):
             self.ui_get_current_page()
@@ -72,11 +73,10 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 if not isinstance(remaining_time, timedelta):
                     logger.warning('Ocr remaining time error')
                 logger.info(f'Utilize remaining time: {remaining_time}')
-                # 执行失败，推出下一次执行为失败的时间间隔
-                logger.info('Utilize failed, exit')
-                self.back_guild()
+                # 已经蹭上卡了，设置下次蹭卡时间
                 next_time = datetime.now() + remaining_time
                 self.set_next_run(task='KekkaiUtilize', target=next_time)
+                self.back_guild()
                 return
             if not self.grown_goto_utilize():
                 logger.info('Utilize failed, exit')

@@ -33,6 +33,10 @@ class ScriptTask(BaseTask):
             self.remove_empty_folders()
             # backup目录下，超过7天文件移动保存
             self.move_old_folders()
+
+        con.backup_date = str(datetime.now().date())
+        self.config.save()
+        self.config.notifier.push(title='日志备份', content=f'今日备份完成!')
         self.set_next_run('BackUp', success=True, finish=True)
         raise TaskEnd('BackUp')
 
@@ -221,26 +225,32 @@ class ScriptTask(BaseTask):
             logger.error(f"‼️ 全局异常：{str(e)}")
 
 
+# if __name__ == '__main__':
+#     # 配置命令行参数
+#     parser = argparse.ArgumentParser(description='移动过期目录工具')
+#     parser.add_argument('--directory',
+#                         type=str,
+#                         default='.',
+#                         help='要处理的根目录（默认为当前目录）')
+#
+#     args = parser.parse_args()
+#
+#     print(f"=== 开始处理目录：{os.path.abspath(args.directory)} ===")
+#     # move_old_folders(args.directory)
+#     print("=== 处理完成 ===")
+#
+# if __name__ == '__main__':
+#     from module.config.config import Config
+#     from module.device.device import Device
+#
+#     c = Config('test')
+#     d = Device(c)
+#     t = ScriptTask(c, d)
+#
+#     t.run()
+
 if __name__ == '__main__':
-    # 配置命令行参数
-    parser = argparse.ArgumentParser(description='移动过期目录工具')
-    parser.add_argument('--directory',
-                        type=str,
-                        default='.',
-                        help='要处理的根目录（默认为当前目录）')
-
-    args = parser.parse_args()
-
-    print(f"=== 开始处理目录：{os.path.abspath(args.directory)} ===")
-    # move_old_folders(args.directory)
-    print("=== 处理完成 ===")
-
-if __name__ == '__main__':
-    from module.config.config import Config
-    from module.device.device import Device
-
-    c = Config('test')
-    d = Device(c)
-    t = ScriptTask(c, d)
-
-    t.run()
+    a = datetime.today().date()
+    b = datetime.now().date()
+    print(a)
+    print(b)

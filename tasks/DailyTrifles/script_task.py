@@ -66,8 +66,6 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets):
             for i in range(len(list)):
                 sleep(1)
                 self.ui_get_current_page()
-                self.ui_goto(page_main)
-                self.ui_get_current_page()
                 self.ui_goto(page_summon)
                 self.appear_then_click(self.I_UI_BACK_RED, interval=1)
                 x, y = list[i].coord()

@@ -9,6 +9,7 @@ from time import sleep
 import os
 import shutil
 from datetime import datetime, timedelta, time
+from numpy import float32, int32, uint8, fromfile
 from typing import Union
 
 from dev_tools.decorator import usage_time
@@ -541,11 +542,14 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         """
         # 获取今天的日期
         today = datetime.today()
-        # 直接计算到下周一的天数差
-        next_monday = (7 - today.weekday()) % 7
+        current_weekday = today.weekday()
+        # 计算到下周一的天数差：
+        # 若今天是周一，(7 - 0) %7 = 0 → 替换为7天；其余情况直接取余数
+        days_until_next_monday = (7 - current_weekday) % 7 or 7
+
         # 记录任务完成，并指出下一次运行时间是周一，以及距离今天多少天
         TaskName = self.config.task.command
-        logger.info(f'{TaskName} is over, next run time Monday is {next_monday} days later')
+        logger.info(f'{TaskName} done in {days_until_next_monday} days on Monday.')
 
         # 获取服务更新时间配置
         task_name = convert_to_underscore(TaskName)
@@ -557,7 +561,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         self.custom_next_run(task=TaskName,
                              custom_time=Time(hour=server_update.hour, minute=server_update.minute,
                                               second=server_update.second),
-                             time_delta=next_monday)
+                             time_delta=days_until_next_monday)
 
     #  ---------------------------------------------------------------------------------------------------------------
     #
@@ -646,6 +650,17 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             elif self.appear_then_click(click, interval=interval):
                 continue
 
+    def load_image(file: str):
+        file = Path(file)
+        img = cv2.imdecode(fromfile(file, dtype=uint8), -1)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        height, width, channels = img.shape
+        if height != 720 or width != 1280:
+            logger.error(f'Image size is {height}x{width}, not 720x1280')
+            return None
+        return img
+
     def save_image(self, task_name=None, wait_time=2, save_flag=False):
         try:
             if task_name is None:
@@ -690,7 +705,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             self.config.notifier.push(title=task_name, content=f"保存{image_path}截图异常，{e}")
             logger.info(f"保存{image_path}截图异常，{e}")
 
-    def appear_rbg(self, target, difference: int = 10):
+    def appear_rbg(self, target, image, difference: int = 10):
         """
        检查目标图像的平均颜色是否与给定图像相似。
 
@@ -702,16 +717,19 @@ class BaseTask(GlobalGameAssets, CostumeBase):
        - True: 如果目标图像的平均颜色与给定图像匹配。
        - False: 如果目标图像的平均颜色与给定图像不匹配。
        """
+        if image is None:
+            image = self.device.image
         # 加载图像并计算其平均颜色
         average_color = cv2.mean(cv2.imread(target.file))
-        logger.info(f"图像三原色: {average_color}")
+        logger.info(f"[{target.name}]图像三原色: {average_color}")
 
-        if target.match_mean_color(self.device.image, average_color, difference):
-            logger.warning(f"图像平均颜色匹配成功")
+        if target.match_mean_color(image, average_color, difference):
+            logger.warning(f"[{target.name}] 颜色匹配成功")
             return True
         else:
-            logger.warning(f"图像平均颜色匹配失败")
+            logger.warning(f"[{target.name}] 颜色匹配失败")
             return False
+
 
 if __name__ == '__main__':
     from module.config.config import Config

@@ -22,7 +22,7 @@ class ConfigMenu:
         self.menu["Soul Zones"] = ['Orochi', 'Sougenbi']
         # 日常的任务
         self.menu["Daily Task"] = ['Pets', 'DailyTrifles', 'WantedQuests', 'GoldYoukai', 'AreaBoss',
-                                   'DemonEncounter',  'SoulsTidy',  'TalismanPass', ]
+                                   'DemonEncounter',  'SoulsTidy', 'CollectiveMissions', 'TalismanPass', ]
         # 很肝的任务
         self.menu["Liver Emperor Exclusive"] = [
             "BondlingFairyland",
@@ -31,7 +31,7 @@ class ConfigMenu:
         ]
         # 阴阳寮
         self.menu["Guild"] = ['KekkaiUtilize', 'KekkaiActivation', 'RyouToppa', 'RealmRaid', 'Dokan',
-                              'Hunt', 'AbyssShadows',  'CollectiveMissions',]
+                              'Hunt', 'AbyssShadows']
         # 每周任务
         self.menu["Weekly Task"] = ['Duel', 'RichMan', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms',
                                     'TrueOrochi']

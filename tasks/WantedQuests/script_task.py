@@ -28,17 +28,22 @@ from tasks.GameUi.page import page_shikigami_records
 from tasks.Secret.config import Secret
 
 """ 悬赏封印 """
+
+
 class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
     # 定义检查次数
     play_count = 0
 
     def run(self):
-        # 悬赏换秘闻配置
-        secret: Secret = self.config.secret
-        if secret.switch_soul.enable:
+        con = self.config.wanted_quests
+        if con.switch_soul.enable:
             self.ui_get_current_page()
             self.ui_goto(page_shikigami_records)
-            self.run_switch_soul(secret.switch_soul.switch_group_team)
+            self.run_switch_soul(con.switch_soul.switch_group_team)
+        if con.switch_soul.enable_switch_by_name:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul_by_name(con.switch_soul.group_name, con.switch_soul.team_name)
 
         while 1:
             if not self.pre_work():
@@ -99,12 +104,22 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
     def next_run(self):
         now_datetime = datetime.now()
         now_time = now_datetime.time()
-        if time(hour=5) <= now_time < time(hour=18):
-            next_run_datetime = datetime.combine(now_datetime.date(), time(hour=18))
+        server_update_am = self.config.wanted_quests.scheduler.server_update
+        server_update_pm = self.config.wanted_quests.scheduler.server_update_pm
+
+        if time(hour=5) <= now_time < time(hour=server_update_pm.hour, minute=server_update_pm.minute,
+                                           second=server_update_pm.second):
+            next_run_datetime = datetime.combine(now_datetime.date(),
+                                                 time(hour=server_update_pm.hour, minute=server_update_pm.minute,
+                                                      second=server_update_pm.second))
         elif time(hour=0) <= now_time < time(hour=5):
-            next_run_datetime = datetime.combine(now_datetime.date(), time(hour=9, minute=5))
+            next_run_datetime = datetime.combine(now_datetime.date(),
+                                                 time(hour=server_update_am.hour, minute=server_update_am.minute,
+                                                      second=server_update_am.second))
         else:
-            next_run_datetime = datetime.combine(now_datetime.date() + timedelta(days=1), time(hour=9, minute=5))
+            next_run_datetime = datetime.combine(now_datetime.date() + timedelta(days=1),
+                                                 time(hour=server_update_am.hour, minute=server_update_am.minute,
+                                                      second=server_update_am.second))
         self.set_next_run(task='WantedQuests', target=next_run_datetime)
 
     def pre_work(self):

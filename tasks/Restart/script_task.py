@@ -20,6 +20,9 @@ class ScriptTask(LoginHandler):
         主要就是登录的模块
         :return:
         """
+        # 每日第一次启动游戏，运行日志备份
+        if self.config.back_up.back_up_config.backup_date != str(datetime.now().date()):
+            self.set_next_run(task='BackUp', target=datetime.now())
         if not self.delay_pending_tasks():
             self.app_restart()
         raise TaskEnd('ScriptTask end')

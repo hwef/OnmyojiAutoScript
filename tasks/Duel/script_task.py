@@ -19,7 +19,7 @@ from tasks.Duel.assets import DuelAssets
 class ScriptTask(GameUi, GeneralBattle, DuelAssets):
 
     def run(self):
-
+        self.duel_week_over = False
         current_time = datetime.now().time()
         if not (time(12, 00) <= current_time < time(23, 00)):
             logger.warning('不在斗技时间段')
@@ -79,7 +79,7 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
                         # 荣誉满了，退出
                         self.save_image()
                         logger.info('Duel task is over honor')
-                        duel_week_over = True
+                        self.duel_week_over = True
                         break
                 else:
                     break
@@ -87,7 +87,7 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
         # 记得退回去到町中
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_TOWN)
 
-        if duel_week_over:
+        if self.duel_week_over:
             self.config.notifier.push(title='Duel', content=f'本周斗技已完成，请查看截图')
             # 设置下一次运行时间是周一
             self.monday_next_run()

@@ -11,7 +11,8 @@ from enum import Enum
 
 class BackUpConfig(BaseModel):
     # 备份日志标志
-    backup_flag: bool = Field(title='Backup Flag', default=False,  description='备份日志')
+    backup_flag: bool = Field(title='Backup Flag', default=False, description='备份日志')
+    backup_date: str = Field(default='', description='完成备份任务日期')
 
 
 class BackUp(ConfigBase):
