@@ -49,6 +49,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
     def run(self):
         self.ui_get_current_page()
         self.ui_goto(page_guild)
+        time.sleep(2)
         rule = self.config.collective_missions.missions_config.missions_rule
         self.ui_click(self.I_CM_SHRINE, self.I_CM_CM)
         self.ui_click(self.I_CM_CM, self.I_CM_RECORDS)
@@ -87,7 +88,6 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
                 continue
             if self.appear_then_click(self.I_UI_BACK_YELLOW, interval=1):
                 continue
-
 
         self.set_next_run(task='CollectiveMissions', success=True, finish=True)
         raise TaskEnd('CollectiveMissions')

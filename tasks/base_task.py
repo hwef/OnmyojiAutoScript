@@ -705,30 +705,46 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             self.config.notifier.push(title=task_name, content=f"保存{image_path}截图异常，{e}")
             logger.info(f"保存{image_path}截图异常，{e}")
 
-    def appear_rbg(self, target, image, difference: int = 10):
+    def appear_rbg(self, target, image=None, difference: int = 10):
         """
-       检查目标图像的平均颜色是否与给定图像相似。
+        判断目标的平均颜色是否与图像中的颜色匹配。
 
-       参数:
-       - target: 目标图像对象，期望包含文件路径的属性。
-       - image: 给定的图像对象，用于比较。
+        参数:
+        - target: 目标对象，包含目标的文件路径和区域信息。
+        - image: 输入图像，如果未提供，则使用设备捕获的图像。
+        - difference: 颜色差异阈值，默认为10。
 
-       返回:
-       - True: 如果目标图像的平均颜色与给定图像匹配。
-       - False: 如果目标图像的平均颜色与给定图像不匹配。
-       """
+        返回:
+        - 如果目标颜色与图像颜色匹配，则返回True，否则返回False。
+        """
+        # 如果未提供图像，则使用设备捕获的图像
+        # logger.info(f"target [{target}], image [{image}]")
         if image is None:
             image = self.device.image
-        # 加载图像并计算其平均颜色
-        average_color = cv2.mean(cv2.imread(target.file))
-        logger.info(f"[{target.name}]图像三原色: {average_color}")
 
-        if target.match_mean_color(image, average_color, difference):
-            logger.warning(f"[{target.name}] 颜色匹配成功")
-            return True
-        else:
-            logger.warning(f"[{target.name}] 颜色匹配失败")
-            return False
+        # 加载图像并计算其平均颜色
+        img = cv2.imread(target.file)
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        average_color = cv2.mean(img_rgb)
+        logger.info(f"[{target.name}]average_color: {average_color}")
+
+        # 提取目标区域的坐标和尺寸，并确保它们为整数
+        x, y, w, h = target.roi_front
+        x, y, w, h = int(x), int(y), int(w), int(h)
+        # 从输入图像中提取目标区域
+        img = image[y:y + h, x:x + w]
+        # 计算目标区域的平均颜色
+        color = cv2.mean(img)
+        logger.info(f"[{target.name}] color: {color}")
+
+        # 比较目标图像和目标区域的颜色差异
+        for i in range(3):
+            if abs(average_color[i] - color[i]) > difference:
+                logger.warning(f"[{target.name}] 颜色匹配失败")
+                return False
+
+        logger.warning(f"[{target.name}] 颜色匹配成功")
+        return True
 
 
 if __name__ == '__main__':

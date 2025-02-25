@@ -414,7 +414,7 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
                     if self.appear(self.I_LETTER_CLOSE) or self.appear(self.I_MALL) or self.appear(self.I_DE_LETTER):
                         continue
                     else:
-                        self.save_image()
+                        # self.save_image()
                         logger.warning('Answer finish')
                         return
 
