@@ -18,6 +18,7 @@ from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleCon
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.Component.GeneralBuff.config_buff import BuffClass
 from tasks.WeeklyTrifles.assets import WeeklyTriflesAssets
+from tasks.Restart.assets import RestartAssets
 
 """ 秘闻 """
 class ScriptTask(GameUi, GeneralBattle, SwitchSoul, SecretAssets):
@@ -255,7 +256,14 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, SecretAssets):
             self.screenshot()
             if self.appear(self.I_SE_BATTLE_WIN):
                 logger.info('Win battle')
-                self.ui_click_until_disappear(self.I_SE_BATTLE_WIN, interval=2)
+                while 1:
+                    self.screenshot()
+                    if self.appear_then_click(RestartAssets.I_HARVEST_CHAT_CLOSE, interval=2):
+                        continue
+                    if self.appear_then_click(self.I_SE_BATTLE_WIN, interval=2):
+                        continue
+                    if not self.appear(self.I_SE_BATTLE_WIN):
+                        break
                 return True
             if self.appear_then_click(self.I_WIN, interval=1):
                 continue
