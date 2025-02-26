@@ -20,7 +20,7 @@ class GeneralClimb(ConfigBase):
     # 限制执行的次数
     limit_count: int = Field(default=50, description='limit_count_help')
     # 每日使用体力挑战的最大次数，默认是300
-    ap_game_max: int = Field(default=1800, description='ap_game_max_help')
+    # ap_game_max: int = Field(default=1800, description='ap_game_max_help')
     # 爬塔活动挂活动的体力还是游戏的体力
     ap_mode: ApMode = Field(default=ApMode.AP_ACTIVITY, description='ap_mode_help')
     # 游戏体力不足是否需要话勾玉购买
@@ -52,17 +52,17 @@ class GeneralClimb(ConfigBase):
                     return time(hour=0, minute=30, second=0)
         return value
 
-    @validator('ap_game_max', pre=True, always=True)
-    def reset_game_max(cls, value):
-        def_value = int(300)
-        if isinstance(value, str):
-            try:
-                return int(value)
-            except ValueError:
-                logger.warning('Invalid ap_game_max value. Expected format: int')
-                return def_value
-        elif isinstance(value, int):
-            return def_value
-        return def_value
+    # @validator('ap_game_max', pre=True, always=True)
+    # def reset_game_max(cls, value):
+    #     def_value = int(300)
+    #     if isinstance(value, str):
+    #         try:
+    #             return int(value)
+    #         except ValueError:
+    #             logger.warning('Invalid ap_game_max value. Expected format: int')
+    #             return def_value
+    #     elif isinstance(value, int):
+    #         return def_value
+    #     return def_value
 
 

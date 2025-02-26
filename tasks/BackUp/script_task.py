@@ -115,7 +115,7 @@ class ScriptTask(BaseTask):
                     try:
                         os.rmdir(dir_path)
                         logger.info(f"Removed empty folder: {dir_path}")
-                    except OSError as e:
+                    except Exception as e:
                         logger.warning(f"Failed to remove {dir_path}: {str(e)}")
         logger.info('删除空文件夹完成!')
 
