@@ -25,5 +25,14 @@
     "method": "Default",
     "keyword": "",
     "description": "还有多少次购买体力的机会"
+  },
+  {
+    "itemName": "boss_num",
+    "roiFront": "262,591,59,26",
+    "roiBack": "262,591,59,26",
+    "mode": "DigitCounter",
+    "method": "Default",
+    "keyword": "",
+    "description": "刷出来的鬼王"
   }
 ]

@@ -79,5 +79,7 @@ class ActivityShikigamiAssets:
 	O_REMAIN_AP_ACTIVITY = RuleOcr(roi=(713,25,95,30), area=(713,25,95,30), mode="DigitCounter", method="Default", keyword="", name="remain_ap_activity")
 	# 还有多少次购买体力的机会 
 	O_REMAIN_BUY = RuleOcr(roi=(808,531,39,42), area=(808,531,39,42), mode="DigitCounter", method="Default", keyword="", name="remain_buy")
+	# 刷出来的鬼王 
+	O_BOSS_NUM = RuleOcr(roi=(262,591,59,26), area=(262,591,59,26), mode="DigitCounter", method="Default", keyword="", name="boss_num")
 
 
