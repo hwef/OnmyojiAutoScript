@@ -15,7 +15,7 @@ from tasks.Component.GeneralRoom.general_room import GeneralRoom
 from tasks.Component.GeneralInvite.general_invite import GeneralInvite
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.GoldYoukai.assets import GoldYoukaiAssets
-from tasks.GoldYoukai.config import GoldYoukaiConfig
+from tasks.Restart.assets import RestartAssets
 
 
 """ 金币妖怪 """
@@ -93,7 +93,15 @@ class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, 
             self.screenshot()
             if self.appear(self.I_DE_WIN):
                 logger.info('Win battle')
-                self.ui_click_until_disappear(self.I_DE_WIN)
+                while 1:
+                    self.screenshot()
+
+                    if self.appear_then_click(self.I_DE_WIN):
+                        continue
+                    if self.appear_then_click(RestartAssets.I_HARVEST_CHAT_CLOSE, interval=2):
+                        continue
+                    if not self.appear(self.I_DE_WIN):
+                        break
                 return True
             if self.appear(self.I_GOLD_WIN):
                 logger.info('Win battle')

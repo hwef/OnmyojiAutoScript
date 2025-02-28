@@ -178,8 +178,8 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
                 if cu > total:
                     logger.warning(f'Game ap {cu} more than total {total}')
                     return True
-                logger.warning(f'Game ap not enough: {cu}')
-                return False
+                #logger.warning(f'Game ap not enough: {cu}')
+                #return False
 
             return True
 
