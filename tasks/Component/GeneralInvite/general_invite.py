@@ -88,42 +88,33 @@ class GeneralInvite(BaseTask, GeneralInviteAssets):
                 self.appear_then_click(self.I_GI_EMOJI_1)
                 self.appear_then_click(self.I_GI_EMOJI_2)
 
-            # 房间类型与挑战条件的映射配置
-            # 结构说明:
-            #   (房间类型, 邀请人数配置) : 需要检测的界面元素标识
-            #   - 当邀请人数配置为 None 时，表示该房间类型不依赖人数配置
-            ROOM_CONFIG_MAPPING = {
-                # 2人普通房间（固定检测 I_ADD_2 标识）
-                (RoomType.NORMAL_2, None): "I_ADD_2",
-                # 3人普通房间
-                (RoomType.NORMAL_3, InviteNumber.ONE): "I_ADD_1",  # 邀请1人时检测 I_ADD_1
-                (RoomType.NORMAL_3, InviteNumber.TWO): "I_ADD_2",  # 邀请2人时检测 I_ADD_2
-                # 5人普通房间
-                (RoomType.NORMAL_5, InviteNumber.ONE): "I_ADD_5_1",  # 邀请1人时检测 I_ADD_5_1
-                (RoomType.NORMAL_5, InviteNumber.TWO): "I_ADD_5_2",  # 邀请2人时检测 I_ADD_5_2
-                # 永生之海特殊房间（固定检测 I_ADD_SEA）
-                (RoomType.ETERNITY_SEA, None): "I_ADD_SEA"
-            }
-
-            fire = False
-
-            # 获取当前房间配置组合
-            current_room_config = (
-                self.room_type,
-                getattr(config, "invite_number", None)  # 安全获取可选配置
-            )
-
-            # 分步查询标识符：
-            # 1. 优先查找精确匹配配置（包含邀请人数）
-            # 2. 若未找到，尝试查找该房间类型的通用配置（不包含邀请人数）
-            required_flag = ROOM_CONFIG_MAPPING.get(
-                current_room_config,
-                ROOM_CONFIG_MAPPING.get((self.room_type, None))  # 回退通用配置查询
-            )
-
-            # 当存在需要检测的标识，且该标识未出现时触发挑战
-            if required_flag and not self.appear(getattr(self, required_flag, None)):
-                logger.info(f'Room type: {self.room_type}, invite number: {config.invite_number}')
+            fire = False  # 是否开启挑战
+            # 如果这个房间最多只容纳两个人（意思是只可以邀请一个人），且已经邀请一个人了，那就开启挑战
+            if self.room_type == RoomType.NORMAL_2 and not self.appear(self.I_ADD_2):
+                logger.info('Start challenge and this room can only invite one friend')
+                fire = True
+            # 如果这个房间最多容纳三个人（意思是可以邀请两个人），且设定邀请一个就开启挑战，那就开启挑战
+            elif self.room_type == RoomType.NORMAL_3 and config.invite_number == InviteNumber.ONE and not self.appear(self.I_ADD_1):
+                logger.info('Start challenge and user only invite one friend')
+                fire = True
+            # 如果这个房间最多容纳三个人（意思是可以邀请两个人），且设定邀请两个就开启挑战，那就开启挑战
+            elif self.room_type == RoomType.NORMAL_3 \
+                    and config.invite_number == InviteNumber.TWO and not self.appear(self.I_ADD_2):
+                logger.info('Start challenge and user invite two friends')
+                fire = True
+            # 如果这个房间是五人的，且设定邀请一个就开启挑战，那就开启挑战
+            elif self.room_type == RoomType.NORMAL_5 \
+                    and config.invite_number == InviteNumber.ONE and not self.appear(self.I_ADD_5_1):
+                logger.info('Start challenge and user only invite one friend')
+                fire = True
+            # 如果这个房间是五人的，且设定邀请两个就开启挑战，那就开启挑战
+            elif self.room_type == RoomType.NORMAL_5 \
+                    and config.invite_number == InviteNumber.TWO and not self.appear(self.I_ADD_5_2):
+                logger.info('Start challenge and user invite two friends')
+                fire = True
+            # 如果是永生之海
+            elif self.room_type == RoomType.ETERNITY_SEA and not self.appear(self.I_ADD_SEA) and self.appear_rgb(self.I_FIRE_SEA):
+                logger.info('Start challenge and this is lock sea')
                 fire = True
 
             # 点击挑战

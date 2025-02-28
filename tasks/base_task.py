@@ -705,7 +705,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             self.config.notifier.push(title=task_name, content=f"保存{image_path}截图异常，{e}")
             logger.info(f"保存{image_path}截图异常，{e}")
 
-    def appear_rbg(self, target, image=None, difference: int = 10):
+    def appear_rgb(self, target, image=None, difference: int = 10):
         """
         判断目标的平均颜色是否与图像中的颜色匹配。
 

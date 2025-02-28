@@ -525,7 +525,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             if self.appear_then_click(self.I_CREATE_DAOGUAN_SURE, interval=1):
                 time.sleep(3)
                 continue
-            if self.appear_rbg(self.I_CREATE_DAOGUAN_OK):
+            if self.appear_rgb(self.I_CREATE_DAOGUAN_OK):
                 break
             # if self.I_CREATE_DAOGUAN_OK.match_mean_color(self.device.image, self.CREATE_DAOGUAN_OK, 10):
             #     break

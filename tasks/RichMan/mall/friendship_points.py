@@ -44,7 +44,7 @@ class FriendshipPoints(Special):
         logger.hr(buy_button.name, 3)
         self.screenshot()
         # 检查是否出现了购买按钮
-        if not self.appear_rbg(buy_button, difference=15):
+        if not self.appear_rgb(buy_button, difference=15):
             logger.warning('Buy button is not appear')
             return False
         # 是否检查剩余数量
@@ -87,7 +87,7 @@ class FriendshipPoints(Special):
             return
         self.screenshot()
         # 检查是否出现了购买按钮
-        if not self.appear_rbg(buy_button, difference=15):
+        if not self.appear_rgb(buy_button, difference=15):
             logger.warning('Buy button is not appear')
             return
         # 是否检查剩余数量

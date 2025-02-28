@@ -322,4 +322,5 @@ if __name__ == "__main__":
     c = Config("oas1")
     d = Device(c)
     t = ScriptTask(c, d)
-    t.screenshot()
+    t.run()
+    # t.screenshot()

@@ -556,7 +556,6 @@ class GeneralInvite(BaseTask, BondlingFairylandAssets, GeneralInviteAssets):
                 success = False
                 break
 
-
             if self.timer_wait.reached():
                 logger.warning('Wait battle time out')
                 success = False
