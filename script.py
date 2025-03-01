@@ -304,6 +304,15 @@ class Script:
             if self.config.should_reload():
                 return False
 
+    def countdown(self, num, action):
+        """
+        倒计时函数，参数为倒计时的总秒数
+        """
+        for i in range(num, 0, -1):
+            logger.warning(f"{i} seconds to {action}")  # 动态刷新当前剩余时间
+            time.sleep(1)
+        logger.warning("倒计时完成！")
+
     def get_next_task(self) -> str:
         """
         获取下一个任务的名字, 大驼峰。
@@ -332,28 +341,32 @@ class Script:
                 close_emulator_time = timedelta(hours=close_emulator_time.hour, minutes=close_emulator_time.minute, seconds=close_emulator_time.second)
 
                 if close_emulator_time_flag and task.next_run > datetime.now() + close_emulator_time:
-                    logger.info('close emulator during wait')
-                    # self.device.app_stop()
-                    # time.sleep(2)
-                    if not self.is_first_task:
-                        self.config.notifier.push(title='CloseMuMu', content=f'NextTask `{task.command}` {str(task.next_run.time())}')
+                    if self.device_flag:
+                        self.run('GotoMain')
+                        self.config.notifier.push(title='CloseMuMu', content=f'`{task.command}` {str(task.next_run.time())}')
+                        self.countdown(30, 'close emulator')
+                        logger.info('close emulator during wait')
                         self.device.emulator_stop()
+                        self.device.release_during_wait()
                         self.device_flag = False
-                    self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
                 elif close_game_time_flag and task.next_run > datetime.now() + close_game_time:
-                    logger.info('close game during wait')
-                    self.device.app_stop()
-                    self.device.release_during_wait()
+                    if self.device_flag:
+                        self.run('GotoMain')
+                        self.countdown(10, 'close game')
+                        logger.info('close game during wait')
+                        self.device.app_stop()
+                        self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
                 else:
-                    logger.info('Goto main page during wait')
-                    self.run('GotoMain')
-                    self.device.release_during_wait()
+                    if self.device_flag:
+                        logger.info('Goto main page during wait')
+                        self.run('GotoMain')
+                        self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
@@ -496,11 +509,11 @@ class Script:
                 self.device_flag = True
 
             # Run
-            logger.info(f'Scheduler: Start task `{task}`')
             self.device.stuck_record_clear()
             self.device.click_record_clear()
 
             logger.hr(task, level=0)
+            logger.info(f'Scheduler: Start task `{task}`')
             success = self.run(inflection.camelize(task))
             logger.info(f'Scheduler: End task `{task}`')
             self.is_first_task = False
@@ -543,7 +556,7 @@ class Script:
 
 
 if __name__ == "__main__":
-    script = Script("oas3")
+    script = Script("du")
     script.loop()
     # while 1:
         # script = Script("oas3")

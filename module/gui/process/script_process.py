@@ -48,6 +48,7 @@ class ScriptProcess(Process):
             script.run_server()
         except:
             logger.exception(f'run script {self.config} error')
+            self.config.notifier.push(title=self.config_name, content=f'run script {self.config} error')
             raise
 
     def stop(self) -> None:
