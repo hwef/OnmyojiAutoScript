@@ -324,10 +324,6 @@ class Script:
             if self.state_queue:
                 self.state_queue.put({"schedule": self.config.get_schedule_data()})
 
-            # from module.base.resource import release_resources
-            # if self.config.task.command != 'Alas':
-            #     release_resources(next_task=task.command)
-
             if task.next_run > datetime.now():
                 logger.info(f'Wait until {task.next_run} for task `{task.command}`')
 
@@ -483,16 +479,14 @@ class Script:
         logger.info(f'Start scheduler loop: {self.config_name}')
 
         # 线程启动设置running_task is None
-        if self.config.model.running_task is not None:
-            logger.warning(f'Setting running_task is None from [{self.config.model.running_task}]')
-            self.config.model.running_task = None
-            self.config.save()
+        self.config.model.running_task = None
 
         while 1:
 
             if self.is_first_task:
                 self.device = Device(self.config)
-            # Get task
+
+            # 获取下一个任务
             task = self.get_next_task()
 
             # Skip first restart
@@ -503,7 +497,7 @@ class Script:
                 continue
 
             if not self.device_flag:
-                self.config.notifier.push(title='StartMuMu', content=f'Start task `{task}`')
+                # self.config.notifier.push(title='StartMuMu', content=f'Start task `{task}`')
                 self.device = Device(self.config)
                 self.device_flag = True
 

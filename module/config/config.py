@@ -206,20 +206,17 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
 
             if self.model.running_task and pending_task:
                 try:
-                    restart_tasks = []
                     current_running_tasks = []
                     other_tasks = []
 
                     for f in pending_task:
-                        if f.command == 'Restart':
-                            restart_tasks.append(f)
-                        elif f.command == self.model.running_task:
+                        if f.command == self.model.running_task:
                             current_running_tasks.append(f)
                         else:
                             other_tasks.append(f)
 
                     # 将 pending_task 列表重新构建为：首先包含 Restart 任务，然后是当前正在运行的任务，最后是其他任务。
-                    pending_task[:] = restart_tasks + current_running_tasks + other_tasks
+                    pending_task[:] = current_running_tasks + other_tasks
 
                 except (ValueError, IndexError) as e:
                     logger.error(f"Error processing task: {e}, Current task list: {pending_task}")
@@ -257,10 +254,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         if self.pending_task:
             logger.info(f"Pending tasks: {[f.command for f in self.pending_task]}")
             task = self.pending_task[0]
-            if self.model.running_task != task.command:
-                self.model.running_task = task.command
-                logger.warning(f'Setting running_task is [{self.model.running_task}] from [{task.command}]')
-                self.save()
+            self.model.running_task = task.command
             self.task = task
             logger.attr("Task", task)
             return task
@@ -306,6 +300,9 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         :param force_call:
         :return:
         """
+        # 重置运行任务
+        self.model.running_task = None
+
         task = convert_to_underscore(task)
         if self.model.deep_get(self.model, keys=f'{task}.scheduler.next_run') is None:
             raise ScriptError(f"Task to call: `{task}` does not exist in user config")
@@ -422,8 +419,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         try:
             scheduler.next_run = next_run
             # 避免任务运行中途修改running_task，例如任务中间接到悬赏
-            if self.model.running_task is not None:
-                if convert_to_underscore(self.model.running_task) == task:
+            if self.model.running_task is not None and  convert_to_underscore(self.model.running_task) == task:
                     logger.warning(f'Setting running_task is None from [{task}]')
                     self.model.running_task = None
             self.save()
@@ -443,13 +439,17 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
 
 if __name__ == '__main__':
     config = Config(config_name='du')
-    # config.model.running_task = None
+    # print(config.model.running_task)
+    # print(type(config.model.running_task))
+    # if config.model.running_task is None:
+    #     print('None')
+    # if config.model.running_task == "Restart":
     # config.save()
-    config.update_scheduler()
-    print(config.pending_task)
-    config = Config(config_name='mi')
-    config.update_scheduler()
-    print(config.pending_task)
+    # config.update_scheduler()
+    # print(config.pending_task)
+    # config = Config(config_name='mi')
+    # config.update_scheduler()
+    # print(config.pending_task)
 
     # print(config.get_next())
 
