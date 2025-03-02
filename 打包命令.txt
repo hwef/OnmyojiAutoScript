@@ -1,0 +1,15 @@
+
+
+flutter clean
+
+flutter pub get
+
+flutter build apk
+
+
+flutter build windows
+
+# Android（需连接设备或启动模拟器）
+flutter run -d android
+
+flutter run -d windows
