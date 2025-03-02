@@ -27,12 +27,6 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         con = self.config.kekkai_utilize.utilize_config
         self.ui_get_current_page()
         self.ui_goto(page_guild)
-        # 收体力或者资金
-        # 进入寮主页会有一个动画，等一等，让小纸人跑一会儿
-        time.sleep(2)
-
-        # 育成界面去蹭卡
-        self.check_utilize_add()
 
         # 进入寮结界
         self.goto_realm()
@@ -42,14 +36,21 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         time.sleep(1)
         self.check_box_ap_or_exp(con.box_ap_enable, con.box_exp_enable, con.box_exp_waste)
 
-        # 在寮结界界面检查是否有收获
+        # 在寮结界界面检查是否有收获 收体力或者资金
         self.check_utilize_harvest()
 
-        for i in range(3):
+        # 育成界面去蹭卡
+        self.check_utilize_add()
+
+        for i in range(1,5):
             self.ui_get_current_page()
             self.ui_goto(page_guild)
             # 在寮的主界面 检查是否有收取体力或者是收取寮资金
-            self.check_guild_ap_or_assets(ap_enable=con.guild_ap_enable, assets_enable=con.guild_assets_enable)
+            if self.check_guild_ap_or_assets(ap_enable=con.guild_ap_enable, assets_enable=con.guild_assets_enable):
+                logger.warning(f'第[{i}]次检查寮收获,成功')
+                break
+            else:
+                logger.warning(f'第[{i}]次检查寮收获寮收获,失败')
             self.ui_get_current_page()
             self.ui_goto(page_main)
 
@@ -146,7 +147,12 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
             # 收体力
             if self.appear_then_click(self.I_GUILD_AP, interval=1.5):
-                timer_check.reset()
+                self.save_image()
+                logger.info('Collect ap success')
+                if self.ui_reward_appear_click():
+                    self.save_image()
+                    timer_check.reset()
+                    return True
                 continue
             # 收资金
             if self.appear_then_click(self.I_GUILD_ASSETS, interval=1.5, threshold=0.6):
@@ -155,8 +161,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
             if timer_check.reached():
                 break
-        logger.info('Collect ap or assets success')
-        return True
+        return False
 
     def goto_realm(self):
         """

@@ -73,11 +73,11 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
                 break
             # 2
             self.wait_until_appear(self.I_FIRE)
-            while 1:
-                cu, res, total = self.O_BOSS_NUM.ocr(image=self.device.image)
-                logger.info(f"Boss {cu} {res} {total}")
-                if 50 == total:
-                    break
+            #while 1:
+            cu, res, total = self.O_BOSS_NUM.ocr(image=self.device.image)
+            logger.info(f"Boss {cu} {res} {total}")
+                #if 50 == total:
+                  #  break
             if cu == 50 and cu + res == total:
                 logger.info(f"Boss full {cu} {total}")
                 self.config.notifier.push(title=self.config.task.command, content=f'鬼王已经刷满了，退出活动')
