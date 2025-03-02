@@ -482,11 +482,10 @@ class Script:
         logger.set_file_logger(self.config_name)
         logger.info(f'Start scheduler loop: {self.config_name}')
 
-        # 线程启动设置task_runing is None
-        if self.config.model.task_runing is not None:
-            logger.info(f'task_runing: {self.config.model.task_runing}')
-            logger.info(f'Setup task_runing is None')
-            self.config.model.task_runing = None
+        # 线程启动设置running_task is None
+        if self.config.model.running_task is not None:
+            logger.warning(f'Setting running_task is None from [{self.config.model.running_task}]')
+            self.config.model.running_task = None
             self.config.save()
 
         while 1:

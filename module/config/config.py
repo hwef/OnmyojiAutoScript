@@ -204,7 +204,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             # pending_task = TaskScheduler.schedule(rule=self.model.script.optimization.schedule_rule,
             #                                       pending=pending_task)
 
-            if self.model.task_runing and pending_task:
+            if self.model.running_task and pending_task:
                 try:
                     restart_tasks = []
                     current_running_tasks = []
@@ -213,7 +213,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
                     for f in pending_task:
                         if f.command == 'Restart':
                             restart_tasks.append(f)
-                        elif f.command == self.model.task_runing:
+                        elif f.command == self.model.running_task:
                             current_running_tasks.append(f)
                         else:
                             other_tasks.append(f)
@@ -257,10 +257,9 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         if self.pending_task:
             logger.info(f"Pending tasks: {[f.command for f in self.pending_task]}")
             task = self.pending_task[0]
-            logger.info(f'task_runing: {self.model.task_runing}')
-            logger.info(f'task: {task.command}')
-            if self.model.task_runing != task.command:
-                self.model.task_runing = task.command
+            if self.model.running_task != task.command:
+                self.model.running_task = task.command
+                logger.warning(f'Setting running_task is [{self.model.running_task}] from [{task.command}]')
                 self.save()
             self.task = task
             logger.attr("Task", task)
@@ -422,13 +421,11 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         self.lock_config.acquire()
         try:
             scheduler.next_run = next_run
-            # 避免任务运行中途修改task_runing，例如任务中间接到悬赏
-            logger.info(f'task_runing: {self.model.task_runing}')
-            logger.info(f'task: {task}')
-            if self.model.task_runing is not None:
-                if convert_to_underscore(self.model.task_runing) == task:
-                    logger.info(f'Setup task_runing is None')
-                    self.model.task_runing = None
+            # 避免任务运行中途修改running_task，例如任务中间接到悬赏
+            if self.model.running_task is not None:
+                if convert_to_underscore(self.model.running_task) == task:
+                    logger.warning(f'Setting running_task is None from [{task}]')
+                    self.model.running_task = None
             self.save()
         finally:
             self.lock_config.release()
@@ -446,7 +443,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
 
 if __name__ == '__main__':
     config = Config(config_name='du')
-    # config.model.task_runing = None
+    # config.model.running_task = None
     # config.save()
     config.update_scheduler()
     print(config.pending_task)
