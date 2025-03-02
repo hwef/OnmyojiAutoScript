@@ -23,7 +23,6 @@ from pydantic import BaseModel, ValidationError
 from threading import Thread
 from multiprocessing.queues import Queue
 
-
 from module.config.utils import convert_to_underscore
 from module.config.config import Config
 from module.config.config_model import ConfigModel
@@ -35,7 +34,7 @@ from module.exception import *
 
 
 class Script:
-    def __init__(self, config_name: str ='oas') -> None:
+    def __init__(self, config_name: str = 'oas') -> None:
         self.device_flag = True
         self.device = None
         logger.hr('Start', level=0)
@@ -183,7 +182,6 @@ class Script:
                 except ValueError:
                     pass
 
-
         path = f'{task}.{group}.{argument}'
         task_object = getattr(self.config.model, task, None)
         group_object = getattr(task_object, group, None)
@@ -237,7 +235,6 @@ class Script:
             item = {"name": w.command, "next_run": str(w.next_run)}
             waiting.append(item)
 
-
         data["pending"] = pending
         data["waiting"] = waiting
 
@@ -274,9 +271,6 @@ class Script:
             key = self.config.model.type(key)
             result[key] = item
         return json.dumps(result)
-
-
-
 
     def wait_until(self, future):
         """
@@ -333,13 +327,16 @@ class Script:
                 close_game_time_flag = False if close_game_time.hour == 0 and close_game_time.minute == 0 and close_game_time.second == 0 else True
                 close_emulator_time_flag = False if close_emulator_time.hour == 0 and close_emulator_time.minute == 0 and close_emulator_time.second == 0 else True
 
-                close_game_time = timedelta(hours=close_game_time.hour, minutes=close_game_time.minute, seconds=close_game_time.second)
-                close_emulator_time = timedelta(hours=close_emulator_time.hour, minutes=close_emulator_time.minute, seconds=close_emulator_time.second)
+                close_game_time = timedelta(hours=close_game_time.hour, minutes=close_game_time.minute,
+                                            seconds=close_game_time.second)
+                close_emulator_time = timedelta(hours=close_emulator_time.hour, minutes=close_emulator_time.minute,
+                                                seconds=close_emulator_time.second)
 
                 if close_emulator_time_flag and task.next_run > datetime.now() + close_emulator_time:
                     if self.device_flag:
                         self.run('GotoMain')
-                        self.config.notifier.push(title='CloseMuMu', content=f'`{task.command}` {str(task.next_run.time())}')
+                        self.config.notifier.push(title='CloseMuMu',
+                                                  content=f'`{task.command}` {str(task.next_run.time())}')
                         self.countdown(30, 'close emulator')
                         logger.info('close emulator during wait')
                         self.device.emulator_stop()
@@ -416,7 +413,7 @@ class Script:
         try:
             self.device.screenshot()
             module_name = 'script_task'
-            module_path = str(Path.cwd() / 'tasks' / command / (module_name+'.py'))
+            module_path = str(Path.cwd() / 'tasks' / command / (module_name + '.py'))
             logger.info(f'module_path: {module_path}, module_name: {module_name}')
             task_module = load_module(module_name, module_path)
             task_module.ScriptTask(config=self.config, device=self.device).run()
@@ -431,7 +428,8 @@ class Script:
             self.save_error_log()
             logger.warning(f'Game stuck, {self.device.package} will be restarted in 10 seconds')
             logger.warning('If you are playing by hand, please stop Alas')
-            self.config.notifier.push(title=command, content=f"<{self.config_name}> GameStuckError or GameTooManyClickError")
+            self.config.notifier.push(title=command,
+                                      content=f"<{self.config_name}> GameStuckError or GameTooManyClickError")
             self.config.task_call('Restart')
             self.device.sleep(10)
             return False
@@ -552,18 +550,18 @@ if __name__ == "__main__":
     script = Script("du")
     script.loop()
     # while 1:
-        # script = Script("oas3")
-        # device = Device("oas3")
-        # device.app_start()
-        # time.sleep(10)
-        # logger.info('Start app')
-        # device.app_stop()
-        # logger.info('Stop app')
-        # time.sleep(5)
-        # device.emulator_stop()
-        # time.sleep(5)
-        # del_cached_property(script, 'device')
-        # del_cached_property(script, 'config')
+    # script = Script("oas3")
+    # device = Device("oas3")
+    # device.app_start()
+    # time.sleep(10)
+    # logger.info('Start app')
+    # device.app_stop()
+    # logger.info('Stop app')
+    # time.sleep(5)
+    # device.emulator_stop()
+    # time.sleep(5)
+    # del_cached_property(script, 'device')
+    # del_cached_property(script, 'config')
     # script.start_loop()
     # script.save_error_log()
     # locale.setlocale(locale.LC_TIME, 'chinese')
