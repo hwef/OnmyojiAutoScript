@@ -12,7 +12,7 @@ class ConfigManual:
         > KekkaiUtilize > KekkaiActivation  
         > WantedQuests > DemonEncounter > SoulsTidy 
         > AreaBoss > GoldYoukai > ExperienceYoukai > Nian > NianTrue > Tako > RealmRaid > RyouToppa > DailyTrifles > Exploration
-        > Dokan > AbyssShadows > Hunt 
+        > Dokan > AbyssShadows > Hunt > DemonRetreat
         > Pets > Orochi > OrochiJudgement > Sougenbi > FallenSun > EternitySea 
         > ActivityShikigami 
         > BondlingFairyland > EvoZone > GoryouRealm > HeroTest

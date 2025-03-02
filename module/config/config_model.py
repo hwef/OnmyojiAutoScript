@@ -45,6 +45,7 @@ from tasks.RealmRaid.config import RealmRaid
 from tasks.CollectiveMissions.config import CollectiveMissions
 from tasks.Hunt.config import Hunt
 from tasks.AbyssShadows.config import AbyssShadows
+from tasks.DemonRetreat.config import DemonRetreat
 
 # 这一部分是活动的配置-----------------------------------------------------------------------------------------------------
 from tasks.ActivityShikigami.config import ActivityShikigami
@@ -76,6 +77,7 @@ from tasks.Duel.config import Duel
 
 # Tools----------------------------------------------------------------------------------------------------------------------
 from tasks.BackUp.config import BackUp
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -141,6 +143,7 @@ class ConfigModel(ConfigBase):
     hunt: Hunt = Field(default_factory=Hunt)
     dokan: Dokan = Field(default_factory=Dokan)
     abyss_shadows: AbyssShadows = Field(default_factory=AbyssShadows)
+    demon_retreat: DemonRetreat = Field(default_factory=DemonRetreat)
 
     # Tools
     back_up: BackUp = Field(default_factory=BackUp)
