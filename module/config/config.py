@@ -445,9 +445,14 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
 
 
 if __name__ == '__main__':
-    config = Config(config_name='oas1')
+    config = Config(config_name='du')
+    # config.model.task_runing = None
+    # config.save()
     config.update_scheduler()
-    print(config.waiting_task)
+    print(config.pending_task)
+    config = Config(config_name='mi')
+    config.update_scheduler()
+    print(config.pending_task)
 
     # print(config.get_next())
 

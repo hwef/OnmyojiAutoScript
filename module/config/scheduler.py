@@ -79,8 +79,8 @@ class TaskScheduler:
                 groups[task.priority] = []
             groups[task.priority].append(task)
         # 2. 对每一组进行先来后到的排序
-        for priority, tasks in groups.items():
-            groups[priority] = TaskScheduler.fifo(tasks)
+        # for priority, tasks in groups.items():
+        #     groups[priority] = TaskScheduler.fifo(tasks)
 
         # 3.按照顺序合并所有的任务
         tasks_pending = []
