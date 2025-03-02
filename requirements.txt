@@ -88,3 +88,5 @@ pyside6==6.4.3
 psutil==6.1.1
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
+
+websocket~=0.2.1
