@@ -147,10 +147,13 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
             # 收体力
             if self.appear_then_click(self.I_GUILD_AP, interval=1.5):
-                self.save_image()
-                logger.info('Collect ap success')
-                if self.ui_reward_appear_click():
-                    self.save_image()
+                # 等待1秒，看到获得奖励
+                time.sleep(1)
+                # self.save_image()
+                logger.info('appear_click guild_ap success')
+                if self.ui_reward_appear_click(True):
+                    logger.info('appear_click reward success')
+                    # self.save_image()
                     timer_check.reset()
                     return True
                 continue

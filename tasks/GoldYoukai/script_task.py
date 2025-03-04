@@ -101,7 +101,7 @@ class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, 
                     if self.appear_then_click(RestartAssets.I_HARVEST_CHAT_CLOSE, interval=2):
                         continue
                     if self.appear(self.I_BUFF_1):
-                        logger.info('appear buff break')
+                        logger.info('Because appear buff so break')
                         break
                 return True
             if self.appear(self.I_GOLD_WIN):
