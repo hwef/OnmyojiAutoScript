@@ -32,7 +32,7 @@ class FriendshipPoints(Special):
             self.buy_mall_more(buy_button=self.I_FS_BROKEN, remain_number=False, money_ocr=self.O_MALL_RESOURCE_5,
                                  buy_number=con.broken_amulet, buy_max=99, buy_money=100)
 
-    def buy_mall_one(self, buy_button: RuleImage, buy_check: RuleImage, money_ocr: RuleOcr, buy_money: int):
+    def buy_mall_one(self, buy_button: RuleImage, buy_check: RuleImage, remain_number: bool, money_ocr: RuleOcr, buy_money: int):
         """
         针对只能买一个的
         :param buy_button:
@@ -44,14 +44,21 @@ class FriendshipPoints(Special):
         logger.hr(buy_button.name, 3)
         self.screenshot()
         # 检查是否出现了购买按钮
-        if not self.appear_rgb(buy_button, difference=15):
+        logger.info(f'before buy_button.roi_front: [{buy_button.roi_front}]')
+        result = buy_button.test_match(self.device.image)
+        logger.info(f'after buy_button.roi_front: [{buy_button.roi_front}]')
+        if not result:
+            logger.warning(f'Buy button test_match result [{result}]')
+            return
+        if not self.appear_rgb(buy_button, difference=10):
             logger.warning('Buy button is not appear')
             return False
         # 是否检查剩余数量
-        _remain = self._special_check_remain(buy_button)
-        if _remain == 0:
-            logger.warning('Remain number is 0')
-            return False
+        if remain_number:
+            _remain = self._special_check_remain(buy_button)
+            if _remain == 0:
+                logger.warning('Remain number is 0')
+                return False
         # 检查总勋章
         current_money = money_ocr.ocr(self.device.image)
         if '万' in current_money:
@@ -87,7 +94,13 @@ class FriendshipPoints(Special):
             return
         self.screenshot()
         # 检查是否出现了购买按钮
-        if not self.appear_rgb(buy_button, difference=15):
+        logger.info(f'before buy_button.roi_front: [{buy_button.roi_front}]')
+        result = buy_button.test_match(self.device.image)
+        logger.info(f'after buy_button.roi_front: [{buy_button.roi_front}]')
+        if not result:
+            logger.warning(f'Buy button test_match result [{result}]')
+            return
+        if not self.appear_rgb(buy_button, difference=10):
             logger.warning('Buy button is not appear')
             return
         # 是否检查剩余数量

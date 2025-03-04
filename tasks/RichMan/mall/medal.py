@@ -25,23 +25,23 @@ class Medal(FriendshipPoints):
 
         # 黑蛋
         if con.black_daruma:
-            self.buy_mall_one(buy_button=self.I_ME_BLACK, buy_check=self.I_ME_CHECK_BLACK,
+            self.buy_mall_one(buy_button=self.I_ME_BLACK,remain_number=False,  buy_check=self.I_ME_CHECK_BLACK,
                               money_ocr=self.O_MALL_RESOURCE_3, buy_money=480)
         # 蓝票
         if con.mystery_amulet:
-            self.buy_mall_one(buy_button=self.I_ME_BLUE, buy_check=self.I_ME_CHECK_BLUE,
+            self.buy_mall_one(buy_button=self.I_ME_BLUE, remain_number=False, buy_check=self.I_ME_CHECK_BLUE,
                               money_ocr=self.O_MALL_RESOURCE_3, buy_money=180)
         # 体力100
         if con.ap_100:
-            self.buy_mall_one(buy_button=self.I_ME_AP, buy_check=self.I_ME_CHECK_AP,
+            self.buy_mall_one(buy_button=self.I_ME_AP, remain_number=False, buy_check=self.I_ME_CHECK_AP,
                               money_ocr=self.O_MALL_RESOURCE_3, buy_money=120)
         # 随机御魂
         if con.random_soul:
-            self.buy_mall_one(buy_button=self.I_ME_SOULS, buy_check=self.I_ME_CHECK_SOULS,
+            self.buy_mall_one(buy_button=self.I_ME_SOULS, remain_number=False, buy_check=self.I_ME_CHECK_SOULS,
                               money_ocr=self.O_MALL_RESOURCE_3, buy_money=320)
         # 两颗白蛋
         if con.white_daruma:
-            self.buy_mall_more(buy_button=self.I_ME_WHITE, remain_number=True, money_ocr=self.O_MALL_RESOURCE_3,
+            self.buy_mall_more(buy_button=self.I_ME_WHITE, remain_number=False, money_ocr=self.O_MALL_RESOURCE_3,
                                buy_number=2, buy_max=2, buy_money=100)
         # 十张挑战券
         if con.challenge_pass:
