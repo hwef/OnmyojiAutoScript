@@ -297,6 +297,15 @@
     "description": "队员接受邀请"
   },
   {
+    "itemName": "i_accept_jy",
+    "imageName": "gi_i_accept_jy.png",
+    "roiFront": "248,258,46,25",
+    "roiBack": "231,205,75,326",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "识别到寄养邀请"
+  },
+  {
     "itemName": "i_accept_default",
     "imageName": "gi_i_accept_default.png",
     "roiFront": "205,223,61,68",

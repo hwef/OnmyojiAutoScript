@@ -870,6 +870,9 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
         """
         if not self.appear(self.I_I_ACCEPT):
             return False
+        if self.appear(self.I_I_ACCEPT_JY):
+            logger.info('appear accept_jy')
+            return False
         logger.info('Click accept')
 
         accept_timer = Timer(5)
