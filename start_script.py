@@ -1,72 +1,53 @@
-from sys import argv
-
 import threading
-import time
 import websocket
+import sys
+import logging
+import os
+import time
 
 
-def on_open(ws):
-    print("连接已建立")
-    ws.send("start")  # 可选：发送初始消息
+def start_websocket(config_name):
 
+    # 日志配置部分保持不变...
+    log_dir = rf"D:\OnmyojiAutoScript\ljxun\log"
 
-def on_message(ws, message):
-    # print(f"收到消息: {message}")
-    pass
+    # 配置日志：通过 handlers 实现文件+控制台输出
+    file_handler = logging.FileHandler(os.path.join(log_dir, f"log_{config_name}.log"))
+    stream_handler = logging.StreamHandler(sys.stdout)  # 输出到控制台
 
-
-def on_error(ws, error):
-    print(f"发生错误: {error}")
-    print(f"重启进程")
-    ws.send("stop")
-    time.sleep(2)
-    ws.send("start")
-
-
-def on_close(ws, close_status_code, close_msg):
-    print(f"连接关闭: 状态码={close_status_code}, 消息='{close_msg}'")
-
-
-def main(config_name):
-    # config_name = "du"
-    server_address = f"ws://127.0.0.1:22288/ws/{config_name}"
-
-    # 创建 WebSocket 对象
-    ws = websocket.WebSocketApp(
-        server_address,
-        on_open=on_open,
-        on_message=on_message,
-        on_error=on_error,
-        on_close=on_close
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[file_handler, stream_handler]
     )
+    logging.info("日志配置成功！")
 
-    # 启动 WebSocket 事件循环线程
-    wst = threading.Thread(target=ws.run_forever)
-    wst.start()
+    logging.info("开始启动websocket")
+    ws = websocket.WebSocketApp(f"ws://127.0.0.1:22288/ws/{config_name}")
+    logging.info("连接成功")
+    ws.on_open = lambda ws: ws.send("start")
+    logging.info("发送start")
 
-    # 设置 60 秒后强制关闭连接的定时器
-    # def force_close():
-    #     print("60 秒超时，强制关闭连接...")
-    #     if ws.sock and ws.sock.connected:  # 检查连接状态
-    #         ws.close()
-    #
-    # # 使用线程安全的定时器（非阻塞主线程）
-    # timer = threading.Timer(60, force_close)
-    # timer.start()
+    # 设置超时退出
+    def exit_timer():
+        logging.info("超时关闭连接...")
+        ws.close()
+        sys.exit(0)
 
-    # 主线程等待（可选：手动控制关闭）
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        pass
-        # print("用户中断，正在关闭连接...")
-        # timer.cancel()  # 取消定时器
-        # ws.close()
+    timer = threading.Timer(5, exit_timer)  # 30秒后自动关闭
+    timer.start()
+
+    ws.run_forever()
+    timer.cancel()  # 如果连接正常关闭，取消定时器
 
 
 if __name__ == "__main__":
+    # argv = ["", "DU"]
+    # 保证通过命令行运行时传入参数，例如：python script.py MI
+
     sleep_time = 5
+    config_name = sys.argv[1]
+    print(f'[{config_name}]等待{sleep_time}秒后启动...')
     time.sleep(sleep_time)
-    print(f'{argv[1]}等待{sleep_time}秒后启动')
-    main(argv[1])
+    start_websocket(config_name)
+

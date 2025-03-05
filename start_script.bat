@@ -14,11 +14,13 @@ set SCRIPT_PATH=D:\OnmyojiAutoScript\ljxun\start_script.py
 
 
 REM 启动第一个脚本
-start  /min %PYTHON_PATH% "%SCRIPT_PATH%" DU
+start   %PYTHON_PATH% "%SCRIPT_PATH%" DU
+@REM start  /min %PYTHON_PATH% "%SCRIPT_PATH%" DU
 
 
 REM 启动第二个脚本
-start /min %PYTHON_PATH% "%SCRIPT_PATH%" MI
+start  %PYTHON_PATH% "%SCRIPT_PATH%" MI
+@REM start /min %PYTHON_PATH% "%SCRIPT_PATH%" MI
 
 endlocal
 
