@@ -279,7 +279,7 @@ class RichManAssets:
 	# 首领御魂剩余可买的 
 	O_SCA_NUMBER_DEMON = RuleOcr(roi=(627,319,30,25), area=(627,319,30,25), mode="Digit", method="Default", keyword="", name="sca_number_demon")
 	# 永生之海潮汐御魂 
-	O_SCA_NUMBER_SEA = RuleOcr(roi=(918,318,42,25), area=(918,318,42,25), mode="Single", method="Default", keyword="", name="sca_number_sea")
+	O_SCA_NUMBER_SEA = RuleOcr(roi=(918,318,32,25), area=(918,318,32,25), mode="Single", method="Default", keyword="", name="sca_number_sea")
 	# 多少号位 
 	O_SCA_DEMON_POSTION = RuleOcr(roi=(960,244,88,41), area=(960,244,88,41), mode="Single", method="Default", keyword="", name="sca_demon_postion")
 	# 朴素的御魂 

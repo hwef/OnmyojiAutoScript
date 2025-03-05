@@ -17,6 +17,7 @@ from tasks.RichMan.config import Bondlings as BondlingsConfig
 class Bondlings(Buy, MallNavbar):
 
     def execute_bondlings(self, con: BondlingsConfig = None):
+        logger.hr('Bondlings', 2)
         if not con:
             con = self.config.rich_man.bondlings
         if not con.enable:
