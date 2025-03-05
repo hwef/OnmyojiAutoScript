@@ -95,8 +95,15 @@ async def script_task(script_name: str, task: str, group: str, argument: str, ty
     except Exception as e:
         # 类型不正确
         raise HTTPException(status_code=400, detail=f'Argument type error: {e}')
-    return mm.config_cache(script_name).model.script_set_arg(task, group, argument, value)
-
+    result = mm.config_cache(script_name).model.script_set_arg(task, group, argument, value)
+    script_process = mm.script_process[script_name]
+    config = mm.config_cache(script_name)
+    config.get_next()
+    # data = config.get_schedule_data()
+    # logger.info(data)
+    # script_process.broadcast_state({"schedule": data})
+    await script_process.broadcast_state({"schedule": config.get_schedule_data()})
+    return result
 # --------------------------------------  SSE  --------------------------------------
 @script_app.get('/{script_name}/state')
 async def script_task_state(script_name: str):
