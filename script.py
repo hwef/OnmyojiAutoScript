@@ -35,7 +35,6 @@ from module.exception import *
 
 class Script:
     def __init__(self, config_name: str = 'oas') -> None:
-        self.device_flag = True
         self.device = None
         logger.hr('Start', level=0)
         self.server = None
@@ -333,33 +332,29 @@ class Script:
                                                 seconds=close_emulator_time.second)
 
                 if close_emulator_time_flag and task.next_run > datetime.now() + close_emulator_time:
-                    if self.device_flag:
-                        self.run('GotoMain')
-                        self.config.notifier.push(title='CloseMuMu',
-                                                  content=f'`{task.command}` {str(task.next_run.time())}')
-                        self.countdown(30, 'close emulator')
-                        logger.info('close emulator during wait')
-                        self.device.emulator_stop()
-                        self.device.release_during_wait()
-                        self.device_flag = False
+                    self.run('GotoMain')
+                    self.config.notifier.push(title='CloseMuMu',
+                                              content=f'`{task.command}` {str(task.next_run.time())}')
+                    self.countdown(30, 'close emulator')
+                    logger.info('close emulator during wait')
+                    self.device.emulator_stop()
+                    self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
                 elif close_game_time_flag and task.next_run > datetime.now() + close_game_time:
-                    if self.device_flag:
-                        self.run('GotoMain')
-                        self.countdown(10, 'close game')
-                        logger.info('close game during wait')
-                        self.device.app_stop()
-                        self.device.release_during_wait()
+                    self.run('GotoMain')
+                    self.countdown(10, 'close game')
+                    logger.info('close game during wait')
+                    self.device.app_stop()
+                    self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
                 else:
-                    if self.device_flag:
-                        logger.info('Goto main page during wait')
-                        self.run('GotoMain')
-                        self.device.release_during_wait()
+                    logger.info('Goto main page during wait')
+                    self.run('GotoMain')
+                    self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
@@ -494,10 +489,8 @@ class Script:
                 del_cached_property(self, 'config')
                 continue
 
-            if not self.device_flag:
-                # self.config.notifier.push(title='StartMuMu', content=f'Start task `{task}`')
-                self.device = Device(self.config)
-                self.device_flag = True
+            # self.config.notifier.push(title='StartMuMu', content=f'Start task `{task}`')
+            self.device = Device(self.config)
 
             # Run
             self.device.stuck_record_clear()
