@@ -726,7 +726,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         img = cv2.imread(target.file)
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         average_color = cv2.mean(img_rgb)
-        logger.info(f"[{target.name}]average_color: {average_color}")
+        # logger.info(f"[{target.name}]average_color: {average_color}")
 
         # 提取目标区域的坐标和尺寸，并确保它们为整数
         x, y, w, h = target.roi_front
@@ -735,15 +735,15 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         img = image[y:y + h, x:x + w]
         # 计算目标区域的平均颜色
         color = cv2.mean(img)
-        logger.info(f"[{target.name}] color: {color}")
+        # logger.info(f"[{target.name}] color: {color}")
 
         # 比较目标图像和目标区域的颜色差异
         for i in range(3):
             if abs(average_color[i] - color[i]) > difference:
-                logger.warning(f"[{target.name}] 颜色匹配失败")
+                logger.warning(f"颜色匹配失败: [{target.name}]")
                 return False
 
-        logger.warning(f"[{target.name}] 颜色匹配成功")
+        logger.info(f"颜色匹配成功: [{target.name}]")
         return True
 
 

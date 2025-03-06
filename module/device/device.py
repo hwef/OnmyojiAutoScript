@@ -39,9 +39,12 @@ class Device(Platform, Screenshot, Control, AppControl):
             except EmulatorNotRunningError:
                 if trial >= 3:
                     logger.critical('Failed to start emulator after 3 trial')
+                    self.config.notifier.push(title=self.config.task, content=f"Failed to start emulator")
                     raise RequestHumanTakeover
                 # Try to start emulator
                 if self.emulator_instance is not None:
+                    if self.config.task is not None:
+                        self.config.notifier.push(title='StartMuMu', content=f'Run `{self.config.task.command}` {str(self.config.task.next_run.time())}')
                     self.emulator_start()
                 else:
                     logger.critical(

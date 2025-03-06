@@ -305,6 +305,7 @@ class Script:
             logger.warning(f"{i} seconds to {action}")  # 动态刷新当前剩余时间
             time.sleep(1)
         logger.warning("倒计时完成！")
+        logger.warning(f'{self.config.task}')
 
     def get_next_task(self) -> str:
         """
@@ -333,8 +334,7 @@ class Script:
 
                 if close_emulator_time_flag and task.next_run > datetime.now() + close_emulator_time:
                     self.run('GotoMain')
-                    self.config.notifier.push(title='CloseMuMu',
-                                              content=f'`{task.command}` {str(task.next_run.time())}')
+                    self.config.notifier.push(title='CloseMuMu', content=f'Wait `{task.command}` {str(task.next_run.time())}')
                     self.countdown(30, 'close emulator')
                     logger.info('close emulator during wait')
                     self.device.emulator_stop()
