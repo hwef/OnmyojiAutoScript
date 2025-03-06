@@ -230,8 +230,13 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
         # 状态：检查右下角有没有挑战？通常是失败了，并退出来到集结界面，可重新开始点击右下角挑战进入战斗
         if self.appear(self.I_RYOU_DOKAN_START_CHALLENGE, 0.95):
-            logger.info(f"挑战次数已重置")
-            return True, DokanScene.RYOU_DOKAN_SCENE_START_CHALLENGE
+            if self.appear_rgb(self.I_RYOU_DOKAN_START_CHALLENGE):
+                logger.info(f"挑战次数已重置")
+                return True, DokanScene.RYOU_DOKAN_SCENE_START_CHALLENGE
+            else:
+                logger.info(f"挑战未就绪")
+                time.sleep(5)
+                return True, DokanScene.RYOU_DOKAN_SCENE_GATHERING
 
         # # 状态：进入战斗，待开始
         if self.appear(self.I_RYOU_DOKAN_IN_FIELD, threshold=0.85):

@@ -89,7 +89,7 @@ class DokanAssets:
 	# 状态：进入战斗，待开始，右下角图标。TODO 欠截图。 
 	I_RYOU_DOKAN_IN_FIELD = RuleImage(roi_front=(1128,536,100,100), roi_back=(1128,536,100,100), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_in_field.png")
 	# 馆主战等待中 
-	I_DOKAN_BOSS_WAITING = RuleImage(roi_front=(603,148,130,32), roi_back=(603,148,130,32), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_dokan_boss_waiting.png")
+	I_DOKAN_BOSS_WAITING = RuleImage(roi_front=(542,142,195,45), roi_back=(542,142,195,45), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_dokan_boss_waiting.png")
 	# 打馆主胜利 
 	I_RYOU_DOKAN_WIN = RuleImage(roi_front=(628,60,45,33), roi_back=(628,60,45,33), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_win.png")
 	# 打馆主失败 

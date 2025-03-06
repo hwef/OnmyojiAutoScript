@@ -272,8 +272,8 @@
   {
     "itemName": "dokan_boss_waiting",
     "imageName": "res_dokan_boss_waiting.png",
-    "roiFront": "603,148,130,32",
-    "roiBack": "603,148,130,32",
+    "roiFront": "542,142,195,45",
+    "roiBack": "542,142,195,45",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "馆主战等待中"
