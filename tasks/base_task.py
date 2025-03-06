@@ -533,23 +533,20 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                                                                             second=custom_time.second)
         self.set_next_run(task, target=target_time)
 
-    def monday_next_run(self):
+    def next_run_week(self, target_day: int = 1):
         """
-        计算下一个运行时间到周一的天数，并进行相应的设置。
+        计算下一次运行的时间，目标是每周的特定一天。
 
-        本函数首先确定今天的日期，然后计算距离下周一的天数差。
-        计算出的天数差用于设置任务的下一次运行时间。
+        参数:
+        target_day (int): 目标运行的日，取值1到7代表周一到周日，默认为1（周一）。
         """
-        # 获取今天的日期
         today = datetime.today()
-        current_weekday = today.weekday()
-        # 计算到下周一的天数差：
-        # 若今天是周一，(7 - 0) %7 = 0 → 替换为7天；其余情况直接取余数
-        days_until_next_monday = (7 - current_weekday) % 7 or 7
+        current_weekday = today.weekday()  # 周一为0，周日为6
+        target = target_day - 1    # 将输入1-7转换为0-6
+        days_diff = (target - current_weekday) % 7 or 7
 
-        # 记录任务完成，并指出下一次运行时间是周一，以及距离今天多少天
         TaskName = self.config.task.command
-        logger.info(f'{TaskName} done in {days_until_next_monday} days on Monday.')
+        logger.info(f'{TaskName} done in {days_diff} days on Monday.')
 
         # 获取服务更新时间配置
         task_name = convert_to_underscore(TaskName)
@@ -561,7 +558,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         self.custom_next_run(task=TaskName,
                              custom_time=Time(hour=server_update.hour, minute=server_update.minute,
                                               second=server_update.second),
-                             time_delta=days_until_next_monday)
+                             time_delta=days_diff)
 
     #  ---------------------------------------------------------------------------------------------------------------
     #
@@ -746,17 +743,25 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         logger.warning(f"[{target.name}] 颜色匹配成功")
         return True
 
-
+def get_days_until_next(target_day):
+    today = datetime.today()
+    current_weekday = today.weekday()  # 周一为0，周日为6
+    target = target_day - 1    # 将输入1-7转换为0-6
+    days_diff = (target - current_weekday) % 7
+    days_until_next_days = (target - current_weekday) % 7 or 7
+    days_diff = days_diff if days_diff != 0 else 7
+    print(days_diff)
+    print(days_until_next_days)
 if __name__ == '__main__':
-    from module.config.config import Config
-    from module.device.device import Device
-
-    c = Config('oas1')
-    d = Device(c)
-    t = BaseTask(c, d)
-
-    t.save_image("test")
-
+    # from module.config.config import Config
+    # from module.device.device import Device
+    #
+    # c = Config('oas1')
+    # d = Device(c)
+    # t = BaseTask(c, d)
+    #
+    # t.save_image("test")
+    get_days_until_next(1)
     # t.save_image()
 
     # logger.hr('INVITE FRIEND')
