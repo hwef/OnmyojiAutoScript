@@ -184,7 +184,7 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
             conf.current_success = 0
             self.config.save()
             # 设置下一次运行时间是周一
-            self.monday_next_run()
+            self.next_run_week(1)
         else:
             self.set_next_run('TrueOrochi', finish=True, success=True)
         raise TaskEnd('TrueOrochi')
