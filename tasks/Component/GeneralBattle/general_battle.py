@@ -230,8 +230,8 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
             if self.appear_then_click(self.I_REWARD, action=action_click, interval=1.5) or \
                     self.appear_then_click(self.I_REWARD_GOLD, action=action_click, interval=1.5):
                 continue
-            if self.appear_then_click(self.I_GREED_GHOST):
-                continue
+            # if self.appear_then_click(self.I_GREED_GHOST, interval=1.5):
+            #     continue
             if not self.appear(self.I_REWARD) and not self.appear(self.I_REWARD_GOLD) and not self.appear(self.I_GREED_GHOST):
                 break
 

@@ -96,12 +96,12 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
                 continue
         logger.info('Arrive the Kirin')
         self.ui_click(self.I_KIRIN_CHALLAGE, self.I_KIRIN_GATHER)
-        sleep(2)
-        if self.appear(self.I_KIRIN_CHALLAGE):
-            self.click(self.I_KIRIN_CHALLAGE)
-        # 等待进入战斗
-        # 等待挑战, 5秒也是等
-        sleep(3)
+        self.device.stuck_record_add('BATTLE_STATUS_S')
+        while 1:
+            sleep(5)
+            if self.appear(self.I_KIRIN_CHALLAGE) and self.appear_rgb(self.I_KIRIN_CHALLAGE):
+                break
+        self.ui_click_until_disappear(self.I_KIRIN_CHALLAGE)
         self.device.stuck_record_add('BATTLE_STATUS_S')
         self.wait_until_disappear(self.I_KIRIN_GATHER)
         self.device.stuck_record_clear()
