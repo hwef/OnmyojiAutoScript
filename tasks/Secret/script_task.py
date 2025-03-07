@@ -131,7 +131,9 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, SecretAssets):
             if con.secret_gold_100:
                 self.gold_100(False)
             self.close_buff()
-        self.set_next_run(task='Secret', success=True, finish=False)
+        # self.set_next_run(task='Secret', success=True, finish=False)
+        # 设置下一次运行时间是周一
+        self.next_run_week(1)
         raise TaskEnd('Secret')
 
     def find_battle(self, screenshot: bool=False) -> int or None:

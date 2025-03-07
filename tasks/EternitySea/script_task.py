@@ -54,10 +54,12 @@ class ScriptTask(
             case UserStatus.ALONE: success = self.run_alone()
             case _: logger.error('Unknown user status')
 
-        if success:
-            self.set_next_run(self.task_name, finish=True, success=True)
-        else:
-            self.set_next_run(self.task_name, finish=False, success=False)
+        # if success:
+        #     self.set_next_run(self.task_name, finish=True, success=True)
+        # else:
+        #     self.set_next_run(self.task_name, finish=False, success=False)
+        # 设置下一次运行时间是周5
+        self.next_run_week(5)
         # 个人突破
         self.set_next_run(task='RealmRaid', target=datetime.now())
 

@@ -25,7 +25,9 @@ class ScriptTask(GameUi, WeeklyTriflesAssets):
         if con.broken_amulet:
             self._broken_amulet(con.broken_amulet)
 
-        self.set_next_run(task='WeeklyTrifles', success=True, finish=False)
+        # self.set_next_run(task='WeeklyTrifles', success=True, finish=False)
+        # 设置下一次运行时间是周一
+        self.next_run_week(1)
         raise TaskEnd('WeeklyTrifles')
 
     def click_share(self, wechat) -> bool:

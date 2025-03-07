@@ -48,8 +48,9 @@ class ScriptTask(GameUi, SwitchSoul, MoonSea):
                 break
             if self.appear_then_click(self.I_BACK_EXIT, interval=2):
                 continue
-
-        self.set_next_run('SixRealms', success=True, finish=False)
+        # 设置下一次运行时间是周一
+        self.next_run_week(1)
+        # self.set_next_run('SixRealms', success=True, finish=False)
         raise TaskEnd
 
     def run_moon_sea(self):
