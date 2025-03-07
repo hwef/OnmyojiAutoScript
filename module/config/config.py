@@ -26,9 +26,6 @@ from module.exception import RequestHumanTakeover, ScriptError
 from module.logger import logger
 
 
-
-
-
 class Function:
     def __init__(self, key: str, data: dict):
         """
@@ -321,7 +318,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             return False
 
     def task_delay(self, task: str, start_time: datetime = None,
-                   success: bool=None, server: bool=True, target: datetime=None) -> None:
+                   success: bool = None, server: bool = True, target: datetime = None) -> None:
         """
         设置下次运行时间  当然这个也是可以重写的
         :param target: 可以自定义的下次运行时间
@@ -419,15 +416,14 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         try:
             scheduler.next_run = next_run
             # 避免任务运行中途修改running_task，例如任务中间接到悬赏
-            if self.model.running_task is not None and  convert_to_underscore(self.model.running_task) == task:
-                    logger.warning(f'Setting running_task is None from [{task}]')
-                    self.model.running_task = None
+            if self.model.running_task is not None and convert_to_underscore(self.model.running_task) == task:
+                logger.warning(f'Setting running_task is None from [{task}]')
+                self.model.running_task = None
             self.save()
         finally:
             self.lock_config.release()
         # 设置
         logger.attr(f'{task}.scheduler.next_run', next_run)
-
 
     @cached_property
     def notifier(self):
@@ -452,7 +448,3 @@ if __name__ == '__main__':
     # print(config.pending_task)
 
     # print(config.get_next())
-
-
-
-

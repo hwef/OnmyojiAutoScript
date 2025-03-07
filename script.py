@@ -305,7 +305,7 @@ class Script:
             logger.warning(f"{i} seconds to {action}")  # 动态刷新当前剩余时间
             time.sleep(1)
         logger.warning("倒计时完成！")
-        logger.warning(f'{self.config.task}')
+        logger.info(f'Wait until {self.config.next_run} for task `{self.config.command}`')
 
     def get_next_task(self) -> str:
         """
@@ -358,39 +358,6 @@ class Script:
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
-                # method = self.config.script.optimization.when_task_queue_empty
-                # if method == 'close_game':
-                #     logger.info('Close game during wait')
-                #     self.device.app_stop()
-                #     self.device.release_during_wait()
-                #     if not self.wait_until(task.next_run):
-                #         del_cached_property(self, 'config')
-                #         continue
-                #     self.run('Restart')
-                # elif method == 'goto_main':
-                #     logger.info('Goto main page during wait')
-                #     self.run('GotoMain')
-                #     self.device.release_during_wait()
-                #     if not self.wait_until(task.next_run):
-                #         del_cached_property(self, 'config')
-                #         continue
-                # elif method == 'close_emulator':
-                #     logger.info('close emulator during wait')
-                #     limit_time = self.config.script.optimization.limit_time
-                #     if task.next_run > datetime.now() + timedelta(hours=limit_time.hour, minutes=limit_time.minute, seconds=limit_time.second):
-                #         self.device.emulator_stop()
-                #     else:
-                #         self.run('GotoMain')
-                #     self.device.release_during_wait()
-                #     if not self.wait_until(task.next_run):
-                #         del_cached_property(self, 'config')
-                #         continue
-                # else:
-                #     logger.warning(f'Invalid Optimization_WhenTaskQueueEmpty: {method}, fallback to stay_there')
-                #     self.device.release_during_wait()
-                #     if not self.wait_until(task.next_run):
-                #         del_cached_property(self, 'config')
-                #         continue
             break
 
         return task.command
