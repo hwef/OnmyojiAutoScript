@@ -29,7 +29,9 @@ class ScriptTask(Mall, Guild, ThousandThings, Shrine):
         # 商店
         self.execute_mall()
 
-        self.set_next_run(task='RichMan', success=True, finish=False)
+        # 设置下一次运行时间是周一
+        self.next_run_week(1)
+        # self.set_next_run(task='RichMan', success=True, finish=False)
 
         raise TaskEnd('RichMan')
 
