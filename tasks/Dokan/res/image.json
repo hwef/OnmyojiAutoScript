@@ -110,8 +110,8 @@
   {
     "itemName": "quit_dokan_over",
     "imageName": "Screenshots_quit_dokan_over.png",
-    "roiFront": "1056,211,55,35",
-    "roiBack": "1056,211,55,35",
+    "roiFront": "1056,211,55,28",
+    "roiBack": "1056,211,55,28",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "管理放弃道馆over"

@@ -67,7 +67,9 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
             if ocr_error_count > 10:
                 logger.warning('OCR failed too many times, exit')
                 break
-            if self.ocr_appear(self.O_WQ_TEXT_1, interval=1):
+
+            O_WQ_TEXT_1_str = self.O_WQ_TEXT_1.detect_text(self.device.image)
+            if '印' in O_WQ_TEXT_1_str:
                 cu, re, total = self.O_WQ_NUM_1.ocr(self.device.image)
                 if cu == re == total == 0:
                     logger.warning('OCR failed and skip this round')
@@ -78,7 +80,8 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
                 if cu < total and re != 0:
                     self.execute_mission(self.O_WQ_TEXT_1, total, number_challenge)
 
-            if self.ocr_appear(self.O_WQ_TEXT_2, interval=1):
+            O_WQ_TEXT_2_str = self.O_WQ_TEXT_2.detect_text(self.device.image)
+            if '印' in O_WQ_TEXT_2_str:
                 cu, re, total = self.O_WQ_NUM_2.ocr(self.device.image)
                 if cu == re == total == 0:
                     logger.warning('OCR failed and skip this round')
