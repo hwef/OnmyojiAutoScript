@@ -65,8 +65,8 @@
   {
     "itemName": "me_souls_new",
     "imageName": "navbar_mall_bondlings_over.png",
-    "roiFront": "980,417,140,37",
-    "roiBack": "980,417,140,37",
+    "roiFront": "92,419,140,30",
+    "roiBack": "92,419,140,30",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "随机御魂"

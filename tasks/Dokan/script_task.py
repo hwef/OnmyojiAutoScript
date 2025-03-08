@@ -123,7 +123,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
             # 场景状态：道馆集结中
             if current_scene == DokanScene.RYOU_DOKAN_SCENE_GATHERING:
-                # logger.debug(f"Ryou DOKAN gathering...")
+                self.goto_dokan_num = 0
                 # 如果还未选择优先攻击，选一下
                 if not self.attack_priority_selected:
                     self.dokan_choose_attack_priority(attack_priority=attack_priority)
