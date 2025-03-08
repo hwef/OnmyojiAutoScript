@@ -37,7 +37,7 @@ class Device(Platform, Screenshot, Control, AppControl):
                 super().__init__(*args, **kwargs)
                 break
             except EmulatorNotRunningError:
-                if trial >= 3:
+                if trial >= 5:
                     logger.critical('Failed to start emulator after 3 trial')
                     self.config.notifier.push(title=self.config.task, content=f"Failed to start emulator")
                     raise RequestHumanTakeover
