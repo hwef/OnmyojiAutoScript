@@ -223,6 +223,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
                 if not self.appear(self.I_FALSE, threshold=0.6):
                     return False
         # 最后保证能点击 获得奖励
+        self.ui_click(self.I_WIN, self.I_REWARD)
         if not self.wait_until_appear(self.I_REWARD):
             # 有些的战斗没有下面的奖励，所以直接返回
             logger.info("There is no reward, Exit battle")
