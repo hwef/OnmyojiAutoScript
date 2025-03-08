@@ -355,6 +355,9 @@ class Scales(Buy, MallNavbar):
         remain_number = self.O_SCA_NUMBER_SEA.ocr(self.device.image)
         if remain_number == '':
             return
+        if not isinstance(remain_number, int):
+            logger.warning('OCR error')
+            return
         remain_number = abs(int(remain_number))
         if remain_number == 0:
             logger.warning(f'The remaining purchase quantity of xx is {remain_number}')

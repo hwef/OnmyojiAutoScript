@@ -15,6 +15,10 @@ class DemonRetreatAssets:
 	I_SHRINE = RuleImage(roi_front=(870,624,65,61), roi_back=(870,624,65,61), threshold=0.8, method="Template matching", file="./tasks/DemonRetreat/DemonRetreat/DemonRetreat_shrine.png")
 	# 首领退治 
 	I_HUNT = RuleImage(roi_front=(661,164,187,165), roi_back=(661,164,187,165), threshold=0.8, method="Template matching", file="./tasks/DemonRetreat/DemonRetreat/DemonRetreat_hunt.png")
+	# 开启首领退治 
+	I_OPEN_RETREAT = RuleImage(roi_front=(1136,549,100,57), roi_back=(1136,549,100,57), threshold=0.8, method="Template matching", file="./tasks/DemonRetreat/DemonRetreat/open_retreat.png")
+	# 确认开启首领退治 
+	I_OPEN_RETREAT_SURE = RuleImage(roi_front=(691,396,100,57), roi_back=(691,396,100,57), threshold=0.8, method="Template matching", file="./tasks/DemonRetreat/DemonRetreat/open_retreat_sure.png")
 	# 检查是否成功进入首领退治 
 	I_HUNT_CHECK = RuleImage(roi_front=(570,12,143,46), roi_back=(570,12,143,46), threshold=0.8, method="Template matching", file="./tasks/DemonRetreat/DemonRetreat/DemonRetreat_hunt_check.png")
 	# description 
@@ -38,3 +42,15 @@ class DemonRetreatAssets:
 	O_LATER_ENTER_CHECK = RuleOcr(roi=(928,16,48,35), area=(928,16,48,35), mode="Single", method="Default", keyword="", name="later_enter_check")
 
 
+if __name__ == '__main__':
+	from assets_test import appear_rgb, detect_image
+	from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
+	# appear_rgb(r"D:\OnmyojiAutoScript\ljxun\log\error\MI 10-38-41 (2025-03-08).png", DemonRetreatAssets.I_ENTER_FIRE,)
+	# detect_image(r"D:\OnmyojiAutoScript\ljxun\log\error\MI 10-38-41 (2025-03-08).png", DemonRetreatAssets.I_ENTER_FIRE)
+	# detect_image(r"D:\OnmyojiAutoScript\ljxun\log\error\MI 10-38-41 (2025-03-08).png", DemonRetreatAssets.I_DEMON_GATHER)
+	# appear_rgb(r"D:\OnmyojiAutoScript\ljxun\log\error\MI 10-38-41 (2025-03-08).png", DemonRetreatAssets.I_ENTER_FIRE)
+	# appear_rgb(r"D:\OnmyojiAutoScript\ljxun\log\error\MI 10-38-41 (2025-03-08).png", DemonRetreatAssets.I_DEMON_GATHER)
+	detect_image(r"D:\MuMu12\共享文件夹\Screenshots\MuMu12-20250308-104656.png", GeneralBattleAssets.I_PREPARE_HIGHLIGHT)
+	detect_image(r"D:\MuMu12\共享文件夹\Screenshots\MuMu12-20250308-104159.png", DemonRetreatAssets.I_DEMON_GATHER)
+	appear_rgb(r"D:\MuMu12\共享文件夹\Screenshots\MuMu12-20250308-104159.png", DemonRetreatAssets.I_ENTER_FIRE)
+	appear_rgb(r"D:\MuMu12\共享文件夹\Screenshots\MuMu12-20250308-104159.png", DemonRetreatAssets.I_DEMON_GATHER)

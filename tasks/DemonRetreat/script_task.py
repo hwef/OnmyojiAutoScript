@@ -119,7 +119,14 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssSha
             # 进入首领退治
             if self.appear_then_click(self.I_HUNT, interval=1.5):
                 goto_demon_retreat_num += 1
-
+            # 开启首领退治
+            if self.appear_then_click(self.I_OPEN_RETREAT_SURE, interval=1):
+                logger.info("Enter I_OPEN_RETREAT_SURE")
+                continue
+            if self.appear_rgb(self.I_OPEN_RETREAT):
+                if self.appear_then_click(self.I_OPEN_RETREAT, interval=1):
+                    logger.info("Enter I_OPEN_RETREAT")
+                    continue
             # 确保不离开退治
             if self.appear_then_click(self.I_QUIT_BACK, interval=1):
                 pass
@@ -130,7 +137,9 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssSha
                 return True
 
             # 周六打完了，但是迟到了只能领取奖励
-            if self.appear_then_click(self.I_REWARD_ALL, interval=1):
+            if self.appear(self.I_REWARD_ALL, interval=1):
+                self.save_image()
+                self.ui_click_until_disappear(self.I_REWARD_ALL)
                 logger.info("Already challenged demon_retreat")
                 sleep(1)
                 if self.appear_then_click(self.I_DEMON_BACK_CHECK, interval=1):
@@ -147,7 +156,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssSha
                     pass
                 sleep(20)
             # 超过五次没有进入进入认为失败
-            if goto_demon_retreat_num >= 5:
+            if goto_demon_retreat_num >= 10:
                 break
         return False
 
@@ -271,7 +280,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssSha
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('日常1')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()

@@ -18,6 +18,24 @@
     "description": "首领退治"
   },
   {
+    "itemName": "open_retreat",
+    "imageName": "open_retreat.png",
+    "roiFront": "1136,549,100,57",
+    "roiBack": "1136,549,100,57",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "开启首领退治"
+  },
+  {
+    "itemName": "open_retreat_sure",
+    "imageName": "open_retreat_sure.png",
+    "roiFront": "691,396,100,57",
+    "roiBack": "691,396,100,57",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "确认开启首领退治"
+  },
+  {
     "itemName": "hunt_check",
     "imageName": "DemonRetreat_hunt_check.png",
     "roiFront": "570,12,143,46",
