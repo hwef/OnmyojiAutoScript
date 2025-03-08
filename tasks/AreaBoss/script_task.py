@@ -341,90 +341,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
                     self.ui_click_until_disappear(self.I_AB_CLOSE_RED)
                     self.open_filter()
 
-    # def get_hot_in_reward(self):
-    #     """
-    #         返回挑战人数最多的悬赏鬼王
-    #     @return:    index
-    #     @rtype:
-    #     """
-    #     self.switch_to_reward()
-    #     lst = []
-    #     boosName = []
-    #     filter_open_flag = False
-    #     num = self.get_num_challenge(self.C_AB_BOSS_REWARD_PHOTO_1)
-    #     #如果num为0则不在进行nameOcr
-    #     if num:
-    #         if num > 20000:
-    #             return filter_open_flag, str("direct_attack")
-    #         name = self.get_bossName(self.C_AB_BOSS_REWARD_PHOTO_1)
-    #     else:
-    #         name = "声望不够"
-    #     lst.append(num)
-    #     boosName.append(name)
-    #     self.ui_click_until_disappear(self.I_AB_CLOSE_RED)
-    #     #
-    #     self.open_filter()
-    #     num = self.get_num_challenge(self.C_AB_BOSS_REWARD_PHOTO_2)
-    #     if num:
-    #         if num > 20000:
-    #             return filter_open_flag, str("direct_attack")
-    #         name = self.get_bossName(self.C_AB_BOSS_REWARD_PHOTO_1)
-    #     else:
-    #         name = "声望不够"
-    #     boosName.append(name)
-    #     lst.append(num)
-    #     self.ui_click_until_disappear(self.I_AB_CLOSE_RED)
-    #     #
-    #     self.open_filter()
-    #     num = self.get_num_challenge(self.C_AB_BOSS_REWARD_PHOTO_3)
-    #     if num:
-    #         if num > 20000:
-    #             return filter_open_flag, str("direct_attack")
-    #         name = self.get_bossName(self.C_AB_BOSS_REWARD_PHOTO_1)
-    #     else:
-    #         name = "声望不够"
-    #     boosName.append(name)
-    #     lst.append(num)
-    #     self.ui_click_until_disappear(self.I_AB_CLOSE_RED)
-    #     #
-    #     self.open_filter()
-    #     for i in range(random.randint(1, 3)):
-    #         self.swipe(self.S_AB_FILTER_UP)
-    #     self.wait_until_appear(self.C_AB_BOSS_REWARD_PHOTO_MINUS_2, wait_time=1)
-    #     num = self.get_num_challenge(self.C_AB_BOSS_REWARD_PHOTO_MINUS_2)
-    #     if num:
-    #         if num > 20000:
-    #             return filter_open_flag, str("direct_attack")
-    #         name = self.get_bossName(self.C_AB_BOSS_REWARD_PHOTO_1)
-    #     else:
-    #         name = "声望不够"
-    #     boosName.append(name)
-    #     lst.append(num)
-    #     self.ui_click_until_disappear(self.I_AB_CLOSE_RED)
-    #     #
-    #     self.open_filter()
-    #     for i in range(random.randint(1, 3)):
-    #         self.swipe(self.S_AB_FILTER_UP)
-    #     self.wait_until_appear(self.C_AB_BOSS_REWARD_PHOTO_MINUS_1, wait_time=1)
-    #     num = self.get_num_challenge(self.C_AB_BOSS_REWARD_PHOTO_MINUS_1)
-    #     if num:
-    #         if num > 20000:
-    #             return filter_open_flag, str("direct_attack")
-    #         name = self.get_bossName(self.C_AB_BOSS_REWARD_PHOTO_1)
-    #     else:
-    #         name = "声望不够"
-    #         filter_open_flag = True
-    #     boosName.append(name)
-    #     lst.append(num)
-    #     self.ui_click_until_disappear(self.I_AB_CLOSE_RED)
-    #
-    #     index = 0
-    #     num = 0
-    #     for idx, val in enumerate(lst):
-    #         if val > num:
-    #             index = idx
-    #             num = val
-    #     return filter_open_flag, boosName[index]
     def get_hot_in_reward(self):
         """
             返回挑战人数最多的悬赏鬼王
@@ -475,20 +391,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         max_index = lst.index(max_num)
 
         return filter_open_flag, bossName[max_index]
-
-    def confirm_num_over_threshold(self, photo_param, threshold=20000, retry=4):
-        """ 多重验证挑战人数是否超过阈值 """
-        confirm_count = 0
-        for _ in range(retry):
-            num = self.get_num_challenge(photo_param)
-            if num and num > threshold:
-                confirm_count += 1
-                if confirm_count >= 3:  # 至少3次确认
-                    return True
-            else:
-                confirm_count = 0
-            time.sleep(1) # 增加间隔提高识别稳定性
-        return False
 
     def get_num_challenge(self, click_area):
         """

@@ -460,12 +460,13 @@ class Script:
             self.device.stuck_record_clear()
             self.device.click_record_clear()
 
-            logger.hr(task, level=0)
+            logger.hr(f'{task} START', 0)
             logger.info(f'Scheduler: Start task `{task}`')
             success = self.run(inflection.camelize(task))
             # 任务结束回庭院
             self.run('GotoMain')
             logger.info(f'Scheduler: End task `{task}`')
+            logger.hr(f'{task} END', 0)
             self.is_first_task = False
 
             # Check failures
