@@ -102,7 +102,7 @@
     "itemName": "wq_check_task",
     "imageName": "wq_wq_check_task.png",
     "roiFront": "110,154,21,125",
-    "roiBack": "73,122,69,459",
+    "roiBack": "73,122,69,335",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "判断是否还有任务"

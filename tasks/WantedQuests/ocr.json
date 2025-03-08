@@ -21,18 +21,18 @@
     "itemName": "wq_text_1",
     "roiFront": "67,233,52,32",
     "roiBack": "67,233,52,32",
-    "mode": "Single",
+    "mode": "Full",
     "method": "Default",
-    "keyword": "封印",
+    "keyword": "",
     "description": "Ocr-description"
   },
   {
     "itemName": "wq_text_2",
     "roiFront": "66,377,52,32",
     "roiBack": "66,377,52,32",
-    "mode": "Single",
+    "mode": "Full",
     "method": "Default",
-    "keyword": "封印",
+    "keyword": "",
     "description": "Ocr-description"
   },
   {
