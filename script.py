@@ -382,13 +382,21 @@ class Script:
             logger.warning(e)
             self.config.task_call('Restart')
             return True
-        except (GameStuckError, GameTooManyClickError) as e:
+        except GameStuckError as e:
             logger.error(e)
             self.save_error_log()
             logger.warning(f'Game stuck, {self.device.package} will be restarted in 10 seconds')
-            logger.warning('If you are playing by hand, please stop Alas')
             self.config.notifier.push(title=command,
-                                      content=f"<{self.config_name}> GameStuckError or GameTooManyClickError")
+                                      content=f"<{self.config_name}> GameStuckError Wait too long ")
+            self.config.task_call('Restart')
+            self.device.sleep(10)
+            return False
+        except GameTooManyClickError as e:
+            logger.error(e)
+            self.save_error_log()
+            logger.warning(f'Game Too Many Click, {self.device.package} will be restarted in 10 seconds')
+            self.config.notifier.push(title=command,
+                                      content=f"<{self.config_name}> Game Too Many Click")
             self.config.task_call('Restart')
             self.device.sleep(10)
             return False
@@ -463,8 +471,6 @@ class Script:
             logger.hr(f'{task} START', 0)
             logger.info(f'Scheduler: Start task `{task}`')
             success = self.run(inflection.camelize(task))
-            # 任务结束回庭院
-            self.run('GotoMain')
             logger.info(f'Scheduler: End task `{task}`')
             logger.hr(f'{task} END', 0)
             self.is_first_task = False
