@@ -333,7 +333,6 @@ class Script:
                                                 seconds=close_emulator_time.second)
 
                 if close_emulator_time_flag and task.next_run > datetime.now() + close_emulator_time:
-                    self.run('GotoMain')
                     self.config.notifier.push(title='CloseMuMu', content=f'Wait `{task.command}` {str(task.next_run.time())}')
                     self.countdown(30, 'close emulator')
                     logger.info('close emulator during wait')
@@ -343,7 +342,6 @@ class Script:
                         del_cached_property(self, 'config')
                         continue
                 elif close_game_time_flag and task.next_run > datetime.now() + close_game_time:
-                    self.run('GotoMain')
                     self.countdown(10, 'close game')
                     logger.info('close game during wait')
                     self.device.app_stop()
@@ -353,7 +351,6 @@ class Script:
                         continue
                 else:
                     logger.info('Goto main page during wait')
-                    self.run('GotoMain')
                     self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
@@ -466,6 +463,8 @@ class Script:
             logger.hr(task, level=0)
             logger.info(f'Scheduler: Start task `{task}`')
             success = self.run(inflection.camelize(task))
+            # 任务结束回庭院
+            self.run('GotoMain')
             logger.info(f'Scheduler: End task `{task}`')
             self.is_first_task = False
 
