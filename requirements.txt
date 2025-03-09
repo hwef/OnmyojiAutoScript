@@ -90,3 +90,14 @@ psutil==6.1.1
 # setuptools
 
 websocket~=0.2.1
+aiohttp~=3.11.13
+aiohttp_socks~=0.10.1
+pytz~=2025.1
+typing_extensions~=4.9.0
+PyQt6~=6.4.2
+pip~=23.2.1
+attrs~=25.1.0
+wheel~=0.41.2
+setuptools~=68.2.0
+shiboken6~=6.4.3
+websocket-client~=1.8.0
