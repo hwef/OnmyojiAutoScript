@@ -100,6 +100,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         @rtype:
         """
         reward_floor = self.config.area_boss.boss.reward_floor
+        self.screenshot()
         if fileter_open and not self.appear(self.I_AB_FILTER_OPENED):
             self.open_filter()
         # 如果打不开鬼王详情界面,直接退出

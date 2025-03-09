@@ -66,8 +66,8 @@ logger = logging.getLogger('oas')
 logger.setLevel(logging.DEBUG if logger_debug else logging.INFO)
 logging.addLevelName(logging.WARNING,"WARN")
 file_formatter = logging.Formatter(
-    fmt='%(asctime)s.%(msecs)03d | %(filename)20s:%(lineno)04d | %(levelname)8s | %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S')
+    fmt='%(asctime)s.%(msecs)03d|%(filename)14.14s:%(lineno)03d|%(levelname)4s| %(message)s',
+    datefmt='%Y%m%d %H:%M:%S')
 console_formatter = logging.Formatter(
     fmt='%(asctime)s.%(msecs)03d │ %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 flutter_formatter = logging.Formatter(

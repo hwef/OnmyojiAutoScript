@@ -83,7 +83,7 @@ class Script:
         """
         return None
 
-    def save_error_log(self):
+    def save_error_log(self, error_message='Exception'):
         """
         Save last 60 screenshots in ./log/error/<timestamp>
         Save logs to ./log/error/<timestamp>/log.txt
@@ -92,7 +92,6 @@ class Script:
         from module.handler.sensitive_info import (handle_sensitive_image,
                                                    handle_sensitive_logs)
         if self.config.script.error.save_error:
-            # error_path ='./log/error/'
             error_path = log_path + '/error/'
             if not os.path.exists(error_path):
                 os.mkdir(error_path)
@@ -103,14 +102,14 @@ class Script:
 
             folder = f'{error_path}'
             image_name = f'{config_name} {now_time} ({now_date})'
-            # folder = f'./log/error/{today_date}'
-            logger.warning(f'Saving error: {folder}')
+            error_path_log = f'{folder}/{image_name}.log'
+            error_path_image = f'{folder}/{image_name}.png'
+            logger.warning(f'Saving error folder: {folder}')
             if not os.path.exists(folder):
                 os.mkdir(folder)
             for data in self.device.screenshot_deque:
-                image_time = datetime.strftime(data['time'], image_name)
                 image = handle_sensitive_image(data['image'])
-                save_image(image, f'{folder}/{image_time}.png')
+                save_image(image, error_path_image)
             with open(logger.log_file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 start = 0
@@ -120,8 +119,12 @@ class Script:
                         start = index
                 lines = lines[start - 2:]
                 lines = handle_sensitive_logs(lines)
-            with open(f'{folder}/{image_name}.log', 'w', encoding='utf-8') as f:
+            with open(error_path_log, 'w', encoding='utf-8') as f:
                 f.writelines(lines)
+            logger.warn(f'asyncio push message to tg start')
+            title = f'{self.config.config_name} {error_message}'
+            asyncio.run(self.config.pushtg.telegram_send(title, error_path_image, error_path_log))
+            logger.warn(f'asyncio push message to tg end')
 
     def init_server(self, port: int) -> int:
         """
@@ -333,7 +336,8 @@ class Script:
                                                 seconds=close_emulator_time.second)
 
                 if close_emulator_time_flag and task.next_run > datetime.now() + close_emulator_time:
-                    self.config.notifier.push(title='CloseMuMu', content=f'Wait `{task.command}` {str(task.next_run.time())}')
+                    self.config.notifier.push(title='CloseMuMu',
+                                              content=f'Wait `{task.command}` {str(task.next_run.time())}')
                     self.countdown(30, 'close emulator')
                     logger.info('close emulator during wait')
                     self.device.emulator_stop()
@@ -384,7 +388,7 @@ class Script:
             return True
         except GameStuckError as e:
             logger.error(e)
-            self.save_error_log()
+            self.save_error_log('Game Wait too long')
             logger.warning(f'Game stuck, {self.device.package} will be restarted in 10 seconds')
             self.config.notifier.push(title=command,
                                       content=f"<{self.config_name}> GameStuckError Wait too long ")
@@ -393,7 +397,7 @@ class Script:
             return False
         except GameTooManyClickError as e:
             logger.error(e)
-            self.save_error_log()
+            self.save_error_log('Game Too Many Click')
             logger.warning(f'Game Too Many Click, {self.device.package} will be restarted in 10 seconds')
             self.config.notifier.push(title=command,
                                       content=f"<{self.config_name}> Game Too Many Click")
@@ -402,7 +406,7 @@ class Script:
             return False
         except GameBugError as e:
             logger.warning(e)
-            self.save_error_log()
+            self.save_error_log('GameBugError')
             logger.warning('An error has occurred in Azur Lane game client, Alas is unable to handle')
             logger.warning(f'Restarting {self.device.package} to fix it')
             self.config.task_call('Restart')
@@ -412,7 +416,7 @@ class Script:
             logger.info('Game server may be under maintenance or network may be broken, check server status now')
             # 这个还不重要 留着坑填
             logger.critical('Game page unknown')
-            self.save_error_log()
+            self.save_error_log('Game page unknown')
             self.config.task_call('Restart')
             self.device.sleep(10)
             self.config.notifier.push(title=command, content=f"<{self.config_name}> GamePageUnknownError")
