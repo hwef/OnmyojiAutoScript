@@ -2,51 +2,85 @@
 # @author runhey
 # github https://github.com/runhey
 
+import aiohttp
+import asyncio
 import onepush.core
 import yaml
+from aiohttp_socks import ProxyConnector
+from module.logger import logger
 from onepush import get_notifier
 from onepush.core import Provider
 from onepush.exceptions import OnePushException
 from onepush.providers.custom import Custom
 from requests import Response
 
-from module.logger import logger
 onepush.core.log = logger
 
 
 class Notifier:
-    def __init__(self, _config: str, enable: bool=False) -> None:
+    def __init__(self, _config: str, _config_tg: str, enable: bool = False, enable_tg: bool = False) -> None:
         self.config_name: str = ""
         self.enable: bool = enable
+        self.enable_tg: bool = enable_tg
 
-        if not self.enable:
-            return
-        config = {}
-        try:
-            for item in yaml.safe_load_all(_config):
-                config.update(item)
-        except Exception as e:
-            logger.error("Fail to load onepush config, skip sending")
-            return
-        self.config = config
-        try:
-            # 获取provider
-            self.provider_name: str = self.config.pop("provider", None)
-            if self.provider_name is None:
-                logger.info("No provider specified, skip sending")
+        if self.enable:
+            config = {}
+            try:
+                for item in yaml.safe_load_all(_config):
+                    config.update(item)
+            except Exception as e:
+                logger.error("Fail to load onepush config, skip sending")
                 return
-            # 获取notifier
-            self.notifier: Provider = get_notifier(self.provider_name)
-            # 获取notifier的必填参数
-            self.required: list[str] = self.notifier.params["required"]
-        except OnePushException:
-            logger.exception("Init notifier failed")
-            return
-        except Exception as e:
-            logger.exception(e)
-            return
+            self.config = config
+            try:
+                # 获取provider
+                self.provider_name: str = self.config.pop("provider", "")
+                if self.provider_name == "":
+                    logger.info("No provider specified, skip sending")
+                    return
+                # 获取notifier
+                self.notifier: Provider = get_notifier(self.provider_name)
+                # 获取notifier的必填参数
+                self.required: list[str] = self.notifier.params["required"]
+            except OnePushException:
+                logger.exception("Init notifier failed")
+                return
+            except Exception as e:
+                logger.exception(e)
+                return
+
+        if self.enable_tg:
+            config_tg = {}
+            try:
+                for item in yaml.safe_load_all(_config_tg):
+                    config_tg.update(item)
+            except Exception as e:
+                logger.error("Fail to load onepush config, skip sending")
+                return
+            self.config_tg = config_tg
+            try:
+                self.proxy: str = self.config_tg.pop("proxy", "")
+                if self.proxy == "":
+                    logger.info("No proxy specified, skip sending")
+                    return
+                self.token: str = self.config_tg.pop("token", "")
+                if self.token == "":
+                    logger.info("No token specified, skip sending")
+                    return
+                self.chat_id: str = self.config_tg.pop("chat_id", "")
+                if self.chat_id == "":
+                    logger.info("No chat_id specified, skip sending")
+                    return
+            except Exception as e:
+                logger.error(e)
+                return
 
     def push(self, **kwargs) -> bool:
+
+        title = f"{self.config_name} {kwargs['title']}"
+        content = kwargs["content"]
+        message = f"{title}\n{content}"
+        asyncio.run(self.send_text_message(message))
         if not self.enable:
             return False
         # 更新配置
@@ -58,7 +92,6 @@ class Notifier:
                 logger.warning(
                     f"Notifier {self.notifier} require param '{key}' but not provided"
                 )
-
 
         if isinstance(self.notifier, Custom):
             if "method" not in self.config or self.config["method"] == "post":
@@ -74,7 +107,6 @@ class Notifier:
             access_token = self.config.get("access_token")
             if access_token:
                 self.config["token"] = access_token
-
 
         try:
             resp = self.notifier.notify(**self.config)
@@ -100,6 +132,41 @@ class Notifier:
 
         logger.info("Push notify success")
         return True
+
+    async def send_text_message(self,
+                                text: str,
+                                timeout: int = 10
+                                ) -> bool:
+        if not self.enable_tg:
+            return False
+        proxy = self.proxy
+        token = self.token
+        chat_id = str(self.chat_id)
+
+        """发送纯文本消息"""
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        payload = {"chat_id": chat_id, "text": text}
+
+        try:
+            connector = None
+            if proxy and proxy.startswith("socks"):
+                connector = ProxyConnector.from_url(proxy)
+
+            async with aiohttp.ClientSession(connector=connector) as session:
+                kwargs = {"proxy": proxy} if proxy and not connector else {}
+
+                async with session.post(
+                        url,
+                        json=payload,
+                        timeout=aiohttp.ClientTimeout(total=timeout),
+                        **kwargs
+                ) as response:
+                    result = await response.json()
+                    return result.get("ok", False)
+
+        except Exception as e:
+            logger.error(f"发送文本失败: {str(e)}")
+            return False
 
 
 if __name__ == '__main__':

@@ -21,6 +21,7 @@ from module.config.config_state import ConfigState
 from module.config.scheduler import TaskScheduler
 from module.config.utils import *
 from module.notify.notify import Notifier
+from module.notify.pushtg import PushTg
 
 from module.exception import RequestHumanTakeover, ScriptError
 from module.logger import logger
@@ -428,12 +429,26 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         # 设置
         logger.attr(f'{task}.scheduler.next_run', next_run)
 
+    # @cached_property
+    # def notifier(self):
+    #     notifier = Notifier(self.model.script.error.notify_config, enable=self.model.script.error.notify_enable)
+    #     notifier.config_name = self.config_name.upper()
+    #     logger.info(f'Notifier: {notifier.config_name}')
+    #     return notifier
+
     @cached_property
     def notifier(self):
-        notifier = Notifier(self.model.script.error.notify_config, enable=self.model.script.error.notify_enable)
+        notifier = Notifier(self.model.script.error.notify_config, self.model.script.error.pushtg_config, enable=self.model.script.error.notify_enable, enable_tg=self.model.script.error.pushtg_enable)
         notifier.config_name = self.config_name.upper()
         logger.info(f'Notifier: {notifier.config_name}')
         return notifier
+
+    @cached_property
+    def pushtg(self):
+        pushtg = PushTg(self.model.script.error.pushtg_config, enable=self.model.script.error.pushtg_enable)
+        pushtg.config_name = self.config_name.upper()
+        logger.info(f'PushTg: {pushtg.config_name}')
+        return pushtg
 
 
 if __name__ == '__main__':

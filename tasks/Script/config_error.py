@@ -18,4 +18,6 @@ class Error(BaseModel):
                                 description='')
     notify_config: MultiLine = Field(default='provider: null', description='notify_config_help')
 
-
+    pushtg_enable: bool = Field(default=False,
+                                description='')
+    pushtg_config: MultiLine = Field(default='', description='pushtg_config_help')
