@@ -79,6 +79,12 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
                     cu = cu % 10
                 if cu < total and re != 0:
                     self.execute_mission(self.O_WQ_TEXT_1, total, number_challenge)
+                if cu == total != 0:
+                    sleep(1.5)
+                    self.screenshot()
+                    if not self.appear(self.I_WQ_CHECK_TASK):
+                        logger.info('No wanted quests')
+                        break
 
             O_WQ_TEXT_2_str = self.O_WQ_TEXT_2.detect_text(self.device.image)
             if '印' in O_WQ_TEXT_2_str:
@@ -91,8 +97,17 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
                     cu = cu % 10
                 if cu < total and re != 0:
                     self.execute_mission(self.O_WQ_TEXT_2, total, number_challenge)
+                if cu == total != 0:
+                    sleep(1.5)
+                    self.screenshot()
+                    if not self.appear(self.I_WQ_CHECK_TASK):
+                        logger.info('No wanted quests')
+                        break
                 continue
 
+            if self.appear(self.I_WQ_BOX):
+                self.ui_get_reward(self.I_WQ_BOX)
+                continue
             if self.appear(self.I_WQ_CHECK_TASK):
                 continue
             sleep(1.5)
