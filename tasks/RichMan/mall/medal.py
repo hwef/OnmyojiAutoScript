@@ -37,8 +37,7 @@ class Medal(FriendshipPoints):
                               money_ocr=self.O_MALL_RESOURCE_3, buy_money=120)
         # 随机御魂
         if con.random_soul:
-            self.buy_mall_one(buy_button=self.I_ME_SOULS, remain_number=False, buy_check=self.I_ME_CHECK_SOULS,
-                              money_ocr=self.O_MALL_RESOURCE_3, buy_money=320)
+            self.buy_one_souls(self.I_ME_SOULS, self.I_ME_CHECK_SOULS)
         # 两颗白蛋
         if con.white_daruma:
             self.buy_mall_more(buy_button=self.I_ME_WHITE, remain_number=False, money_ocr=self.O_MALL_RESOURCE_3,
@@ -60,6 +59,49 @@ class Medal(FriendshipPoints):
 
         time.sleep(1)
 
+    def buy_one_souls(self, start_click, check_image):
+        """
+        购买一个物品
+        :param check_image: 购买确认时候的图片
+        :param start_click: 开始点击
+        :return:
+        """
+
+        self.screenshot()
+        # 检查是否出现了购买按钮
+        logger.info(f'before buy_button.roi_front: [{start_click.roi_front}]')
+        result = start_click.test_match(self.device.image)
+        logger.info(f'after buy_button.roi_front: [{start_click.roi_front}]')
+        if not result:
+            logger.warning(f'Buy button test_match result [{result}]')
+            return
+        if not self.appear_rgb(start_click, difference=10):
+            logger.warning('Buy button is not appear')
+            return False
+        while 1:
+            self.screenshot()
+
+            if self.appear(check_image):
+                break
+            if self.appear_then_click(start_click, interval=1):
+                continue
+        while 1:
+            self.screenshot()
+
+            logger.info(f'before buy_button.roi_front: [{start_click.roi_front}]')
+            result = start_click.test_match(self.device.image)
+            logger.info(f'after buy_button.roi_front: [{start_click.roi_front}]')
+            if not result:
+                logger.warning(f'Buy button test_match result [{result}]')
+                return
+            if not self.appear_rgb(start_click, difference=10):
+                logger.warning('Buy button is not appear')
+                return False
+
+            if self.click(self.C_BUY_ONE, interval=2.8):
+                continue
+
+        return True
 
 
 if __name__ == '__main__':
