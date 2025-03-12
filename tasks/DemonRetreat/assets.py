@@ -42,15 +42,3 @@ class DemonRetreatAssets:
 	O_LATER_ENTER_CHECK = RuleOcr(roi=(928,16,48,35), area=(928,16,48,35), mode="Single", method="Default", keyword="", name="later_enter_check")
 
 
-if __name__ == '__main__':
-	from assets_test import appear_rgb, detect_image
-	from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
-	# appear_rgb(r"D:\OnmyojiAutoScript\ljxun\log\error\MI 10-38-41 (2025-03-08).png", DemonRetreatAssets.I_ENTER_FIRE,)
-	# detect_image(r"D:\OnmyojiAutoScript\ljxun\log\error\MI 10-38-41 (2025-03-08).png", DemonRetreatAssets.I_ENTER_FIRE)
-	# detect_image(r"D:\OnmyojiAutoScript\ljxun\log\error\MI 10-38-41 (2025-03-08).png", DemonRetreatAssets.I_DEMON_GATHER)
-	# appear_rgb(r"D:\OnmyojiAutoScript\ljxun\log\error\MI 10-38-41 (2025-03-08).png", DemonRetreatAssets.I_ENTER_FIRE)
-	# appear_rgb(r"D:\OnmyojiAutoScript\ljxun\log\error\MI 10-38-41 (2025-03-08).png", DemonRetreatAssets.I_DEMON_GATHER)
-	detect_image(r"D:\MuMu12\共享文件夹\Screenshots\MuMu12-20250308-104656.png", GeneralBattleAssets.I_PREPARE_HIGHLIGHT)
-	detect_image(r"D:\MuMu12\共享文件夹\Screenshots\MuMu12-20250308-104159.png", DemonRetreatAssets.I_DEMON_GATHER)
-	appear_rgb(r"D:\MuMu12\共享文件夹\Screenshots\MuMu12-20250308-104159.png", DemonRetreatAssets.I_ENTER_FIRE)
-	appear_rgb(r"D:\MuMu12\共享文件夹\Screenshots\MuMu12-20250308-104159.png", DemonRetreatAssets.I_DEMON_GATHER)

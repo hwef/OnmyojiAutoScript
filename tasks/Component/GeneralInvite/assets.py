@@ -129,7 +129,3 @@ class GeneralInviteAssets:
 	O_ONLINE = RuleOcr(roi=(790,102,124,42), area=(0,0,100,100), mode="Single", method="Default", keyword="", name="online")
 
 
-if __name__ == '__main__':
-	from assets_test import appear_rgb, detect_image
-	appear_rgb(r"D:\OnmyojiAutoScript\ljxun\log\error\DU 06-17-01 (2025-02-28).png", GeneralInviteAssets.I_FIRE_SEA,)
-	detect_image(r"D:\OnmyojiAutoScript\ljxun\log\error\DU 06-17-01 (2025-02-28).png", GeneralInviteAssets.I_FIRE_SEA)
