@@ -468,16 +468,19 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
                 self.click(self.C_AB_COLLECTION_BTN, 1.5)
                 continue
 
+    # 选择热门
     def switch_to_famous(self):
+        logger.info("switch to famous")
         while 1:
             self.screenshot()
             if self.appear(self.I_AB_FILTER_TITLE_FAMOUS):
                 break
             if self.appear(self.I_AB_FILTER_OPENED):
-                self.click(self.C_AB_FAMOUS_BTN, 1.5)
+                self.appear_then_click(self.I_AB_FAMOUS)
                 continue
 
     def switch_to_reward(self):
+        logger.info("switch to reward")
         while 1:
             self.screenshot()
             if self.appear(self.I_AB_FILTER_TITLE_REWARD):
