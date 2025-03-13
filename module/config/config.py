@@ -299,7 +299,6 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         :return:
         """
         # 重置运行任务
-        logger.warning("任务异常，回调重启任务，running_task 设为 None")
         self.model.running_task = None
 
         task = convert_to_underscore(task)
@@ -308,12 +307,11 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
 
         task_enable = self.model.deep_get(self.model, keys=f'{task}.scheduler.enable')
         if force_call or task_enable:
-            logger.info(f"Task call: {task}")
+            logger.warning(f"Task call: {task}")
             next_run = datetime.now().replace(
                 microsecond=0
             )
-            logger.warning("任务异常，回调重启任务，为当前时间")
-            logger.warning(f"Task call: {task} (next_run: {next_run})")
+            logger.warning(f"回调任务: [{task}], 回调时间: [{next_run}]")
             self.model.deep_set(self.model, keys=f'{task}.scheduler.next_run', value=next_run)
             self.save()
             return True
@@ -419,9 +417,9 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         self.lock_config.acquire()
         try:
             scheduler.next_run = next_run
-            # 避免任务运行中途修改running_task，例如任务中间接到悬赏
+            # 避免任务运行中途修改, 例如任务中间接到悬赏
             if self.model.running_task is not None and convert_to_underscore(self.model.running_task) == task:
-                logger.warning(f'Setting running_task is None from [{task}]')
+                logger.warning(f'Set running task is None from [{task}]')
                 self.model.running_task = None
             self.save()
         finally:

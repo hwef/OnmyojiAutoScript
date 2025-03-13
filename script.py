@@ -36,7 +36,7 @@ from module.exception import *
 class Script:
     def __init__(self, config_name: str = 'oas') -> None:
         self.device = None
-        logger.hr('Start', level=0)
+        # logger.hr('Start', level=0)
         self.server = None
         self.state_queue: Queue = None
         self.gui_update_task: Callable = None  # 回调函数, gui进程注册当每次config更新任务的时候更新gui的信息
@@ -308,7 +308,6 @@ class Script:
             logger.warning(f"{i} seconds to {action}")  # 动态刷新当前剩余时间
             time.sleep(1)
         logger.warning("倒计时完成！")
-        logger.info(f'Wait until {self.config.next_run} for task `{self.config.command}`')
 
     def get_next_task(self) -> str:
         """
@@ -336,25 +335,36 @@ class Script:
                                                 seconds=close_emulator_time.second)
 
                 if close_emulator_time_flag and task.next_run > datetime.now() + close_emulator_time:
-                    self.config.notifier.push(title='CloseMuMu',
-                                              content=f'Wait `{task.command}` {str(task.next_run.time())}')
-                    self.countdown(30, 'close emulator')
-                    logger.info('close emulator during wait')
+                    # self.config.notifier.push(title='CloseMuMu',content=f'Wait `{task.command}` {str(task.next_run.time())}')
+                    # self.countdown(30, 'close emulator')
+                    logger.warning("close emulator after 30s")
+                    time.sleep(30)
                     self.device.emulator_stop()
+                    del_cached_property(self, 'device')
+                    logger.hr("close emulator", 2)
+                    logger.info(f'Wait until {task.next_run} for task `{task.command}`')
                     self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
                 elif close_game_time_flag and task.next_run > datetime.now() + close_game_time:
-                    self.countdown(10, 'close game')
-                    logger.info('close game during wait')
-                    self.device.app_stop()
+                    # self.countdown(10, 'close game')
+                    logger.warning("close game after 10s")
+                    time.sleep(10)
+                    try:
+                        self.device.app_stop()
+                    except Exception as e:
+                        logger.error("app stop error")
+                        logger.error(e)
+                    logger.hr("close game", 2)
+                    logger.info(f'Wait until {task.next_run} for task `{task.command}`')
                     self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
                 else:
-                    logger.info('Goto main page during wait')
+                    logger.hr("do nothing", 2)
+                    logger.info(f'Wait until {task.next_run} for task `{task.command}`')
                     self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
@@ -472,11 +482,9 @@ class Script:
             self.device.stuck_record_clear()
             self.device.click_record_clear()
 
-            logger.hr(f'{task} START', 0)
-            logger.info(f'Scheduler: Start task `{task}`')
+            logger.hr(f'{task}  START', 1)
             success = self.run(inflection.camelize(task))
-            logger.info(f'Scheduler: End task `{task}`')
-            logger.hr(f'{task} END', 0)
+            logger.hr(f'{task}  END', 1)
             self.is_first_task = False
 
             # Check failures

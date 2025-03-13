@@ -43,8 +43,8 @@ class Device(Platform, Screenshot, Control, AppControl):
                     raise RequestHumanTakeover
                 # Try to start emulator
                 if self.emulator_instance is not None:
-                    if self.config.task is not None:
-                        self.config.notifier.push(title='StartMuMu', content=f'Run `{self.config.task.command}` {str(self.config.task.next_run.time())}')
+                    # if self.config.task is not None:
+                    # self.config.notifier.push(title='StartMuMu', content=f'Run `{self.config.task.command}` {str(self.config.task.next_run.time())}')
                     self.emulator_start()
                 else:
                     logger.critical(

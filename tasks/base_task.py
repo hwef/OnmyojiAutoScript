@@ -546,7 +546,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         days_diff = (target - current_weekday) % 7 or 7
 
         TaskName = self.config.task.command
-        logger.info(f'{TaskName} done in {days_diff} days on Monday.')
+        logger.info(f'{TaskName} done in {days_diff} days on next Week [{target_day}].')
 
         # 获取服务更新时间配置
         task_name = convert_to_underscore(TaskName)
