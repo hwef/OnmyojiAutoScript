@@ -35,7 +35,6 @@ class ConfigWatcher:
         """
         mtime = self.get_mtime()
         if mtime > self.start_mtime:
-            logger.hr('Config changed', 2)
             logger.warning(f'Config "{self.config_name}" changed at {mtime}')
             return True
         else:

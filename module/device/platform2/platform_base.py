@@ -146,7 +146,7 @@ class PlatformBase(EmulatorManagerBase):
         Returns:
             EmulatorInstance: Emulator instance or None if no instances not found.
         """
-        logger.hr('Find emulator instance', level=2)
+        logger.warning('Find emulator instance')
         instances = SelectedGrids(self.all_emulator_instances)
         for instance in instances:
             logger.info(instance)
@@ -159,7 +159,7 @@ class PlatformBase(EmulatorManagerBase):
             return None
         if select.count == 1:
             instance = select[0]
-            logger.hr('Emulator instance', level=2)
+            logger.warning('Emulator instance')
             logger.info(f'Found emulator instance: {instance}')
             return instance
 
@@ -172,7 +172,7 @@ class PlatformBase(EmulatorManagerBase):
                 search_args.pop('name')
             elif select.count == 1:
                 instance = select[0]
-                logger.hr('Emulator instance', level=2)
+                logger.warning('Emulator instance')
                 logger.info(f'Found emulator instance: {instance}')
                 return instance
 
@@ -185,7 +185,7 @@ class PlatformBase(EmulatorManagerBase):
                 search_args.pop('path')
             elif select.count == 1:
                 instance = select[0]
-                logger.hr('Emulator instance', level=2)
+                logger.warning('Emulator instance')
                 logger.info(f'Found emulator instance: {instance}')
                 return instance
 
@@ -198,7 +198,7 @@ class PlatformBase(EmulatorManagerBase):
                 search_args.pop('type')
             elif select.count == 1:
                 instance = select[0]
-                logger.hr('Emulator instance', level=2)
+                logger.warning('Emulator instance')
                 logger.info(f'Found emulator instance: {instance}')
                 return instance
 
@@ -217,7 +217,7 @@ class PlatformBase(EmulatorManagerBase):
                 search_args.pop('path')
             elif select.count == 1:
                 instance = select[0]
-                logger.hr('Emulator instance', level=2)
+                logger.warning('Emulator instance')
                 logger.info(f'Found emulator instance: {instance}')
                 return instance
 

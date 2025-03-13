@@ -217,7 +217,7 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             bool: True if startup completed
                 False if timeout
         """
-        logger.hr('Emulator start', level=2)
+        logger.warning('Emulator start')
         current_window = get_focused_window()
         serial = self.emulator_instance.serial
         logger.info(f'Current window: {current_window}')
@@ -331,7 +331,7 @@ class PlatformWindows(PlatformBase, EmulatorManager):
         return True
 
     def emulator_start(self):
-        logger.hr('Emulator start', level=1)
+        logger.warning('Emulator start')
         for _ in range(3):
             # Stop
             if not self._emulator_function_wrapper(self._emulator_stop):
@@ -352,7 +352,7 @@ class PlatformWindows(PlatformBase, EmulatorManager):
         return False
 
     def emulator_stop(self):
-        logger.hr('Emulator stop', level=1)
+        logger.warning('Emulator stop')
         for _ in range(3):
             # Stop
             if self._emulator_function_wrapper(self._emulator_stop):

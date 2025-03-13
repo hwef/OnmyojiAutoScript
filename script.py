@@ -36,7 +36,7 @@ from module.exception import *
 class Script:
     def __init__(self, config_name: str = 'oas') -> None:
         self.device = None
-        # logger.hr('Start', level=0)
+        self.device_status = True  # 设备状态 True:设备启动，False:设备关闭
         self.server = None
         self.state_queue: Queue = None
         self.gui_update_task: Callable = None  # 回调函数, gui进程注册当每次config更新任务的时候更新gui的信息
@@ -321,7 +321,7 @@ class Script:
                 self.state_queue.put({"schedule": self.config.get_schedule_data()})
 
             if task.next_run > datetime.now():
-                logger.info(f'Wait until {task.next_run} for task `{task.command}`')
+                # logger.info(f'Wait until {task.next_run} for task `{task.command}`')
 
                 close_game_time = self.config.script.optimization.close_game_time
                 close_emulator_time = self.config.script.optimization.close_emulator_time
@@ -336,35 +336,35 @@ class Script:
 
                 if close_emulator_time_flag and task.next_run > datetime.now() + close_emulator_time:
                     # self.config.notifier.push(title='CloseMuMu',content=f'Wait `{task.command}` {str(task.next_run.time())}')
-                    # self.countdown(30, 'close emulator')
-                    logger.warning("close emulator after 30s")
-                    time.sleep(30)
-                    self.device.emulator_stop()
-                    del_cached_property(self, 'device')
-                    logger.hr("close emulator", 2)
-                    logger.info(f'Wait until {task.next_run} for task `{task.command}`')
+                    if self.device_status:
+                        logger.warning("close emulator after 30s")
+                        time.sleep(30)
+                        self.device.emulator_stop()
+                        self.device_status = False
+                    logger.warning(f"emulator status [{self.device_status}]")
+                    logger.warning(f'Wait until {task.next_run} for task `{task.command}`')
                     self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
                 elif close_game_time_flag and task.next_run > datetime.now() + close_game_time:
-                    # self.countdown(10, 'close game')
-                    logger.warning("close game after 10s")
-                    time.sleep(10)
                     try:
-                        self.device.app_stop()
+                        if self.device_status:
+                            logger.warning("close game after 10s")
+                            time.sleep(10)
+                            self.device.app_stop()
                     except Exception as e:
                         logger.error("app stop error")
                         logger.error(e)
-                    logger.hr("close game", 2)
-                    logger.info(f'Wait until {task.next_run} for task `{task.command}`')
+                    logger.warning(f"emulator status [{self.device_status}]")
+                    logger.warning(f'Wait until {task.next_run} for task `{task.command}`')
                     self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
                 else:
-                    logger.hr("do nothing", 2)
-                    logger.info(f'Wait until {task.next_run} for task `{task.command}`')
+                    logger.warning(f"emulator status [{self.device_status}]")
+                    logger.warning(f'Wait until {task.next_run} for task `{task.command}`')
                     self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
@@ -468,6 +468,12 @@ class Script:
             # 获取下一个任务
             task = self.get_next_task()
 
+            # 如果设备断开，重新获取设备
+            if not self.device_status:
+                self.device = Device(self.config)
+                self.device_status = True
+                # self.config.notifier.push(title='StartMuMu', content=f'Start task `{task}`')
+
             # Skip first restart
             if self.is_first_task and task == 'Restart':
                 logger.info('Skip task `Restart` at scheduler start')
@@ -475,10 +481,6 @@ class Script:
                 del_cached_property(self, 'config')
                 continue
 
-            # self.config.notifier.push(title='StartMuMu', content=f'Start task `{task}`')
-            self.device = Device(self.config)
-
-            # Run
             self.device.stuck_record_clear()
             self.device.click_record_clear()
 
