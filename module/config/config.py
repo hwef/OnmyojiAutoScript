@@ -443,7 +443,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
 
     @cached_property
     def pushtg(self):
-        pushtg = PushTg(self.model.script.error.pushtg_config, enable=self.model.script.error.pushtg_enable)
+        pushtg = PushTg(self.model.script.error.pushtg_config, enable=self.model.script.error.pushtg_enable_error)
         pushtg.config_name = self.config_name.upper()
         logger.info(f'PushTg: {pushtg.config_name}')
         return pushtg
