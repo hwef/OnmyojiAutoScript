@@ -341,9 +341,9 @@ class Script:
                         time.sleep(30)
                         self.device.emulator_stop()
                         self.device_status = False
+                        self.device.release_during_wait()
                     logger.hr(f"emulator status {self.device_status}", level=1)
                     logger.info(f'Wait until {task.next_run} for task `{task.command}`')
-                    self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
@@ -353,19 +353,20 @@ class Script:
                             logger.warning("close game after 10s")
                             time.sleep(10)
                             self.device.app_stop()
+                            self.device.release_during_wait()
                     except Exception as e:
                         logger.error("app stop error")
                         logger.error(e)
                     logger.hr(f"emulator status {self.device_status}", level=1)
                     logger.info(f'Wait until {task.next_run} for task `{task.command}`')
-                    self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
                 else:
                     logger.hr(f"emulator status {self.device_status}", level=1)
                     logger.info(f'Wait until {task.next_run} for task `{task.command}`')
-                    self.device.release_during_wait()
+                    if self.device_status:
+                        self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
