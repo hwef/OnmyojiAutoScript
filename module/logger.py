@@ -306,14 +306,14 @@ def rule(title="", *, characters="─", style="rule.line", end="\n", align="cent
     print(rule)
 
 
-def hr(title, level=3):
-    title = str(title).upper()
+def hr(title, level=2):
+    # title = str(title).upper()
     if level == 1:
         logger.rule(title, characters='═')
-        logger.info(title)
+        # logger.info(title)
     if level == 2:
         logger.rule(title, characters='─')
-        logger.info(title)
+        # logger.info(title)
     if level == 3:
         logger.info(f"[bold]<<< {title} >>>[/bold]", extra={"markup": True})
     if level == 0:
