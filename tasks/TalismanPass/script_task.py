@@ -27,6 +27,8 @@ class ScriptTask(GameUi, TalismanPassAssets):
         # 收取花合战等级奖励
         self.get_flower(con.level_reward)
 
+        self.ui_get_current_page()
+        self.ui_goto(page_main)
         self.set_next_run(task='TalismanPass', success=True, finish=True)
         raise TaskEnd('TalismanPass')
 

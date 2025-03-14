@@ -59,6 +59,9 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
         current, remain, total = self.O_CM_NUMBER.ocr(self.device.image)
         if current == total == 30:
             logger.warning('Today\'s missions have been completed')
+            self.ui_get_current_page()
+            self.ui_goto(page_main)
+
             self.set_next_run(task='CollectiveMissions', success=True, finish=True)
             raise TaskEnd('CollectiveMissions')
         # 判断最优的任务是哪一个
@@ -89,9 +92,10 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
             if self.appear_then_click(self.I_UI_BACK_YELLOW, interval=1):
                 continue
 
+        self.ui_get_current_page()
+        self.ui_goto(page_main)
         self.set_next_run(task='CollectiveMissions', success=True, finish=True)
         raise TaskEnd('CollectiveMissions')
-
 
     def detect_one(self, ocr_1: RuleOcr, ocr_2: RuleOcr) -> MC:
         """
@@ -362,7 +366,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()
