@@ -310,7 +310,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
         self.wait_until_appear(self.I_BACK_RED)
         self.screenshot()
         cu, res, total = self.O_NUMBER.ocr(self.device.image)
-        logger.info(f'Ticket cu={cu} res={res} total={total}')
+        logger.info(f'Ticket is cu {cu}, res {res}, total {total}')
 
         if total == 0:
             self.reward_detect_click(False)
@@ -325,7 +325,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
                 self.reward_detect_click(False)
                 # 使用O_NUMBER.ocr方法尝试读取数字
                 cu, res, total = self.O_NUMBER.ocr(self.device.image)
-                logger.info(f'Ticket cu={cu} res={res} total={total}')
+                logger.info(f'Ticket is cu {cu}, res {res}, total {total}')
             else:
                 # 如果已经读取到数字，跳出循环
                 break
