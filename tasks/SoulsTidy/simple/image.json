@@ -106,5 +106,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "神赐"
+  },
+  {
+    "itemName": "st_god_lucky",
+    "imageName": "simple_st_god_lucky.png",
+    "roiFront": "578,234,131,73",
+    "roiBack": "542,117,204,219",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "吉运"
   }
 ]

@@ -42,6 +42,8 @@ class SoulsTidyAssets:
 	I_ST_DONATE = RuleImage(roi_front=(813,628,126,68), roi_back=(813,628,126,68), threshold=0.8, method="Template matching", file="./tasks/SoulsTidy/simple/simple_st_donate.png")
 	# 神赐 
 	I_ST_GOD_PRESENT = RuleImage(roi_front=(578,234,131,73), roi_back=(542,117,204,219), threshold=0.8, method="Template matching", file="./tasks/SoulsTidy/simple/simple_st_god_present.png")
+	# 吉运 
+	I_ST_GOD_LUCKY = RuleImage(roi_front=(578,234,131,73), roi_back=(542,117,204,219), threshold=0.8, method="Template matching", file="./tasks/SoulsTidy/simple/simple_st_god_lucky.png")
 
 
 	# Long Click Rule Assets
