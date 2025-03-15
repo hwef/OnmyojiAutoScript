@@ -122,7 +122,7 @@ class SafeTimedRotatingFileHandler(TimedRotatingFileHandler):
 pyw_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
 # 定义常量
-log_names = {'assets_test', 'assets_extract', 'script', 'script_task', 'base_task', 'config'}
+log_names = {'assets_test', 'assets_extract', 'script', 'script_task', 'base_task', 'config', 'template', 'gui'}
 
 
 def set_file_logger(name=pyw_name):
@@ -306,7 +306,7 @@ def rule(title="", *, characters="─", style="rule.line", end="\n", align="cent
     print(rule)
 
 
-def hr(title, level=2):
+def hr(title, level=3):
     # title = str(title).upper()
     if level == 1:
         logger.rule(title, characters='═')
