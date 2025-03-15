@@ -122,11 +122,12 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssSha
             # 开启首领退治
             if self.appear_then_click(self.I_OPEN_RETREAT_SURE, interval=1):
                 logger.info("Enter I_OPEN_RETREAT_SURE")
+                sleep(1)
                 continue
-            if self.appear_rgb(self.I_OPEN_RETREAT):
-                if self.appear_then_click(self.I_OPEN_RETREAT, interval=1):
-                    logger.info("Enter I_OPEN_RETREAT")
-                    continue
+            if self.appear_then_click(self.I_OPEN_RETREAT, interval=1):
+                logger.info("Enter I_OPEN_RETREAT")
+                sleep(1)
+                continue
             # 确保不离开退治
             if self.appear_then_click(self.I_QUIT_BACK, interval=1):
                 pass
