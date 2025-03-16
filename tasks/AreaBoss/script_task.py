@@ -476,7 +476,10 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
             if self.appear(self.I_AB_FILTER_TITLE_FAMOUS):
                 break
             if self.appear(self.I_AB_FILTER_OPENED):
+                time.sleep(1)
                 self.appear_then_click(self.I_AB_FAMOUS)
+                continue
+            if self.open_filter():
                 continue
 
     def switch_to_reward(self):
