@@ -1,56 +1,11 @@
 [
-    {
-    "itemName": "harvest_jade_9",
-    "imageName": "main9/harvest_jade_9.png",
-    "roiFront": "832,484,34,33",
-    "roiBack": "177,451,973,141",
-    "method": "Template matching",
-    "threshold": 0.8,
-    "description": "缘庭-点击勾玉"
-  },
-  {
-    "itemName": "harvest_sign_9",
-    "imageName": "main9/harvest_sign_9.png",
-    "roiFront": "425,482,24,34",
-    "roiBack": "70,471,889,89",
-    "method": "Template matching",
-    "threshold": 0.8,
-    "description": "缘庭-签到小图标"
-  },
-  {
-    "itemName": "harvest_ap_9",
-    "imageName": "main9/harvest_ap_9.png",
-    "roiFront": "839,481,31,38",
-    "roiBack": "206,462,970,134",
-    "method": "Template matching",
-    "threshold": 0.8,
-    "description": "缘庭-体力"
-  },
-  {
-    "itemName": "harvest_soul_9",
-    "imageName": "main9/harvest_soul_9.png",
-    "roiFront": "421,482,38,36",
-    "roiBack": "67,468,930,72",
-    "method": "Template matching",
-    "threshold": 0.8,
-    "description": "缘庭-御魂加成"
-  },
-  {
-    "itemName": "harvest_mail_9",
-    "imageName": "main9/harvest_mail.png",
-    "roiFront": "421,482,38,36",
-    "roiBack": "67,468,930,72",
-    "method": "Template matching",
-    "threshold": 0.8,
-    "description": "缘庭-邮件小图标"
-  },
   {
     "itemName": "harvest_jade",
     "imageName": "harvest_harvest_jade.png",
     "roiFront": "732,489,34,33",
     "roiBack": "177,451,973,141",
     "method": "Template matching",
-    "threshold": 0.7,
+    "threshold": 0.8,
     "description": "点击勾玉"
   },
   {
@@ -123,7 +78,7 @@
     "roiBack": "68,480,930,72",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "御魂加成"
+    "description": "description"
   },
   {
     "itemName": "harvest_mail_title",
@@ -141,13 +96,13 @@
     "roiBack": "206,462,970,134",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "体力"
+    "description": "description"
   },
   {
     "itemName": "harvest_chat_close",
     "imageName": "harvest_harvest_chat_close.png",
     "roiFront": "639,309,35,100",
-    "roiBack": "620,280,70,200",
+    "roiBack": "639,309,35,100",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "打开聊天频道会自动关闭"
@@ -217,11 +172,20 @@
   },
   {
     "itemName": "harvest_zidu",
-    "imageName": "harvest_zidu.png",
+    "imageName": "harvest_harvest_zidu.png",
     "roiFront": "785,475,135,135",
     "roiBack": "785,475,135,135",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "点击庭院阴阳师出现的姿度按钮"
+  },
+  {
+    "itemName": "harvest_mail_copy",
+    "imageName": "harvest_harvest_mail_copy.png",
+    "roiFront": "257,509,29,21",
+    "roiBack": "192,472,790,100",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "description"
   }
 ]
