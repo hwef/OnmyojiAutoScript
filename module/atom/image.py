@@ -159,6 +159,41 @@ class RuleImage:
         else:
             return False
 
+    def match_gray(self, image: np.array, threshold: float = None) -> bool:
+        """
+        :param threshold: 匹配阈值，默认为实例的阈值
+        :param image: 输入图像
+        :return: 匹配成功返回True，否则返回False
+        """
+        if threshold is None:
+            threshold = self.threshold
+
+        if not self.is_template_match:
+            return self.sift_match(image)
+
+        # 裁剪图像到指定区域
+        source = self.corp(image)
+        template = self.image
+
+        # 转换为灰度图像以去除颜色影响
+        if source.ndim == 3:
+            source = cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)
+        if template.ndim == 3:
+            template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+
+        # 执行模板匹配
+        res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+        # logger.attr(self.name, max_val)
+        # 根据阈值判断匹配结果
+        if max_val > threshold:
+            # 更新ROI坐标
+            self.roi_front[0] = max_loc[0] + self.roi_back[0]
+            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            return True
+        else:
+            return False
+
     def match_all(self, image: np.array, threshold: float = None, roi: list = None) -> list[tuple]:
         """
         区别于match，这个是返回所有的匹配结果
