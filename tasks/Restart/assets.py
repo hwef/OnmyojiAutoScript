@@ -55,19 +55,6 @@ class RestartAssets:
 	I_HARVEST_MAIL_COPY = RuleImage(roi_front=(257,509,29,21), roi_back=(192,472,790,100), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_mail_copy.png")
 
 
-	# Image Rule Assets
-	# 望月幽庭勾玉 
-	I_HARVEST_JADE_10 = RuleImage(roi_front=(508,529,27,30), roi_back=(508,529,27,30), threshold=0.9, method="Template matching", file="./tasks/Restart/harvest/main10/harvest_harvest_jade_10.png")
-	# 望月幽庭签到 
-	I_HARVEST_SIGN_10 = RuleImage(roi_front=(422,532,21,27), roi_back=(422,532,21,27), threshold=0.9, method="Template matching", file="./tasks/Restart/harvest/main10/harvest_harvest_sign_10.png")
-	# 望月幽庭福袋 
-	I_HARVEST_SIGN_999_10 = RuleImage(roi_front=(419,538,25,26), roi_back=(419,538,25,26), threshold=0.9, method="Template matching", file="./tasks/Restart/harvest/main10/harvest_harvest_sign_999_10.png")
-	# 望月幽庭食盒 
-	I_HARVEST_AP_10 = RuleImage(roi_front=(508,531,25,24), roi_back=(508,531,25,24), threshold=0.9, method="Template matching", file="./tasks/Restart/harvest/main10/harvest_harvest_ap_10.png")
-	# 望月幽庭自选御魂 
-	I_HARVEST_SOUL_10 = RuleImage(roi_front=(418,531,27,30), roi_back=(418,531,27,30), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/main10/harvest_harvest_soul_10.png")
-
-
 	# Click Rule Assets
 	# 相同服务器多个角色选择界面,点击空白区域 确认登录 
 	C_LOGIN_ENSURE_LOGIN_CHARACTER_IN_SAME_SVR = RuleClick(roi_front=(600,240,500,400), roi_back=(600,240,500,400), name="login_ensure_login_character_in_same_svr")
