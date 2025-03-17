@@ -163,7 +163,7 @@ class ConfigModel(ConfigBase):
             return
         data = self.read_json(config_name)
         data["config_name"] = config_name
-        logger.set_file_logger(name=config_name)  # 新增这行
+        # logger.set_file_logger(name=config_name)  # 新增这行
         super().__init__(**data)
 
     def __setattr__(self, key, value):
