@@ -17,10 +17,11 @@ from tasks.Component.Buy.assets import BuyAssets
 class Buy(BaseTask, BuyAssets):
 
     def buy_one(self, start_click: Union[RuleImage, RuleOcr, RuleClick],
-                check_image: RuleImage):
+                check_image: RuleImage, check_image2: RuleImage):
         """
         购买一个物品
         :param check_image: 购买确认时候的图片
+        :param check_image2: 购买确认时候的图片
         :param start_click: 开始点击
         :return:
         """
@@ -29,7 +30,9 @@ class Buy(BaseTask, BuyAssets):
 
             if self.appear(check_image):
                 break
-
+            if check_image2:
+                if self.appear(check_image2):
+                    break
             if isinstance(start_click, RuleImage):
                 if self.appear_then_click(start_click, interval=1):
                     continue
@@ -86,7 +89,7 @@ class Buy(BaseTask, BuyAssets):
 
             if self.appear(self.I_BUY_PLUS):
                 break
-            if try_click_count >= 5:
+            if try_click_count >= 3:
                 logger.warning(f'Buy_more failed, try_click_count: {try_click_count}')
                 logger.warning('Close the purchase')
                 return

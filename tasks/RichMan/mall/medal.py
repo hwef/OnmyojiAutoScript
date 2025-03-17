@@ -35,9 +35,7 @@ class Medal(FriendshipPoints):
         if con.ap_100:
             self.buy_mall_one(buy_button=self.I_ME_AP, remain_number=False, buy_check=self.I_ME_CHECK_AP,
                               money_ocr=self.O_MALL_RESOURCE_3, buy_money=120)
-        # 随机御魂
-        if con.random_soul:
-            self.buy_one_souls(self.I_ME_SOULS, self.I_ME_CHECK_SOULS)
+
         # 两颗白蛋
         if con.white_daruma:
             self.buy_mall_more(buy_button=self.I_ME_WHITE, remain_number=False, money_ocr=self.O_MALL_RESOURCE_3,
@@ -56,6 +54,9 @@ class Medal(FriendshipPoints):
             self.buy_mall_more(buy_button=self.I_ME_BROKEN, remain_number=False,
                                money_ocr=self.O_MALL_RESOURCE_3,
                                buy_number=con.broken_amulet, buy_max=99, buy_money=20)
+            # 随机御魂
+        if con.random_soul:
+            self.buy_one_souls(self.I_ME_SOULS, self.I_ME_CHECK_SOULS)
 
         time.sleep(1)
 
@@ -67,10 +68,11 @@ class Medal(FriendshipPoints):
         :return:
         """
 
+        logger.hr(start_click.name, 3)
         self.screenshot()
         # 检查是否出现了购买按钮
         logger.info(f'before buy_button.roi_front: [{start_click.roi_front}]')
-        result = start_click.test_match(self.device.image)
+        result = start_click.match(self.device.image)
         logger.info(f'after buy_button.roi_front: [{start_click.roi_front}]')
         if not result:
             logger.warning(f'Buy button test_match result [{result}]')
@@ -88,15 +90,11 @@ class Medal(FriendshipPoints):
         while 1:
             self.screenshot()
 
-            logger.info(f'before buy_button.roi_front: [{start_click.roi_front}]')
-            result = start_click.test_match(self.device.image)
-            logger.info(f'after buy_button.roi_front: [{start_click.roi_front}]')
-            if not result:
-                logger.warning(f'Buy button test_match result [{result}]')
-                return
-            if not self.appear_rgb(start_click, difference=10):
-                logger.warning('Buy button is not appear')
-                return False
+            result = start_click.match_gray(self.device.image)
+            if result:
+                if self.appear(start_click) and not self.appear_rgb(start_click, difference=10):
+                    logger.warning('Buy button end')
+                    return
 
             if self.click(self.C_BUY_ONE, interval=2.8):
                 continue
@@ -107,10 +105,14 @@ class Medal(FriendshipPoints):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
+    from tasks.RichMan.assets import RichManAssets
 
-    c = Config('oas1')
+    c = Config('mi')
     d = Device(c)
     t = Medal(c, d)
 
-    t.execute_medal()
+    # t.execute_medal()
+
+    t.buy_one_souls(RichManAssets.I_ME_SOULS, RichManAssets.I_ME_CHECK_SOULS)
+
 
