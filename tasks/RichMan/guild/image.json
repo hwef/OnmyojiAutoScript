@@ -41,7 +41,7 @@
     "roiFront": "570,439,71,68",
     "roiBack": "331,160,559,372",
     "method": "Template matching",
-    "threshold": 0.8,
+    "threshold": 0.4,
     "description": "黑蛋碎片"
   },
   {
@@ -95,7 +95,16 @@
     "roiFront": "561,429,90,88",
     "roiBack": "561,429,90,88",
     "method": "Template matching",
-    "threshold": 0.8,
-    "description": "购买检查"
+    "threshold": 0.7,
+    "description": "黑碎购买检查"
+  },
+  {
+    "itemName": "guild_check_scrap2",
+    "imageName": "guild_guild_check_scrap.png2",
+    "roiFront": "593,250,90,88",
+    "roiBack": "593,250,90,88",
+    "method": "Template matching",
+    "threshold": 0.7,
+    "description": "黑碎购买检查2"
   }
 ]

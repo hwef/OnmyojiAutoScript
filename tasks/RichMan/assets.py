@@ -20,7 +20,7 @@ class RichManAssets:
 	# 蓝票 
 	I_GUILD_BLUE = RuleImage(roi_front=(794,186,74,73), roi_back=(315,164,584,370), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_blue.png")
 	# 黑蛋碎片 
-	I_GUILD_SCRAP = RuleImage(roi_front=(570,439,71,68), roi_back=(331,160,559,372), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_scrap.png")
+	I_GUILD_SCRAP = RuleImage(roi_front=(570,439,71,68), roi_back=(331,160,559,372), threshold=0.4, method="Template matching", file="./tasks/RichMan/guild/guild_guild_scrap.png")
 	# 皮肤券 
 	I_GUILD_SKIN = RuleImage(roi_front=(795,438,71,72), roi_back=(320,162,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_skin.png")
 	# 经验御札 
@@ -31,8 +31,10 @@ class RichManAssets:
 	I_YUHUN = RuleImage(roi_front=(344,188,71,70), roi_back=(320,162,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/Screenshots_yuhun.png")
 	# 皮肤券判断是否到末端 
 	I_GUILD_SKIN_CHECK = RuleImage(roi_front=(795,438,71,72), roi_back=(320,162,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_skin.png")
-	# 购买检查 
-	I_GUILD_CHECK_SCRAP = RuleImage(roi_front=(561,429,90,88), roi_back=(561,429,90,88), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_check_scrap.png")
+	# 黑碎购买检查 
+	I_GUILD_CHECK_SCRAP = RuleImage(roi_front=(561,429,90,88), roi_back=(561,429,90,88), threshold=0.7, method="Template matching", file="./tasks/RichMan/guild/guild_guild_check_scrap.png")
+	# 黑碎购买检查2 
+	I_GUILD_CHECK_SCRAP2 = RuleImage(roi_front=(593,250,90,88), roi_back=(593,250,90,88), threshold=0.7, method="Template matching", file="./tasks/RichMan/guild/guild_guild_check_scrap.png2")
 
 
 	# Ocr Rule Assets
@@ -137,7 +139,7 @@ class RichManAssets:
 	# 体力 
 	I_ME_AP = RuleImage(roi_front=(842,395,145,123), roi_back=(156,111,862,454), threshold=0.8, method="Template matching", file="./tasks/RichMan/mall/medal/medal_me_ap.png")
 	# 随机御魂 
-	I_ME_SOULS = RuleImage(roi_front=(173,391,148,133), roi_back=(121,116,898,476), threshold=0.8, method="Template matching", file="./tasks/RichMan/mall/medal/medal_me_souls.png")
+	I_ME_SOULS = RuleImage(roi_front=(173,391,148,133), roi_back=(121,116,898,476), threshold=0.7, method="Template matching", file="./tasks/RichMan/mall/medal/medal_me_souls.png")
 	# 白蛋 
 	I_ME_WHITE = RuleImage(roi_front=(399,391,142,131), roi_back=(115,114,908,452), threshold=0.8, method="Template matching", file="./tasks/RichMan/mall/medal/medal_me_white.png")
 	# 挑战券 
