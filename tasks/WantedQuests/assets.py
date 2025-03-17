@@ -156,6 +156,6 @@ class WantedQuestsAssets:
 
 	# Image Rule Assets
 	# 奇怪了之前的不能用 
-	I_WQSE_FIRE = RuleImage(roi_front=(1041,556,100,100), roi_back=(1016,534,147,138), threshold=0.8, method="Template matching", file="./tasks/WantedQuests/wq/wq_wqse_fire.png")
+	I_WQSE_FIRE = RuleImage(roi_front=(1041,556,100,100), roi_back=(1016,534,232,182), threshold=0.6, method="Template matching", file="./tasks/WantedQuests/wq/wq_wqse_fire.png")
 
 
