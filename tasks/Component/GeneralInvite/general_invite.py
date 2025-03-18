@@ -37,7 +37,6 @@ class RoomType(str, Enum):
 class GeneralInvite(BaseTask, GeneralInviteAssets):
     timer_invite = None
     timer_wait = None
-    timer_emoji = None  # 等待期间如果没有操作的话，可能会导致长时间无响应报错
 
     """
 
@@ -65,8 +64,6 @@ class GeneralInvite(BaseTask, GeneralInviteAssets):
         else:
             self.timer_invite = Timer(30)
             self.timer_invite.start()
-            self.timer_emoji = Timer(20)
-            self.timer_emoji.start()
         wait_second = config.wait_time.second + config.wait_time.minute * 60
         self.timer_wait = Timer(wait_second)
         self.timer_wait.start()
@@ -82,11 +79,6 @@ class GeneralInvite(BaseTask, GeneralInviteAssets):
 
             if not self.is_in_room():
                 continue
-
-            if self.timer_emoji and self.timer_emoji.reached():
-                self.timer_emoji.reset()
-                self.appear_then_click(self.I_GI_EMOJI_1)
-                self.appear_then_click(self.I_GI_EMOJI_2)
 
             fire = False  # 是否开启挑战
             # 如果这个房间最多只容纳两个人（意思是只可以邀请一个人），且已经邀请一个人了，那就开启挑战
@@ -128,7 +120,7 @@ class GeneralInvite(BaseTask, GeneralInviteAssets):
                     self.timer_invite.reset()
                 else:
                     logger.info('Wait for 30s and invite again')
-                    self.timer_invite = None
+                    self.timer_invite.reset()
                 self.invite_friends(config)
 
     def ensure_enter(self) -> bool:
@@ -589,8 +581,6 @@ class GeneralInvite(BaseTask, GeneralInviteAssets):
         :return: 如果成功进入战斗（反正就是不在房间 ）返回 True
                  如果失败了，（退出房间）返回 False
         """
-        self.timer_emoji = Timer(15)
-        self.timer_emoji.start()
         wait_second = wait_time.second + wait_time.minute * 60
         self.timer_wait = Timer(wait_second)
         self.timer_wait.start()
@@ -618,10 +608,7 @@ class GeneralInvite(BaseTask, GeneralInviteAssets):
 
             # 判断是否进入战斗
             if self.is_in_room(is_screenshot=False):
-                if self.timer_emoji.reached():
-                    self.timer_emoji.reset()
-                    self.appear_then_click(self.I_GI_EMOJI_1)
-                    self.appear_then_click(self.I_GI_EMOJI_2)
+                pass
             else:
                 break
 
