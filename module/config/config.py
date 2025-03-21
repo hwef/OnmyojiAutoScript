@@ -419,7 +419,6 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             scheduler.next_run = next_run
             # 避免任务运行中途修改, 例如任务中间接到悬赏
             if self.model.running_task is not None and convert_to_underscore(self.model.running_task) == task:
-                logger.warning(f'Set running task is None from [{task}]')
                 self.model.running_task = None
             self.save()
         finally:
