@@ -74,9 +74,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
     goto_dokan_num: int = 0
     # 今日是否第一次道馆
     battle_dokan_flag: bool = False
-    # CREATE_DAOGUAN_OK = (83, 87, 89)
-    # CREATE_DAOGUAN = (103, 84, 58)
-
+    # 上一个场景
+    last_scene = None
     @cached_property
     def _attack_priorities(self) -> list:
         return [self.I_RYOU_DOKAN_ATTACK_PRIORITY_0,
@@ -112,9 +111,22 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
     def dokan_process(self, cfg: Dokan, attack_priority: int):
         # 开始道馆流程
+        stuck_timer = Timer(240)
+        stuck_timer.start()
+        swipe_count = 1
         while 1:
             # 检测当前界面的场景（时间关系，暂时没有做庭院、町中等主界面的场景检测, 应考虑在GameUI.game_ui.ui_get_current_page()里实现）
             in_dokan, current_scene = self.get_current_scene()
+
+            if stuck_timer and stuck_timer.reached():
+                stuck_timer.reset()
+                if swipe_count >= 10:
+                    logger.warning(f"道馆流程超时，swipe_count={swipe_count}")
+                    self.save_image(save_flag=True)
+                    break
+                swipe_count += 1
+                self.device.stuck_record_clear()
+                self.device.stuck_record_add('BATTLE_STATUS_S')
 
             # 如果当前不在道馆，或者被人工操作退出道馆了，重新尝试进入道馆
             if not in_dokan:
@@ -185,7 +197,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     continue
             else:
                 time.sleep(5)
-                logger.info(f"unknown scene, skipped")
+                # logger.info(f"unknown scene, skipped")
 
             # 防封，随机移动，随机点击（安全点击），随机时延
             # if not self.anti_detect(True, True, True):
@@ -197,10 +209,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         time.sleep(1)
         self.screenshot()
         self.device.click_record_clear()
-        self.device.stuck_record_clear()
-        self.device.stuck_record_add('BATTLE_STATUS_S')
 
-        # logger.info(f"检测当前场景")
         if self.appear(self.I_CONTINUE_DOKAN):
             logger.info("再战道馆，投票场景")
             return True, DokanScene.RYOU_DOKAN_SCENE_FAILED_VOTE_NO
@@ -210,7 +219,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             return False, DokanScene.RYOU_DOKAN_RYOU
         # 场景检测：在庭院中
         if self.appear(self.I_CHECK_MAIN, threshold=0.8):
-            # self.ui_goto(page_main)
             logger.info(f"在庭院中")
             return False, DokanScene.RYOU_DOKAN_SCENE_UNKNOWN
         # 场景检测：选寮界面
@@ -219,12 +227,18 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             return False, DokanScene.RYOU_DOKAN_SCENE_UNKNOWN
         # 状态：判断是否集结中
         if self.appear(self.I_RYOU_DOKAN_GATHERING, threshold=0.95):
-            logger.info(f"道馆集结中")
+            current_scene = DokanScene.RYOU_DOKAN_SCENE_GATHERING
+            if current_scene != self.last_scene:
+                logger.info(f"道馆集结中")
+                self.last_scene = current_scene
             time.sleep(5)
             return True, DokanScene.RYOU_DOKAN_SCENE_GATHERING
         # 状态：是否在等待馆主战
         if self.appear(self.I_DOKAN_BOSS_WAITING):
-            logger.info(f"等待馆主战中")
+            current_scene = DokanScene.RYOU_DOKAN_SCENE_BOSS_WAITING
+            if current_scene != self.last_scene:
+                logger.info(f"等待馆主战中")
+                self.last_scene = current_scene
             time.sleep(5)
             return True, DokanScene.RYOU_DOKAN_SCENE_BOSS_WAITING
 
@@ -234,7 +248,10 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 logger.info(f"挑战次数已重置")
                 return True, DokanScene.RYOU_DOKAN_SCENE_START_CHALLENGE
             else:
-                logger.info(f"挑战未就绪")
+                current_scene = DokanScene.RYOU_DOKAN_SCENE_GATHERING
+                if current_scene != self.last_scene:
+                    logger.info(f"挑战未就绪")
+                    self.last_scene = current_scene
                 time.sleep(5)
                 return True, DokanScene.RYOU_DOKAN_SCENE_GATHERING
 
@@ -260,8 +277,11 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             return True, DokanScene.RYOU_DOKAN_SCENE_BATTLE_OVER
         # 状态：达到失败次数，CD中
         if self.appear(self.I_RYOU_DOKAN_CD, threshold=0.8):
+            current_scene = DokanScene.RYOU_DOKAN_SCENE_CD
+            if current_scene != self.last_scene:
+                logger.info(f"等待挑战次数，观战中")
+                self.last_scene = current_scene
             time.sleep(5)
-            logger.info(f"等待挑战次数，观战中")
             return True, DokanScene.RYOU_DOKAN_SCENE_CD
 
         # 如果出现馆主战斗失败 就点击，返回False。
@@ -311,11 +331,23 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         #     self.team_switched = True
         #     # 切完队伍后有时候会卡顿，先睡一觉，防止快速跳到绿标流程，导致未能成功绿标
         #     time.sleep(3)
-
+        stuck_timer = Timer(240)
+        stuck_timer.start()
+        swipe_count = 1
         while 1:
 
             time.sleep(1)
             self.screenshot()
+            # 每280秒重置战斗状态
+            if stuck_timer and stuck_timer.reached():
+                stuck_timer.reset()
+                if swipe_count >= 6:
+                    logger.warning(f"战斗流程超时，swipe_count={swipe_count}")
+                    self.save_image(save_flag=True)
+                    break
+                swipe_count += 1
+                self.device.stuck_record_clear()
+                self.device.stuck_record_add('BATTLE_STATUS_S')
 
             # 打完一个小朋友，自动进入下一个小朋友
             if self.appear(self.I_RYOU_DOKAN_IN_FIELD):
@@ -329,8 +361,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 self.green_mark(config.green_enable, config.green_mark)
 
                 self.device.click_record_clear()
-                self.device.stuck_record_clear()
-                self.device.stuck_record_add('BATTLE_STATUS_S')
+
             # 战斗时间已到，无奖励，在等待馆主战场景
             if self.appear(self.I_DOKAN_BOSS_WAITING, threshold=0.8):
                 logger.info(f"战斗时间已到，无奖励，等待馆主战中")
@@ -388,7 +419,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         """
         if enable:
             if self.wait_until_appear(self.I_GREEN_MARK, wait_time=1):
-                logger.info("识别到绿标，返回")
+                # logger.info("识别到绿标，返回")
                 return
             logger.info("Green is enable")
             x, y = None, None
@@ -691,6 +722,46 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         self.ui_get_current_page()
         self.ui_goto(page_main)
 
+    def appear_rgb(self, target, image=None, difference: int = 10):
+        """
+        判断目标的平均颜色是否与图像中的颜色匹配。
+
+        参数:
+        - target: 目标对象，包含目标的文件路径和区域信息。
+        - image: 输入图像，如果未提供，则使用设备捕获的图像。
+        - difference: 颜色差异阈值，默认为10。
+
+        返回:
+        - 如果目标颜色与图像颜色匹配，则返回True，否则返回False。
+        """
+        # 如果未提供图像，则使用设备捕获的图像
+        # logger.info(f"target [{target}], image [{image}]")
+        if image is None:
+            image = self.device.image
+
+        # 加载图像并计算其平均颜色
+        img = cv2.imread(target.file)
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        average_color = cv2.mean(img_rgb)
+        # logger.info(f"[{target.name}]average_color: {average_color}")
+
+        # 提取目标区域的坐标和尺寸，并确保它们为整数
+        x, y, w, h = target.roi_front
+        x, y, w, h = int(x), int(y), int(w), int(h)
+        # 从输入图像中提取目标区域
+        img = image[y:y + h, x:x + w]
+        # 计算目标区域的平均颜色
+        color = cv2.mean(img)
+        # logger.info(f"[{target.name}] color: {color}")
+
+        # 比较目标图像和目标区域的颜色差异
+        for i in range(3):
+            if abs(average_color[i] - color[i]) > difference:
+                # logger.warning(f"颜色匹配失败: [{target.name}]")
+                return False
+
+        logger.info(f"颜色匹配成功: [{target.name}]")
+        return True
 
 if __name__ == "__main__":
     from module.config.config import Config
