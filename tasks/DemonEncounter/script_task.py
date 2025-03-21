@@ -420,6 +420,8 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
 
                 # 一直点击
                 self.click(answer_click, interval=1)
+                time.sleep(0.5)
+                self.appear_then_click(self.I_DE_FIND, interval=1)
             time.sleep(0.5)
 
     def _battle(self, target_click):
