@@ -11,6 +11,7 @@ from module.base.decorator import cached_property
 from module.logger import logger
 from module.base.utils import is_approx_rectangle
 
+
 class RuleImage:
 
     def __init__(self, roi_front: tuple, roi_back: tuple, method: str, threshold: float, file: str) -> None:
@@ -33,15 +34,15 @@ class RuleImage:
         self.threshold = threshold
         self.file = file
 
-
+    def __set_name__(self, owner, name):
+        """自动记录变量名（当 RuleImage 实例作为类属性被定义时触发）"""
+        self.variable_name = name  # 新增属性，存储变量名
 
     @cached_property
     def name(self) -> str:
-        """
-
-        :return:
-        """
-        return Path(self.file).stem.upper()
+        # return Path(self.file).stem.upper()
+        """优先返回变量名，若未捕获则返回文件名"""
+        return getattr(self, 'variable_name', Path(self.file).stem.upper())
 
     def __str__(self):
         return self.name
@@ -56,8 +57,6 @@ class RuleImage:
 
     def __bool__(self):
         return True
-
-
 
     def load_image(self) -> None:
         """
@@ -80,7 +79,6 @@ class RuleImage:
         if self._kp is not None and self._des is not None:
             return
         self._kp, self._des = self.sift.detectAndCompute(self.image, None)
-
 
     @property
     def image(self):
@@ -221,7 +219,6 @@ class RuleImage:
             matches.append((score, x, y, mat.shape[1], mat.shape[0]))
         return matches
 
-
     def coord(self) -> tuple:
         """
         获取roi_front的随机的点击的坐标
@@ -244,7 +241,7 @@ class RuleImage:
         :return:
         """
         x, y, w, h = self.roi_front
-        return int(x + w//2), int(y + h//2)
+        return int(x + w // 2), int(y + h // 2)
 
     def test_match(self, image: np.array):
         if self.is_template_match:
@@ -341,6 +338,7 @@ if __name__ == "__main__":
 
     IMAGE_FILE = './log/test/QQ截图20240223151924.png'
     from tasks.Restart.assets import RestartAssets
+
     jade = RestartAssets.I_HARVEST_JADE
     jade.method = 'Sift Flann'
     sign = RestartAssets.I_HARVEST_SIGN
@@ -350,4 +348,3 @@ if __name__ == "__main__":
     detect_image(IMAGE_FILE, jade)
     detect_image(IMAGE_FILE, sign)
     print(jade.roi_front)
-
