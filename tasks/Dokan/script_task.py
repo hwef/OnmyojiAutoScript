@@ -114,6 +114,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         stuck_timer = Timer(240)
         stuck_timer.start()
         swipe_count = 1
+        self.device.stuck_record_clear()
+        self.device.stuck_record_add('BATTLE_STATUS_S')
+
         while 1:
             # 检测当前界面的场景（时间关系，暂时没有做庭院、町中等主界面的场景检测, 应考虑在GameUI.game_ui.ui_get_current_page()里实现）
             in_dokan, current_scene = self.get_current_scene()
@@ -137,9 +140,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             if current_scene == DokanScene.RYOU_DOKAN_SCENE_GATHERING:
                 self.goto_dokan_num = 0
                 # 如果还未选择优先攻击，选一下
-                if not self.attack_priority_selected:
-                    self.dokan_choose_attack_priority(attack_priority=attack_priority)
-                    self.attack_priority_selected = True
+                # if not self.attack_priority_selected:
+                #     self.dokan_choose_attack_priority(attack_priority=attack_priority)
+                #     self.attack_priority_selected = True
             # 场景状态：等待馆主战开始
             elif current_scene == DokanScene.RYOU_DOKAN_SCENE_BOSS_WAITING:
                 # 管理放弃第一次道馆
@@ -164,7 +167,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
             # 场景状态：检查右下角有没有挑战？通常是失败了，并退出来到集结界面，可重新开始点击右下角挑战进入战斗
             elif current_scene == DokanScene.RYOU_DOKAN_SCENE_START_CHALLENGE:
-                time.sleep(1)
                 self.appear_then_click(self.I_RYOU_DOKAN_START_CHALLENGE, interval=1)
                 # # 场景状态：进入战斗，待准备
             elif current_scene == DokanScene.RYOU_DOKAN_SCENE_IN_FIELD:
@@ -196,7 +198,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     logger.info("再战道馆")
                     continue
             else:
-                time.sleep(5)
+                pass
                 # logger.info(f"unknown scene, skipped")
 
             # 防封，随机移动，随机点击（安全点击），随机时延
@@ -206,7 +208,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
     def get_current_scene(self):
         ''' 检测当前场景
         '''
-        time.sleep(1)
         self.screenshot()
         self.device.click_record_clear()
 
@@ -231,7 +232,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             if current_scene != self.last_scene:
                 logger.info(f"道馆集结中")
                 self.last_scene = current_scene
-            time.sleep(5)
             return True, DokanScene.RYOU_DOKAN_SCENE_GATHERING
         # 状态：是否在等待馆主战
         if self.appear(self.I_DOKAN_BOSS_WAITING):
@@ -239,7 +239,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             if current_scene != self.last_scene:
                 logger.info(f"等待馆主战中")
                 self.last_scene = current_scene
-            time.sleep(5)
             return True, DokanScene.RYOU_DOKAN_SCENE_BOSS_WAITING
 
         # 状态：检查右下角有没有挑战？通常是失败了，并退出来到集结界面，可重新开始点击右下角挑战进入战斗
@@ -252,7 +251,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 if current_scene != self.last_scene:
                     logger.info(f"挑战未就绪")
                     self.last_scene = current_scene
-                time.sleep(5)
                 return True, DokanScene.RYOU_DOKAN_SCENE_GATHERING
 
         # # 状态：进入战斗，待开始
@@ -281,7 +279,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             if current_scene != self.last_scene:
                 logger.info(f"等待挑战次数，观战中")
                 self.last_scene = current_scene
-            time.sleep(5)
             return True, DokanScene.RYOU_DOKAN_SCENE_CD
 
         # 如果出现馆主战斗失败 就点击，返回False。
@@ -330,13 +327,13 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         #     self.switch_preset_team(config.preset_enable, config.preset_group, config.preset_team)
         #     self.team_switched = True
         #     # 切完队伍后有时候会卡顿，先睡一觉，防止快速跳到绿标流程，导致未能成功绿标
-        #     time.sleep(3)
+
+        self.device.stuck_record_clear()
+        self.device.stuck_record_add('BATTLE_STATUS_S')
         stuck_timer = Timer(240)
         stuck_timer.start()
         swipe_count = 1
         while 1:
-
-            time.sleep(1)
             self.screenshot()
             # 每280秒重置战斗状态
             if stuck_timer and stuck_timer.reached():
@@ -356,10 +353,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 logger.info(f"第 {self.battle_count} 次战斗")
 
                 self.ui_click_until_disappear(self.I_RYOU_DOKAN_IN_FIELD)
-
                 # 绿标
                 self.green_mark(config.green_enable, config.green_mark)
-
                 self.device.click_record_clear()
 
             # 战斗时间已到，无奖励，在等待馆主战场景
@@ -421,7 +416,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             if self.wait_until_appear(self.I_GREEN_MARK, wait_time=1):
                 # logger.info("识别到绿标，返回")
                 return
-            logger.info("Green is enable")
+            # logger.info("Green is enable")
             x, y = None, None
             match mark_mode:
                 case GreenMarkType.GREEN_LEFT1:
@@ -446,7 +441,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             # 等待那个准备的消失
             while 1:
                 self.screenshot()
-                if not self.appear(self.I_PREPARE_HIGHLIGHT):
+                if not self.appear(self.I_RYOU_DOKAN_IN_FIELD):
                     break
                 if self.ui_click_until_disappear(self.I_RYOU_DOKAN_IN_FIELD):
                     continue

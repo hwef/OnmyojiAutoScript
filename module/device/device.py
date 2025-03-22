@@ -141,6 +141,7 @@ class Device(Platform, Screenshot, Control, AppControl):
         self.detect_record = set()
         self.stuck_timer.reset()
         self.stuck_timer_long.reset()
+        logger.info('Clear stuck record')
 
     def stuck_record_check(self):
         """
