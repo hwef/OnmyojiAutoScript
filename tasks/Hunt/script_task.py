@@ -139,6 +139,8 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
         """
         # 战斗过程 随机点击和滑动 防封
         logger.info("Start battle process")
+        self.device.stuck_record_clear()
+        self.device.stuck_record_add('BATTLE_STATUS_S')
         swipe_count = 1
         stuck_timer = Timer(240)
         stuck_timer.start()
