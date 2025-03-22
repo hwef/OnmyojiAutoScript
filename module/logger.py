@@ -92,7 +92,9 @@ logger.addHandler(console_hdlr)
 # logger.py
 
 log_path = r'.\log'
-# log_path = 'F:\OneDrive'
+# 使用 os.path.join 进行路径拼接，确保跨平台兼容性
+backup_path = os.path.join(log_path, 'backup')
+
 
 class Logger:
     def __init__(self):
