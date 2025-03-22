@@ -1,21 +1,15 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-import copy
-import os
-import shutil
-import argparse
-import re
 import locale
-
-from module.logger import logger, log_path, log_names
-from module.exception import TaskEnd
-
-from time import sleep
+import os
+import re
+import shutil
 from datetime import datetime
 
+from module.exception import TaskEnd
+from module.logger import logger, log_path, log_names, backup_path
 from tasks.base_task import BaseTask
-
 
 """ 备份日志 """
 
@@ -49,13 +43,12 @@ class ScriptTask(BaseTask):
 
         logger.info('开始执行文件备份....')
         logger.info(f"文件路径：{self.get_real_path(base_path)}")
-        backup_root = r'.\backup'
-        logger.info(f"备份路径：{self.get_real_path(backup_root)}")
+        logger.info(f"备份路径：{self.get_real_path(backup_path)}")
 
         # 递归遍历目录
         for root, dirs, files in os.walk(base_path):
             # 忽略隐藏文件和目录
-            dirs[:] = [d for d in dirs if not d.startswith('.')]
+            dirs[:] = [d for d in dirs if not d.startswith('.') and os.path.join(root, d) != backup_path]
             files = [f for f in files if not f.startswith('.')]
 
             for file_name in files:
@@ -79,13 +72,13 @@ class ScriptTask(BaseTask):
                         locale.setlocale(locale.LC_TIME, 'chinese')
                         date = file_time.strftime('%Y-%m-%d %A')
                         relative_path = os.path.relpath(root, base_path)  # 保留相对路径
-                        backup_path = os.path.join(backup_root, date, relative_path)
+                        backup_root = os.path.join(backup_path, date, relative_path)
                         # 检查并创建备份目录
-                        os.makedirs(backup_path, exist_ok=True)
+                        os.makedirs(backup_root, exist_ok=True)
 
-                        backup_file_path = os.path.join(backup_path, file_name)
+                        backup_file_path = os.path.join(backup_root, file_name)
                         shutil.move(file_path, backup_file_path)
-                        logger.info(f'Move [{file_name}] ({time_diff} days ago) to [{backup_path}]')
+                        logger.info(f'Move [{file_name}] ({time_diff} days ago) to [{backup_root}]')
                         # 移动文件，避免覆盖
                         # if not os.path.exists(backup_file_path):
                         #     shutil.move(file_path, backup_file_path)
@@ -110,6 +103,11 @@ class ScriptTask(BaseTask):
                 is_symbolic_link = os.path.islink(dir_path)
                 is_root_dir = os.path.samefile(dir_path, abs_path)
                 is_empty = not os.listdir(dir_path)
+
+                # 跳过 backup_root 目录
+                if os.path.abspath(dir_path) == os.path.abspath(backup_path):
+                    logger.warning(f"⏩ 跳过备份目录：{dir_path}")
+                    continue
 
                 if not is_symbolic_link and not is_root_dir and is_empty:
                     try:
@@ -148,7 +146,7 @@ class ScriptTask(BaseTask):
             logger.error(f"获取真实路径时发生错误: {e}")
             return None
 
-    def move_old_folders(self, base_dir: str = './backup', days_threshold: int = 7):
+    def move_old_folders(self, base_dir: str = backup_path, days_threshold: int = 7):
         """处理指定目录的核心函数"""
         # 配置参数
         exclude_dirs = {'.', 'delete_home', 'old_folder'}
@@ -239,18 +237,18 @@ class ScriptTask(BaseTask):
 #     # move_old_folders(args.directory)
 #     print("=== 处理完成 ===")
 #
-# if __name__ == '__main__':
-#     from module.config.config import Config
-#     from module.device.device import Device
-#
-#     c = Config('test')
-#     d = Device(c)
-#     t = ScriptTask(c, d)
-#
-#     t.run()
-
 if __name__ == '__main__':
-    a = datetime.today().date()
-    b = datetime.now().date()
-    print(a)
-    print(b)
+    from module.config.config import Config
+    from module.device.device import Device
+
+    c = Config('du')
+    d = Device(c)
+    t = ScriptTask(c, d)
+
+    t.run()
+
+# if __name__ == '__main__':
+#     a = datetime.today().date()
+#     b = datetime.now().date()
+#     print(a)
+#     print(b)
