@@ -104,7 +104,7 @@
     "roiFront": "1176,385,43,70",
     "roiBack": "1176,385,43,70",
     "method": "Template matching",
-    "threshold": 0.8,
-    "description": "祈愿"
+    "threshold": 0.7,
+    "description": "神社"
   }
 ]
