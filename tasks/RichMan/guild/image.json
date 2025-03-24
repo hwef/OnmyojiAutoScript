@@ -100,7 +100,7 @@
   },
   {
     "itemName": "guild_check_scrap2",
-    "imageName": "guild_guild_check_scrap.png2",
+    "imageName": "guild_guild_check_scrap.png",
     "roiFront": "593,250,90,88",
     "roiBack": "593,250,90,88",
     "method": "Template matching",
