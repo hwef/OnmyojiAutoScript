@@ -35,6 +35,8 @@ class RichManAssets:
 	I_GUILD_CHECK_SCRAP = RuleImage(roi_front=(561,429,90,88), roi_back=(561,429,90,88), threshold=0.7, method="Template matching", file="./tasks/RichMan/guild/guild_guild_check_scrap.png")
 	# 黑碎购买检查2 
 	I_GUILD_CHECK_SCRAP2 = RuleImage(roi_front=(593,250,90,88), roi_back=(593,250,90,88), threshold=0.7, method="Template matching", file="./tasks/RichMan/guild/guild_guild_check_scrap.png")
+	# 购买黑碎 
+	I_GUILD_BUY_SCRAP = RuleImage(roi_front=(579,495,129,50), roi_back=(579,495,129,50), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_buy_scrap.png")
 
 
 	# Ocr Rule Assets
@@ -416,7 +418,7 @@ class RichManAssets:
 	# description 
 	I_TT_BUY_CONFIRM = RuleImage(roi_front=(584,512,53,53), roi_back=(553,487,169,115), threshold=0.8, method="Template matching", file="./tasks/RichMan/tt/tt_tt_buy_confirm.png")
 	# 唤妖借处 
-	I_TT_SHARE0 = RuleImage(roi_front=(1044,280,30,100), roi_back=(1044,280,30,100), threshold=0.8, method="Template matching", file="./tasks/RichMan/tt/tt_share0.png")
+	I_TT_SHARE0 = RuleImage(roi_front=(1044,280,30,100), roi_back=(1044,280,30,100), threshold=0.6, method="Template matching", file="./tasks/RichMan/tt/tt_share0.png")
 	# 配置 
 	I_TT_SHARE1 = RuleImage(roi_front=(1135,615,47,48), roi_back=(1135,615,47,48), threshold=0.8, method="Template matching", file="./tasks/RichMan/tt/tt_share1.png")
 	# 确认 

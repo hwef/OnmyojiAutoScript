@@ -106,5 +106,14 @@
     "method": "Template matching",
     "threshold": 0.7,
     "description": "黑碎购买检查2"
+  },
+  {
+    "itemName": "guild_buy_scrap",
+    "imageName": "guild_guild_buy_scrap.png",
+    "roiFront": "579,495,129,50",
+    "roiBack": "579,495,129,50",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "购买黑碎"
   }
 ]

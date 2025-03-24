@@ -17,7 +17,7 @@ from tasks.Component.Buy.assets import BuyAssets
 class Buy(BaseTask, BuyAssets):
 
     def buy_one(self, start_click: Union[RuleImage, RuleOcr, RuleClick],
-                check_image: RuleImage, check_image2: RuleImage):
+                check_image: RuleImage, check_image2: RuleImage = None):
         """
         购买一个物品
         :param check_image: 购买确认时候的图片

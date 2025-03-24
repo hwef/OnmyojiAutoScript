@@ -56,7 +56,7 @@ class Bondlings(Buy, MallNavbar):
             return
         self.screenshot()
 
-        if buy_button.name == 'BONDLINGS_BL_BUY_SOULS':
+        if buy_button.name == 'I_BL_BUY_SOULS':
             if not self.appear_rgb(self.I_ME_SOULS_NEW):
                 # 契灵御魂已经买光
                 logger.warning('本周契灵御魂已经买光')

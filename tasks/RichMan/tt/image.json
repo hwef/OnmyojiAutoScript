@@ -68,7 +68,7 @@
     "roiFront": "1044,280,30,100",
     "roiBack": "1044,280,30,100",
     "method": "Template matching",
-    "threshold": 0.8,
+    "threshold": 0.6,
     "description": "唤妖借处"
   },
   {
