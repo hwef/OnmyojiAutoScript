@@ -1,42 +1,34 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-import locale
-import numpy as np
 
 from time import sleep
 
-import os
-import shutil
-from datetime import datetime, timedelta, time
-from numpy import float32, int32, uint8, fromfile
+import cv2
+from datetime import datetime, timedelta
+from numpy import uint8, fromfile
+from pathlib import Path
 from typing import Union
 
-from dev_tools.decorator import usage_time
-
-from module.config.utils import convert_to_underscore
-from module.atom.image import RuleImage
-from module.atom.click import RuleClick
-from module.atom.long_click import RuleLongClick
-from module.atom.swipe import RuleSwipe
-from module.atom.ocr import RuleOcr
-from module.atom.list import RuleList
-from module.atom.gif import RuleGif
-from module.ocr.base_ocr import OcrMode, OcrMethod
 from module.atom.animate import RuleAnimate
-from module.logger import logger, log_path, log_names
+from module.atom.click import RuleClick
+from module.atom.gif import RuleGif
+from module.atom.image import RuleImage
+from module.atom.list import RuleList
+from module.atom.long_click import RuleLongClick
+from module.atom.ocr import RuleOcr
+from module.atom.swipe import RuleSwipe
 from module.base.timer import Timer
 from module.config.config import Config
-from module.config.utils import get_server_next_update, nearest_future, dict_to_kv, parse_tomorrow_server
+from module.config.utils import convert_to_underscore
 from module.device.device import Device
-from tasks.GlobalGame.assets import GlobalGameAssets
-from tasks.GlobalGame.config_emergency import FriendInvitation, WhenNetworkAbnormal, WhenNetworkError
+from module.exception import ScriptError
+from module.logger import logger, log_path, Week_path
+from module.ocr.base_ocr import OcrMode
 from tasks.Component.Costume.costume_base import CostumeBase
-
-from module.exception import GameStuckError, ScriptError
-from tasks.Component.config_base import ConfigBase, Time
-from pathlib import Path
-import cv2
+from tasks.Component.config_base import Time
+from tasks.GlobalGame.assets import GlobalGameAssets
+from tasks.GlobalGame.config_emergency import FriendInvitation
 
 
 class BaseTask(GlobalGameAssets, CostumeBase):
@@ -671,7 +663,11 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             config_name = self.config.config_name.upper()
 
             # 设置保存图像的文件夹
-            folder_name = f'{log_path}/{task_name}'
+            WeeklyTask = ['Duel', 'RichMan', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
+            if task_name in WeeklyTask:
+                folder_name = f'{Week_path}/{task_name}'
+            else:
+                folder_name = f'{log_path}/{task_name}'
             folder_path = Path(folder_name)
             folder_path.mkdir(parents=True, exist_ok=True)
 

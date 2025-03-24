@@ -8,7 +8,7 @@ import shutil
 from datetime import datetime
 
 from module.exception import TaskEnd
-from module.logger import logger, log_path, log_names, backup_path
+from module.logger import logger, log_path, log_names, backup_path, Week_path
 from tasks.base_task import BaseTask
 
 """ 备份日志 """
@@ -23,6 +23,8 @@ class ScriptTask(BaseTask):
         if con.backup_flag:
             # 根据文件创建时间移动旧文件到动态备份目录
             self.move_old_files_to_backup()
+            # 每周一备份WeekTask文件夹
+            self.move_weektask()
             # 递归删除空文件夹
             self.remove_empty_folders()
             # backup目录下，超过7天文件移动保存
@@ -48,7 +50,7 @@ class ScriptTask(BaseTask):
         # 递归遍历目录
         for root, dirs, files in os.walk(base_path):
             # 忽略隐藏文件和目录
-            dirs[:] = [d for d in dirs if not d.startswith('.') and os.path.join(root, d) != backup_path]
+            dirs[:] = [d for d in dirs if not d.startswith('.') and os.path.join(root, d) != backup_path and os.path.join(root, d) != Week_path]
             files = [f for f in files if not f.startswith('.')]
 
             for file_name in files:
@@ -145,6 +147,55 @@ class ScriptTask(BaseTask):
         except Exception as e:
             logger.error(f"获取真实路径时发生错误: {e}")
             return None
+
+    def move_weektask(self, base_dir: str = Week_path, backup_dir: str = backup_path):
+            """
+            每周一移动week文件夹到backup文件夹下并改名yyyy-mm-dd week
+            :param base_dir: 源目录路径
+            :param backup_dir: 备份目录路径
+            """
+            # 检查当前日期是否为周一
+            if datetime.now().weekday() != 0:  # 0 表示周一
+                logger.info("今天不是周一，跳过移动操作")
+                return
+
+            # 获取源目录的文件夹名
+            base_name = os.path.basename(base_dir)
+            if not base_name:
+                logger.error(f"❌ 错误：无法获取源目录名 {base_dir}")
+                return
+
+            # 构建目标路径
+            target_date = datetime.now().strftime('%Y-%m-%d')
+            target_name = f"{target_date} {base_name}"
+            target_path = os.path.join(backup_dir, target_name)
+
+            # 检查源目录是否存在
+            if not os.path.exists(base_dir):
+                logger.error(f"❌ 错误：源目录不存在 {base_dir}")
+                return
+            if not os.path.isdir(base_dir):
+                logger.error(f"❌ 错误：路径不是目录 {base_dir}")
+                return
+
+            # 检查目标路径是否存在
+            if os.path.exists(target_path):
+                logger.error(f"❌ 错误：目标路径已存在 {target_path}")
+                return
+
+            # 移动操作
+            try:
+                logger.info(f"🚚 正在移动：{base_dir} -> {target_path}")
+                shutil.move(base_dir, target_path)
+                logger.info(f"✅ 移动成功：{base_dir} -> {target_path}")
+            except FileNotFoundError:
+                logger.error(f"❌ 源目录不存在：{base_dir}")
+            except PermissionError:
+                logger.error(f"❌ 权限不足：{base_dir}")
+            except FileExistsError:
+                logger.error(f"❌ 目标已存在：{target_path}")
+            except Exception as e:
+                logger.error(f"❌ 移动失败：{base_dir} -> {target_path} ({str(e)})")
 
     def move_old_folders(self, base_dir: str = backup_path, days_threshold: int = 7):
         """处理指定目录的核心函数"""
