@@ -34,7 +34,7 @@ class RichManAssets:
 	# 黑碎购买检查 
 	I_GUILD_CHECK_SCRAP = RuleImage(roi_front=(561,429,90,88), roi_back=(561,429,90,88), threshold=0.7, method="Template matching", file="./tasks/RichMan/guild/guild_guild_check_scrap.png")
 	# 黑碎购买检查2 
-	I_GUILD_CHECK_SCRAP2 = RuleImage(roi_front=(593,250,90,88), roi_back=(593,250,90,88), threshold=0.7, method="Template matching", file="./tasks/RichMan/guild/guild_guild_check_scrap.png2")
+	I_GUILD_CHECK_SCRAP2 = RuleImage(roi_front=(593,250,90,88), roi_back=(593,250,90,88), threshold=0.7, method="Template matching", file="./tasks/RichMan/guild/guild_guild_check_scrap.png")
 
 
 	# Ocr Rule Assets
