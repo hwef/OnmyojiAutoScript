@@ -152,7 +152,7 @@ class Guild(Buy, GameUi, RichManAssets):
             logger.warning('No black daruma can buy')
             return False
 
-        self.buy_one(self.I_GUILD_SCRAP, self.I_GUILD_CHECK_SCRAP, self.I_GUILD_CHECK_SCRAP2)
+        self.buy_one(self.I_GUILD_SCRAP, self.I_GUILD_CHECK_SCRAP, self.I_GUILD_BUY_SCRAP)
         time.sleep(0.5)
         return True
 
