@@ -45,18 +45,33 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
         self.ui_get_current_page()
         self.ui_goto(page_main)
 
-        self.open_buff()
-        self.soul(is_open=True)
-        self.close_buff()
+        # self.open_buff()
+        # self.soul(is_open=True)
+        # self.close_buff()
 
         self.home_main()
 
         # 选择是游戏的体力还是活动的体力
         current_ap = config.general_climb.ap_mode
-        #self.switch(current_ap)
+        self.switch(current_ap)
 
         # 设定是否锁定阵容
-        
+        if config.general_battle.lock_team_enable:
+            logger.info("Lock team")
+            while 1:
+                self.screenshot()
+                if self.appear_then_click(self.I_UNLOCK, interval=1):
+                    continue
+                if self.appear(self.I_LOCK):
+                    break
+        else:
+            logger.info("Unlock team")
+            while 1:
+                self.screenshot()
+                if self.appear_then_click(self.I_LOCK, interval=1):
+                    continue
+                if self.appear(self.I_UNLOCK):
+                    break
 
         # 流程应该是 在页面处：
         # 1. 判定计数是否超了，时间是否超了
@@ -73,15 +88,6 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
                 break
             # 2
             self.wait_until_appear(self.I_FIRE)
-            #while 1:
-            cu, res, total = self.O_BOSS_NUM.ocr(image=self.device.image)
-            logger.info(f"Boss {cu} {res} {total}")
-                #if 50 == total:
-                  #  break
-            if cu == 50 and cu + res == total:
-                logger.info(f"Boss full {cu} {total}")
-                self.config.notifier.push(title=self.config.task.command, content=f'鬼王已经刷满了，退出活动')
-                break
             is_remain = self.check_ap_remain(current_ap)
             # 如果没有剩余了且这个时候是体力，就退出活动
             if not is_remain and current_ap == ApMode.AP_GAME:
@@ -170,25 +176,25 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
         """
         self.screenshot()
         if current_ap == ApMode.AP_ACTIVITY:
-            cu, res, total = self.O_REMAIN_AP_ACTIVITY.ocr(image=self.device.image)
-            if cu == 0 and cu + res == total:
-                logger.warning("Activity ap not enough")
+            res: int = self.O_REMAIN_AP_ACTIVITY2.ocr_digit(self.device.image)
+            if res <= 0:
+                logger.warning(f'Activity ap {res} not enough')
                 return False
             return True
+            # cu, res, total = self.O_REMAIN_AP_ACTIVITY.ocr(image=self.device.image)
+            # if cu == 0 and cu + res == total:
+            #     logger.warning("Activity ap not enough")
+            #     return False
+            # return True
 
         elif current_ap == ApMode.AP_GAME:
             cu, res, total = self.O_REMAIN_AP.ocr(image=self.device.image)
-            if cu + res == total:
-                logger.info(self.limit_count)
-                logger.info(cu)
-                if cu >= self.limit_count:
-                    logger.warning("Game ap limit_count is enough")
-                    return False
+            if cu == total and cu + res == total:
                 if cu > total:
                     logger.warning(f'Game ap {cu} more than total {total}')
                     return True
-                #logger.warning(f'Game ap not enough: {cu}')
-                #return False
+                logger.warning(f'Game ap not enough: {cu}')
+                return False
 
             return True
 
@@ -258,7 +264,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('du')
+    c = Config('oas1')
     d = Device(c)
     t = ScriptTask(c, d)
 

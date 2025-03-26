@@ -27,12 +27,12 @@
     "description": "还有多少次购买体力的机会"
   },
   {
-    "itemName": "boss_num",
-    "roiFront": "262,591,59,26",
-    "roiBack": "262,591,59,26",
-    "mode": "DigitCounter",
+    "itemName": "remain_ap_activity2",
+    "roiFront": "775,26,35,29",
+    "roiBack": "775,26,35,29",
+    "mode": "Digit",
     "method": "Default",
     "keyword": "",
-    "description": "刷出来的鬼王"
+    "description": "活动票数（没有百分比）"
   }
 ]
