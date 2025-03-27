@@ -29,7 +29,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
         self.ui_goto(page_guild)
 
         # 在寮的主界面 检查是否有收取体力或者是收取寮资金
-        self.check_guild_ap_or_assets()
+        # self.check_guild_ap_or_assets()
 
         # 进入寮结界
         self.goto_realm()

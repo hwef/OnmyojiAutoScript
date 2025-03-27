@@ -120,7 +120,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, SecretAssets):
                 self.click_battle()
                 success = self.run_general_battle(self.battle_config)
                 continue
-
+        self.save_image()
         self.ui_click(self.I_UI_BACK_BLUE, self.I_CHECK_MAIN)
         self.ui_get_current_page()
         self.ui_goto(page_main)

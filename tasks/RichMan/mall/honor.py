@@ -24,7 +24,7 @@ class Honor(Special):
         self._enter_honor()
         self._honor_mystery_amulet(con.mystery_amulet)
         self._honor_black_daruma_scrap(con.black_daruma_scrap)
-
+        self.save_image()
 
     def _honor_mystery_amulet(self, enable: bool=False):
         logger.hr('Buy mystery amulet', 3)

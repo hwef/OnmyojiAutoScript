@@ -32,7 +32,7 @@ class Charisma(FriendshipPoints):
             self.buy_mall_one(buy_button=self.I_CH_BLUE, buy_check=self.I_CH_CHECK_BLUE,
                               money_ocr=self.O_MALL_RESOURCE_5, buy_money=400)
 
-
+        self.save_image()
 
 
 if __name__ == '__main__':

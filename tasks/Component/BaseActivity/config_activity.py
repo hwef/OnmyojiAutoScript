@@ -2,7 +2,7 @@
 # @author runhey
 # github https://github.com/runhey
 from datetime import time, timedelta
-from pydantic import BaseModel, Field, validator, field_validator
+from pydantic import BaseModel, Field, validator
 from enum import Enum
 
 from module.logger import logger

@@ -50,7 +50,7 @@ class ThousandThings(GameUi, RichManAssets):
         # 蓝票
         if con.mystery_amulet:
             self.tt_buy_mystery_amulet()
-
+        self.save_image()
         while 1:
             self.screenshot()
             if self.appear(self.I_TT_ENTER):
@@ -135,6 +135,7 @@ class ThousandThings(GameUi, RichManAssets):
                 timer_check.reset()
                 continue
             if self.appear_then_click(self.I_TT_SHARE3, interval=1):
+                self.save_image()
                 logger.info("借出式神")
                 timer_check.reset()
                 continue

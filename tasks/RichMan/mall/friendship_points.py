@@ -31,6 +31,7 @@ class FriendshipPoints(Special):
         if con.broken_amulet != 0:
             self.buy_mall_more(buy_button=self.I_FS_BROKEN, remain_number=False, money_ocr=self.O_MALL_RESOURCE_5,
                                  buy_number=con.broken_amulet, buy_max=99, buy_money=100)
+        self.save_image()
 
     def buy_mall_one(self, buy_button: RuleImage, buy_check: RuleImage, remain_number: bool, money_ocr: RuleOcr, buy_money: int):
         """

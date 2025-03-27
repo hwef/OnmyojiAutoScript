@@ -48,6 +48,7 @@ class Special(Buy, MallNavbar):
 
             if self.swipe(self.S_SP_DOWN, interval=2):
                 time.sleep(2)
+        self.save_image()
 
     def _special_totom(self, totem_pass: bool):
         """

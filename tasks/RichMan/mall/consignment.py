@@ -43,6 +43,7 @@ class Consignment(Buy, MallNavbar):
         else:
             self.buy_one(self.I_CON_TICKET, remain_number)
         logger.info('Consignment buy_sale_ticket is success')
+        self.save_image()
 
 
 

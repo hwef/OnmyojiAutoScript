@@ -37,6 +37,7 @@ class Bondlings(Buy, MallNavbar):
         # 购买中级盘
         self._bondlings_base(buy_button=self.I_BL_BUY_MEDIUM, remain_number=self.O_BL_RES_MEDIUM, check_class=4,
                              buy_number=con.medium_bondling_discs, buy_max=25, buy_money=20)
+        self.save_image()
 
     def _bondlings_base(self, buy_button: RuleImage, remain_number: RuleOcr, check_class: int,
                        buy_number: int, buy_max: int, buy_money: int):

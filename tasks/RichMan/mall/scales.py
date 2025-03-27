@@ -29,6 +29,7 @@ class Scales(Buy, MallNavbar):
         self._scales_demon(con.demon_souls, con.demon_class, con.demon_position)
         # 潮汐御魂
         self._scales_sea(con.picture_book_scrap, con.picture_book_rule)
+        self.save_image()
 
     def _scales_buy_confirm(self, start_click, number: int = None):
         count_click = 0
@@ -118,7 +119,7 @@ class Scales(Buy, MallNavbar):
             if self.appear(self.I_SCA_SIX_STAR):
                 logger.info('Scales buy success')
                 time.sleep(2)
-                self.save_image(wait_time=1)
+                self.save_image(task_name='RichMan/ScalesSea', wait_time=1)
                 while 1:
                     self.screenshot()
                     if not self.appear(self.I_SCA_SIX_STAR) and self.appear(self.I_SCA_PICTURE_BOOK, interval=1):
@@ -138,7 +139,7 @@ class Scales(Buy, MallNavbar):
                 result = targe.test_match(self.device.image)
                 logger.info(f'[{targe.name}]: {result}')
                 if result:
-                    self.save_image(wait_time=0.5)
+                    self.save_image(task_name='RichMan/ScalesSea', wait_time=0.5)
                     front0 = targe.roi_front[0]
                     # 962 595 229
                     if front0 < 300:
@@ -152,7 +153,7 @@ class Scales(Buy, MallNavbar):
                         break
             if not result:
                 # 如果御魂都没找到选第一个
-                self.save_image(wait_time=0.5)
+                self.save_image(task_name='RichMan/ScalesSea', wait_time=0.5)
                 self.appear_then_click(self.I_SCA_SELECT_1, interval=1.6)
 
     def _scales_orochi_new(self, buy_number: int):
