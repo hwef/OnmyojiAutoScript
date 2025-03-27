@@ -45,9 +45,7 @@ if __name__ == "__main__":
     # argv = ["", "DU"]
     # 保证通过命令行运行时传入参数，例如：python script.py MI
 
-    sleep_time = 5
     config_name = sys.argv[1]
-    print(f'[{config_name}]等待{sleep_time}秒后启动...')
-    time.sleep(sleep_time)
+    print(f'[{config_name}]启动...')
     start_websocket(config_name)
 
