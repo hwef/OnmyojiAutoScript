@@ -483,23 +483,18 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
                 continue
 
     def check_time(self):
-        """
-        检查时间是否正确，
-        如果正确就继续
-        如果不在17:00到22:00之间,就推迟到下一个 17:30
-        :return:
-        """
         now = datetime.now()
+
+        server_update = self.config.demon_encounter.scheduler.server_update
+        target_time = datetime(now.year, now.month, now.day, server_update.hour, server_update.minute, server_update.second)
+
         if now.hour < 17:
-            # 17点之前，推迟到当天的17点半
-            logger.info('Before 17:00, wait to 17:30')
-            target_time = datetime(now.year, now.month, now.day, 17, 30, 0)
+            logger.info(f'Before 17:00, waiting until {target_time.strftime("%Y-%m-%d %H:%M:%S")} (today)')
             self.set_next_run(task='DemonEncounter', success=False, finish=False, target=target_time)
             return False
-        elif now.hour >= 22:
-            # 22点之后，推迟到第二天的17:30
-            logger.info('After 22:00, wait to 17:30')
-            target_time = datetime(now.year, now.month, now.day, 17, 30, 0) + timedelta(days=1)
+        elif now.hour >= 23:
+            target_time += timedelta(days=1)  # Set to next day's 19:00
+            logger.info(f'After 23:00, waiting until {target_time.strftime("%Y-%m-%d %H:%M:%S")} (next day)')
             self.set_next_run(task='DemonEncounter', success=False, finish=False, target=target_time)
             return False
         else:
@@ -545,7 +540,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('du')
+    c = Config('mi')
     d = Device(c)
     t = ScriptTask(c, d)
 
