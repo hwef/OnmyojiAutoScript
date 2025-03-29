@@ -78,6 +78,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssSha
             if self.appear_then_click(self.I_HUNT, interval=1):
                 continue
             if self.appear_then_click(self.I_REWARD_ALL, interval=1.5):
+                self.save_image()
                 self.ui_reward_appear_click(True)
                 logger.info('Claim rewards finished')
                 break
