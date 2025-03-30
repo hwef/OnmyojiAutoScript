@@ -69,37 +69,28 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
                 self.ui_goto(page_bondling_fairyland)
                 continue
 
-        limit_count = cong.bondling_config.limit_count
         self.current_count = 0
-        self.limit_count: int = limit_count
-
-        if UserStatus.handoff1 == cong.bondling_config.user_status:
-            self.limit_count: int = limit_count // 2
-            self.switch_ball()
-        if UserStatus.handoff2 == cong.bondling_config.user_status:
-            self.limit_count: int = limit_count // 2
-            self.run_member()
-            self.current_count = 0
-            self.ui_get_current_page()
-            self.ui_goto(page_bondling_fairyland)
-            self.switch_ball()
+        self.limit_count = cong.bondling_config.limit_count  # 默认limit_count值
 
         match cong.bondling_config.user_status:
-            case UserStatus.LEADER:
+            case UserStatus.handoff1:
+                self.limit_count //= 2
+                self.switch_ball()
+            case UserStatus.handoff2:
+                self.limit_count //= 2
+                self.run_member()
+                self.current_count = 0
+                self.ui_get_current_page()
+                self.ui_goto(page_bondling_fairyland)
+                self.switch_ball()
+            case UserStatus.LEADER | UserStatus.ALONE:
                 self.switch_ball()
             case UserStatus.MEMBER:
                 self.run_member()
-            case UserStatus.ALONE:
-                self.switch_ball()
             case _:
-                logger.error('Unknown user status')
-
+                logger.error(f'Unknown user status: {cong.bondling_config.user_status}')
     def run_leader(self):
-
-        """
-        点击 求援， 组队模式
-        """
-
+        """  点击 求援， 组队模式  """
         success = True
         is_first = True
         while 1:
