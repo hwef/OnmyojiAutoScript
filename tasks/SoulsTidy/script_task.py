@@ -36,6 +36,8 @@ class ScriptTask(GameUi, SoulsTidyAssets):
         # 退回到式神录
         self.back_records()
 
+        self.ui_get_current_page()
+        self.ui_goto(page_main)
         self.set_next_run(task='SoulsTidy', success=True, finish=False)
         raise TaskEnd('SoulsTidy')
 
@@ -79,11 +81,8 @@ class ScriptTask(GameUi, SoulsTidyAssets):
         feed_count = 0
         while 1:
             self.screenshot()
-            if self.appear(self.I_ST_UNSELECTED):
-                self.ui_click_until_disappear(self.I_ST_UNSELECTED)
-                continue
-            if self.appear_then_click(self.I_UI_CONFIRM, interval=0.5):
-                continue
+            if self.appear_then_click(self.I_UI_CONFIRM, interval=1):
+                break
             if feed_count >= 3:
                 break
             if self.appear_then_click(self.I_ST_FEED_NOW, interval=3.5):
@@ -96,7 +95,7 @@ class ScriptTask(GameUi, SoulsTidyAssets):
             if self.appear(self.I_ST_CAT):
                 # 出现招财猫
                 break
-            if self.appear_then_click(self.I_ST_GREED_CLOSE, interval=0.7):
+            if self.appear_then_click(self.I_ST_GREED_CLOSE, interval=1):
                 continue
             if self.appear_then_click(self.I_ST_BONGNA, interval=1, threshold=0.6):
                 continue
@@ -197,7 +196,7 @@ class ScriptTask(GameUi, SoulsTidyAssets):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()
