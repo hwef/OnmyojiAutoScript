@@ -1,36 +1,31 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-import locale
-import shutil
+import time
+
+import asyncio
+import cv2
+import inflection
+import json
+import os
+import re
 import zerorpc
 import zmq
-import msgpack
-import random
-import re
-import cv2
-import time
-import os
-import inflection
-import asyncio
-import json
-
-from typing import Callable
-from datetime import datetime, timedelta
-from pathlib import Path
 from cached_property import cached_property
-from pydantic import BaseModel, ValidationError
-from threading import Thread
+from datetime import datetime, timedelta
 from multiprocessing.queues import Queue
+from pathlib import Path
+from pydantic import ValidationError
+from threading import Thread
+from typing import Callable
 
-from module.config.utils import convert_to_underscore
-from module.config.config import Config
-from module.config.config_model import ConfigModel
-from module.device.device import Device
-from module.base.utils import load_module
 from module.base.decorator import del_cached_property
-from module.logger import logger, log_path, log_names
+from module.base.utils import load_module
+from module.config.config import Config
+from module.config.utils import convert_to_underscore
+from module.device.device import Device
 from module.exception import *
+from module.logger import logger, error_path
 
 
 class Script:
@@ -92,9 +87,6 @@ class Script:
         from module.handler.sensitive_info import (handle_sensitive_image,
                                                    handle_sensitive_logs)
         if self.config.script.error.save_error:
-            error_path = log_path + '/error/'
-            if not os.path.exists(error_path):
-                os.mkdir(error_path)
             config_name = self.config.config_name.upper()
             datetime_now = datetime.now()
             now_date = datetime_now.strftime('%Y-%m-%d')
@@ -121,10 +113,8 @@ class Script:
                 lines = handle_sensitive_logs(lines)
             with open(error_path_log, 'w', encoding='utf-8') as f:
                 f.writelines(lines)
-            logger.warn(f'asyncio push message to tg start')
             title = f'{self.config.config_name} {error_message}'
             asyncio.run(self.config.pushtg.telegram_send(title, error_path_image, error_path_log))
-            logger.warn(f'asyncio push message to tg end')
 
     def init_server(self, port: int) -> int:
         """

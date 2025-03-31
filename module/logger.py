@@ -95,6 +95,7 @@ log_path = r'.\log'
 # 使用 os.path.join 进行路径拼接，确保跨平台兼容性
 backup_path = os.path.join(log_path, 'backup')
 Week_path = os.path.join(log_path, 'WeekTask')
+error_path = os.path.join(log_path, 'error')
 
 class Logger:
     def __init__(self):
