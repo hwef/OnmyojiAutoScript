@@ -6,13 +6,8 @@
 import time
 
 import cv2
-import numpy as np
-from cached_property import cached_property
-
-from datetime import datetime
-import random
 from enum import Enum
-from module.atom.image_grid import ImageGrid
+
 from module.base.timer import Timer
 from module.exception import TaskEnd
 from module.logger import logger
@@ -21,12 +16,9 @@ from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.Dokan.assets import DokanAssets
 from tasks.Dokan.config import Dokan
-from tasks.Dokan.utils import detect_safe_area2
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_shikigami_records, page_guild
 from tasks.RichMan.assets import RichManAssets
-from pathlib import Path
-
 
 """ 道馆 """
 class DokanScene(Enum):

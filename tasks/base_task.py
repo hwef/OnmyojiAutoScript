@@ -55,12 +55,6 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         self.animates = {}  # 保存缓存
         self.start_time = datetime.now()  # 启动的时间
         self.check_costume(self.config.global_game.costume_config)
-        # self.friend_timer = None  # 这个是用来记录勾协的时间的
-        # if self.config.global_game.emergency.invitation_detect_interval:
-        #     self.interval_time = self.config.global_game.emergency.invitation_detect_interval
-        #     self.friend_timer = Timer(self.interval_time)
-        #     self.friend_timer.start()
-
         # 战斗次数相关
         self.current_count = 0  # 战斗次数
 
@@ -129,16 +123,6 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         self.device.screenshot()
         # 判断勾协
         self._burst()
-
-        # # 判断网络异常
-        # if self.appear(self.I_NETWORK_ABNORMAL):
-        #     logger.warning(f"Network abnormal")
-        #     raise GameStuckError
-        #
-        # # 判断网络错误
-        # if self.appear(self.I_NETWORK_ERROR):
-        #     logger.warning(f"Network error")
-        #     raise GameStuckError
 
         return self.device.image
 
@@ -739,26 +723,16 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         logger.info(f"颜色匹配成功: [{target.name}]")
         return True
 
-def get_days_until_next(target_day):
-    today = datetime.today()
-    current_weekday = today.weekday()  # 周一为0，周日为6
-    target = target_day - 1    # 将输入1-7转换为0-6
-    days_diff = (target - current_weekday) % 7
-    days_until_next_days = (target - current_weekday) % 7 or 7
-    days_diff = days_diff if days_diff != 0 else 7
-    print(days_diff)
-    print(days_until_next_days)
 if __name__ == '__main__':
-    # from module.config.config import Config
-    # from module.device.device import Device
-    #
-    # c = Config('oas1')
-    # d = Device(c)
-    # t = BaseTask(c, d)
-    #
-    # t.save_image("test")
-    get_days_until_next(1)
-    # t.save_image()
+    from module.config.config import Config
+    from module.device.device import Device
+
+    c = Config('oas1')
+    d = Device(c)
+    t = BaseTask(c, d)
+
+    t.save_image("test")
+    t.save_image()
 
     # logger.hr('INVITE FRIEND')
     # logger.hr('INVITE FRIEND', 0)

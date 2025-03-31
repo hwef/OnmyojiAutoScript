@@ -3,21 +3,18 @@
 # github https://github.com/runhey
 import time
 
-import cv2
-import numpy as np
 import random
 import re
-from tasks.base_task import BaseTask
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_area_boss, page_shikigami_records
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+
+from module.atom.image import RuleImage
+from module.exception import TaskEnd
+from module.logger import logger
 from tasks.AreaBoss.assets import AreaBossAssets
 from tasks.AreaBoss.config_boss import AreaBossFloor
-from module.logger import logger
-from module.exception import TaskEnd
-from module.atom.image import RuleImage
-from typing import List
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.GameUi.game_ui import GameUi
+from tasks.GameUi.page import page_area_boss, page_shikigami_records
 
 """ 地域鬼王 """
 

@@ -2,33 +2,26 @@
 # @author runhey
 # github https://github.com/runhey
 
-from tasks.Component.GeneralRoom.general_room import GeneralRoom
-
-import numpy as np
 from time import sleep
-from cached_property import cached_property
-from datetime import datetime, timedelta
-from tasks.BondlingFairyland.general_invite import GeneralInvite
-from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
 
-from tasks.base_task import BaseTask
-from tasks.GameUi.game_ui import GameUi
-from tasks.BondlingFairyland.config import (BondlingFairyland, BondlingMode,
-                                            BondlingClass,
-                                            BondlingSwitchSoul, BondlingConfig, UserStatus)
+from cached_property import cached_property
+from datetime import datetime
+from datetime import timedelta, time
+
+from module.base.timer import Timer
+from module.exception import TaskEnd
+from module.logger import logger
 from tasks.BondlingFairyland.assets import BondlingFairylandAssets
 from tasks.BondlingFairyland.battle import BondlingBattle
+from tasks.BondlingFairyland.config import BondlingMode, BondlingClass, BondlingSwitchSoul, BondlingConfig, UserStatus
 from tasks.BondlingFairyland.config_battle import BattleConfig
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul, switch_parser
+from tasks.BondlingFairyland.general_invite import GeneralInvite
+from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
 from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
+from tasks.Component.GeneralRoom.general_room import GeneralRoom
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul, switch_parser
+from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_bondling_fairyland, page_shikigami_records
-
-from module.atom.image import RuleImage
-from module.logger import logger
-from module.exception import TaskEnd
-from tasks.Component.GeneralRoom.assets import GeneralRoomAssets
-from module.base.timer import Timer
-from datetime import timedelta, time
 
 
 class BondlingNumberMax(Exception):
@@ -844,7 +837,6 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    import cv2
 
     config = Config('du')
     device = Device(config)
