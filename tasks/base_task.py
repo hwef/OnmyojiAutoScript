@@ -23,7 +23,7 @@ from module.config.config import Config
 from module.config.utils import convert_to_underscore
 from module.device.device import Device
 from module.exception import ScriptError
-from module.logger import logger, log_path, Week_path
+from module.logger import logger, log_path, week_path
 from module.ocr.base_ocr import OcrMode
 from tasks.Component.Costume.costume_base import CostumeBase
 from tasks.Component.config_base import Time
@@ -649,7 +649,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             # 设置保存图像的文件夹
             WeeklyTask = ['Duel', 'RichMan', 'RichMan/ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
             if task_name in WeeklyTask:
-                folder_name = f'{Week_path}/{task_name}'
+                folder_name = f'{week_path}/{task_name}'
             else:
                 folder_name = f'{log_path}/{task_name}'
             folder_path = Path(folder_name)
