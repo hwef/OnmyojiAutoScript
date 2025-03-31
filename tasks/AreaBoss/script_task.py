@@ -44,13 +44,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         self.ui_get_current_page()
         self.ui_goto(page_area_boss)
 
-        self.open_filter()
-
         # 打一次悬赏
         if con.boss_reward:
             self.fight_reward_boss()
-
-        self.open_filter()
 
         # 切换到对应集合(收藏)
         if con.use_collect:
@@ -456,6 +452,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         logger.info("open filter")
         self.ui_click(self.I_FILTER, self.I_AB_FILTER_OPENED, interval=3)
 
+    # 收藏
     def switch_to_collect(self):
         while 1:
             self.screenshot()
@@ -463,6 +460,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
                 break
             if self.appear(self.I_AB_FILTER_OPENED):
                 self.click(self.C_AB_COLLECTION_BTN, 1.5)
+                continue
+            if self.open_filter():
                 continue
 
     # 选择热门
@@ -479,6 +478,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
             if self.open_filter():
                 continue
 
+    # 打一次悬赏
     def switch_to_reward(self):
         logger.info("switch to reward")
         while 1:
@@ -487,6 +487,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
                 break
             if self.appear(self.I_AB_FILTER_OPENED):
                 self.click(self.C_AB_REWARD_BTN, 1.5)
+                continue
+            if self.open_filter():
                 continue
 
     def check_common_chars(self, bossName, name):
