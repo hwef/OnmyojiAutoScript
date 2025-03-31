@@ -124,7 +124,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
                             logger.info('ball is not enough')
                             return False
                         if self.appear_then_click(self.I_BALL_HELP, interval=2):
-                            sleep(1)
+                            sleep(0.5)
                             click_count += 1
                             continue
 
@@ -140,7 +140,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             if self.current_count >= self.limit_count:
                 if self.appear(self.I_GI_IN_ROOM):
                     # 次数达到也要邀请好友进房间,然后退出,不然队员无法判断是否完成契灵,出现异常
-                    self.run_invite(config=self.config.bondling_fairyland.invite_config, is_over=False)
+                    self.run_invite(config=self.config.bondling_fairyland.invite_config, is_first=is_first, is_over=False)
                     # 等待三秒让队员进房间,避免队员没进房间出现异常
                     sleep(3)
                     logger.info(f'契灵次数:{self.current_count}已完成,退出')
