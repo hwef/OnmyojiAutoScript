@@ -58,6 +58,7 @@ class Medal(FriendshipPoints):
         if con.random_soul:
             self.buy_one_souls(self.I_ME_SOULS, self.I_ME_CHECK_SOULS)
 
+        self._enter_medal()
         self.save_image()
 
     def buy_one_souls(self, start_click, check_image):

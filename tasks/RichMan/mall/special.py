@@ -72,6 +72,7 @@ class Special(Buy, MallNavbar):
         # 购买
         self.buy_more(self.I_SP_BUY_TOTEM)
         time.sleep(1)
+        self.save_image()
 
     def _special_medium(self, buy_number: int = 10):
         """
