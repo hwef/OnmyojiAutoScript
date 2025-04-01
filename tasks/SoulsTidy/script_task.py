@@ -78,15 +78,11 @@ class ScriptTask(GameUi, SoulsTidyAssets):
         self.ui_click(self.I_ST_GREED, self.I_ST_GREED_HABIT)
         self.ui_click(self.I_ST_GREED_HABIT, self.I_ST_FEED_NOW)
         logger.info('Feed greed ghost')
-        feed_count = 0
         while 1:
             self.screenshot()
-            if self.appear_then_click(self.I_UI_CONFIRM, interval=1):
-                break
-            if feed_count >= 3:
+            if not self.ui_click_until_disappear(self.I_UI_CONFIRM, interval=1):
                 break
             if self.appear_then_click(self.I_ST_FEED_NOW, interval=3.5):
-                feed_count += 1
                 continue
         logger.info('Feed greed ghost done')
         # 关闭贪吃鬼, 进入奉纳
