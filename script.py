@@ -389,19 +389,17 @@ class Script:
             return True
         except GameStuckError as e:
             logger.error(e)
-            self.save_error_log('Game Wait too long')
+            self.save_error_log('Wait too long')
             logger.warning(f'Game stuck, {self.device.package} will be restarted in 10 seconds')
-            self.config.notifier.push(title=command,
-                                      content=f"<{self.config_name}> GameStuckError Wait too long ")
+            self.config.notifier.push(title=command, content=f"<{self.config_name}> Wait too long ")
             self.config.task_call('Restart')
             self.device.sleep(10)
             return False
         except GameTooManyClickError as e:
             logger.error(e)
-            self.save_error_log('Game Too Many Click')
-            logger.warning(f'Game Too Many Click, {self.device.package} will be restarted in 10 seconds')
-            self.config.notifier.push(title=command,
-                                      content=f"<{self.config_name}> Game Too Many Click")
+            self.save_error_log('Too many click')
+            logger.warning(f'Too many click, {self.device.package} will be restarted in 10 seconds')
+            self.config.notifier.push(title=command, content=f"<{self.config_name}> Too many click")
             self.config.task_call('Restart')
             self.device.sleep(10)
             return False
@@ -414,14 +412,11 @@ class Script:
             self.device.sleep(10)
             return False
         except GamePageUnknownError:
-            logger.info('Game server may be under maintenance or network may be broken, check server status now')
-            # 这个还不重要 留着坑填
-            logger.critical('Game page unknown')
-            self.save_error_log('Game page unknown')
+            logger.critical('page unknown')
+            self.save_error_log('page unknown')
             self.config.task_call('Restart')
             self.device.sleep(10)
-            self.config.notifier.push(title=command, content=f"<{self.config_name}> GamePageUnknownError")
-            # exit(1)
+            self.config.notifier.push(title=command, content=f"<{self.config_name}> page unknown")
             return False
         except ScriptError as e:
             logger.critical(e)
