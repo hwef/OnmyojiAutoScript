@@ -27,9 +27,9 @@ class WantedQuestsAssets:
 	# Ocr-description 
 	O_WQ_TEXT_2 = RuleOcr(roi=(66,377,52,32), area=(66,377,52,32), mode="Full", method="Default", keyword="", name="wq_text_2")
 	# Ocr-description 
-	O_WQ_NUM_1 = RuleOcr(roi=(32,260,72,27), area=(32,260,72,27), mode="DigitCounter", method="Default", keyword="", name="wq_num_1")
+	O_WQ_NUM_1 = RuleOcr(roi=(30,260,75,27), area=(30,260,75,27), mode="DigitCounter", method="Default", keyword="", name="wq_num_1")
 	# Ocr-description 
-	O_WQ_NUM_2 = RuleOcr(roi=(34,406,65,24), area=(34,406,65,24), mode="DigitCounter", method="Default", keyword="", name="wq_num_2")
+	O_WQ_NUM_2 = RuleOcr(roi=(30,406,75,27), area=(30,406,75,27), mode="DigitCounter", method="Default", keyword="", name="wq_num_2")
 	# 备用识别1 
 	O_WQ_NUM_UNKNOWN_1 = RuleOcr(roi=(32,260,72,27), area=(32,260,72,27), mode="Digit", method="Default", keyword="", name="wq_num_unknown_1")
 	# 备用识别2 
