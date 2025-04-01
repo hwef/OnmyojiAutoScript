@@ -19,6 +19,7 @@ from tasks.Dokan.config import Dokan
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_shikigami_records, page_guild
 from tasks.RichMan.assets import RichManAssets
+from tasks.Component.GeneralInvite.assets import GeneralInviteAssets
 
 """ 道馆 """
 class DokanScene(Enum):
@@ -74,6 +75,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             self.run_switch_soul_by_name(cfg.switch_soul_config.group_name, cfg.switch_soul_config.team_name)
 
         # 开始道馆流程
+        self.goto_dokan()
         self.dokan_process(cfg)
 
     def dokan_process(self, cfg: Dokan):
@@ -376,18 +378,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         self.ui_get_current_page()
         self.ui_goto(page_guild)
         
-        # 寮成员先等待30秒
-        if not self.config.dokan.dokan_config.dokan_enable:
-            self.goto_dokan_num += 1
-            wait_time = 30
-            logger.info(f"寮成员第{self.goto_dokan_num}次进入,先等待{wait_time}秒，等待管理开启道馆")
-            time.sleep(wait_time)
-            if self.goto_dokan_num >= 10:
-                logger.info(f"寮成员{self.goto_dokan_num}次未进入道馆结束任务!")
-                self.goto_main()
-                self.set_next_run(task='Dokan', finish=True, server=True, success=True)
-                raise TaskEnd
-
         while 1:
             self.screenshot()
 
@@ -423,6 +413,16 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             # 管理开道馆
             if self.config.dokan.dokan_config.dokan_enable:
                 self.open_dokan()
+            else:
+                self.goto_dokan_num += 1
+                wait_time = 20
+                logger.info(f"寮成员第{self.goto_dokan_num}次进入,等待{wait_time}秒, 管理开启道馆")
+                time.sleep(wait_time)
+                if self.goto_dokan_num >= 10:
+                    logger.info(f"寮成员{self.goto_dokan_num}次未进入道馆, 结束任务!")
+                    self.goto_main()
+                    self.set_next_run(task='Dokan', finish=True, server=True, success=True)
+                    raise TaskEnd
 
     def goto_dokan_click(self):
         while 1:
@@ -430,6 +430,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
             if self.is_in_dokan():
                 break
+            if self.appear(GeneralInviteAssets.I_I_ACCEPT):
+                continue
 
             pos = self.O_DOKAN_MAP.ocr_full(self.device.image)
             if pos == (0, 0, 0, 0):
