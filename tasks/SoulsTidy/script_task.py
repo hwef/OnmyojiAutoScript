@@ -80,7 +80,8 @@ class ScriptTask(GameUi, SoulsTidyAssets):
         logger.info('Feed greed ghost')
         while 1:
             self.screenshot()
-            if not self.ui_click_until_disappear(self.I_UI_CONFIRM, interval=1):
+            if self.appear(self.I_UI_CONFIRM):
+                self.ui_click_until_disappear(self.I_UI_CONFIRM, interval=1)
                 break
             if self.appear_then_click(self.I_ST_FEED_NOW, interval=3.5):
                 continue
