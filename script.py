@@ -26,7 +26,7 @@ from module.config.utils import convert_to_underscore
 from module.device.device import Device
 from module.exception import *
 from module.logger import logger, error_path
-
+from module.server.i18n import I18n
 
 class Script:
     def __init__(self, config_name: str = 'oas') -> None:
@@ -78,7 +78,7 @@ class Script:
         """
         return None
 
-    def save_error_log(self, error_message='Exception'):
+    def save_error_log(self, title='', content=''):
         """
         Save last 60 screenshots in ./log/error/<timestamp>
         Save logs to ./log/error/<timestamp>/log.txt
@@ -113,8 +113,8 @@ class Script:
                 lines = handle_sensitive_logs(lines)
             with open(error_path_log, 'w', encoding='utf-8') as f:
                 f.writelines(lines)
-            title = f'{self.config.config_name} {error_message}'
-            asyncio.run(self.config.pushtg.telegram_send(title, error_path_image, error_path_log))
+            # asyncio.run(self.config.pushtg.telegram_send(title, error_path_image, error_path_log))
+            self.config.notifier.send_mail(f'{I18n.trans_zh_cn(title)} {content}', content, error_path_image, error_path_log)
 
     def init_server(self, port: int) -> int:
         """
@@ -386,52 +386,46 @@ class Script:
         except GameNotRunningError as e:
             logger.warning(e)
             self.config.task_call('Restart')
-            return True
+            return True 
         except GameStuckError as e:
             logger.error(e)
-            self.save_error_log('Wait too long')
-            logger.warning(f'Game stuck, {self.device.package} will be restarted in 10 seconds')
-            self.config.notifier.push(title=command, content=f"<{self.config_name}> Wait too long ")
-            self.config.task_call('Restart')
+            self.save_error_log(title=command, content="Wait too long")
+            logger.warning(f'Game stuck, Game will be restarted in 10 seconds')
             self.device.sleep(10)
+            self.config.task_call('Restart')
             return False
         except GameTooManyClickError as e:
             logger.error(e)
-            self.save_error_log('Too many click')
-            logger.warning(f'Too many click, {self.device.package} will be restarted in 10 seconds')
-            self.config.notifier.push(title=command, content=f"<{self.config_name}> Too many click")
-            self.config.task_call('Restart')
+            self.save_error_log(title=command, content="Too many click")
+            logger.warning(f'Too many click, Game will be restarted in 10 seconds')
             self.device.sleep(10)
+            self.config.task_call('Restart')
             return False
         except GameBugError as e:
-            logger.warning(e)
-            self.save_error_log('GameBugError')
-            logger.warning('An error has occurred in Azur Lane game client, Alas is unable to handle')
-            logger.warning(f'Restarting {self.device.package} to fix it')
-            self.config.task_call('Restart')
+            logger.error(e)
+            self.save_error_log(title=command, content="GameBugError")
+            logger.warning(f'GameBugError, Game will be restarted in 10 seconds')
             self.device.sleep(10)
+            self.config.task_call('Restart')
             return False
         except GamePageUnknownError:
             logger.critical('page unknown')
-            self.save_error_log('page unknown')
-            self.config.task_call('Restart')
+            self.save_error_log(title=command, content="Page unknown")
+            logger.warning(f'PageUnknown, Game will be restarted in 10 seconds')
             self.device.sleep(10)
-            self.config.notifier.push(title=command, content=f"<{self.config_name}> page unknown")
+            self.config.task_call('Restart')
             return False
         except ScriptError as e:
             logger.critical(e)
-            logger.critical('This is likely to be a mistake of developers, but sometimes just random issues')
-            self.config.notifier.push(title=command, content=f"<{self.config_name}> ScriptError")
+            self.save_error_log(title=command, content="ScriptError")
             exit(1)
         except RequestHumanTakeover as e:
             logger.critical(e)
-            logger.critical('Request human takeover')
-            self.config.notifier.push(title=command, content=f"<{self.config_name}> RequestHumanTakeover")
+            self.save_error_log(title=command, content="RequestHumanTakeover")
             exit(1)
         except Exception as e:
             logger.exception(e)
-            self.save_error_log()
-            self.config.notifier.push(title=command, content=f"<{self.config_name}> Exception occured")
+            self.save_error_log(title=command, content="Exception occured")
             exit(1)
 
     def loop(self):
@@ -488,7 +482,7 @@ class Script:
                 logger.critical("Possible reason #2: There is a problem with this task. "
                                 "Please contact developers or try to fix it yourself.")
                 logger.critical('Request human takeover')
-                self.config.notifier.push(title=task, content=f"<{self.config_name}> Task failed 3 or more times")
+                self.config.notifier.push(title=task, content="Task failed 3 or more times")
                 exit(1)
 
             if success:
