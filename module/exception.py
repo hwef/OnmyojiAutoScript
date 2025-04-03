@@ -31,6 +31,10 @@ class GameStuckError(Exception):
     pass
 
 
+class GameWaitTooLongError(Exception):
+    pass
+
+
 class GameBugError(Exception):
     # An error has occurred in Azur Lane game client. Alas is unable to handle.
     # A restart should fix it.
@@ -57,6 +61,7 @@ class RequestHumanTakeover(Exception):
     # Request human takeover
     # Alas is unable to handle such error, probably because of wrong settings.
     pass
+
 
 class TaskEnd(Exception):
     pass

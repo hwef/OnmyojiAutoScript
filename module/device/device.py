@@ -16,6 +16,7 @@ from module.device.platform2 import Platform
 from module.device.screenshot import Screenshot
 from module.exception import (GameNotRunningError,
                               GameStuckError,
+                              GameWaitTooLongError,
                               GameTooManyClickError,
                               RequestHumanTakeover,
                               EmulatorNotRunningError)
@@ -162,7 +163,7 @@ class Device(Platform, Screenshot, Control, AppControl):
         self.stuck_record_clear()
 
         if self.app_is_running():
-            raise GameStuckError(f'Wait too long')
+            raise GameWaitTooLongError(f'Wait too long')
         else:
             raise GameNotRunningError('Game died')
 

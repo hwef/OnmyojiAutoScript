@@ -387,45 +387,20 @@ class Script:
             logger.warning(e)
             self.config.task_call('Restart')
             return True 
-        except GameStuckError as e:
-            logger.error(e)
-            self.save_error_log(title=command, content="Wait too long")
-            logger.warning(f'Game stuck, Game will be restarted in 10 seconds')
-            self.device.sleep(10)
-            self.config.task_call('Restart')
-            return False
-        except GameTooManyClickError as e:
-            logger.error(e)
-            self.save_error_log(title=command, content="Too many click")
-            logger.warning(f'Too many click, Game will be restarted in 10 seconds')
-            self.device.sleep(10)
-            self.config.task_call('Restart')
-            return False
-        except GameBugError as e:
-            logger.error(e)
-            self.save_error_log(title=command, content="GameBugError")
-            logger.warning(f'GameBugError, Game will be restarted in 10 seconds')
-            self.device.sleep(10)
-            self.config.task_call('Restart')
-            return False
-        except GamePageUnknownError:
-            logger.critical('page unknown')
-            self.save_error_log(title=command, content="Page unknown")
-            logger.warning(f'PageUnknown, Game will be restarted in 10 seconds')
-            self.device.sleep(10)
-            self.config.task_call('Restart')
-            return False
-        except ScriptError as e:
-            logger.critical(e)
-            self.save_error_log(title=command, content="ScriptError")
-            exit(1)
-        except RequestHumanTakeover as e:
-            logger.critical(e)
-            self.save_error_log(title=command, content="RequestHumanTakeover")
-            exit(1)
         except Exception as e:
-            logger.exception(e)
-            self.save_error_log(title=command, content="Exception occured")
+            error_type = type(e).__name__  # 获取异常类型名称
+            if isinstance(e, (GameWaitTooLongError, GameTooManyClickError, GamePageUnknownError, GameStuckError, GameBugError)):
+                logger.error(e)
+                self.save_error_log(title=command, content=error_type)
+                logger.warning(f'{error_type}, Game will be restarted in 10 seconds')
+                self.device.sleep(10)
+                self.config.task_call('Restart')
+                return False
+            elif isinstance(e, (ScriptError, RequestHumanTakeover)):
+                logger.critical(e)
+            else:
+                logger.exception(e)
+            self.save_error_log(title=command, content=error_type)
             exit(1)
 
     def loop(self):
