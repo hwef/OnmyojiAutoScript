@@ -317,7 +317,7 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
             logger.info(f'Lantern {index} is box')
             return LanternClass.BOX
         elif self.appear(target_letter):
-            logger.info(f'Lantern {index} is letter')
+            logger.info(f'Lantern {index} is mail')
             return LanternClass.MAIL
         elif self.appear(target_mystery):
             logger.info(f'Lantern {index} is mystery task')
@@ -341,6 +341,9 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
             self.screenshot()
             if self.appear(self.I_JADE_50):
                 break
+            if self.appear(self.I_BOSS_FIRE) or self.appear(self.I_BEST_BOSS_FIRE):
+                self.appear_then_click(self.I_UI_BACK_RED)
+                continue
             if self.click(target_click, interval=1):
                 continue
         while 1:
@@ -385,6 +388,9 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
             self.screenshot()
             if self.appear(self.I_LETTER_CLOSE):
                 break
+            if self.appear(self.I_BOSS_FIRE) or self.appear(self.I_BEST_BOSS_FIRE):
+                self.appear_then_click(self.I_UI_BACK_RED)
+                continue
             if self.click(target_click, interval=1):
                 continue
         logger.info('Question answering Start')
@@ -455,6 +461,9 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
             if not self.appear(self.I_DE_LOCATION):
                 logger.info('Battle Start')
                 break
+            if self.appear(self.I_BOSS_FIRE) or self.appear(self.I_BEST_BOSS_FIRE):
+                self.appear_then_click(self.I_UI_BACK_RED)
+                continue
             if self.appear_then_click(self.I_DE_REALM_FIRE, interval=0.7):
                 continue
 
