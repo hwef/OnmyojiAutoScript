@@ -40,7 +40,7 @@ class ConfigMenu:
                                     'TrueOrochi']
         # 活动的任务
         self.menu["Activity Task"] = ['ActivityShikigami', 'MetaDemon', 'FrogBoss', 'FloatParade', 'Quiz', 'KittyShop',
-                                      'NianTrue']
+                                      'NianTrue', 'DyeTrials']
 
         self.menu["other"] = ['FallenSun', 'ExperienceYoukai', 'Nian', 'Delegation', 'Tako',  "EvoZone",   "Hyakkiyakou",
                               "HeroTest",  'MysteryShop',]
