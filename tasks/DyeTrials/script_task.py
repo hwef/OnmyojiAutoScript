@@ -8,10 +8,9 @@ from module.exception import TaskEnd
 from module.logger import logger
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.FloatParade.config import FloatParadeConfig, LevelReward
+from tasks.DyeTrials.assets import DyeTrialsAssets
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_shikigami_records
-from tasks.DyeTrials.assets import DyeTrialsAssets
 from tasks.Restart.assets import RestartAssets
 
 """ 灵染 试炼 """
@@ -36,7 +35,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
         self.ui_get_current_page()
         self.ui_goto(page_main)
 
-        self.get_all()
+        self.goto_dyeTrials()
 
         self.ui_get_current_page()
         self.ui_goto(page_main)
@@ -44,7 +43,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
         self.set_next_run(task='DyeTrials', success=True, finish=True)
         raise TaskEnd('DyeTrials')
 
-    def get_all(self):
+    def goto_dyeTrials(self):
         while 1:
             self.screenshot()
             if self.appear(self.I_FP_CHALLENGE):
@@ -64,7 +63,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
             time.sleep(0.1)
             if boss_timer.reached():
                 self.save_image()
-                self.config.notifier.push(title='超鬼王', message='识别超时退出')
+                self.config.notifier.push(title='灵染试炼', message='等待超时, 默认退出')
                 break
             if battle_num >= 50:
                 logger.info(f'Battle {battle_num}, enough battle, break')
