@@ -1,14 +1,16 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from module.atom.ocr import RuleOcr
-from module.atom.image import RuleImage
-from module.logger import logger
 
-from tasks.base_task import BaseTask
-from tasks.Utils.config_enum import ShikigamiClass
-from tasks.Component.ReplaceShikigami.assets import ReplaceShikigamiAssets
+import time
+
+from module.atom.image import RuleImage
 from module.base.timer import Timer
+from module.logger import logger
+from tasks.Component.ReplaceShikigami.assets import ReplaceShikigamiAssets
+from tasks.Utils.config_enum import ShikigamiClass
+from tasks.base_task import BaseTask
+
 
 class ReplaceShikigami(BaseTask, ReplaceShikigamiAssets):
 
@@ -99,10 +101,11 @@ class ReplaceShikigami(BaseTask, ReplaceShikigamiAssets):
             if not self.appear(stop_image):
                 break
 
-            if self.appear_then_click(self.I_U_CONFIRM_SMALL, interval=0.5):
+            if self.appear_then_click(self.I_U_CONFIRM_SMALL, interval=1):
                 continue
 
             if self.click(click_match, interval=1.5):
+                time.sleep(1)
                 continue
             if self.click(_click_match[6], interval=4.5):
                 # 有的时候第七个格子被占用到寄养上去了

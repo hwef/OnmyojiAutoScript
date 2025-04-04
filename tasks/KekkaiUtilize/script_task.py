@@ -411,9 +411,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             包括点击这种卡
             :return: 返回当前选中的最好的卡， 如果什么的都没有，返回None
             """
-            time.sleep(1)
             self.screenshot()
-            time.sleep(1)
             target = self.order_targets.find_anyone(self.device.image)
             if target is None:
                 logger.info('No target card found')
@@ -488,13 +486,16 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             # 可能是滑动的时候出错
             logger.warning('The best reason is that the swipe is wrong')
             return
+        wait_timer = Timer(20)
+        wait_timer.start()
         while 1:
             self.screenshot()
-            if self.appear(self.I_CHECK_FRIEND_REALM_1) \
-                    or self.appear(self.I_CHECK_FRIEND_REALM_3):
+            if self.appear(self.I_U_ADD_1) or self.appear(self.I_U_ADD_2):
                 logger.info('Appear enter friend realm button')
                 break
-
+            if wait_timer.reached():
+                logger.warning('Appear friend realm timeout')
+                return
             if self.appear_then_click(self.I_CHECK_FRIEND_REALM_2, interval=1.5):
                 logger.info('Click too fast to enter the friend\'s realm pool')
                 continue
@@ -543,11 +544,11 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('OAS1')
     d = Device(c)
     t = ScriptTask(c, d)
 
-    t.run()
+    t.check_utilize_add()
     # t.screenshot()
     # print(t.appear(t.I_BOX_EXP, threshold=0.6))
     # print(t.appear(t.I_BOX_EXP_MAX, threshold=0.6))
