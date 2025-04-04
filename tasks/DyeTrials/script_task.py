@@ -65,10 +65,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
                 self.save_image()
                 self.config.notifier.push(title='灵染试炼', message='等待超时, 默认退出')
                 break
-            if battle_num >= 50:
-                logger.info(f'Battle {battle_num}, enough battle, break')
-                self.save_image()
-                break
             # 获得奖励
             if self.ui_reward_appear_click():
                 boss_timer.reset()
@@ -80,10 +76,15 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
                 if cu == total == 50 and cu + res == total:
                     self.save_image()
                     break
-
+                if battle_num >= 50:
+                    logger.info(f'Battle {battle_num}, enough battle, break')
+                    self.save_image()
+                    break
                 self.ui_click_until_disappear(self.I_FP_CHALLENGE)
                 battle_num += 1
-                logger.info(f'Battle num [{battle_num}]')
+                logger.hr("General battle start", 2)
+                logger.info(f'Current tasks: {self.config.task.command}')
+                logger.info(f'Current count: {battle_num} / 50')
                 self.device.stuck_record_clear()
                 self.device.stuck_record_add('BATTLE_STATUS_S')
                 boss_timer.reset()
