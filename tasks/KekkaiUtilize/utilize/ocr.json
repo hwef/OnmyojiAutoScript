@@ -16,5 +16,14 @@
     "method": "Default",
     "keyword": "",
     "description": "今日已领取经验"
+  },
+  {
+    "itemName": "card_mum",
+    "roiFront": "819,421,134,33",
+    "roiBack": "819,421,134,33",
+    "mode": "Single",
+    "method": "Default",
+    "keyword": "",
+    "description": "斗鱼或太古寄养数目"
   }
 ]

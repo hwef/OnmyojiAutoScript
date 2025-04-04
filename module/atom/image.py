@@ -157,6 +157,36 @@ class RuleImage:
         else:
             return False
 
+    def match_first(self, image: np.array, threshold: float = None) -> bool:
+        """
+        自上而下找第一个匹配结果
+        :param threshold:
+        :param image:
+        :return:
+        """
+        if threshold is None:
+            threshold = self.threshold
+
+        if not self.is_template_match:
+            return self.sift_match(image)
+            # raise Exception(f"unknown method {self.method}")
+
+        source = self.corp(image)
+        mat = self.image
+        res = cv2.matchTemplate(source, mat, cv2.TM_CCOEFF_NORMED)
+        # 获取所有超过阈值的坐标
+        loc = np.where(res >= threshold)
+        if loc[0].size == 0:  # 无匹配
+            return False
+
+        # 直接取 y 最小的点（即最顶部）
+        top_loc = loc[0]
+        # 更新 ROI（根据需求调整）
+        self.roi_front[0] = top_loc[0] + self.roi_back[0]
+        self.roi_front[1] = top_loc[1] + self.roi_back[1]
+
+        return True
+
     def match_gray(self, image: np.array, threshold: float = None) -> bool:
         """
         :param threshold: 匹配阈值，默认为实例的阈值

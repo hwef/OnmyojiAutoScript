@@ -18,8 +18,9 @@ from tasks.KekkaiUtilize.utils import CardClass, target_to_card_class
 from tasks.Component.ReplaceShikigami.replace_shikigami import ReplaceShikigami
 from tasks.GameUi.page import page_main, page_guild
 
-
 """ 结界蹭卡 """
+
+
 class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     last_best_index = 99
 
@@ -42,7 +43,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         # 育成界面去蹭卡
         self.check_utilize_add()
 
-        for i in range(1,5):
+        for i in range(1, 5):
             self.ui_goto(page_guild)
             # 在寮的主界面 检查是否有收取体力或者是收取寮资金
             if self.check_guild_ap_or_assets(ap_enable=con.guild_ap_enable, assets_enable=con.guild_assets_enable):
@@ -115,7 +116,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             if self.appear_then_click(self.I_UI_BACK_BLUE, interval=2.5):
                 continue
 
-    def check_guild_ap_or_assets(self, ap_enable: bool=True, assets_enable: bool=True) -> bool:
+    def check_guild_ap_or_assets(self, ap_enable: bool = True, assets_enable: bool = True) -> bool:
         """
         在寮的主界面 检查是否有收取体力或者是收取寮资金
         如果有就顺带收取
@@ -180,7 +181,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             if self.appear_then_click(self.I_GUILD_REALM, interval=1):
                 continue
 
-    def check_box_ap_or_exp(self, ap_enable: bool=True, exp_enable: bool=True, exp_waste: bool=True) -> bool:
+    def check_box_ap_or_exp(self, ap_enable: bool = True, exp_enable: bool = True, exp_waste: bool = True) -> bool:
         """
         顺路检查盒子
         :param ap_enable:
@@ -199,7 +200,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                     continue
 
         # 先是体力盒子
-        def _check_ap_box(appear: bool=False):
+        def _check_ap_box(appear: bool = False):
             if not appear:
                 return False
             # 点击盒子
@@ -229,7 +230,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             _exit_to_realm()
 
         # 经验盒子
-        def _check_exp_box(appear: bool=False):
+        def _check_exp_box(appear: bool = False):
             if not appear:
                 logger.info('No exp box')
                 return False
@@ -365,7 +366,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     def order_targets(self) -> ImageGrid:
         rule = self.config.kekkai_utilize.utilize_config.utilize_rule
         if rule == UtilizeRule.DEFAULT:
-            return ImageGrid([self.I_U_TAIKO_6, self.I_U_FISH_6, self.I_U_TAIKO_5, self.I_U_FISH_5,
+            return ImageGrid([self.I_U_FISH_6, self.I_U_TAIKO_6, self.I_U_FISH_5, self.I_U_TAIKO_5,
                               self.I_U_TAIKO_4, self.I_U_FISH_4, self.I_U_TAIKO_3, self.I_U_FISH_3])
         elif rule == UtilizeRule.FISH:
             return ImageGrid([self.I_U_FISH_6, self.I_U_FISH_5,
@@ -382,7 +383,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         rule = self.config.kekkai_utilize.utilize_config.utilize_rule
         result = []
         if rule == UtilizeRule.DEFAULT:
-            result = [CardClass.TAIKO6, CardClass.FISH6, CardClass.TAIKO5, CardClass.FISH5,
+            result = [CardClass.FISH6, CardClass.TAIKO6,  CardClass.FISH5, CardClass.TAIKO5,
                       CardClass.TAIKO4, CardClass.FISH4, CardClass.TAIKO3, CardClass.FISH3]
         elif rule == UtilizeRule.FISH:
             result = [CardClass.FISH6, CardClass.FISH5,
@@ -405,7 +406,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         :param rule:
         :return:
         """
-        def _current_select_best(last_best: CardClass or None) -> CardClass | None:
+
+        def _current_select_best(last_best):
             """
             当前选中的最好的卡,(会自动和记录的最好的比较)
             包括点击这种卡
@@ -433,7 +435,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             logger.info('Current select card: %s', card_class)
 
             # 选择这个卡
-            self.appear_then_click(target, interval=0.9)
+            self.appear_then_click(target, interval=1)
             time.sleep(1)
             # 验证这张卡 的等级是否一致
             # while 1:
@@ -457,6 +459,18 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
             if current_card is None:
                 break
+            elif current_card == CardClass.TAIKO6 or current_card == CardClass.TAIKO5:
+                card_num = self.check_card_num('勾玉')
+                if card_num >= 76:
+                    break
+                if card_num >= 67:
+                    break
+            elif current_card == CardClass.FISH6 or current_card == CardClass.FISH5:
+                card_num = self.check_card_num('体力')
+                if card_num >= 151:
+                    break
+                elif card_num >= 143:
+                    break
             else:
                 card_best = current_card
 
@@ -468,16 +482,9 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             # 一直向下滑动
             self.swipe(self.S_U_UP, interval=0.9)
             swipe_count += 1
-            time.sleep(3)
+            time.sleep(1)
         # 最好的结界卡
         logger.info('End best card is %s', card_best)
-
-        # 蹭卡，卡不是前四位下标退出，执行错误时间判定
-        # global last_best_index
-        # logger.info(last_best_index)
-        # if last_best_index is None or last_best_index > 3:
-        #     self.set_next_run(task='KekkaiUtilize', success=False, finish=True)
-        #     raise TaskEnd
 
         # 进入结界
         self.screenshot()
@@ -521,6 +528,18 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
         self.set_shikigami(shikigami_order, stop_image)
 
+    def check_card_num(self, card_type: str) -> int:
+        self.screenshot()
+        result = self.O_CARD_MUM.ocr(self.device.image)
+        logger.warning(result)
+        result = result.replace('+', '').replace(card_type, '')
+        logger.warning(result)
+        try:
+            result = int(result)
+        except:
+            result = 0
+        logger.warning('Card num is %s', result)
+        return result
 
     def back_guild(self):
         """
@@ -540,17 +559,17 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             if self.appear_then_click(self.I_UI_BACK_BLUE, interval=1):
                 continue
 
+
 if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('OAS1')
+    c = Config('mi')
     d = Device(c)
     t = ScriptTask(c, d)
 
     t.check_utilize_add()
+    # t.check_card_num('勾玉', 67)
     # t.screenshot()
     # print(t.appear(t.I_BOX_EXP, threshold=0.6))
     # print(t.appear(t.I_BOX_EXP_MAX, threshold=0.6))
-
-

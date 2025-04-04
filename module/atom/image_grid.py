@@ -24,4 +24,13 @@ class ImageGrid:
                 return image
         return None
 
-
+    def find_first(self, img: np.array) -> RuleImage or None:
+        """
+        自下而上在这些图片中找到第一个，匹配的
+        :param img:
+        :return: 如果没有找到返回None
+        """
+        for image in self.images:
+            if image.match_first(img):
+                return image
+        return None

@@ -117,6 +117,8 @@ class KekkaiUtilizeAssets:
 	O_UTILIZE_RES_TIME = RuleOcr(roi=(1140,117,100,30), area=(1140,117,100,30), mode="Duration", method="Default", keyword="", name="utilize_res_time")
 	# 今日已领取经验 
 	O_BOX_EXP = RuleOcr(roi=(654,538,179,39), area=(654,538,179,39), mode="DigitCounter", method="Default", keyword="", name="box_exp")
+	# 斗鱼或太古寄养数目 
+	O_CARD_MUM = RuleOcr(roi=(800,421,150,33), area=(800,421,150,33), mode="Single", method="Default", keyword="", name="card_mum")
 
 
 	# Swipe Rule Assets
