@@ -78,7 +78,7 @@
     "roiBack": "68,480,930,72",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "description"
+    "description": "御魂加成"
   },
   {
     "itemName": "harvest_mail_title",
@@ -96,13 +96,13 @@
     "roiBack": "206,462,970,134",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "description"
+    "description": "体力"
   },
   {
     "itemName": "harvest_chat_close",
     "imageName": "harvest_harvest_chat_close.png",
     "roiFront": "639,309,35,100",
-    "roiBack": "639,309,35,100",
+    "roiBack": "620,280,70,200",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "打开聊天频道会自动关闭"
