@@ -91,15 +91,15 @@ class Notifier:
                 return
 
     def push(self, **kwargs) -> bool:
-
-        title = f"{self.config_name} {kwargs['title']}"
-        content = kwargs["content"]
-        message = f"{title}\n{content}"
-        asyncio.run(self.send_text_message(message))
+        title = f"{self.config_name}▪{I18n.trans_zh_cn(kwargs['title'])}"
+        if not ("type" in kwargs and kwargs["type"] == "mail"):
+            content = kwargs["content"]
+            title = f"{title} | {content}"
+        asyncio.run(self.send_text_message(title))
         if not self.enable:
             return False
         # 更新配置
-        kwargs["title"] = f"{self.config_name} {I18n.trans_zh_cn(kwargs['title'])}".replace(' ', '\u00A0')
+        kwargs["title"] = title.replace(' ', '\u00A0')
         self.config.update(kwargs)
         # pre check
         for key in self.required:
@@ -206,16 +206,16 @@ class Notifier:
             b64_code = b64_code.decode()
 
             # 格式化头部、图片和日志内容为 HTML
-            head = f'<b>{head}</b><br/><br/>'
+            head_text = f'<b>{head}</b><br/><br/>'
             image_b64 = f'<img src="data:image/png;base64,{b64_code}" alt="image" /><br/><br/>'
             content_text = ''.join(
                 f'<p style="font-size:8px;">{item}</p>'
                 for item in content.splitlines()
             )
-            body = head + image_b64 + content_text
+            body = head_text + image_b64 + content_text
 
             # 返回 HTML 内容的推送结果
-            return self.push_html(title=title, content=body)
+            return self.push_html(title=f'{I18n.trans_zh_cn(title)} | {head}', content=body)
         except Exception as e:
             # 记录异常错误
             logger.error(f"出现异常: {e}")
@@ -224,6 +224,7 @@ class Notifier:
 
     def push_html(self, **kwargs):
         SMTP.set_message_parser(self.custom_parse)
+        kwargs["type"] = "mail"
         self.push(**kwargs)
         SMTP.set_message_parser(_default_message_parser)
 
@@ -238,7 +239,6 @@ class Notifier:
         msg["To"] = To or user
 
         msg.set_content(content, subtype='html', charset='utf-8')  # 关键修改点
-
         return msg
 
 
@@ -250,6 +250,6 @@ if __name__ == '__main__':
     config = Config('du')
     device = Device(config)
     image_path = r"D:\OnmyojiAutoScript\ljxun\log\backup\2025-03-30 星期日\error\MI 09-10-40 (2025-03-30).png"
-    log_path = r"D:\OnmyojiAutoScript\ljxun\log\backup\2025-03-30 星期日\error\MI 09-10-40 (2025-03-30).log"
-    log_path = r"D:\OnmyojiAutoScript\ljxun\log\error\DU 13-06-00 (2025-04-02).log"
-    config.notifier.send_mail(title='契灵之境', head='契灵数量已达上限500，请及时处理', image_path=image_path, log_path=log_path)
+    log_path = r"D:\OnmyojiAutoScript\ljxun\log\backup\2025-03-30 星期日\error\MI 09-10-40 (2025-03-30).log1"
+    # config.notifier.send_mail(title='BondlingFairyland', head='契灵数量已达上限500，请及时处理', image_path=image_path, log_path=log_path)
+    config.notifier.push(title='Dokan', content='Dokan，请及时处理')
