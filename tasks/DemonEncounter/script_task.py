@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from module.logger import logger
 from module.exception import TaskEnd
 from module.base.timer import Timer
+from module.server.i18n import I18n
 
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.GameUi.game_ui import GameUi
@@ -18,6 +19,7 @@ from tasks.DemonEncounter.assets import DemonEncounterAssets
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
 from tasks.DemonEncounter.data.answer import Answer
+from tasks.Component.GeneralBuff.config_buff import BuffClass
 
 
 class LanternClass(Enum):
@@ -509,6 +511,31 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
         else:
             return True
 
+    def run_general_battle(self, config: GeneralBattleConfig = None, buff: BuffClass or list[BuffClass] = None) -> bool:
+        """
+        运行脚本
+        :return:
+        """
+        # 本人选择的策略是只要进来了就算一次，不管是不是打完了
+        logger.hr("General battle start", 2)
+        self.current_count += 1
+        logger.info(f'Current tasks: {I18n.trans_zh_cn(self.config.task.command)}')
+        logger.info(f'Current count: {self.current_count} / {self.limit_count}')
+
+        task_run_time = datetime.now() - self.start_time
+        # 格式化时间，只保留整数部分的秒
+        task_run_time_seconds = timedelta(seconds=int(task_run_time.total_seconds()))
+        logger.info(f'Current times: {task_run_time_seconds} / {self.limit_time}')
+
+        if config is None:
+            config = GeneralBattleConfig()
+
+        win = self.battle_wait(config.random_click_swipt_enable)
+        if win:
+            return True
+        else:
+            return False
+
     def battle_wait(self, random_click_swipt_enable: bool) -> bool:
         # 重写
         self.device.stuck_record_add('BATTLE_STATUS_S')
@@ -518,6 +545,9 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
         check_timer = None
         while 1:
             self.screenshot()
+
+            if self.appear_then_click(self.I_PREPARE_HIGHLIGHT):
+                continue
             if self.appear(self.I_DE_WIN):
                 logger.info('Appear [demon encounter] win button')
                 self.ui_click_until_disappear(self.I_DE_WIN)
