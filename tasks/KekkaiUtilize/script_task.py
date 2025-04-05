@@ -35,19 +35,18 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
         # 进入寮结界
         self.goto_realm()
-        # 查看满级
-        self.check_max_lv(con.shikigami_class)
-        # 顺带收体力盒子或者是经验盒子
-        time.sleep(1)
-        self.check_box_ap_or_exp(con.box_ap_enable, con.box_exp_enable, con.box_exp_waste)
-
-        # 在寮结界界面检查是否有收获 收体力或者资金
-        self.check_utilize_harvest()
-
         # 育成界面去蹭卡
         self.check_utilize_add()
 
+        # 查看满级
+        self.check_max_lv(con.shikigami_class)
+        # 在寮结界界面检查是否有收获 收体力或者资金
+        self.check_utilize_harvest()
+        # 顺带收体力盒子或者是经验盒子
+        self.check_box_ap_or_exp(con.box_ap_enable, con.box_exp_enable, con.box_exp_waste)
+
         for i in range(1, 5):
+            self.ui_get_current_page()
             self.ui_goto(page_guild)
             # 在寮的主界面 检查是否有收取体力或者是收取寮资金
             if self.check_guild_ap_or_assets(ap_enable=con.guild_ap_enable, assets_enable=con.guild_assets_enable):
@@ -86,12 +85,14 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 # 已经蹭上卡了，设置下次蹭卡时间
                 next_time = datetime.now() + remaining_time
                 self.set_next_run(task='KekkaiUtilize', target=next_time)
-                self.back_guild()
+                self.back_realm()
                 return
             if not self.grown_goto_utilize():
                 logger.info('Utilize failed, exit')
-            self.run_utilize(con.select_friend_list, con.shikigami_class, con.shikigami_order)
-            self.back_realm()
+            if self.run_utilize(con.select_friend_list, con.shikigami_class, con.shikigami_order):
+                self.back_guild()
+            else:
+                self.back_realm()
 
     def check_max_lv(self, shikigami_class: ShikigamiClass = ShikigamiClass.N):
         """
@@ -557,7 +558,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
                 logger.info(f'Trying to confirm {res_type} card with value {target_value}')
                 if _current_select_best(res_type, target_value, selected_card=True):
-                    logger.success(f'Confirmed optimal {res_type} card')
+                    logger.info(f'Confirmed optimal {res_type} card')
                     break
                 logger.warning('Failed to confirm card, resetting search')
                 reset_resource_records()
@@ -565,7 +566,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             else:
                 # 重新获取做好的卡
                 if _current_select_best():
-                    logger.success('Found perfect card in initial search')
+                    logger.info('Found perfect card in initial search')
                     break
                 logger.info('No suitable card found in initial search')
                 return
@@ -611,6 +612,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             return
 
         self.set_shikigami(shikigami_order, stop_image)
+        return True
 
     def check_card_num(self) -> int:
         """优化版数值提取方法，自动过滤卡片类型标识符"""
