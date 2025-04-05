@@ -428,15 +428,15 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
             logger.info('Current find best card: %s', target)
             # 如果当前的卡比记录的最好的卡还要好,那么就更新最好的卡
-            if last_best is not None:
-                last_index = self.order_cards.index(last_best)
-                current_index = self.order_cards.index(card_class)
-
-                if current_index > last_index:
-                    # 不比上一张卡好就退出不执行操作
-                    logger.info('Current card is not better than last best card')
-                    self.last_best_index = last_best
-                    return last_best
+            # if last_best is not None:
+            #     last_index = self.order_cards.index(last_best)
+            #     current_index = self.order_cards.index(card_class)
+            #
+            #     if current_index > last_index:
+            #         # 不比上一张卡好就退出不执行操作
+            #         logger.info('Current card is not better than last best card')
+            #         self.last_best_index = last_best
+            #         return last_best
             logger.info('Current select card: %s', card_class)
 
             # 选择这个卡
