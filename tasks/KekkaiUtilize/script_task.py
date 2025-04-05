@@ -1,6 +1,7 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
+import re
 import time
 from cached_property import cached_property
 from datetime import timedelta, datetime
@@ -24,6 +25,8 @@ from tasks.GameUi.page import page_main, page_guild
 class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     last_best_index = 99
     utilize_erroe_num = 0
+    ap_max_num = 0
+    jade_max_num = 0
 
     def run(self):
         con = self.config.kekkai_utilize.utilize_config
@@ -60,8 +63,9 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     def check_utilize_add(self):
         con = self.config.kekkai_utilize.utilize_config
         while 1:
-            if self.utilize_erroe_num >= 3:
-                logger.warning('Utilize error more than 3 times, exit')
+            self.utilize_erroe_num += 1
+            if self.utilize_erroe_num >= 5:
+                logger.warning('Utilize error more than 5 times, exit')
                 self.config.notifier.push(title=self.config.task.command, content=f"没有合适可以蹭的卡, 5分钟后再次执行蹭卡")
                 self.set_next_run(task='KekkaiUtilize', target=datetime.now() + timedelta(minutes=5))
                 return
@@ -87,7 +91,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             if not self.grown_goto_utilize():
                 logger.info('Utilize failed, exit')
             self.run_utilize(con.select_friend_list, con.shikigami_class, con.shikigami_order)
-            self.back_guild()
+            self.back_realm()
 
     def check_max_lv(self, shikigami_class: ShikigamiClass = ShikigamiClass.N):
         """
@@ -375,10 +379,12 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                               self.I_U_TAIKO_4, self.I_U_FISH_4, self.I_U_TAIKO_3, self.I_U_FISH_3])
         elif rule == UtilizeRule.FISH:
             return ImageGrid([self.I_U_FISH_6, self.I_U_FISH_5,
-                              self.I_U_TAIKO_6, self.I_U_TAIKO_5, self.I_U_FISH_4, self.I_U_TAIKO_4,  self.I_U_FISH_3,self.I_U_TAIKO_3])
+                              self.I_U_TAIKO_6, self.I_U_TAIKO_5, self.I_U_FISH_4, self.I_U_TAIKO_4, self.I_U_FISH_3,
+                              self.I_U_TAIKO_3])
         elif rule == UtilizeRule.TAIKO:
             return ImageGrid([self.I_U_TAIKO_6, self.I_U_TAIKO_5,
-                              self.I_U_FISH_6, self.I_U_FISH_5,  self.I_U_TAIKO_4, self.I_U_FISH_4, self.I_U_TAIKO_3,self.I_U_FISH_3])
+                              self.I_U_FISH_6, self.I_U_FISH_5, self.I_U_TAIKO_4, self.I_U_FISH_4, self.I_U_TAIKO_3,
+                              self.I_U_FISH_3])
         else:
             logger.error('Unknown utilize rule')
             raise ValueError('Unknown utilize rule')
@@ -388,14 +394,16 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         rule = self.config.kekkai_utilize.utilize_config.utilize_rule
         result = []
         if rule == UtilizeRule.DEFAULT:
-            result = [CardClass.FISH6, CardClass.TAIKO6,  CardClass.FISH5, CardClass.TAIKO5,
+            result = [CardClass.FISH6, CardClass.TAIKO6, CardClass.FISH5, CardClass.TAIKO5,
                       CardClass.TAIKO4, CardClass.FISH4, CardClass.TAIKO3, CardClass.FISH3]
         elif rule == UtilizeRule.FISH:
             result = [CardClass.FISH6, CardClass.FISH5,
-                      CardClass.TAIKO6, CardClass.TAIKO5, CardClass.FISH4,CardClass.TAIKO4,  CardClass.FISH3,CardClass.TAIKO3]
+                      CardClass.TAIKO6, CardClass.TAIKO5, CardClass.FISH4, CardClass.TAIKO4, CardClass.FISH3,
+                      CardClass.TAIKO3]
         elif rule == UtilizeRule.TAIKO:
             result = [CardClass.TAIKO6, CardClass.TAIKO5,
-                      CardClass.FISH6, CardClass.FISH5, CardClass.TAIKO4,CardClass.FISH4,  CardClass.TAIKO3,CardClass.FISH3]
+                      CardClass.FISH6, CardClass.FISH5, CardClass.TAIKO4, CardClass.FISH4, CardClass.TAIKO3,
+                      CardClass.FISH3]
         else:
             logger.error('Unknown utilize rule')
             raise ValueError('Unknown utilize rule')
@@ -412,40 +420,75 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         :return:
         """
 
-        def _current_select_best(last_best):
+        def _current_select_best(best_card=None, card_num=0, selected_card=False):
             """
-            当前选中的最好的卡,(会自动和记录的最好的比较)
-            包括点击这种卡
-            :return: 返回当前选中的最好的卡， 如果什么的都没有，返回None
+            当前选中的最好的卡 (自动与记录的最优卡比较)，包含点击操作
+            :param best_card: 已记录的最优卡类型，'jade' 或 'ap'
+            :param card_num: 已记录的最优卡数值
+            :param selected_card: 是否处于确认选择状态
+            :return: 找到符合要求的卡返回True，否则None
             """
-            self.screenshot()
-            target = self.order_targets.find_anyone(self.device.image)
-            if target is None:
-                logger.info('No target card found')
-                return None
-            card_class = target_to_card_class(target)
-            self.last_best_index = self.order_cards.index(card_class)
+            # 卡片类型映射关系 (卡片类: (资源类型, 最大值))
+            CARD_RESOURCE_MAP = {
+                CardClass.TAIKO6: ('jade', 76),
+                CardClass.TAIKO5: ('jade', 76),
+                CardClass.FISH6: ('ap', 151),
+                CardClass.FISH5: ('ap', 151),
+            }
+            swipe_count = 0
+            swipe_max_count = 6
+            while 1:
+                self.screenshot()
+                target = self.order_targets.find_anyone(self.device.image)
+                if target is None:
+                    logger.info('No target card found')
+                    if swipe_count > swipe_max_count:
+                        logger.warning(f'Swipe count is {swipe_count} more than {swipe_max_count}')
+                        return None
+                    # 一直向下滑动
+                    self.swipe(self.S_U_UP, interval=1)
+                    swipe_count += 1
+                    time.sleep(1)
+                    continue
 
-            logger.info('Current find best card: %s', target)
-            # 如果当前的卡比记录的最好的卡还要好,那么就更新最好的卡
-            # if last_best is not None:
-            #     last_index = self.order_cards.index(last_best)
-            #     current_index = self.order_cards.index(card_class)
-            #
-            #     if current_index > last_index:
-            #         # 不比上一张卡好就退出不执行操作
-            #         logger.info('Current card is not better than last best card')
-            #         self.last_best_index = last_best
-            #         return last_best
-            logger.info('Current select card: %s', card_class)
+                card_class = target_to_card_class(target)
+                logger.info('Current find best card: %s', target)
 
-            # 选择这个卡
-            self.appear_then_click(target, interval=1)
-            time.sleep(1)
-            # 验证这张卡 的等级是否一致
-            # while 1:
-            #     self.screenshot()
-            return card_class
+                if card_class not in CARD_RESOURCE_MAP:
+                    continue
+
+                # 获取卡片资源信息
+                resource_type, max_value = CARD_RESOURCE_MAP[card_class]
+
+                # 执行卡片点击操作
+                self.appear_then_click(target, interval=1)
+                time.sleep(1)
+
+                # 获取当前资源数值
+                current_num = self.check_card_num()
+
+                # 选择确认模式判断
+                if selected_card:
+                    if best_card == resource_type and current_num >= card_num:
+                        logger.info(f'Found better {resource_type} card: {current_num} >= {card_num}')
+                        return True
+                # 探索模式判断
+                else:
+                    # 达到最大值直接返回
+                    if current_num == max_value:
+                        logger.info(f'Perfect {resource_type} card found: {current_num}')
+                        return True
+
+                    # 更新最优记录
+                    max_attr = f'{resource_type}_max_num'
+                    current_max = getattr(self, max_attr, 0)
+                    if current_num > current_max:
+                        logger.info(f'New {resource_type} record: {current_num} (Prev: {current_max})')
+                        setattr(self, max_attr, current_num)
+                # 一直向下滑动
+                self.swipe(self.S_U_UP, interval=1)
+                swipe_count += 1
+                time.sleep(1)
 
         logger.hr('Start utilize')
         self.switch_friend_list(friend)
@@ -456,47 +499,76 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         else:
             self.switch_friend_list(SelectFriendList.SAME_SERVER)
             self.switch_friend_list(SelectFriendList.DIFFERENT_SERVER)
-        card_best = None
-        swipe_count = 0
+        """智能选择最优资源卡片的主控逻辑"""
+        # 预定义资源优先级配置（数值按降序排列）
+        RESOURCE_PRESETS = {
+            'ap': [151, 143, 134],  # 体力预设值
+            'jade': [76, 67]  # 勾玉预设值
+        }
+        MAX_INDEX = 99  # 表示未找到的索引值
+
+        def reset_resource_records():
+            """重置资源追踪记录"""
+            self.ap_max_num = 0
+            self.jade_max_num = 0
+            logger.info('Reset resource tracking records')
+
+        def get_preset_index(resource_type):
+            """区间匹配版本，找到当前值能达到的最高预设区间索引"""
+            current_value = getattr(self, f'{resource_type}_max_num', 0)
+            presets = RESOURCE_PRESETS[resource_type]
+
+            # 遍历降序排列的预设值（从高到低）
+            for index, target in enumerate(presets):
+                # 只要当前值 >= 当前预设值即视为达到该区间
+                if current_value >= target:
+                    logger.info(f'{resource_type} {current_value} matches {target} (index {index})')
+                    return index
+
+            # 所有预设值都不满足时返回特殊标记
+            logger.info(f'{resource_type} {current_value} exceeds all presets')
+            return MAX_INDEX
+
+        def determine_priority_resource():
+            """决策应该优先选择的资源类型"""
+            ap_index = get_preset_index('ap')
+            jade_index = get_preset_index('jade')
+
+            # 双资源都未命中预设值时重置状态
+            if ap_index == MAX_INDEX and jade_index == MAX_INDEX:
+                logger.info('Both resources exceed preset ranges')
+                reset_resource_records()
+                return None, None
+
+            # 选择索引更靠前（数值更大）的资源类型
+            if ap_index <= jade_index:
+                return 'ap', RESOURCE_PRESETS['ap'][ap_index]
+            else:
+                return 'jade', RESOURCE_PRESETS['jade'][jade_index]
+
         while 1:
             self.screenshot()
-            current_card = _current_select_best(card_best)
 
-            if current_card is None:
-                self.utilize_erroe_num += 1
-                logger.warning('No card found')
-                self.config.notifier.push(title=self.config.task.command, content=f"没有合适可以蹭的卡")
+            # 存在已记录的优选值时，选择卡
+            if self.ap_max_num or self.jade_max_num:
+                res_type, target_value = determine_priority_resource()
+                if not res_type:  # 当双资源均不符合预设时重新探索
+                    continue
+
+                logger.info(f'Trying to confirm {res_type} card with value {target_value}')
+                if _current_select_best(res_type, target_value, selected_card=True):
+                    logger.success(f'Confirmed optimal {res_type} card')
+                    break
+                logger.warning('Failed to confirm card, resetting search')
+                reset_resource_records()
                 return
-            elif current_card == CardClass.TAIKO6 or current_card == CardClass.TAIKO5:
-                card_num = self.check_card_num('勾玉')
-                if card_num >= 76:
-                    break
-                if card_num >= 67:
-                    break
-            elif current_card == CardClass.FISH6 or current_card == CardClass.FISH5:
-                card_num = self.check_card_num('体力')
-                if card_num >= 151:
-                    break
-                if card_num >= 143:
-                    break
-                if card_num >= 134:
-                    break
             else:
-                card_best = current_card
-
-            # 超过十次就退出
-            if swipe_count > 10:
-                self.utilize_erroe_num += 1
-                self.config.notifier.push(title=self.config.task.command, content=f"没有合适可以蹭的卡, Swipe count is more than 10")
-                logger.warning('Swipe count is more than 10')
+                # 重新获取做好的卡
+                if _current_select_best():
+                    logger.success('Found perfect card in initial search')
+                    break
+                logger.info('No suitable card found in initial search')
                 return
-
-            # 一直向下滑动
-            self.swipe(self.S_U_UP, interval=0.9)
-            swipe_count += 1
-            time.sleep(1)
-        # 最好的结界卡
-        logger.info('End best card is %s', card_best)
 
         # 进入结界
         self.screenshot()
@@ -540,18 +612,55 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
         self.set_shikigami(shikigami_order, stop_image)
 
-    def check_card_num(self, card_type: str) -> int:
+    def check_card_num(self) -> int:
+        """优化版数值提取方法，自动过滤卡片类型标识符"""
         self.screenshot()
-        result = self.O_CARD_NUM.ocr(self.device.image)
-        logger.warning(result)
-        result = result.replace('+', '').replace(card_type, '')
-        logger.warning('card num is [%s]', result)
+        # OCR识别并清理非数字字符
+        raw_text = self.O_CARD_NUM.ocr(self.device.image)
+        logger.debug(f'OCR原始结果: {raw_text}')
+
+        # 使用正则表达式一次性移除所有干扰字符 [+体カ力勾玉]
+        cleaned = re.sub(r'[+体カ力勾玉]', '', raw_text)
+        logger.debug(f'清理后文本: {cleaned}')
+
+        # 安全转换数字
         try:
-            result = int(result)
-        except:
-            result = 0
-        logger.warning('final card num is [%s]', result)
-        return result
+            return int(cleaned)
+        except ValueError:
+            self.config.notifier.push(title=self.config.task.command, message=f'数值转换失败, 原始内容: {raw_text} -> 清理后: {cleaned}')
+            logger.warning(f'数值转换失败，原始内容: {raw_text} -> 清理后: {cleaned}')
+            return 0
+
+    def back_guild(self):
+        """
+        回到寮的界面
+        :return:
+        """
+        while 1:
+            self.screenshot()
+
+            if self.appear(self.I_GUILD_INFO):
+                break
+            if self.appear(self.I_GUILD_REALM):
+                break
+
+            if self.appear_then_click(self.I_UI_BACK_RED, interval=1):
+                continue
+            if self.appear_then_click(self.I_UI_BACK_BLUE, interval=1):
+                continue
+
+    def back_realm(self):
+        # 回到寮结界
+        while 1:
+            self.screenshot()
+            if self.appear(self.I_REALM_SHIN):
+                break
+            if self.appear(self.I_SHI_DEFENSE):
+                break
+            if self.appear_then_click(self.I_UI_BACK_RED, interval=1):
+                continue
+            if self.appear_then_click(self.I_UI_BACK_BLUE, interval=1):
+                continue
 
     def back_guild(self):
         """
