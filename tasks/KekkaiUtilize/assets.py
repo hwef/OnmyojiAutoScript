@@ -52,6 +52,17 @@ class KekkaiUtilizeAssets:
 	I_BOX_EXP_MAX = RuleImage(roi_front=(889,430,61,64), roi_back=(829,372,228,186), threshold=0.7, method="Template matching", file="./tasks/KekkaiUtilize/realm/realm_box_exp_max.png")
 
 
+	# Click Rule Assets
+	# 选择结界区域1 
+	C_SELECT_REALM_1 = RuleClick(roi_front=(300,200,200,50), roi_back=(300,200,200,50), name="select_realm_1")
+	# 选择结界区域2 
+	C_SELECT_REALM_2 = RuleClick(roi_front=(300,307,200,50), roi_back=(300,307,200,50), name="select_realm_2")
+	# 选择结界区域3 
+	C_SELECT_REALM_3 = RuleClick(roi_front=(300,415,200,50), roi_back=(300,415,200,50), name="select_realm_3")
+	# 选择结界区域4 
+	C_SELECT_REALM_4 = RuleClick(roi_front=(300,520,200,50), roi_back=(300,520,200,50), name="select_realm_4")
+
+
 	# Image Rule Assets
 	# 右上角的放置好友寄养 
 	I_UTILIZE_ADD = RuleImage(roi_front=(1149,54,74,67), roi_back=(1149,54,74,67), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_utilize_add.png")
@@ -91,6 +102,14 @@ class KekkaiUtilizeAssets:
 	I_U_ADD_2 = RuleImage(roi_front=(979,52,76,69), roi_back=(979,52,76,69), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_add_2.png")
 	# description 
 	I_U_CONFIRM_SMALL = RuleImage(roi_front=(672,513,131,60), roi_back=(672,513,131,60), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_confirm_small.png")
+	# description 
+	I_SELECT_REALM_ON_1 = RuleImage(roi_front=(608,191,21,59), roi_back=(608,191,21,59), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/select_realm_on_1.png")
+	# description 
+	I_SELECT_REALM_ON_2 = RuleImage(roi_front=(606,298,21,59), roi_back=(606,298,21,59), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/select_realm_on_2.png")
+	# description 
+	I_SELECT_REALM_ON_3 = RuleImage(roi_front=(607,404,21,59), roi_back=(607,404,21,59), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/select_realm_on_3.png")
+	# description 
+	I_SELECT_REALM_ON_4 = RuleImage(roi_front=(607,516,21,59), roi_back=(607,516,21,59), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/select_realm_on_4.png")
 
 
 	# Image Rule Assets
@@ -118,7 +137,7 @@ class KekkaiUtilizeAssets:
 	# 今日已领取经验 
 	O_BOX_EXP = RuleOcr(roi=(654,538,179,39), area=(654,538,179,39), mode="DigitCounter", method="Default", keyword="", name="box_exp")
 	# 斗鱼或太古寄养数目 
-	O_CARD_MUM = RuleOcr(roi=(800,421,150,33), area=(800,421,150,33), mode="Single", method="Default", keyword="", name="card_mum")
+	O_CARD_NUM = RuleOcr(roi=(800,421,150,33), area=(800,421,150,33), mode="Single", method="Default", keyword="", name="card_num")
 
 
 	# Swipe Rule Assets

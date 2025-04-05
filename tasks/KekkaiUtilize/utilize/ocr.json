@@ -18,9 +18,9 @@
     "description": "今日已领取经验"
   },
   {
-    "itemName": "card_mum",
-    "roiFront": "819,421,134,33",
-    "roiBack": "819,421,134,33",
+    "itemName": "card_num",
+    "roiFront": "800,421,150,33",
+    "roiBack": "800,421,150,33",
     "mode": "Single",
     "method": "Default",
     "keyword": "",

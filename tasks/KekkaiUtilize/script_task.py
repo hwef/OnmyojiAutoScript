@@ -23,6 +23,7 @@ from tasks.GameUi.page import page_main, page_guild
 
 class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     last_best_index = 99
+    utilize_erroe_num = 0
 
     def run(self):
         con = self.config.kekkai_utilize.utilize_config
@@ -59,7 +60,11 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     def check_utilize_add(self):
         con = self.config.kekkai_utilize.utilize_config
         while 1:
-
+            if self.utilize_erroe_num >= 3:
+                logger.warning('Utilize error more than 3 times, exit')
+                self.config.notifier.push(title=self.config.task.command, content=f"没有合适可以蹭的卡, 5分钟后再次执行蹭卡")
+                self.set_next_run(task='KekkaiUtilize', target=datetime.now() + timedelta(minutes=5))
+                return
             # 进入寮结界
             self.goto_realm()
 
@@ -427,7 +432,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 last_index = self.order_cards.index(last_best)
                 current_index = self.order_cards.index(card_class)
 
-                if current_index >= last_index:
+                if current_index > last_index:
                     # 不比上一张卡好就退出不执行操作
                     logger.info('Current card is not better than last best card')
                     self.last_best_index = last_best
@@ -458,7 +463,10 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             current_card = _current_select_best(card_best)
 
             if current_card is None:
-                break
+                self.utilize_erroe_num += 1
+                logger.warning('No card found')
+                self.config.notifier.push(title=self.config.task.command, content=f"没有合适可以蹭的卡")
+                return
             elif current_card == CardClass.TAIKO6 or current_card == CardClass.TAIKO5:
                 card_num = self.check_card_num('勾玉')
                 if card_num >= 76:
@@ -469,15 +477,19 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 card_num = self.check_card_num('体力')
                 if card_num >= 151:
                     break
-                elif card_num >= 143:
+                if card_num >= 143:
+                    break
+                if card_num >= 134:
                     break
             else:
                 card_best = current_card
 
             # 超过十次就退出
             if swipe_count > 10:
+                self.utilize_erroe_num += 1
+                self.config.notifier.push(title=self.config.task.command, content=f"没有合适可以蹭的卡, Swipe count is more than 10")
                 logger.warning('Swipe count is more than 10')
-                break
+                return
 
             # 一直向下滑动
             self.swipe(self.S_U_UP, interval=0.9)
@@ -530,15 +542,15 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
     def check_card_num(self, card_type: str) -> int:
         self.screenshot()
-        result = self.O_CARD_MUM.ocr(self.device.image)
+        result = self.O_CARD_NUM.ocr(self.device.image)
         logger.warning(result)
         result = result.replace('+', '').replace(card_type, '')
-        logger.warning(result)
+        logger.warning('card num is [%s]', result)
         try:
             result = int(result)
         except:
             result = 0
-        logger.warning('Card num is %s', result)
+        logger.warning('final card num is [%s]', result)
         return result
 
     def back_guild(self):
@@ -564,7 +576,7 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('mi')
+    c = Config('oas1')
     d = Device(c)
     t = ScriptTask(c, d)
 

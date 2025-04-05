@@ -1,0 +1,26 @@
+[
+  {
+    "itemName": "select_realm_1",
+    "roiFront": "300,200,200,50",
+    "roiBack": "300,200,200,50",
+    "description": "选择结界区域1"
+  },
+  {
+    "itemName": "select_realm_2",
+    "roiFront": "300,307,200,50",
+    "roiBack": "300,307,200,50",
+    "description": "选择结界区域2"
+  },
+  {
+    "itemName": "select_realm_3",
+    "roiFront": "300,415,200,50",
+    "roiBack": "300,415,200,50",
+    "description": "选择结界区域3"
+  },
+  {
+    "itemName": "select_realm_4",
+    "roiFront": "300,520,200,50",
+    "roiBack": "300,520,200,50",
+    "description": "选择结界区域4"
+  }
+]

@@ -169,5 +169,41 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"
+  },
+  {
+    "itemName": "select_realm_on_1",
+    "imageName": "select_realm_on_1.png",
+    "roiFront": "608,191,21,59",
+    "roiBack": "608,191,21,59",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "description"
+  },
+  {
+    "itemName": "select_realm_on_2",
+    "imageName": "select_realm_on_2.png",
+    "roiFront": "606,298,21,59",
+    "roiBack": "606,298,21,59",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "description"
+  },
+  {
+    "itemName": "select_realm_on_3",
+    "imageName": "select_realm_on_3.png",
+    "roiFront": "607,404,21,59",
+    "roiBack": "607,404,21,59",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "description"
+  },
+  {
+    "itemName": "select_realm_on_4",
+    "imageName": "select_realm_on_4.png",
+    "roiFront": "607,516,21,59",
+    "roiBack": "607,516,21,59",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "description"
   }
 ]
