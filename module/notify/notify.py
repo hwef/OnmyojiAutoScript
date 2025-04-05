@@ -27,6 +27,8 @@ from requests import Response
 from pathlib import Path
 from onepush.providers.smtp import SMTP, _default_message_parser
 
+from module.server.i18n import I18n
+
 onepush.core.log = logger
 
 
@@ -97,7 +99,7 @@ class Notifier:
         if not self.enable:
             return False
         # 更新配置
-        kwargs["title"] = f"{self.config_name} {kwargs['title']}".replace(' ', '\u00A0')
+        kwargs["title"] = f"{self.config_name} {I18n.trans_zh_cn(kwargs['title'])}".replace(' ', '\u00A0')
         self.config.update(kwargs)
         # pre check
         for key in self.required:

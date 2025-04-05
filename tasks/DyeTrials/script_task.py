@@ -6,6 +6,7 @@ import time
 from module.base.timer import Timer
 from module.exception import TaskEnd
 from module.logger import logger
+from module.server.i18n import I18n
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.DyeTrials.assets import DyeTrialsAssets
@@ -83,7 +84,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
                 self.ui_click_until_disappear(self.I_FP_CHALLENGE)
                 battle_num += 1
                 logger.hr("General battle start", 2)
-                logger.info(f'Current tasks: {self.config.task.command}')
+                logger.info(f'Current tasks: {I18n.trans_zh_cn(self.config.task.command)}')
                 logger.info(f'Current count: {battle_num} / 50')
                 self.device.stuck_record_clear()
                 self.device.stuck_record_add('BATTLE_STATUS_S')

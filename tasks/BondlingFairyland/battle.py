@@ -5,6 +5,7 @@ from datetime import timedelta, datetime
 
 import random
 
+from module.server.i18n import I18n
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.BondlingFairyland.assets import BondlingFairylandAssets
 from tasks.BondlingFairyland.config_battle import BattleConfig
@@ -22,7 +23,7 @@ class BondlingBattle(GeneralBattle, BondlingFairylandAssets):
         """
         logger.hr("General battle start", 2)
         self.current_count += 1
-        logger.info(f'Current tasks: {self.config.task.command}')
+        logger.info(f'Current tasks: {I18n.trans_zh_cn(self.config.task.command)}')
         logger.info(f'Current count: {self.current_count} / {limit_count}')
 
         task_run_time = datetime.now() - self.start_time
