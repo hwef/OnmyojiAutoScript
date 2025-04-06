@@ -176,7 +176,7 @@ class ConfigModel(ConfigBase):
         :return:
         """
         super().__setattr__(key, value)
-        logger.info(f"[{self.config_name}] auto save config [{key}]='{value}'")
+        logger.warning(f"auto save config `{key}``to {value}")
         self.save()
 
     @staticmethod

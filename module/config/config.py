@@ -201,20 +201,17 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
 
             # pending_task = TaskScheduler.schedule(rule=self.model.script.optimization.schedule_rule,
             #                                       pending=pending_task)
-
-            if self.model.running_task and pending_task:
+            running_task = self.model.running_task
+            if running_task and pending_task:
                 try:
-                    current_running_tasks = []
-                    other_tasks = []
-
-                    for f in pending_task:
-                        if f.command == self.model.running_task:
-                            current_running_tasks.append(f)
-                        else:
-                            other_tasks.append(f)
-
-                    # 将 pending_task 列表重新构建为：首先包含 Restart 任务，然后是当前正在运行的任务，最后是其他任务。
-                    pending_task[:] = current_running_tasks + other_tasks
+                    # 若首位已经是目标，直接跳过后续循环
+                    if pending_task[0].command != running_task:
+                        for i, f in enumerate(pending_task):
+                            if f.command == running_task:
+                                # 移除并插入到首位
+                                task = pending_task.pop(i)
+                                pending_task.insert(0, task)
+                                break  # 仅处理第一个匹配项
 
                 except (ValueError, IndexError) as e:
                     logger.error(f"Error processing task: {e}, Current task list: {pending_task}")
@@ -252,7 +249,6 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         if self.pending_task:
             logger.info(f"Pending tasks: {[f.command for f in self.pending_task]}")
             task = self.pending_task[0]
-            self.model.running_task = task.command
             self.task = task
             logger.attr("Task", task)
             return task
@@ -411,15 +407,12 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             },
             allow_none=False,
         )
-        logger.info(f"Delay task `{task}` to {next_run} ({kv})")
+        logger.warning(f"Delay task `{task}` to {next_run} ({kv})")
 
         # 保证线程安全的
         self.lock_config.acquire()
         try:
             scheduler.next_run = next_run
-            # 避免任务运行中途修改, 例如任务中间接到悬赏
-            if self.model.running_task is not None and convert_to_underscore(self.model.running_task) == task:
-                self.model.running_task = None
             self.save()
         finally:
             self.lock_config.release()
@@ -449,7 +442,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
 
 
 if __name__ == '__main__':
-    config = Config(config_name='du')
+    config = Config(config_name='oas1')
     # print(config.model.running_task)
     # print(type(config.model.running_task))
     # if config.model.running_task is None:
@@ -462,4 +455,4 @@ if __name__ == '__main__':
     # config.update_scheduler()
     # print(config.pending_task)
 
-    # print(config.get_next())
+    print(config.get_next())

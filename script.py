@@ -438,7 +438,9 @@ class Script:
             self.device.click_record_clear()
 
             logger.hr(f'{task}  Start', 0)
+            self.config.model.running_task = task
             success = self.run(inflection.camelize(task))
+            self.config.model.running_task = None
             logger.hr(f'{task}  End', 0)
             self.is_first_task = False
 
