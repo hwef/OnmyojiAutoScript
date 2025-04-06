@@ -547,6 +547,8 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
             self.screenshot()
 
             if self.appear_then_click(self.I_PREPARE_HIGHLIGHT):
+                time.sleep(1)
+                self.device.stuck_record_add('BATTLE_STATUS_S')
                 continue
             if self.appear(self.I_DE_WIN):
                 logger.info('Appear [demon encounter] win button')
