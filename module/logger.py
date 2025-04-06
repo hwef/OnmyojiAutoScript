@@ -94,7 +94,7 @@ logger.addHandler(console_hdlr)
 log_path = r'.\log'
 # 使用 os.path.join 进行路径拼接，确保跨平台兼容性
 backup_path = os.path.join(log_path, 'backup')
-week_path = os.path.join(log_path, 'WeekTask')
+week_path = os.path.join(log_path, '每周任务')
 error_path = os.path.join(log_path, 'error')
 
 delete_path = os.path.join(backup_path, 'delete_home')

@@ -176,7 +176,7 @@ class ConfigModel(ConfigBase):
         :return:
         """
         super().__setattr__(key, value)
-        logger.warning(f"auto save config `{key}``to {value}")
+        logger.warning(f"auto save config `{key}` to {value}")
         self.save()
 
     @staticmethod
@@ -398,12 +398,6 @@ class ConfigModel(ConfigBase):
             logger.error(f'Set arg {task}.{group}.{argument}.{value} failed')
             return False
 
-        # XXX temp implementation to enable oasx control the datetime configuration globally rather than a single task
-        if task == "restart" and group == "task_config" and argument == "reset_task_datetime_enable" and value == True:
-            date_time = self.restart.task_config.reset_task_datetime
-            logger.info(f"reset_task_datetime={date_time}")
-            self.reset_datetime_for_all_enabled_tasks(date_time)
-
         # 设置参数
         try:
             setattr(group_object, argument, value)
@@ -414,34 +408,6 @@ class ConfigModel(ConfigBase):
             logger.error(e)
             return False
 
-    def replace_next_run(self, d, dt: datetime):
-        for k, v in d.items():
-            if isinstance(v, dict):
-                self.replace_next_run(v, dt=dt)
-            elif k == "next_run":
-                d[k] = dt
-                # convert value to datetime if it's a str
-                if isinstance(v, str):
-                    current_time = datetime.strptime(v, "%Y-%m-%d %H:%M:%S")
-                    if current_time != dt:
-                        d[k] = dt.strftime("%Y-%m-%d %H:%M:%S")
-                # already a datetime value
-                elif isinstance(v, datetime) and v != dt:
-                    d[k] = dt.strftime("%Y-%m-%d %H:%M:%S")
-
-    def reset_datetime_for_all_enabled_tasks(self, task_datetime: datetime):
-        logger.warn(f"trying to reset datetime of all tasks to: {task_datetime}")
-        # logger.info(f"current config: {self.dict()}")
-        data = self.dict()
-        self.replace_next_run(data, task_datetime)
-        # logger.info(f"new config: {data}")
-
-        # write to json config  file
-        self.write_json(self.config_name, data)
-
-        # reload from the newly modified json config file
-        data = self.read_json(self.config_name)
-        super().__init__(**data)
 
 if __name__ == "__main__":
     try:

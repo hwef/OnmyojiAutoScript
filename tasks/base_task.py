@@ -25,6 +25,7 @@ from module.device.device import Device
 from module.exception import ScriptError
 from module.logger import logger, log_path, week_path
 from module.ocr.base_ocr import OcrMode
+from module.server.i18n import I18n
 from tasks.Component.Costume.costume_base import CostumeBase
 from tasks.Component.config_base import Time
 from tasks.GlobalGame.assets import GlobalGameAssets
@@ -642,16 +643,16 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             # 获取今日日期并格式化为字符串
             datetime_now = datetime.now()
             today_date = datetime_now.strftime('%Y-%m-%d')
-            today_time = datetime_now.strftime('%H-%M-%S')
+            today_time = datetime_now.strftime('%H时%M分%S')
             today_weekday = datetime.now().strftime("%A")
             config_name = self.config.config_name.upper()
 
             # 设置保存图像的文件夹
             WeeklyTask = ['Duel', 'RichMan', 'RichMan/ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
             if task_name in WeeklyTask:
-                folder_name = f'{week_path}/{task_name}'
+                folder_name = f'{week_path}/{I18n.trans_zh_cn(task_name)}'
             else:
-                folder_name = f'{log_path}/{task_name}'
+                folder_name = f'{log_path}/{I18n.trans_zh_cn(task_name)}'
             folder_path = Path(folder_name)
             folder_path.mkdir(parents=True, exist_ok=True)
 
@@ -659,24 +660,35 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             sleep(wait_time)
             self.screenshot()
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
-            image_path = f'{folder_name}/{config_name} {today_time} ({today_date})'
+            filename = f"{config_name} {today_date} {today_time}"
+            image_path = folder_path / filename  # 使用pathlib路径对象
 
             if save_flag:
                 # 保存图像正常大小
-                image_path = f'{image_path}.png'  # 修改为.webp格式
-                cv2.imwrite(image_path, image)
+                image_path = image_path.with_suffix('.png')
+                params = []
             else:
                 # 修改图像为.webp格式, 调整图像分辨率原来的一半
-                image_path = f'{image_path}.webp'
+                image_path = image_path.with_suffix('.webp')
                 # 调整图像分辨率
                 scale_percent = 50  # 缩放到原来的一半
                 width = int(image.shape[1] * scale_percent / 100)
                 height = int(image.shape[0] * scale_percent / 100)
                 dim = (width, height)
-                resized_image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
+                image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
                 # 调整图像质量并保存为WebP格式
-                cv2.imwrite(image_path, resized_image, [int(cv2.IMWRITE_WEBP_QUALITY), 50])  # 质量设置为50
+                params = [int(cv2.IMWRITE_WEBP_QUALITY), 50]
 
+            # 使用cv2.imencode+文件流保存（解决中文路径问题）
+            ext = image_path.suffix
+            ret, buf = cv2.imencode(ext, image, params)
+            if ret:
+                with open(image_path, 'wb') as f:
+                    f.write(buf.tobytes())
+                logger.info(f"截图已保存至：{image_path}")
+            else:
+                self.config.notifier.push(title=task_name, content=f"保存{image_path}, 图像编码失败")
+                raise Exception("图像编码失败")
             logger.info(f"保存{image_path}截图")
         except Exception as e:
             self.config.notifier.push(title=task_name, content=f"保存{image_path}截图异常，{e}")
@@ -727,12 +739,12 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     t = BaseTask(c, d)
 
-    t.save_image("test")
-    t.save_image()
+    t.save_image("Orochi",wait_time=0)
+    # t.save_image()
 
     # logger.hr('INVITE FRIEND')
     # logger.hr('INVITE FRIEND', 0)
