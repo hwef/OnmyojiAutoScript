@@ -27,6 +27,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     utilize_erroe_num = 0
     ap_max_num = 0
     jade_max_num = 0
+    first_utilize = True
 
     def run(self):
         con = self.config.kekkai_utilize.utilize_config
@@ -492,8 +493,10 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 time.sleep(1)
 
         logger.hr('Start utilize')
-        self.switch_friend_list(friend)
-        self.swipe(self.S_U_END, interval=3)
+        if self.first_utilize:
+            self.switch_friend_list(friend)
+            self.swipe(self.S_U_END, interval=3)
+            self.first_utilize = False
         if friend == SelectFriendList.SAME_SERVER:
             self.switch_friend_list(SelectFriendList.DIFFERENT_SERVER)
             self.switch_friend_list(SelectFriendList.SAME_SERVER)
@@ -573,6 +576,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
         # 进入结界
         self.screenshot()
+        self.save_image()
         if not self.appear(self.I_U_ENTER_REALM):
             logger.warning('Cannot find enter realm button')
             # 可能是滑动的时候出错
@@ -619,11 +623,11 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         self.screenshot()
         # OCR识别并清理非数字字符
         raw_text = self.O_CARD_NUM.ocr(self.device.image)
-        logger.debug(f'OCR原始结果: {raw_text}')
+        logger.info(f'OCR原始结果: {raw_text}')
 
         # 使用正则表达式一次性移除所有干扰字符 [+体カ力勾玉]
         cleaned = re.sub(r'[+体カ力勾玉]', '', raw_text)
-        logger.debug(f'清理后文本: {cleaned}')
+        logger.info(f'清理后文本: {cleaned}')
 
         # 安全转换数字
         try:
