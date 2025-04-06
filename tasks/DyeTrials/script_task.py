@@ -77,7 +77,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
                 if cu == total == 50 and cu + res == total:
                     self.save_image()
                     break
-                if battle_num >= 50:
+                if battle_num > 50:
                     logger.info(f'Battle {battle_num}, enough battle, break')
                     self.save_image()
                     break
