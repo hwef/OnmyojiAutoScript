@@ -24,20 +24,23 @@ class ImageGrid:
                 return image
         return None
 
-    def find_everyone(self, img: np.array) -> RuleImage or None:
+    def find_everyone(self, img: np.array) -> list or None:
         """
-        自下而上在这些图片中找到第一个，匹配的
-        :param img:
-        :return: 如果没有找到返回None
+        自下而上查找所有匹配项，返回带对应image对象的排序结果
+        :param img: 待匹配图像
+        :return: 排序后的列表，每个元素为(image对象, (x, y, w, h))，无匹配返回None
         """
-        all_matches = []
+        matched = []
+        # 收集匹配结果时保留来源image
         for image in self.images:
-            # 获取当前image的匹配结果（已经是过滤后的列表）
-            current_matches = image.match_all_any(img, threshold=0.8, nms_threshold=0.3)
-            # 将当前结果合并到总列表
-            all_matches.extend(current_matches)
+            matches = image.match_all_any(img, threshold=0.8, nms_threshold=0.3)
+            for (score, x, y, w, h) in matches:
+                matched.append( (image, (x, y, w, h)) )
 
-        # 去掉得分部分，只保留坐标和尺寸 (x, y, w, h)
-        final_results = [(x, y, w, h) for (score, x, y, w, h) in all_matches]
+        # 按y坐标升序排列（屏幕坐标系从上到下）
+        sorted_results = sorted(
+            matched,
+            key=lambda item: item[1][1]  # item[1]是坐标元组，取y值
+        )
 
-        return final_results
+        return sorted_results if sorted_results else None
