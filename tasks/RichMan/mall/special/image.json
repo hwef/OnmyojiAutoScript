@@ -34,5 +34,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "判断是否滑动到底"
+  },
+  {
+    "itemName": "sp_swipe_check_jade",
+    "imageName": "special_sp_swipe_check_jade.png",
+    "roiFront": "640,420,100,100",
+    "roiBack": "173,144,840,432",
+    "method": "Template matching",
+    "threshold": 0.7,
+    "description": "判断是否滑动到底_永久勾玉卡"
   }
 ]

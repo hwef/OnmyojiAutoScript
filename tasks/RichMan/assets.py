@@ -303,6 +303,8 @@ class RichManAssets:
 	I_SP_BUY_LOW = RuleImage(roi_front=(176,148,144,108), roi_back=(128,142,902,449), threshold=0.8, method="Template matching", file="./tasks/RichMan/mall/special/special_sp_buy_low.png")
 	# 判断是否滑动到底 
 	I_SP_SWIPE_CHECK = RuleImage(roi_front=(900,164,42,61), roi_back=(173,144,840,379), threshold=0.8, method="Template matching", file="./tasks/RichMan/mall/special/special_sp_swipe_check.png")
+	# 判断是否滑动到底_永久勾玉卡 
+	I_SP_SWIPE_CHECK_JADE = RuleImage(roi_front=(640,420,100,100), roi_back=(173,144,840,432), threshold=0.7, method="Template matching", file="./tasks/RichMan/mall/special/special_sp_swipe_check_jade.png")
 
 
 	# Ocr Rule Assets

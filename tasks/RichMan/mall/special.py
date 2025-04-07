@@ -39,9 +39,11 @@ class Special(Buy, MallNavbar):
                 low_bought = True
 
             if totem_bought and medium_bought and low_bought:
+                if self.swipe(self.S_SP_DOWN, interval=2):
+                    time.sleep(2)
                 logger.info('All bought')
                 break
-            if self.appear(self.I_SP_SWIPE_CHECK):
+            if self.appear(self.I_SP_SWIPE_CHECK_JADE):
                 # 如果滑动到底了
                 logger.info('Swipe to bottom')
                 break
@@ -72,7 +74,6 @@ class Special(Buy, MallNavbar):
         # 购买
         self.buy_more(self.I_SP_BUY_TOTEM)
         time.sleep(1)
-        self.save_image()
 
     def _special_medium(self, buy_number: int = 10):
         """
