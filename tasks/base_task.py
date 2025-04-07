@@ -638,7 +638,10 @@ class BaseTask(GlobalGameAssets, CostumeBase):
     def save_image(self, task_name=None, wait_time=2, save_flag=False):
         try:
             if task_name is None:
-                task_name = self.config.task.command
+                if self.config and self.config.task:
+                    task_name = self.config.task.command
+                else:
+                    task_name = "TestTask"  # 默认任务名
 
             # 获取今日日期并格式化为字符串
             datetime_now = datetime.now()
@@ -689,7 +692,6 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             else:
                 self.config.notifier.push(title=task_name, content=f"保存{image_path}, 图像编码失败")
                 raise Exception("图像编码失败")
-            logger.info(f"保存{image_path}截图")
         except Exception as e:
             self.config.notifier.push(title=task_name, content=f"保存{image_path}截图异常，{e}")
             logger.info(f"保存{image_path}截图异常，{e}")
