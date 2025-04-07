@@ -392,6 +392,10 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             raise ValueError('Unknown utilize rule')
 
     @cached_property
+    def select_targets(self) -> ImageGrid:
+        return ImageGrid([self.I_U_FISH_6, self.I_U_TAIKO_6, self.I_U_FISH_5, self.I_U_TAIKO_5])
+
+    @cached_property
     def order_cards(self) -> list[CardClass]:
         rule = self.config.kekkai_utilize.utilize_config.utilize_rule
         result = []
@@ -457,6 +461,9 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 logger.info('Current find best card: %s', target)
 
                 if card_class not in CARD_RESOURCE_MAP:
+                    self.swipe(self.S_U_UP, interval=1)
+                    swipe_count += 1
+                    time.sleep(1)
                     continue
 
                 # 获取卡片资源信息
@@ -494,15 +501,17 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
         logger.hr('Start utilize')
         if self.first_utilize:
-            self.switch_friend_list(friend)
             self.swipe(self.S_U_END, interval=3)
             self.first_utilize = False
-        if friend == SelectFriendList.SAME_SERVER:
-            self.switch_friend_list(SelectFriendList.DIFFERENT_SERVER)
-            self.switch_friend_list(SelectFriendList.SAME_SERVER)
+            if friend == SelectFriendList.SAME_SERVER:
+                self.switch_friend_list(SelectFriendList.DIFFERENT_SERVER)
+                self.switch_friend_list(SelectFriendList.SAME_SERVER)
+            else:
+                self.switch_friend_list(SelectFriendList.SAME_SERVER)
+                self.switch_friend_list(SelectFriendList.DIFFERENT_SERVER)
         else:
-            self.switch_friend_list(SelectFriendList.SAME_SERVER)
-            self.switch_friend_list(SelectFriendList.DIFFERENT_SERVER)
+            self.switch_friend_list(friend)
+
         """智能选择最优资源卡片的主控逻辑"""
         # 预定义资源优先级配置（数值按降序排列）
         RESOURCE_PRESETS = {
