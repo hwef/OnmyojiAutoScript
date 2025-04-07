@@ -249,6 +249,39 @@ class RuleImage:
             matches.append((score, x, y, mat.shape[1], mat.shape[0]))
         return matches
 
+    def match_all_any(self, image: np.array, threshold: float = None, roi: list = None, nms_threshold: float = 0.3) -> list[tuple]:
+        """
+        区别于match，这个是返回所有的匹配结果
+        :param roi:
+        :param image:
+        :param threshold:
+        :return:
+        """
+        if roi is not None:
+            self.roi_back = roi
+        if threshold is None:
+            threshold = self.threshold
+        if not self.is_template_match:
+            raise Exception(f"unknown method {self.method}")
+        source = self.corp(image)
+        mat = self.image
+        results = cv2.matchTemplate(source, mat, cv2.TM_CCOEFF_NORMED)
+        locations = np.where(results >= threshold)
+        matches = []
+        for pt in zip(*locations[::-1]):  # (x, y) coordinates
+            score = results[pt[1], pt[0]]
+            # 得分, x, y, w, h
+            x = self.roi_back[0] + pt[0]
+            y = self.roi_back[1] + pt[1]
+            matches.append((score, x, y, mat.shape[1], mat.shape[0]))
+        if len(matches) > 0:
+            scores = np.array([m[0] for m in matches])
+            boxes = np.array([[m[1], m[2], m[3], m[4]] for m in matches])
+            # 使用OpenCV的NMSBoxes
+            indices = cv2.dnn.NMSBoxes(boxes.tolist(), scores.tolist(), score_threshold=threshold, nms_threshold=nms_threshold)
+            filtered_matches = [matches[i] for i in indices]
+            return filtered_matches
+        return matches
     def coord(self) -> tuple:
         """
         获取roi_front的随机的点击的坐标
@@ -364,17 +397,13 @@ class RuleImage:
 
 
 if __name__ == "__main__":
-    from dev_tools.assets_test import detect_image
 
-    IMAGE_FILE = './log/test/QQ截图20240223151924.png'
-    from tasks.Restart.assets import RestartAssets
+    from tasks.KekkaiUtilize.assets import KekkaiUtilizeAssets
 
-    jade = RestartAssets.I_HARVEST_JADE
-    jade.method = 'Sift Flann'
-    sign = RestartAssets.I_HARVEST_SIGN
-    sign.method = 'Sift Flann'
-    print(jade.roi_front)
-
-    detect_image(IMAGE_FILE, jade)
-    detect_image(IMAGE_FILE, sign)
-    print(jade.roi_front)
+    IMAGE_FILE = r"D:\MuMu12\共享文件夹\Screenshots\MuMu12-20250404-231231.png"
+    file = Path(IMAGE_FILE)
+    img = cv2.imdecode(fromfile(file, dtype=uint8), -1)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    target = KekkaiUtilizeAssets.I_U_FISH_6
+    match = target.match_all_any(img, threshold=0.8, nms_threshold=0.3)
+    print(match)
