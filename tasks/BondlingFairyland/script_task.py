@@ -7,7 +7,6 @@ from time import sleep
 from cached_property import cached_property
 from datetime import datetime
 from datetime import timedelta, time
-
 from module.base.timer import Timer
 from module.exception import TaskEnd
 from module.logger import logger
@@ -21,7 +20,8 @@ from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleCon
 from tasks.Component.GeneralRoom.general_room import GeneralRoom
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul, switch_parser
 from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_bondling_fairyland, page_shikigami_records
+from tasks.GameUi.page import page_main, page_bondling_fairyland, page_shikigami_records, page_mall
+from tasks.RichMan.assets import RichManAssets
 
 
 class BondlingNumberMax(Exception):
@@ -31,11 +31,27 @@ class BondlingNumberMax(Exception):
 """ 契灵 """
 
 
-class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, BondlingFairylandAssets):
+class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, BondlingFairylandAssets, RichManAssets):
     ball_pos_list = [None, None, None, None, None]  # 用于记录每一个位置的球是否出现
     first_catch = True  # 用于记录是否是第一次捕捉
     current_ball_index = 5
     def run(self):
+
+        logger.info('去商店查看契忆数量')
+        self.ui_get_current_page()
+        self.ui_goto(page_mall, confirm_wait=2.5)
+        self.ui_click(self.I_MALL_SCCALES, self.I_MALL_SCCALES_CHECK)
+        self.ui_click(self.I_MALL_BONDLINGS_SURE, self.I_MALL_BONDLINGS_ON)
+        cu, re, total = self.O_BL_CHECK_MONEY.ocr(self.device.image)
+        self.save_image()
+        if cu > 3500:
+            logger.info(f'契忆数量: {cu}, 已足够, 结束任务')
+            self.ui_get_current_page()
+            self.ui_goto(page_main)
+            self.set_next_run(task='BondlingFairyland', finish=True, success=True)
+            raise TaskEnd
+
+
         # 引用配置
         cong = self.config.bondling_fairyland
 

@@ -651,7 +651,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             config_name = self.config.config_name.upper()
 
             # 设置保存图像的文件夹
-            WeeklyTask = ['Duel', 'RichMan', 'RichMan/ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
+            WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
             if task_name in WeeklyTask:
                 folder_name = f'{week_path}/{I18n.trans_zh_cn(task_name)}'
             else:
