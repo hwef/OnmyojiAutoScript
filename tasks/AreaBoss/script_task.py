@@ -62,7 +62,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         # 退出
         self.go_back()
         self.set_next_run(task='AreaBoss', success=True, finish=False)
-        self.config.notifier.push(title='地域鬼王', content='任务已完成，请查看截图')
+        if self.current_count < 3:
+            self.config.notifier.push(title='地域鬼王', content=f'战斗次数{self.current_count}, 请查看')
         # 以抛出异常的形式结束
         raise TaskEnd
 
