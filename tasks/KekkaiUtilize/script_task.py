@@ -426,78 +426,74 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         :return:
         """
 
-        def _current_select_best(best_card=None, card_num=0, selected_card=False):
+        def _current_select_best(best_card_type=None, best_card_num=0, selected_card=False):
             """
-            当前选中的最好的卡 (自动与记录的最优卡比较)，包含点击操作
-            :param best_card: 已记录的最优卡类型，'jade' 或 'ap'
-            :param card_num: 已记录的最优卡数值
+            当前选中的最优卡处理 (自动比较并操作)
+            :param best_card_type: 最优卡类型('jade'/'ap')
+            :param best_card_num: 已记录的最优数值
             :param selected_card: 是否处于确认选择状态
-            :return: 找到符合要求的卡返回True，否则None
+            :return: 找到符合条件返回True，否则None
             """
-            # 卡片类型映射关系 (卡片类: (资源类型, 最大值))
-            CARD_RESOURCE_MAP = {
+            # 配置参数
+            CARD_CONFIG = {
                 CardClass.TAIKO6: ('jade', 76),
                 CardClass.TAIKO5: ('jade', 76),
                 CardClass.FISH6: ('ap', 151),
                 CardClass.FISH5: ('ap', 151),
             }
-            swipe_count = 0
-            swipe_max_count = 6
-            while 1:
+            MAX_SWIPES = 6
+
+            for swipe_count in range(MAX_SWIPES + 1):
+                # 截图查找目标卡片
                 self.screenshot()
                 target = self.order_targets.find_anyone(self.device.image)
-                if target is None:
-                    logger.info('No target card found')
-                    if swipe_count > swipe_max_count:
-                        logger.warning(f'Swipe count is {swipe_count} more than {swipe_max_count}')
+
+                # 未找到卡片时的处理
+                if not target:
+                    logger.info('未发现目标卡片' + (f'，第{swipe_count}次滑动' if swipe_count else ''))
+                    if swipe_count >= MAX_SWIPES:
+                        logger.warning(f'已达最大滑动次数 {MAX_SWIPES}')
                         return None
-                    # 一直向下滑动
                     self.swipe(self.S_U_UP, interval=1)
-                    swipe_count += 1
                     time.sleep(1)
                     continue
 
+                # 解析卡片信息
                 card_class = target_to_card_class(target)
-                logger.info('Current find best card: %s', target)
-
-                if card_class not in CARD_RESOURCE_MAP:
+                logger.info(f'发现候选卡片: {card_class}')
+                if card_class not in CARD_CONFIG:
+                    logger.info(f'忽略不支持的类型: {card_class}')
                     self.swipe(self.S_U_UP, interval=1)
-                    swipe_count += 1
                     time.sleep(1)
                     continue
 
-                # 获取卡片资源信息
-                resource_type, max_value = CARD_RESOURCE_MAP[card_class]
-
-                # 执行卡片点击操作
+                # 处理有效卡片
+                resource_type, max_value = CARD_CONFIG[card_class]
                 self.appear_then_click(target, interval=1)
                 time.sleep(1)
+                current_card_num = self.check_card_num()
 
-                # 获取当前资源数值
-                current_num = self.check_card_num()
-
-                # 选择确认模式判断
+                # 确认选择模式
                 if selected_card:
-                    if best_card == resource_type and current_num >= card_num:
-                        logger.info(f'Found better {resource_type} card: {current_num} >= {card_num}')
+                    if resource_type == best_card_type and current_card_num >= best_card_num:
+                        logger.info(f'找到更优{resource_type}卡: {current_card_num}≥{best_card_num}')
                         return True
-                # 探索模式判断
+                # 探索记录模式
                 else:
-                    # 达到最大值直接返回
-                    if current_num == max_value:
-                        logger.info(f'Perfect {resource_type} card found: {current_num}')
+                    if current_card_num == max_value:
+                        logger.info(f'发现完美{resource_type}卡: {max_value}')
                         return True
 
-                    # 更新最优记录
-                    max_attr = f'{resource_type}_max_num'
-                    current_max = getattr(self, max_attr, 0)
-                    if current_num > current_max:
-                        logger.info(f'New {resource_type} record: {current_num} (Prev: {current_max})')
-                        setattr(self, max_attr, current_num)
-                # 一直向下滑动
+                    record_attr = f'{resource_type}_max_num'
+                    if current_card_num > getattr(self, record_attr, 0):
+                        logger.info(f'刷新{resource_type}记录: {current_card_num}')
+                        setattr(self, record_attr, current_card_num)
+
+                # 继续滑动查找
                 self.swipe(self.S_U_UP, interval=1)
-                swipe_count += 1
                 time.sleep(1)
+
+            return None
 
         logger.hr('Start utilize')
         if self.first_utilize:
@@ -528,18 +524,18 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
         def get_preset_index(resource_type):
             """区间匹配版本，找到当前值能达到的最高预设区间索引"""
-            current_value = getattr(self, f'{resource_type}_max_num', 0)
+            best_card_num = getattr(self, f'{resource_type}_max_num', 0)
             presets = RESOURCE_PRESETS[resource_type]
 
             # 遍历降序排列的预设值（从高到低）
             for index, target in enumerate(presets):
                 # 只要当前值 >= 当前预设值即视为达到该区间
-                if current_value >= target:
-                    logger.info(f'{resource_type} {current_value} matches {target} (index {index})')
+                if best_card_num >= target:
+                    logger.info(f'{resource_type} {best_card_num} matches {target} (index {index})')
                     return index
 
             # 所有预设值都不满足时返回特殊标记
-            logger.info(f'{resource_type} {current_value} exceeds all presets')
+            logger.info(f'{resource_type} {best_card_num} exceeds all presets')
             return MAX_INDEX
 
         def determine_priority_resource():
