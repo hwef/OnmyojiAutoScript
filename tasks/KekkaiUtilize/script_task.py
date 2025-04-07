@@ -438,61 +438,77 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             CARD_CONFIG = {
                 CardClass.TAIKO6: ('jade', 76),
                 CardClass.TAIKO5: ('jade', 76),
+                # CardClass.TAIKO4: ('jade', 1),
+                # CardClass.TAIKO3: ('jade', 1),
+                # CardClass.TAIKO2: ('jade', 1),
+                # CardClass.TAIKO1: ('jade', 1),
                 CardClass.FISH6: ('ap', 151),
                 CardClass.FISH5: ('ap', 151),
+                # CardClass.FISH4: ('ap', 1),
+                # CardClass.FISH3: ('ap', 1),
+                # CardClass.FISH2: ('ap', 1),
+                # CardClass.FISH1: ('ap', 1),
             }
             MAX_SWIPES = 6
 
             for swipe_count in range(MAX_SWIPES + 1):
                 # 截图查找目标卡片
                 self.screenshot()
-                target = self.order_targets.find_anyone(self.device.image)
+                all_matches = self.order_targets.find_everyone(self.device.image)
 
-                # 未找到卡片时的处理
-                if not target:
-                    logger.info('未发现目标卡片' + (f'，第{swipe_count}次滑动' if swipe_count else ''))
-                    if swipe_count >= MAX_SWIPES:
-                        logger.warning(f'已达最大滑动次数 {MAX_SWIPES}')
-                        return None
+                # 无匹配时的滑动处理
+                if not all_matches:
+                    logger.info(f'第{swipe_count}次滑动未发现目标' if swipe_count else '初始状态无目标')
                     self.swipe(self.S_U_UP, interval=1)
-                    time.sleep(1)
+                    time.sleep(2)
                     continue
 
-                # 解析卡片信息
-                card_class = target_to_card_class(target)
-                logger.info(f'发现候选卡片: {card_class}')
-                if card_class not in CARD_CONFIG:
-                    logger.info(f'忽略不支持的类型: {card_class}')
-                    self.swipe(self.S_U_UP, interval=1)
-                    time.sleep(1)
-                    continue
+                # 遍历所有匹配项（已按从上到下排序）
+                for target,  (x, y, w, h) in all_matches:
 
-                # 处理有效卡片
-                resource_type, max_value = CARD_CONFIG[card_class]
-                self.appear_then_click(target, interval=1)
-                time.sleep(1)
-                current_card_num = self.check_card_num()
+                    # 转换坐标到ROI
+                    target_area = (x, y, w, h)
+                    self.C_SELECT_CARD.roi_front = target_area
+                    self.C_SELECT_CARD.roi_back = target_area
 
-                # 确认选择模式
-                if selected_card:
-                    if resource_type == best_card_type and current_card_num >= best_card_num:
-                        logger.info(f'找到更优{resource_type}卡: {current_card_num}≥{best_card_num}')
-                        return True
-                # 探索记录模式
-                else:
-                    if current_card_num == max_value:
-                        logger.info(f'发现完美{resource_type}卡: {max_value}')
-                        return True
+                    # 解析卡片信息
+                    card_class = target_to_card_class(target)
+                    logger.info(f'发现候选卡片: {card_class} @ {target_area}')
+                    if card_class not in CARD_CONFIG:
+                        logger.info(f'忽略不支持的类型: {card_class}')
+                        continue
 
-                    record_attr = f'{resource_type}_max_num'
-                    if current_card_num > getattr(self, record_attr, 0):
-                        logger.info(f'刷新{resource_type}记录: {current_card_num}')
-                        setattr(self, record_attr, current_card_num)
+                    # 处理有效卡片
+                    resource_type, max_value = CARD_CONFIG[card_class]
 
-                # 继续滑动查找
+                    self.click(self.C_SELECT_CARD)
+                    time.sleep(2)
+
+                    current_card_num = self.check_card_num()
+                    logger.info(f'{resource_type}卡数值: {current_card_num} (要求: {best_card_num if selected_card else max_value})')
+
+                    # 确认选择模式
+                    if selected_card:
+                        if resource_type == best_card_type and current_card_num >= best_card_num:
+                            logger.info(f'确认选择{resource_type}卡: {current_card_num} ≥ {best_card_num}')
+                            return True
+                    # 探索记录模式
+                    else:
+                        if current_card_num >= max_value:
+                            logger.info(f'发现完美{resource_type}卡, 确认选择: {max_value}')
+                            return True
+
+                        # 动态set卡类型 jade_max_num ap_max_num
+                        record_attr = f'{resource_type}_max_num'
+                        if current_card_num > getattr(self, record_attr, 0):
+                            logger.info(f'更新最好{resource_type}卡记录: {current_card_num}')
+                            setattr(self, record_attr, current_card_num)
+
                 self.swipe(self.S_U_UP, interval=1)
-                time.sleep(1)
-
+                time.sleep(2)
+                continue
+            # 循环结束后统一处理失败
+            logger.warning(f'滑动结束, 返回最好{resource_type}卡记录')
             return None
 
         logger.hr('Start utilize')
@@ -564,21 +580,21 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 if not res_type:  # 当双资源均不符合预设时重新探索
                     continue
 
-                logger.info(f'Trying to confirm {res_type} card with value {target_value}')
+                logger.info(f'正在尝试确认 {res_type} 卡（目标值: {target_value}）')
                 if _current_select_best(res_type, target_value, selected_card=True):
-                    logger.info(f'Confirmed optimal {res_type} card')
+                    logger.info(f'已确认最优 {res_type} 卡')
                     break
-                logger.warning('Failed to confirm card, resetting search')
+                logger.warning('确认卡片失败，重置搜索')
                 reset_resource_records()
                 return
             else:
                 # 重新获取做好的卡
                 if _current_select_best():
-                    logger.info('Found perfect card in initial search')
+                    logger.info('初次搜索发现完美卡片, 直接蹭卡')
                     break
-                logger.info('No suitable card found in initial search')
+                logger.info('初次搜索未找到合适卡片')
                 return
-        logger.info('Start confirming card')
+        logger.info('开始执行进入结界蹭卡流程')
         # 进入结界
         self.screenshot()
         self.save_image()

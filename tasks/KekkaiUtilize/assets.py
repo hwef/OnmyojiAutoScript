@@ -61,6 +61,8 @@ class KekkaiUtilizeAssets:
 	C_SELECT_REALM_3 = RuleClick(roi_front=(300,415,200,50), roi_back=(300,415,200,50), name="select_realm_3")
 	# 选择结界区域4 
 	C_SELECT_REALM_4 = RuleClick(roi_front=(300,520,200,50), roi_back=(300,520,200,50), name="select_realm_4")
+	# 点击识别到的卡(用识别到的坐标填充作用) 
+	C_SELECT_CARD = RuleClick(roi_front=(0,0,0,0), roi_back=(0,0,0,0), name="select_card")
 
 
 	# Image Rule Assets
