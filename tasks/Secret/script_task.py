@@ -121,7 +121,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, SecretAssets):
                 success = self.run_general_battle(self.battle_config)
                 continue
         self.save_image()
-        self.ui_click(self.I_UI_BACK_BLUE, self.I_CHECK_MAIN)
+        self.ui_click(self.I_UI_BACK_BLUE, self.I_BUFF_1)
         self.ui_get_current_page()
         self.ui_goto(page_main)
         if con.secret_gold_50 or con.secret_gold_100:
@@ -283,7 +283,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, SecretAssets):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()
