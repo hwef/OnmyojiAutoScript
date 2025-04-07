@@ -152,7 +152,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
         while 1:
             self.screenshot()
             if self.appear(self.I_TARCE_DISENABLE):
-                if self.play_count >= 3:
+                if self.play_count > 3:
                     self.ui_click_until_disappear(self.I_UI_BACK_RED)
                     return False
                 break
@@ -230,7 +230,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
             if one_number > num_want:
                 return battle, 1
             else:
-                return battle, num_want // one_number + (1 if num_want % one_number > 0 else 0)
+                return battle, min((num_want + one_number - 1) // one_number, 5)
 
         battle, num, goto = None, None, None
         if not battle:
