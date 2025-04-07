@@ -54,11 +54,10 @@ class Medal(FriendshipPoints):
             self.buy_mall_more(buy_button=self.I_ME_BROKEN, remain_number=False,
                                money_ocr=self.O_MALL_RESOURCE_3,
                                buy_number=con.broken_amulet, buy_max=99, buy_money=20)
-            # 随机御魂
+        self.save_image()
+        # 随机御魂
         if con.random_soul:
             self.buy_one_souls(self.I_ME_SOULS, self.I_ME_CHECK_SOULS)
-
-        self._enter_medal()
         self.save_image()
 
     def buy_one_souls(self, start_click, check_image):
