@@ -506,8 +506,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         """智能选择最优资源卡片的主控逻辑"""
         # 预定义资源优先级配置（数值按降序排列）
         RESOURCE_PRESETS = {
-            'ap': [151, 143, 134],  # 体力预设值
-            'jade': [76, 67]  # 勾玉预设值
+            'ap': [151, 143, 134, 126],  # 体力预设值
+            'jade': [76, 67, 59]  # 勾玉预设值
         }
         MAX_INDEX = 99  # 表示未找到的索引值
 
@@ -573,7 +573,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                     break
                 logger.info('No suitable card found in initial search')
                 return
-
+        logger.info('Start confirming card')
         # 进入结界
         self.screenshot()
         self.save_image()
@@ -600,21 +600,23 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 continue
         logger.info('Enter friend realm')
 
-        # 切换式神的类型
-        self.switch_shikigami_class(shikigami_class)
         # 判断好友的有两个位置还是一个坑位
         stop_image = None
         self.screenshot()
         if self.appear(self.I_U_ADD_1):  # 右侧第一个有（无论左侧有没有）
+            logger.info('Right side has one')
             stop_image = self.I_U_ADD_1
         elif self.appear(self.I_U_ADD_2) and not self.appear(self.I_U_ADD_1):  # 右侧第二个有 但是最左边的没有，这表示只留有一个坑位
+            logger.info('Right side has two')
             stop_image = self.I_U_ADD_2
         if not stop_image:
             # 没有坑位可能是其他人的手速太快了抢占了
             logger.warning('Cannot find stop image')
             logger.warning('Maybe other people is faster than you')
-            return
-
+            return True
+        # 切换式神的类型
+        self.switch_shikigami_class(shikigami_class)
+        # 上式神
         self.set_shikigami(shikigami_order, stop_image)
         return True
 
