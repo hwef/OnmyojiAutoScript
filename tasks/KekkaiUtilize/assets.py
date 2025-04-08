@@ -77,17 +77,17 @@ class KekkaiUtilizeAssets:
 	# description 
 	I_U_TAIKO_4 = RuleImage(roi_front=(543,316,60,43), roi_back=(541,171,73,438), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_taiko_4.png")
 	# description 
-	I_U_TAIKO_5 = RuleImage(roi_front=(544,201,59,52), roi_back=(538,179,79,426), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_taiko_5.png")
+	I_U_TAIKO_5 = RuleImage(roi_front=(543,201,62,54), roi_back=(538,179,79,426), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_taiko_5.png")
 	# description 
-	I_U_TAIKO_6 = RuleImage(roi_front=(545,313,60,45), roi_back=(533,156,87,450), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_taiko_6.png")
+	I_U_TAIKO_6 = RuleImage(roi_front=(543,521,62,54), roi_back=(533,156,87,450), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_taiko_6.png")
 	# description 
 	I_U_FISH_3 = RuleImage(roi_front=(552,216,41,33), roi_back=(543,178,69,412), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_fish_3.png")
 	# description 
 	I_U_FISH_4 = RuleImage(roi_front=(549,310,51,50), roi_back=(542,177,73,401), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_fish_4.png")
 	# description 
-	I_U_FISH_5 = RuleImage(roi_front=(552,529,45,41), roi_back=(541,183,71,403), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_fish_5.png")
+	I_U_FISH_5 = RuleImage(roi_front=(543,412,62,54), roi_back=(541,183,71,403), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_fish_5.png")
 	# description 
-	I_U_FISH_6 = RuleImage(roi_front=(544,201,59,52), roi_back=(530,184,82,416), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_fish_6.png")
+	I_U_FISH_6 = RuleImage(roi_front=(542,197,62,54), roi_back=(530,184,82,416), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_fish_6.png")
 	# 进入结界 
 	I_U_ENTER_REALM = RuleImage(roi_front=(792,531,178,67), roi_back=(792,531,178,67), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/utilize/utilize_u_enter_realm.png")
 	# 右侧大的图片 
