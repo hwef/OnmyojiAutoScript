@@ -44,11 +44,12 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
         self.ui_click(self.I_MALL_BONDLINGS_SURE, self.I_MALL_BONDLINGS_ON)
         cu, re, total = self.O_BL_CHECK_MONEY.ocr(self.device.image)
         self.save_image()
-        if cu > 3500:
+        if cu >= 3500:
             logger.info(f'契忆数量: {cu}, 已足够, 结束任务')
+            self.push_mail(head=f'契忆数量: {cu}, 已足够, 结束任务')
             self.ui_get_current_page()
             self.ui_goto(page_main)
-            self.set_next_run(task='BondlingFairyland', finish=True, success=True)
+            self.next_run_week(1)
             raise TaskEnd
 
 
@@ -854,7 +855,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('du')
+    config = Config('oas1')
     device = Device(config)
     task = ScriptTask(config, device)
     # image = task.screenshot()

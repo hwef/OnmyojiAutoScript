@@ -737,6 +737,16 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         logger.info(f"颜色匹配成功: [{target.name}]")
         return True
 
+    def push_mail(self, task_name=None, head='', image_path=None):
+        if task_name is None:
+            if self.config and self.config.task:
+                task_name = self.config.task.command
+            else:
+                task_name = 'task_name'
+        if image_path is None:
+            image_path = self.device.image
+        self.config.notifier.send_mail(title=task_name, head=head, image_path=image_path)
+
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
