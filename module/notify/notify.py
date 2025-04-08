@@ -1,33 +1,27 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-import base64
-from email.message import EmailMessage
-
 import aiohttp
 import asyncio
-
+import base64
 import cv2
+import numpy
+import numpy as np
 import onepush.core
 import yaml
 from aiohttp_socks import ProxyConnector
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from numpy import fromfile, uint8
-from pydoc import html
-from smtplib import SMTPResponseException
-
+from email.message import EmailMessage
 from module.logger import logger
+from module.server.i18n import I18n
 from onepush import get_notifier
 from onepush.core import Provider
 from onepush.exceptions import OnePushException
 from onepush.providers.custom import Custom
-from requests import Response
-from pathlib import Path
 from onepush.providers.smtp import SMTP, _default_message_parser
-
-from module.server.i18n import I18n
+from pathlib import Path
+from requests import Response
+from smtplib import SMTPResponseException
+from typing import Optional
 
 onepush.core.log = logger
 
@@ -180,7 +174,7 @@ class Notifier:
             logger.error(f"发送文本失败: {str(e)}")
             return False
 
-    def send_mail(self, title: str, head: str, image_path: str, log_path: str):
+    def send_mail(self, title: str, head: str, image_path=None, log_path=None):
         """
         发送消息，包括标题、头部、图片和日志内容。
 
@@ -194,20 +188,25 @@ class Notifier:
         - 成功时返回 HTML 推送的结果，失败时返回普通推送的结果。
         """
         try:
+            content = '日志文件不存在'
             # 读取日志文件内容
-            content = Path(log_path).read_text(encoding='utf-8')
+            if log_path:
+                log_file = Path(log_path)
+                if log_file.exists():
+                    content = log_file.read_text(encoding='utf-8')
+                else:
+                    logger.warning("日志文件不存在")
 
             # 读取并处理图片
-            image = Path(image_path)
-            image = cv2.imdecode(fromfile(image, dtype=uint8), -1)
-            image = cv2.resize(image, (0, 0), fx=0.5, fy=0.5)
-            img_str = cv2.imencode('.png', image)[1].tobytes()
-            b64_code = base64.b64encode(img_str)
-            b64_code = b64_code.decode()
+            b64_code = self.image_to_base64(image_path)
 
             # 格式化头部、图片和日志内容为 HTML
             head_text = f'<b>{head}</b><br/><br/>'
-            image_b64 = f'<img src="data:image/png;base64,{b64_code}" alt="image" /><br/><br/>'
+            if b64_code:
+                image_b64 = f'<img src="data:image/png;base64,{b64_code}" alt="image" /><br/><br/>'
+            else:
+                image_b64 = '图片文件不存在'
+
             content_text = ''.join(
                 f'<p style="font-size:8px;">{item}</p>'
                 for item in content.splitlines()
@@ -221,6 +220,28 @@ class Notifier:
             logger.error(f"出现异常: {e}")
             # 备用方案：发送普通消息
             return self.push(title=title, content=head)
+
+    def image_to_base64(self, image_path: Optional[str | Path | np.ndarray]):
+        try:
+            if image_path is None:
+                return None
+            if isinstance(image_path, (str, Path)):
+                img_path = Path(image_path)
+                if not img_path.exists():
+                    logger.warning("图片文件不存在")
+                    return None
+                image = cv2.imread(str(img_path))
+            elif isinstance(image_path,  numpy.ndarray):
+                image = image_path
+                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            image = cv2.resize(image, (0, 0), fx=0.5, fy=0.5)
+            img_str = cv2.imencode('.png', image)[1].tobytes()
+            b64_code = base64.b64encode(img_str)
+            b64_code = b64_code.decode()
+            return b64_code
+        except Exception as e:
+            logger.error(f"图片处理失败: {str(e)}")
+            return None
 
     def push_html(self, **kwargs):
         SMTP.set_message_parser(self.custom_parse)
@@ -247,9 +268,9 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('du')
+    config = Config('oas1')
     device = Device(config)
-    image_path = r"D:\OnmyojiAutoScript\ljxun\log\backup\2025-03-30 星期日\error\MI 09-10-40 (2025-03-30).png"
-    log_path = r"D:\OnmyojiAutoScript\ljxun\log\backup\2025-03-30 星期日\error\MI 09-10-40 (2025-03-30).log1"
-    # config.notifier.send_mail(title='BondlingFairyland', head='契灵数量已达上限500，请及时处理', image_path=image_path, log_path=log_path)
-    config.notifier.push(title='Dokan', content='Dokan，请及时处理')
+    image_path = r"D:\OnmyojiAutoScript\ljxun\log\error\DU 10-56-30 (2025-04-08).png"
+    log_path = r"D:\OnmyojiAutoScript\ljxun\log\error\DU 10-56-30 (2025-04-08).log"
+    config.notifier.send_mail(title='BondlingFairyland', head='契灵数量已达上限500，请及时处理', image_path=image_path, log_path=log_path)
+    # config.notifier.send_mail(title='Dokan', content='Dokan，请及时处理')
