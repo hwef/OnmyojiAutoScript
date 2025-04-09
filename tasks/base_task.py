@@ -693,8 +693,8 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 self.config.notifier.push(title=task_name, content=f"保存{image_path}, 图像编码失败")
                 raise Exception("图像编码失败")
         except Exception as e:
-            self.config.notifier.push(title=task_name, content=f"保存{image_path}截图异常，{e}")
-            logger.info(f"保存{image_path}截图异常，{e}")
+            self.config.notifier.push(title=task_name, content=f"保存截图异常，{e}")
+            logger.error(f"保存{task_name}截图异常，{e}")
 
     def appear_rgb(self, target, image=None, difference: int = 10):
         """

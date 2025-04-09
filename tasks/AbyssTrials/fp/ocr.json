@@ -1,0 +1,11 @@
+[
+  {
+    "itemName": "battle_num",
+    "roiFront": "1149,24,100,42",
+    "roiBack": "1149,24,100,42",
+    "mode": "DigitCounter",
+    "method": "Default",
+    "keyword": "",
+    "description": "战斗次数"
+  }
+]

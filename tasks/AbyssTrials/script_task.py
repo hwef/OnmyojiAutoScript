@@ -7,21 +7,21 @@ from module.base.timer import Timer
 from module.exception import TaskEnd
 from module.logger import logger
 from module.server.i18n import I18n
+from tasks.AbyssTrials.assets import AbyssTrialsAssets
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.DyeTrials.assets import DyeTrialsAssets
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_shikigami_records
 from tasks.Restart.assets import RestartAssets
 
-""" 灵染 试炼 """
+""" 狭间 幻境 """
 
 
-class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
+class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AbyssTrialsAssets):
 
     def run(self):
 
-        cfg = self.config.dye_trials
+        cfg = self.config.abyss_trials
 
         # 自动换御魂
         if cfg.switch_soul_config.enable:
@@ -36,15 +36,15 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
         self.ui_get_current_page()
         self.ui_goto(page_main)
 
-        self.goto_dyeTrials()
+        self.goto_abyssTrials()
 
         self.ui_get_current_page()
         self.ui_goto(page_main)
 
-        self.set_next_run(task='DyeTrials', success=True, finish=True)
-        raise TaskEnd('DyeTrials')
+        self.set_next_run(task='AbyssTrials', success=True, finish=True)
+        raise TaskEnd('AbyssTrials')
 
-    def goto_dyeTrials(self):
+    def goto_abyssTrials(self):
         while 1:
             self.screenshot()
             if self.appear(self.I_FP_CHALLENGE):
@@ -55,8 +55,11 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
                 continue
             if self.appear_then_click(self.I_TOGGLE_BUTTON, interval=3):
                 continue
-        logger.info('Enter DyeTrials')
-        boss_timer = Timer(60)
+            if self.appear_then_click(self.I_D_SKIP):
+                time.sleep(1)
+                continue
+        logger.info('Enter abyssTrials')
+        boss_timer = Timer(120)
         boss_timer.start()
         battle_num = 0
         while 1:
@@ -74,11 +77,11 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
                 continue
             if self.appear(self.I_FP_CHALLENGE, interval=1):
                 cu, res, total = self.O_BATTLE_NUM.ocr(image=self.device.image)
-                if cu == total == 50 and cu + res == total:
+                if cu == 0 and cu + res == total:
                     self.save_image()
                     self.push_mail(head='任务结束')
                     break
-                if battle_num > 50:
+                if battle_num >= 6:
                     logger.info(f'Battle {battle_num}, enough battle, break')
                     self.save_image()
                     self.push_mail(head='任务结束')
@@ -101,13 +104,25 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
                 boss_timer.reset()
                 time.sleep(1)
                 continue
+            if self.appear_then_click(self.I_REWARD):
+                time.sleep(1)
+                continue
+            if self.appear_then_click(self.I_WIN):
+                time.sleep(1)
+                continue
+            if self.appear_then_click(self.I_FALSE):
+                time.sleep(1)
+                continue
+
+
+
 
 
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('DU')
+    c = Config('oas1')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()
