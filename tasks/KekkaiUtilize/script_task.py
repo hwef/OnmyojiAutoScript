@@ -494,7 +494,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         # 类常量声明（需在类中定义）
         RESOURCE_PRESETS = {
             'ap': [151, 143, 134, 126, 101],
-            'jade': [76, 67, 59]
+            'jade': [76, 75, 67, 59]
         }
         MAX_INDEX = 99
 
@@ -580,9 +580,9 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             'ap': {'max': 151, 'record_attr': 'ap_max_num'},
             'jade': {'max': 76, 'record_attr': 'jade_max_num'}
         }
-        MAX_SWIPES = 15  # 最大滑动次数
+        MAX_SWIPES = 20  # 最大滑动次数
         CONSECUTIVE_MISS_LIMIT = 3  # 允许连续无卡次数
-        OPERATION_TIMEOUT = 100  # 操作超时(秒)
+        OPERATION_TIMEOUT = 120  # 操作超时(秒)
 
         #============== 初始化阶段 ==============#
         logger.info(
@@ -614,17 +614,14 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 continue
 
             #------ 步骤2: 处理识别到的卡片 ------#
-            cards_list = []
-            for target, score, (x, y, w, h) in all_cards:
-                cards_list.append(target)  # ✅ 正确用法
-            logger.info(f'第[{swipe_count}]次滑动' if swipe_count > 0 else '初始界面' + f' | 识别到卡片：{cards_list}')
+            cards_list = [target for target, _, _ in all_cards]
+            logger.info((f'第[{swipe_count}]次滑动' if swipe_count > 0 else '初始界面') + f' | 识别到卡片：{cards_list}')
 
             consecutive_miss = 0  # 重置无卡计数器
-            self.save_image(task_name='蹭卡截图', wait_time=0, save_flag=True)
             # 遍历所有卡片（已按位置排序）
-            for target, score, (x, y, w, h) in all_cards:
+            for _, _, targets in all_cards:
                 # 设置点击区域并获取卡片详情
-                self.C_SELECT_CARD.roi_front = (x, y, w, h)
+                self.C_SELECT_CARD.roi_front = targets
                 self.click(self.C_SELECT_CARD)
                 time.sleep(2)  # 等待卡片详情加载
 
