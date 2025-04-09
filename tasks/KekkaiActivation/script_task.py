@@ -314,7 +314,9 @@ class ScriptTask(KU, KekkaiActivationAssets):
         target = self.order_targets.find_anyone(self.device.image)
         if target is None:
             logger.info('No target card found')
-            return None
+            self.push_mail(head='No target card found')
+            self.set_next_run("KekkaiActivation", success=True, finish=True, target=datetime.now() + timedelta(minutes=30))
+            raise TaskEnd('KekkaiActivation')
         current_card = self._image_convert_card(target)
         if current_card == CardClass.UNKNOWN:
             logger.info('Unknown card class')
