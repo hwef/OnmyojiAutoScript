@@ -141,6 +141,7 @@ class GameUi(BaseTask, GameUiAssets):
             # Try to close unknown page
             for close in self.ui_close:
                 if self.appear_then_click(close, interval=1.5):
+                    time.sleep(0.5)
                     logger.info('Trying to switch to supported page')
                     timeout = Timer(10, count=20).start()
             # Unknown page but able to handle
@@ -243,7 +244,6 @@ class GameUi(BaseTask, GameUiAssets):
                 #             sleep(0.2)
                 #             logger.info(f'Page {page} AB {button} clicked')
 
-
                 # 获取当前页面的要点击的按钮
                 if self.appear(page.check_button, interval=4):
                     logger.info(f'Page switch: {page} -> {page.parent}')
@@ -283,6 +283,20 @@ class GameUi(BaseTask, GameUiAssets):
         logger.info('Page arrive: Daily')
         time.sleep(1)
         return
+
+    def back_main(self):
+        # 回到庭院
+        while 1:
+            time.sleep(0.5)
+            self.screenshot()
+            if self.appear(self.I_CHECK_MAIN):
+                break
+            if self.appear_then_click(self.I_UI_BACK_RED, interval=1):
+                continue
+            if self.appear_then_click(self.I_UI_BACK_BLUE, interval=1):
+                continue
+            if self.appear_then_click(self.I_UI_BACK_YELLOW, interval=1):
+                continue
 
 
 if __name__ == '__main__':
