@@ -19,6 +19,7 @@ from tasks.KekkaiActivation.utils import parse_rule
 from tasks.KekkaiActivation.config import ActivationConfig
 from tasks.Utils.config_enum import ShikigamiClass
 from tasks.GameUi.page import page_main, page_guild
+from tasks.KekkaiActivation.config import CardRule
 
 """ 结界挂卡 """
 class ScriptTask(KU, KekkaiActivationAssets):
@@ -82,16 +83,22 @@ class ScriptTask(KU, KekkaiActivationAssets):
     def dict_image_card(self) -> dict:
         return {v: k for k, v in self.dict_card_image.items()}
 
-    @cached_property
-    def order_cards(self) -> list[CardClass]:
-        # 重写
-        config = self.config.kekkai_activation.activation_config.card_rule
-        return parse_rule(config)
+    # @cached_property
+    # def order_cards(self) -> list[CardClass]:
+    #     # 重写
+    #     config = self.config.kekkai_activation.activation_config.card_rule
+    #     return config
 
     @cached_property
     def order_targets(self) -> ImageGrid:
-        # 重写
-        return ImageGrid([self.dict_card_image[card] for card in self.order_cards])
+        rule = self.config.kekkai_utilize.utilize_config.utilize_rule
+        if rule == CardRule.TAIKO:
+            return ImageGrid([self.I_U_TAIKO_6, self.I_U_TAIKO_5])
+        elif rule == CardRule.FISH:
+            return ImageGrid([self.I_U_FISH_6, self.I_U_FISH_5])
+        else:
+            logger.error('Unknown utilize rule')
+            raise ValueError('Unknown utilize rule')
 
     def run_activation(self, _config: ActivationConfig) -> bool:
         """
@@ -197,7 +204,6 @@ class ScriptTask(KU, KekkaiActivationAssets):
                 return False
             elif self.appear(self.I_A_ACTIVATE_GRAY):
                 return False
-        return False
 
     def ocr_time(self, screenshot=False) -> timedelta or None:
         if screenshot:
@@ -218,35 +224,48 @@ class ScriptTask(KU, KekkaiActivationAssets):
         :return:
         """
 
-        def run_auto():
-            while 1:
-                self.screenshot()
-                if not self.appear(self.I_A_EMPTY) and self.appear(self.I_A_ACTIVATE_YELLOW, threshold=0.9):
-                    break
-                if self.click(self.C_A_SELECT_AUTO, interval=1):
-                    continue
+        # def run_auto():
+        #     while 1:
+        #         self.screenshot()
+        #         if not self.appear(self.I_A_EMPTY) and self.appear(self.I_A_ACTIVATE_YELLOW, threshold=0.9):
+        #             break
+        #         if self.click(self.C_A_SELECT_AUTO, interval=1):
+        #             continue
+        #
+        # if rule == "auto":
+        #     logger.info('Auto select card')
+        #     run_auto()
+        #     return
+        #
+        # card_class = None
+        # target_class = None
+        # top_card = self.order_cards[0]
+        # if top_card.startswith(CardClass.TAIKO):  # 太鼓
+        #     card_class = CardClass.TAIKO
+        #     target_class = self.I_A_CARD_KAIKO
+        # elif top_card.startswith(CardClass.MOON):  # 太阴
+        #     card_class = CardClass.MOON
+        #     target_class = self.I_A_CARD_MOON
+        # elif top_card.startswith(CardClass.FISH):  # 斗鱼
+        #     card_class = CardClass.FISH
+        #     target_class = self.I_A_CARD_FISH
+        #
+        # if card_class is None:
+        #     logger.warning('Unknown card class')
+        #     run_auto()
+        #     return
 
-        if rule == "auto":
-            logger.info('Auto select card')
-            run_auto()
-            return
-
-        card_class = None
-        target_class = None
-        top_card = self.order_cards[0]
-        if top_card.startswith(CardClass.TAIKO):  # 太鼓
+        if rule == CardRule.TAIKO:
             card_class = CardClass.TAIKO
             target_class = self.I_A_CARD_KAIKO
-        elif top_card.startswith(CardClass.MOON):  # 太阴
-            card_class = CardClass.MOON
-            target_class = self.I_A_CARD_MOON
-        elif top_card.startswith(CardClass.FISH):  # 斗鱼
+        elif rule == CardRule.FISH:
             card_class = CardClass.FISH
             target_class = self.I_A_CARD_FISH
-
-        if card_class is None:
-            logger.warning('Unknown card class')
-            run_auto()
+        # elif rule == CardRule.AUTO:
+        #     pass
+        else:
+            logger.warning('Unknown card rule')
+            self.push_mail(head='Unknown card rule')
             return
 
         while 1:
@@ -269,34 +288,54 @@ class ScriptTask(KU, KekkaiActivationAssets):
         logger.info('Selected card class: {}'.format(card_class))
 
         # 得了开始一直往下滑动 找最优卡
-        card_best = None
-        swipe_count = 0
+        # card_best = None
+        # swipe_count = 0
         while 1:
             self.screenshot()
-            current_best = self._current_select_best(card_best)
-            if current_best is None:
-                logger.warning('There is no card in the list')
-                break
 
-            if current_best == self.order_cards[0]:
-                break
-            # 为什么找到第二个最优解也是会退出呢？？？
-            # 这个是因为一般是从高星到低星来找， 基本上第二个最优解就是最优解了
-            elif current_best == self.order_cards[1]:
-                break
-
-            # 滑到底就退出
-            if self.appear(self.I_AA_SWIPE_BLOCK):
-                logger.warning('Swipe to the end but no card is found')
-                break
-            # 超过十次就退出
-            if swipe_count > 15:
-                logger.warning('Swipe count is more than 10')
-                break
-            # 一直向下滑动
-            self.swipe(self.S_CARDS_SWIPE, interval=0.9)
-            swipe_count += 1
-            time.sleep(2)
+            self.screenshot()
+            target = self.order_targets.find_anyone(self.device.image)
+            if target is None:
+                logger.info('No target card found')
+                self.push_mail(head='No target card found')
+                if target_class == self.I_A_CARD_FISH:
+                    self.config.kekkai_activation.activation_config.card_rule = CardRule.TAIKO
+                else:
+                    self.config.kekkai_activation.activation_config.card_rule = CardRule.FISH
+                self.set_next_run("KekkaiActivation", success=True, finish=True, target=datetime.now())
+                raise TaskEnd('KekkaiActivation')
+            self.screenshot()
+            if self.appear(self.I_A_EMPTY):
+                while 1:
+                    self.screenshot()
+                    if not self.appear(self.I_A_EMPTY):
+                        break
+                    if self.appear_then_click(target, interval=1):
+                        continue
+            # current_best = self._current_select_best(card_best)
+            # if current_best is None:
+            #     logger.warning('There is no card in the list')
+            #     break
+            #
+            # if current_best == self.order_cards[0]:
+            #     break
+            # # 为什么找到第二个最优解也是会退出呢？？？
+            # # 这个是因为一般是从高星到低星来找， 基本上第二个最优解就是最优解了
+            # elif current_best == self.order_cards[1]:
+            #     break
+            #
+            # # 滑到底就退出
+            # if self.appear(self.I_AA_SWIPE_BLOCK):
+            #     logger.warning('Swipe to the end but no card is found')
+            #     break
+            # # 超过十次就退出
+            # if swipe_count > 15:
+            #     logger.warning('Swipe count is more than 10')
+            #     break
+            # # 一直向下滑动
+            # self.swipe(self.S_CARDS_SWIPE, interval=0.9)
+            # swipe_count += 1
+            # time.sleep(2)
 
     def _image_convert_card(self, target: RuleImage) -> CardClass:
         """
@@ -315,36 +354,36 @@ class ScriptTask(KU, KekkaiActivationAssets):
         if target is None:
             logger.info('No target card found')
             self.push_mail(head='No target card found')
-            self.set_next_run("KekkaiActivation", success=True, finish=True, target=datetime.now() + timedelta(minutes=30))
+            self.set_next_run("KekkaiActivation", success=True, finish=True, target=datetime.now())
             raise TaskEnd('KekkaiActivation')
-        current_card = self._image_convert_card(target)
-        if current_card == CardClass.UNKNOWN:
-            logger.info('Unknown card class')
-            return None
-        logger.info(f'Current best card class: {current_card}')
-
-        # 如果当前的最好的卡，不比上一次最好的卡，那就退出
-        if last_best is not None:
-            last_index = self.order_cards.index(last_best)
-            current_index = self.order_cards.index(current_card)
-            if current_index >= last_index:
-                # 不比上一张卡好就退出不执行操作，相同星级卡亦跳过
-                logger.info('Current card is not better than last best card')
-                return last_best
-
-        # 否则就是比上一张卡好，那就执行操作 点击操作
-        logger.info('Current select card: %s', current_card)
+        # current_card = self._image_convert_card(target)
+        # if current_card == CardClass.UNKNOWN:
+        #     logger.info('Unknown card class')
+        #     return None
+        # logger.info(f'Current best card class: {current_card}')
+        #
+        # # 如果当前的最好的卡，不比上一次最好的卡，那就退出
+        # if last_best is not None:
+        #     last_index = self.order_cards.index(last_best)
+        #     current_index = self.order_cards.index(current_card)
+        #     if current_index >= last_index:
+        #         # 不比上一张卡好就退出不执行操作，相同星级卡亦跳过
+        #         logger.info('Current card is not better than last best card')
+        #         return last_best
+        #
+        # # 否则就是比上一张卡好，那就执行操作 点击操作
+        # logger.info('Current select card: %s', current_card)
         # 如果一开始是没有选择中的，那就稳定点否则就是只管点击
         self.screenshot()
         if self.appear(self.I_A_EMPTY):
             while 1:
                 self.screenshot()
                 if not self.appear(self.I_A_EMPTY):
-                    return current_card
+                    return
                 if self.appear_then_click(target, interval=1):
                     continue
         self.appear_then_click(target, interval=0.5)
-        return current_card
+        return
 
     def check_max_lv(self, shikigami_class: ShikigamiClass = ShikigamiClass.N):
         """
