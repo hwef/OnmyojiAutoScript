@@ -66,7 +66,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             self.utilize_erroe_num += 1
             if self.utilize_erroe_num >= 5:
                 logger.warning('Utilize error more than 5 times, exit')
-                self.config.notifier.push(title=self.config.task.command, content=f"没有合适可以蹭的卡, 5分钟后再次执行蹭卡")
+                self.push_notify(title=self.config.task.command, content=f"没有合适可以蹭的卡, 5分钟后再次执行蹭卡")
                 self.set_next_run(task='KekkaiUtilize', target=datetime.now() + timedelta(minutes=5))
                 return
             # 进入寮结界
@@ -160,11 +160,9 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             if self.appear_then_click(self.I_GUILD_AP, interval=1.5):
                 # 等待1秒，看到获得奖励
                 time.sleep(1)
-                # self.save_image()
                 logger.info('appear_click guild_ap success')
                 if self.ui_reward_appear_click(True):
                     logger.info('appear_click reward success')
-                    # self.save_image()
                     timer_check.reset()
                     return True
                 continue
@@ -445,7 +443,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         logger.info('开始执行进入结界蹭卡流程')
         # 进入结界
         self.screenshot()
-        self.save_image()
+        self.save_image(push_flag=True, wait_time=0)
         if not self.appear(self.I_U_ENTER_REALM):
             logger.warning('Cannot find enter realm button')
             # 可能是滑动的时候出错
@@ -687,7 +685,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             card_type = 'jade'
         else:
             logger.warning(f'卡片类型识别失败，原始内容: {raw_text}')
-            self.config.notifier.push(
+            self.push_notify(
                 title=self.config.task.command,
                 content=f'卡片类型识别失败: {raw_text}'
             )
@@ -704,7 +702,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             value = 0
 
         if value <= 0:
-            self.config.notifier.push(
+            self.push_notify(
                 title=self.config.task.command,
                 content=f'数值异常: {raw_text} -> 解析值: {value}'
             )

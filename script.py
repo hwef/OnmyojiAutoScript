@@ -110,7 +110,7 @@ class Script:
             with open(error_log_path, 'w', encoding='utf-8') as f:
                 f.writelines(lines)
             # asyncio.run(self.config.pushtg.telegram_send(title, error_path_image, error_path_log))
-            self.config.notifier.send_mail(title, content, self.device.image, error_log_path)
+            self.config.notifier.send_push(title, content, self.device.image, error_log_path)
 
     def init_server(self, port: int) -> int:
         """

@@ -276,7 +276,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
 
             # 等待超时
             if wait_timer.reached():
-                self.config.notifier.push(title=self.config.task.command, content=f"组队等待超时...")
+                self.push_notify(title=self.config.task.command, content=f"组队等待超时...")
                 success = False
                 return success
 

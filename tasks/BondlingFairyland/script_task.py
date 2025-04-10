@@ -45,16 +45,16 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
 
         MAX_COUNT = 3000
         cu, re, total = self.O_BL_CHECK_MONEY.ocr(self.device.image)
-        logger.info(f'契忆数量: {cu}, 未足够: {MAX_COUNT}, 继续任务')
+
         if cu >= MAX_COUNT:
             logger.info(f'契忆数量: {cu}, 已足够: {MAX_COUNT}, 结束任务')
             self.save_image()
-            self.push_mail(head=f'契忆数量: {cu}, 已足够: {MAX_COUNT}, 结束任务')
+            self.push_notify(content=f'契忆数量: {cu}, 已足够: {MAX_COUNT}, 结束任务')
             self.ui_get_current_page()
             self.ui_goto(page_main)
             self.next_run_week(1)
             raise TaskEnd
-
+        logger.info(f'契忆数量: {cu}, 未足够: {MAX_COUNT}, 继续任务')
         logger.hr('第二步, 切换御魂', 2)
         # 引用配置
         cong = self.config.bondling_fairyland
@@ -227,7 +227,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             # logger.warning("开始等待队长拉人:" + str(wait_timer.current()))
             if wait_timer.reached():
                 logger.warning(f"等待队长拉人超时:{wait_timer.current()},退出")
-                self.config.notifier.push(title=self.config.task.command, content=f"组队等待超时...")
+                self.push_notify(title=self.config.task.command, content=f"组队等待超时...")
                 break
 
             # if self.current_count >= self.limit_count:
@@ -313,7 +313,8 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
                         break
                 except BondlingNumberMax:
                     logger.error('Bondling number max, exit')
-                    self.config.notifier.push(title='契灵之境', content='契灵数量已达上限500，请及时处理')
+                    self.save_image()
+                    self.push_notify(title='契灵之境', content='契灵数量已达上限500，请及时处理')
                     success = False
                     break
             else:
@@ -827,7 +828,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             # 等待超时
             if accept_timer.reached():
                 logger.warning(f"等待队长拉人超时:{accept_timer.current()},退出")
-                self.config.notifier.push(title=self.config.task.command, content=f"组队等待超时...")
+                self.push_notify(title=self.config.task.command, content=f"组队等待超时...")
                 break
 
             if self.is_in_room():

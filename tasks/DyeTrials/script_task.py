@@ -64,7 +64,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
             time.sleep(0.1)
             if boss_timer.reached():
                 self.save_image()
-                self.push_mail(head='等待超时, 默认退出')
+                self.push_notify(content='等待超时, 默认退出')
                 break
             # 获得奖励
             if self.ui_reward_appear_click():
@@ -76,12 +76,12 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DyeTrialsAssets):
                 cu, res, total = self.O_BATTLE_NUM.ocr(image=self.device.image)
                 if cu == total == 50 and cu + res == total:
                     self.save_image()
-                    self.push_mail(head='任务结束')
+                    self.push_notify(content='任务结束')
                     break
                 if battle_num > 50:
                     logger.info(f'Battle {battle_num}, enough battle, break')
                     self.save_image()
-                    self.push_mail(head='任务结束')
+                    self.push_notify(content='任务结束')
                     break
                 self.ui_click_until_disappear(self.I_FP_CHALLENGE)
                 battle_num += 1

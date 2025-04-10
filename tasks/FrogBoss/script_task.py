@@ -37,13 +37,13 @@ class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
             if self.appear(self.I_BETTED):
                 logger.info('You have betted')
                 self.save_image()
-                self.config.notifier.push(title='对弈竞猜', content=f'下注: {self.betted_status}，请查看截图')
+                self.push_notify(title='对弈竞猜', content=f'下注: {self.betted_status}，请查看截图')
                 break
             # 休息中
             if self.appear(self.I_FROG_BOSS_REST):
                 logger.info('Frog Boss Rest')
                 self.save_image()
-                self.config.notifier.push(title='对弈竞猜', content='休息中....')
+                self.push_notify(title='对弈竞猜', content='休息中....')
                 break
             # 竞猜成功
             if self.appear(self.I_BET_SUCCESS):

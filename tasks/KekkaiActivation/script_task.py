@@ -227,7 +227,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
             target_class = self.I_A_CARD_FISH
         else:
             logger.warning('Unknown card rule')
-            self.push_mail(head='Unknown card rule')
+            self.push_notify(content='Unknown card rule')
             return
 
         while 1:
@@ -260,6 +260,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
                 while 1:
                     self.screenshot()
                     if not self.appear(self.I_A_EMPTY):
+                        self.save_image(push_flag=True)
                         return
                     if self.appear_then_click(target, interval=1):
                         continue
@@ -272,12 +273,12 @@ class ScriptTask(KU, KekkaiActivationAssets):
         activation_config.card_not_found_count += 1
 
         logger.info(f'当前未发现[{activation_config.card_type}]卡, 已尝试[{activation_config.card_not_found_count}]次')
-        self.push_mail(head=f'当前未发现[{activation_config.card_type}]卡')
+        self.push_notify(content=f'当前未发现[{activation_config.card_type}]卡')
 
         if activation_config.card_not_found_count >= 2:
 
             logger.info(f'连续[{activation_config.card_not_found_count}]次未发现卡,{retry_minutes}分钟后重试')
-            self.push_mail(head=f'连续[{activation_config.card_not_found_count}]次未发现卡,{retry_minutes}分钟后重试')
+            self.push_notify(content=f'连续[{activation_config.card_not_found_count}]次未发现卡,{retry_minutes}分钟后重试')
 
             # 重置计数器并延长下次执行时间
             activation_config.card_not_found_count = 0
@@ -299,54 +300,6 @@ class ScriptTask(KU, KekkaiActivationAssets):
             # 立即重试
             self.set_next_run("KekkaiActivation", success=True, finish=True, target=datetime.now())
             raise TaskEnd
-
-    def _image_convert_card(self, target: RuleImage) -> CardClass:
-        """
-        就是把一张图转化 到某个具体的类
-        :return:
-        """
-        try:
-            return self.dict_image_card[target]
-        except KeyError:
-            logger.warning(f'Unknown card class: {target}')
-            return CardClass.UNKNOWN
-
-    def _current_select_best(self, last_best: CardClass or None) -> CardClass | None:
-        self.screenshot()
-        target = self.order_targets.find_anyone(self.device.image)
-        if target is None:
-            logger.info('No target card found')
-            self.push_mail(head='No target card found')
-            self.set_next_run("KekkaiActivation", success=True, finish=True, target=datetime.now())
-            raise TaskEnd('KekkaiActivation')
-        # current_card = self._image_convert_card(target)
-        # if current_card == CardClass.UNKNOWN:
-        #     logger.info('Unknown card class')
-        #     return None
-        # logger.info(f'Current best card class: {current_card}')
-        #
-        # # 如果当前的最好的卡，不比上一次最好的卡，那就退出
-        # if last_best is not None:
-        #     last_index = self.order_cards.index(last_best)
-        #     current_index = self.order_cards.index(current_card)
-        #     if current_index >= last_index:
-        #         # 不比上一张卡好就退出不执行操作，相同星级卡亦跳过
-        #         logger.info('Current card is not better than last best card')
-        #         return last_best
-        #
-        # # 否则就是比上一张卡好，那就执行操作 点击操作
-        # logger.info('Current select card: %s', current_card)
-        # 如果一开始是没有选择中的，那就稳定点否则就是只管点击
-        self.screenshot()
-        if self.appear(self.I_A_EMPTY):
-            while 1:
-                self.screenshot()
-                if not self.appear(self.I_A_EMPTY):
-                    return
-                if self.appear_then_click(target, interval=1):
-                    continue
-        self.appear_then_click(target, interval=0.5)
-        return
 
     def check_max_lv(self, shikigami_class: ShikigamiClass = ShikigamiClass.N):
         """

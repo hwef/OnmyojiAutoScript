@@ -131,7 +131,7 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
 
             # 等待超时
             if wait_timer.reached():
-                self.config.notifier.push(title=self.config.task.command, content=f"逢魔Boss 搜寻超时...")
+                self.push_notify(title=self.config.task.command, content=f"逢魔Boss 搜寻超时...")
                 wait_timer.reset()
                 break
 
@@ -186,10 +186,10 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
                 break
             if boss_fire_count >= 5:
                 logger.warning('Boss battle already done')
-                self.config.notifier.push(title=self.config.task.command, content=f"封魔BOSS, 5次点击未进入...")
+                self.push_notify(title=self.config.task.command, content=f"封魔BOSS, 5次点击未进入...")
                 self.ui_click_until_disappear(self.I_UI_BACK_RED)
                 logger.info('重新选择封魔BOSS')
-                self.config.notifier.push(title=self.config.task.command, content=f"重新选择封魔BOSS...")
+                self.push_notify(title=self.config.task.command, content=f"重新选择封魔BOSS...")
                 if self.boss_count <= 3:
                     self.boss_count += 1
                     self.execute_boss()

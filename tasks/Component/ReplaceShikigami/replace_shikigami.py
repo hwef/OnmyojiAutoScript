@@ -95,7 +95,7 @@ class ReplaceShikigami(BaseTask, ReplaceShikigamiAssets):
             if timer.reached():
                 logger.warning(f"寄养式神超时,退出")
                 self.save_image()
-                self.config.notifier.push(title=self.config.task.command, content=f"寄养式神超时,请查看截图")
+                self.push_notify(title=self.config.task.command, content=f"寄养式神超时,请查看截图")
                 break
 
             if not self.appear(stop_image):

@@ -88,7 +88,7 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_TOWN)
 
         if self.duel_week_over:
-            self.config.notifier.push(title='Duel', content=f'本周斗技已完成，请查看截图')
+            self.push_notify(title='Duel', content=f'本周斗技已完成，请查看截图')
             # 设置下一次运行时间
             self.next_run_week(2)
         else:

@@ -64,7 +64,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
 
             if self.current_count >= self.limit_count:
                 logger.warning(f'战斗次数超标（{self.current_count}次），强制退出')
-                self.push_mail(head=f'战斗次数超标（{self.current_count}次），强制退出')
+                self.push_notify(content=f'战斗次数超标（{self.current_count}次），强制退出')
                 break
 
             target_found = False
@@ -90,7 +90,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
 
             if self.appear(self.I_WQ_CHECK_TASK):
                 logger.info('悬赏发现残留任务，尝试处理')
-                self.save_image(task_name='悬赏发现残留任务', wait_time=0, save_flag=True)
+                self.save_image(task_name='悬赏发现残留任务', wait_time=0, image_type='png')
                 x, y, w, h = self.I_WQ_CHECK_TASK.roi_front
                 self.I_WQ_CHECK_TASK_CLICK.roi_front = (x - 70, y, w + 30, h)
                 logger.info(f'调整点击区域至: {self.I_WQ_CHECK_TASK_CLICK.roi_front}')
@@ -100,7 +100,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
 
             if wq_timer.reached():
                 logger.info('悬赏未检测到残留任务，退出循环')
-                self.save_image(task_name='悬赏未检测到残留任务', wait_time=0, save_flag=True)
+                self.save_image(task_name='悬赏未检测到残留任务', wait_time=0, image_type='png')
                 break
 
     def next_run(self):

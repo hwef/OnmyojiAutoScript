@@ -86,15 +86,10 @@ class Notifier:
                 return
 
     def push(self, **kwargs) -> bool:
-        title = f"{self.config_name}▪{I18n.trans_zh_cn(kwargs['title'])}"
-        if not ("type" in kwargs and kwargs["type"] == "mail"):
-            content = kwargs["content"]
-            title = f"{title} | {content}"
-        asyncio.run(self.send_text_message(title))
         if not self.enable:
             return False
         # 更新配置
-        kwargs["title"] = title.replace(' ', '\u00A0')
+        kwargs["title"] = f"{self.config_name}▪{kwargs['title']}".replace(' ', '\u00A0')
         self.config.update(kwargs)
         # pre check
         for key in self.required:
@@ -175,62 +170,46 @@ class Notifier:
             logger.error(f"发送文本失败: {str(e)}")
             return False
 
-    def send_mail(self, title: str, head: str, image_path='', log_path=''):
-        """
-        发送消息，包括标题、头部、图片和日志内容。
-
-        参数:
-        - title (str): 消息标题
-        - head (str): 消息头部文字
-        - image_path (str): 图片文件路径
-        - log_path (str): 日志文件路径
-
-        返回:
-        - 成功时返回 HTML 推送的结果，失败时返回普通推送的结果。
-        """
+    def send_push(self, title: str, content: str, image='', log_path=''):
         try:
-            content = f'无日志文件{log_path}'
+            # 格式化头部、图片和日志内容为 HTML
+            head_text = f'<b>{content}</b><br/><br/>'
+
             # 读取日志文件内容
+            content_text = f'<p>{log_path}</p>'
             if log_path:
                 log_file = Path(log_path)
                 if log_file.exists():
-                    content = log_file.read_text(encoding='utf-8')
-                else:
-                    logger.warning(f"无日志文件{log_path}")
+                    content_text = log_file.read_text(encoding='utf-8')
+                    content_text = ''.join(
+                        f'<p style="font-size:8px;">{item}</p>'
+                        for item in content_text.splitlines()
+                    )
 
             # 读取并处理图片
-            b64_code = self.image_to_base64(image_path)
-
-            # 格式化头部、图片和日志内容为 HTML
-            head_text = f'<b>{head}</b><br/><br/>'
+            image_b64 = f'<p>{image}</p>'
+            b64_code = self.image_to_base64(image)
             if b64_code:
                 image_b64 = f'<img src="data:image/png;base64,{b64_code}" alt="image" /><br/><br/>'
-            else:
-                image_b64 = f'无图片文件{image_path}'
 
-            content_text = ''.join(
-                f'<p style="font-size:8px;">{item}</p>'
-                for item in content.splitlines()
-            )
+            # 组装HTML内容
             body = head_text + image_b64 + content_text
 
             # 返回 HTML 内容的推送结果
-            return self.push_html(title=f'{I18n.trans_zh_cn(title)} | {head}', content=body)
+            return self.push_html(title=f'{I18n.trans_zh_cn(title)} | {content}', content=body)
         except Exception as e:
             # 记录异常错误
             logger.error(f"出现异常: {e}")
             # 备用方案：发送普通消息
-            return self.push(title=title, content=head)
+            return self.push(title=title, content=content)
 
     def image_to_base64(self, image_path: Optional[str | Path | np.ndarray]):
         try:
-            if image_path is None:
-                return None
             if isinstance(image_path, (str, Path)):
                 img_path = Path(image_path)
                 if not img_path.exists():
                     logger.warning("图片文件不存在")
-                    return None
+                    return image_path
                 with Image.open(img_path) as pil_img:
                     image = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
             elif isinstance(image_path,  numpy.ndarray):
@@ -272,7 +251,7 @@ if __name__ == '__main__':
 
     config = Config('oas1')
     device = Device(config)
-    image_path = r"D:\OnmyojiAutoScript\ljxun\log\error\OAS1 2025-04-09 21时03分26.png"
-    log_path = r"D:\OnmyojiAutoScript\ljxun\log\error\OAS1 2025-04-09 21时03分26.log"
-    config.notifier.send_mail(title='AbyssTrials', head='请及时处理', image_path=image_path, log_path=log_path)
-    # config.notifier.send_mail(title='Dokan', head='Dokan，请及时处理')
+    image_path = r"D:\OnmyojiAutoScript\ljxun\log\backup\2025-04-09 星期三\error\DU 2025-04-09 20时40分15.png"
+    log_path = r"D:\OnmyojiAutoScript\ljxun\log\backup\2025-04-09 星期三\error\DU 2025-04-09 20时40分15.log"
+    config.notifier.send_push(title='AbyssTrials', content='请及时处理', image=image_path, log_path=log_path)
+    # config.notifier.send_push(title='Dokan', content='Dokan，请及时处理')

@@ -148,7 +148,7 @@ class ScriptTask(GameUi, QuizAssets, ActivityShikigamiAssets, Debugger):
         if index is None:
             logger.error('Now question has no answer, please check')
             self.append_one(question=question, options=[answer_1, answer_2, answer_3, answer_4])
-            self.config.notifier.push(title='Quiz',
+            self.push_notify(title='Quiz',
                                       content=f"New question: \n{question} \n{[answer_1, answer_2, answer_3, answer_4]}")
             index = 1
 

@@ -80,7 +80,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets):
             if self.appear(self.I_RECALL_TICKET):
                 break
             if count >= 3:
-                self.config.notifier.push(title='今忆召唤抽卡失败', content='每日任务,今忆召唤抽卡失败!!!')
+                self.push_notify(title='今忆召唤抽卡失败', content='每日任务,今忆召唤抽卡失败!!!')
                 return
 
         logger.info('Summon one RECALL')

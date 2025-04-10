@@ -63,7 +63,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         self.go_back()
         self.set_next_run(task='AreaBoss', success=True, finish=False)
         if self.current_count < 3:
-            self.config.notifier.push(title='地域鬼王', content=f'战斗次数{self.current_count}, 请查看')
+            self.push_notify(title='地域鬼王', content=f'战斗次数{self.current_count}, 请查看')
         # 以抛出异常的形式结束
         raise TaskEnd
 
@@ -179,7 +179,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
             # 如果出现失败 就点击，返回False
             if self.appear(self.I_FALSE, threshold=0.8):
                 self.save_image()
-                self.config.notifier.push(title='地域鬼王', content='战斗失败！！！！！！！！！！')
+                self.push_notify(title='地域鬼王', content='战斗失败！！！！！！！！！！')
                 logger.info("Battle result is false")
                 win = False
                 break

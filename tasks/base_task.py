@@ -635,13 +635,12 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             return None
         return img
 
-    def save_image(self, task_name=None, wait_time=2, save_flag=False):
+    def save_image(self, task_name=None, content=None, wait_time=2, image_type=False, push_flag=False):
         try:
             if task_name is None:
+                task_name = "task_name"
                 if self.config and self.config.task:
                     task_name = self.config.task.command
-                else:
-                    task_name = "task_name"  # 默认任务名
 
             # 设置保存图像的文件夹
             WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
@@ -653,7 +652,9 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             folder_path.mkdir(parents=True, exist_ok=True)
 
             # 截图等待时间
-            sleep(wait_time)
+            if wait_time > 0:
+                sleep(wait_time)
+                self.screenshot()
             # 使用getattr同时检查属性和值，避免冗长的条件判断
             if getattr(self.device, 'image', None) is None:
                 self.screenshot()
@@ -662,7 +663,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             filename = get_filename(self.config.config_name.upper())
             image_path = folder_path / filename  # 使用pathlib路径对象
 
-            if save_flag:
+            if image_type:
                 # 保存图像正常大小
                 image_path = image_path.with_suffix('.png')
                 params = []
@@ -685,11 +686,13 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 with open(image_path, 'wb') as f:
                     f.write(buf.tobytes())
                 logger.info(f"截图已保存至：{image_path}")
+                if push_flag:
+                    self.push_notify(title=task_name, content=content if content else f"截图已保存至：{image_path}")
             else:
-                self.config.notifier.push(title=task_name, content=f"保存{image_path}, 图像编码失败")
+                self.push_notify(title=task_name, content=f"保存{image_path}, 图像编码失败")
                 raise Exception("图像编码失败")
         except Exception as e:
-            self.config.notifier.push(title=task_name, content=f"保存截图异常，{e}")
+            self.push_notify(title=task_name, content=f"保存截图异常，{e}")
             logger.error(f"保存{task_name}截图异常，{e}")
 
     def appear_rgb(self, target, image=None, difference: int = 10):
@@ -733,22 +736,20 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         logger.info(f"颜色匹配成功: [{target.name}]")
         return True
 
-    def push_mail(self, task_name=None, head='', image_path=None):
-        # 处理task_name的逻辑优化
-        if task_name is None:
-            task_name = 'task_name'
+    def push_notify(self, title=None, content=''):
+        # 处理title的逻辑优化
+        if title is None:
+            title = 'task_name'
             if self.config and self.config.task:
-                task_name = self.config.task.command
+                title = self.config.task.command
 
-        # 处理image_path的逻辑优化
-        if image_path is None:
-            # 使用getattr同时检查属性和值，避免冗长的条件判断
-            if getattr(self.device, 'image', None) is None:
-                self.screenshot()
-            image_path = self.device.image
+        # 使用getattr同时检查属性和值，避免冗长的条件判断
+        if getattr(self.device, 'image', None) is None:
+            self.screenshot()
+        image = self.device.image
 
         # 发送邮件
-        self.config.notifier.send_mail(title=task_name, head=head, image_path=image_path)
+        self.config.notifier.send_push(title=title, content=content, image=image)
 
 
 if __name__ == '__main__':
@@ -761,8 +762,8 @@ if __name__ == '__main__':
 
     # self.config.notifier.send_mail(title=task_name, head=head, image_path=image_path)
 
-    t.push_mail(head='任务结束')
-    t.save_image()
+    t.push_notify()
+    # t.save_image(content='成功找到最优挂卡', push_flag=True)
 
     # logger.hr('INVITE FRIEND')
     # logger.hr('INVITE FRIEND', 0)

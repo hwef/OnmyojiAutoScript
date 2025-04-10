@@ -47,7 +47,7 @@ class ScriptTask(BaseTask):
 
         con.backup_date = str(datetime.now().date())
         self.config.save()
-        # self.config.notifier.push(title='日志备份', content=f'今日备份完成!')
+        # self.push_notify(title='日志备份', content=f'今日备份完成!')
         self.set_next_run('BackUp', success=True, finish=True)
         raise TaskEnd
 
