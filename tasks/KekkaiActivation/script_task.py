@@ -19,7 +19,7 @@ from tasks.KekkaiActivation.utils import parse_rule
 from tasks.KekkaiActivation.config import ActivationConfig
 from tasks.Utils.config_enum import ShikigamiClass
 from tasks.GameUi.page import page_main, page_guild
-from tasks.KekkaiActivation.config import CardRule
+from tasks.KekkaiActivation.config import CardType
 
 """ 结界挂卡 """
 class ScriptTask(KU, KekkaiActivationAssets):
@@ -86,16 +86,16 @@ class ScriptTask(KU, KekkaiActivationAssets):
     # @cached_property
     # def order_cards(self) -> list[CardClass]:
     #     # 重写
-    #     config = self.config.kekkai_activation.activation_config.card_rule
+    #     config = self.config.kekkai_activation.activation_config.card_type
     #     return config
 
     @cached_property
     def order_targets(self) -> ImageGrid:
-        rule = self.config.kekkai_utilize.utilize_config.utilize_rule
-        if rule == CardRule.TAIKO:
-            return ImageGrid([self.I_U_TAIKO_6, self.I_U_TAIKO_5])
-        elif rule == CardRule.FISH:
-            return ImageGrid([self.I_U_FISH_6, self.I_U_FISH_5])
+        rule = self.config.kekkai_activation.activation_config.card_type
+        if rule == CardType.TAIKO:
+            return ImageGrid([self.I_CARDS_KAIKO_6, self.I_CARDS_KAIKO_5])
+        elif rule == CardType.FISH:
+            return ImageGrid([self.I_CARDS_FISH_6, self.I_CARDS_FISH_5])
         else:
             logger.error('Unknown utilize rule')
             raise ValueError('Unknown utilize rule')
@@ -150,12 +150,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
             # 如果是什么都没有，那就是可以开始挂卡了
             if not card_status and not card_effect:
                 logger.info('Card is not selected also not using')
-                self.screening_card(_config.card_rule)
-
-
-
-
-
+                self.screening_card(_config.card_type)
 
     def goto_cards(self):
         """
@@ -224,45 +219,12 @@ class ScriptTask(KU, KekkaiActivationAssets):
         :return:
         """
 
-        # def run_auto():
-        #     while 1:
-        #         self.screenshot()
-        #         if not self.appear(self.I_A_EMPTY) and self.appear(self.I_A_ACTIVATE_YELLOW, threshold=0.9):
-        #             break
-        #         if self.click(self.C_A_SELECT_AUTO, interval=1):
-        #             continue
-        #
-        # if rule == "auto":
-        #     logger.info('Auto select card')
-        #     run_auto()
-        #     return
-        #
-        # card_class = None
-        # target_class = None
-        # top_card = self.order_cards[0]
-        # if top_card.startswith(CardClass.TAIKO):  # 太鼓
-        #     card_class = CardClass.TAIKO
-        #     target_class = self.I_A_CARD_KAIKO
-        # elif top_card.startswith(CardClass.MOON):  # 太阴
-        #     card_class = CardClass.MOON
-        #     target_class = self.I_A_CARD_MOON
-        # elif top_card.startswith(CardClass.FISH):  # 斗鱼
-        #     card_class = CardClass.FISH
-        #     target_class = self.I_A_CARD_FISH
-        #
-        # if card_class is None:
-        #     logger.warning('Unknown card class')
-        #     run_auto()
-        #     return
-
-        if rule == CardRule.TAIKO:
+        if rule == CardType.TAIKO:
             card_class = CardClass.TAIKO
             target_class = self.I_A_CARD_KAIKO
-        elif rule == CardRule.FISH:
+        elif rule == CardType.FISH:
             card_class = CardClass.FISH
             target_class = self.I_A_CARD_FISH
-        # elif rule == CardRule.AUTO:
-        #     pass
         else:
             logger.warning('Unknown card rule')
             self.push_mail(head='Unknown card rule')
@@ -287,21 +249,19 @@ class ScriptTask(KU, KekkaiActivationAssets):
                 continue
         logger.info('Selected card class: {}'.format(card_class))
 
-        # 得了开始一直往下滑动 找最优卡
-        # card_best = None
-        # swipe_count = 0
+        # 找最优卡
         while 1:
-            self.screenshot()
 
             self.screenshot()
             target = self.order_targets.find_anyone(self.device.image)
             if target is None:
                 logger.info('No target card found')
                 self.push_mail(head='No target card found')
-                if target_class == self.I_A_CARD_FISH:
-                    self.config.kekkai_activation.activation_config.card_rule = CardRule.TAIKO
+                if rule == CardType.TAIKO:
+                    self.config.kekkai_activation.activation_config.card_type = CardType.FISH
                 else:
-                    self.config.kekkai_activation.activation_config.card_rule = CardRule.FISH
+                    self.config.kekkai_activation.activation_config.card_type = CardType.TAIKO
+                self.config.save()
                 self.set_next_run("KekkaiActivation", success=True, finish=True, target=datetime.now())
                 raise TaskEnd('KekkaiActivation')
             self.screenshot()
@@ -309,33 +269,9 @@ class ScriptTask(KU, KekkaiActivationAssets):
                 while 1:
                     self.screenshot()
                     if not self.appear(self.I_A_EMPTY):
-                        break
+                        return
                     if self.appear_then_click(target, interval=1):
                         continue
-            # current_best = self._current_select_best(card_best)
-            # if current_best is None:
-            #     logger.warning('There is no card in the list')
-            #     break
-            #
-            # if current_best == self.order_cards[0]:
-            #     break
-            # # 为什么找到第二个最优解也是会退出呢？？？
-            # # 这个是因为一般是从高星到低星来找， 基本上第二个最优解就是最优解了
-            # elif current_best == self.order_cards[1]:
-            #     break
-            #
-            # # 滑到底就退出
-            # if self.appear(self.I_AA_SWIPE_BLOCK):
-            #     logger.warning('Swipe to the end but no card is found')
-            #     break
-            # # 超过十次就退出
-            # if swipe_count > 15:
-            #     logger.warning('Swipe count is more than 10')
-            #     break
-            # # 一直向下滑动
-            # self.swipe(self.S_CARDS_SWIPE, interval=0.9)
-            # swipe_count += 1
-            # time.sleep(2)
 
     def _image_convert_card(self, target: RuleImage) -> CardClass:
         """

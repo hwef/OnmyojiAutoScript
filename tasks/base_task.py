@@ -641,7 +641,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 if self.config and self.config.task:
                     task_name = self.config.task.command
                 else:
-                    task_name = "TestTask"  # 默认任务名
+                    task_name = "task_name"  # 默认任务名
 
             # 设置保存图像的文件夹
             WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
