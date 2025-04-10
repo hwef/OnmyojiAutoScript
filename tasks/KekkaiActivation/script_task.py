@@ -255,16 +255,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
             self.screenshot()
             target = self.order_targets.find_anyone(self.device.image)
             if target is None:
-                logger.info('No target card found')
-                self.push_mail(head='No target card found')
-                if rule == CardType.TAIKO:
-                    self.config.kekkai_activation.activation_config.card_type = CardType.FISH
-                else:
-                    self.config.kekkai_activation.activation_config.card_type = CardType.TAIKO
-                self.config.save()
-                self.set_next_run("KekkaiActivation", success=True, finish=True, target=datetime.now())
-                raise TaskEnd('KekkaiActivation')
-            self.screenshot()
+                self._card_not_found()
             if self.appear(self.I_A_EMPTY):
                 while 1:
                     self.screenshot()
@@ -272,6 +263,42 @@ class ScriptTask(KU, KekkaiActivationAssets):
                         return
                     if self.appear_then_click(target, interval=1):
                         continue
+
+    def _card_not_found(self):
+        # 获取配置引用
+        activation_config = self.config.kekkai_activation.activation_config
+        retry_minutes = 60
+        # 递增未找到卡的计数器
+        activation_config.card_not_found_count += 1
+
+        logger.info(f'当前未发现[{activation_config.card_type}]卡, 已尝试[{activation_config.card_not_found_count}]次')
+        self.push_mail(head=f'当前未发现[{activation_config.card_type}]卡')
+
+        if activation_config.card_not_found_count >= 2:
+
+            logger.info(f'连续[{activation_config.card_not_found_count}]次未发现卡,{retry_minutes}分钟后重试')
+            self.push_mail(head=f'连续[{activation_config.card_not_found_count}]次未发现卡,{retry_minutes}分钟后重试')
+
+            # 重置计数器并延长下次执行时间
+            activation_config.card_not_found_count = 0
+            self.config.save()
+
+            self.set_next_run("KekkaiActivation", success=True, finish=True,
+                              target=datetime.now() + timedelta(minutes=retry_minutes))
+            raise TaskEnd
+        else:
+            # 切换卡类型
+            activation_config.card_type = (
+                CardType.FISH
+                if activation_config.card_type == CardType.TAIKO
+                else CardType.TAIKO
+            )
+            logger.info(f'切换卡类型至: {activation_config.card_type}, 并保存到配置')
+            # 保存配置
+            self.config.save()
+            # 立即重试
+            self.set_next_run("KekkaiActivation", success=True, finish=True, target=datetime.now())
+            raise TaskEnd
 
     def _image_convert_card(self, target: RuleImage) -> CardClass:
         """

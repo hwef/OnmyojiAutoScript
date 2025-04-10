@@ -24,6 +24,7 @@ class ActivationConfig(BaseModel):
     exchange_before: bool = Field(default=True, description='exchange_before_help')
     exchange_max: bool = Field(default=True, description='exchange_max_help')
     shikigami_class: ShikigamiClass = Field(default=ShikigamiClass.N, description='shikigami_class_help')
+    card_not_found_count: int = Field(default=0, description='未发现卡次数')
 
 
 class KekkaiActivation(ConfigBase):
