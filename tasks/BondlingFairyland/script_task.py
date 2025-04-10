@@ -37,22 +37,25 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
     current_ball_index = 5
     def run(self):
 
-        logger.info('去商店查看契忆数量')
+        logger.hr('第一步, 检查契忆数量', 2)
         self.ui_get_current_page()
         self.ui_goto(page_mall, confirm_wait=2.5)
         self.ui_click(self.I_MALL_SCCALES, self.I_MALL_SCCALES_CHECK)
         self.ui_click(self.I_MALL_BONDLINGS_SURE, self.I_MALL_BONDLINGS_ON)
+
+        MAX_COUNT = 3000
         cu, re, total = self.O_BL_CHECK_MONEY.ocr(self.device.image)
-        self.save_image()
-        if cu >= 3500:
-            logger.info(f'契忆数量: {cu}, 已足够, 结束任务')
-            self.push_mail(head=f'契忆数量: {cu}, 已足够, 结束任务')
+        logger.info(f'契忆数量: {cu}, 未足够: {MAX_COUNT}, 继续任务')
+        if cu >= MAX_COUNT:
+            logger.info(f'契忆数量: {cu}, 已足够: {MAX_COUNT}, 结束任务')
+            self.save_image()
+            self.push_mail(head=f'契忆数量: {cu}, 已足够: {MAX_COUNT}, 结束任务')
             self.ui_get_current_page()
             self.ui_goto(page_main)
             self.next_run_week(1)
             raise TaskEnd
 
-
+        logger.hr('第二步, 切换御魂', 2)
         # 引用配置
         cong = self.config.bondling_fairyland
 
@@ -67,6 +70,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(cong.switch_soul_config.group_name, cong.switch_soul_config.team_name)
 
+        logger.hr('第三步, 前往契灵主界面', 2)
         self.ui_get_current_page()
         self.ui_goto(page_bondling_fairyland)
 
@@ -79,6 +83,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
                 self.ui_goto(page_bondling_fairyland)
                 continue
 
+        logger.hr('第四步, 开始战斗准备', 2)
         self.current_count = 0
         self.limit_count = cong.bondling_config.limit_count  # 默认limit_count值
 
@@ -101,6 +106,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
                 logger.error(f'Unknown user status: {cong.bondling_config.user_status}')
     def run_leader(self):
         """  点击 求援， 组队模式  """
+        logger.hr('Start run leader', 2)
         success = True
         is_first = True
         while 1:
@@ -202,7 +208,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
         raise TaskEnd
 
     def run_member(self):
-        logger.info('Start run member')
+        logger.hr('Start run member', 2)
         self.ui_get_current_page()
         # 开始等待队长拉人
         wait_time = self.config.bondling_fairyland.invite_config.wait_time
@@ -268,6 +274,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             raise TaskEnd
 
     def switch_ball(self):
+        logger.hr('Start switch ball', 2)
         cong = self.config.bondling_fairyland
 
         bondling_config = cong.bondling_config
@@ -439,7 +446,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
         (3) 挑战次数到了，返回False (退出页面是结契界面)
         (4) 捕获成功，返回True (退出页面是捕获的页面)
         """
-
+        logger.hr('Start run catch', 2)
         self.lock_team()
         if self.first_catch:
             self.first_catch = False
