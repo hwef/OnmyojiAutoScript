@@ -102,9 +102,18 @@
     "itemName": "wq_check_task",
     "imageName": "wq_wq_check_task.png",
     "roiFront": "110,154,21,125",
-    "roiBack": "73,122,69,335",
+    "roiBack": "73,122,69,459",
+    "method": "Template matching",
+    "threshold": 0.9,
+    "description": "判断是否还有任务"
+  },
+  {
+    "itemName": "wq_check_task_click",
+    "imageName": "wq_wq_check_task.png",
+    "roiFront": "110,154,21,125",
+    "roiBack": "73,122,69,459",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "判断是否还有任务"
+    "description": "有任务(填充任务坐标的作用)"
   }
 ]

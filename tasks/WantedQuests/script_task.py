@@ -1,31 +1,23 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-import re
-import copy
 from time import sleep
-from datetime import timedelta, time, datetime
-from cached_property import cached_property
-from enum import Enum
-from module.atom.image import RuleImage
 
+import re
+from cached_property import cached_property
+from datetime import timedelta, time, datetime
+from module.atom.image import RuleImage
+from module.base.timer import Timer
 from module.exception import TaskEnd
 from module.logger import logger
-from module.base.timer import Timer
-
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_exploration
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
-from tasks.Component.GeneralInvite.general_invite import GeneralInvite
-from tasks.Secret.script_task import ScriptTask as SecretScriptTask
-from tasks.WantedQuests.config import WantedQuestsConfig, CooperationType, CooperationSelectMask, \
-    CooperationSelectMaskDescription
-from tasks.WantedQuests.assets import WantedQuestsAssets
 from tasks.Component.Costume.config import MainType
-from typing import List
+from tasks.Component.GeneralInvite.general_invite import GeneralInvite
+from tasks.GameUi.page import page_main, page_exploration
 from tasks.GameUi.page import page_shikigami_records
-from tasks.Secret.config import Secret
+from tasks.Secret.script_task import ScriptTask as SecretScriptTask
+from tasks.WantedQuests.assets import WantedQuestsAssets
+from tasks.WantedQuests.config import CooperationType, CooperationSelectMask
+from typing import List
 
 """ 悬赏封印 """
 
@@ -58,66 +50,58 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
     def play_run(self):
         self.screenshot()
         number_challenge = self.O_WQ_NUMBER.ocr(self.device.image)
-        ocr_error_count = 0
+        wq_timer = Timer(3)
+        wq_timer.start()
+        self.limit_count = 20
         while 1:
             self.screenshot()
+
             if self.appear(self.I_WQ_BOX):
+                logger.debug("检测到奖励宝箱，尝试领取")
                 self.ui_get_reward(self.I_WQ_BOX)
+                wq_timer.reset()
                 continue
-            if ocr_error_count > 10:
-                logger.warning('OCR failed too many times, exit')
+
+            if self.current_count >= self.limit_count:
+                logger.warning(f'战斗次数超标（{self.current_count}次），强制退出')
+                self.push_mail(head=f'战斗次数超标（{self.current_count}次），强制退出')
                 break
 
-            O_WQ_TEXT_1_str = self.O_WQ_TEXT_1.detect_text(self.device.image)
-            if '印' in O_WQ_TEXT_1_str:
-                cu, re, total = self.O_WQ_NUM_1.ocr(self.device.image)
-                if cu == re == total == 0:
-                    logger.warning('OCR failed and skip this round')
-                    ocr_error_count += 1
-                if cu > total:
-                    logger.warning('Current number of wanted quests is greater than total number')
-                    cu = cu % 10
-                if cu < total and re != 0:
-                    self.execute_mission(self.O_WQ_TEXT_1, total, number_challenge)
-                if cu == total != 0:
-                    sleep(1.5)
-                    self.screenshot()
-                    if not self.appear(self.I_WQ_CHECK_TASK):
-                        logger.info('No wanted quests')
-                        break
+            target_found = False
+            O_WQ_INSTANCES = [
+                (self.O_WQ_TEXT_1, self.O_WQ_NUM_1),
+                (self.O_WQ_TEXT_2, self.O_WQ_NUM_2)
+            ]
+            TARGET_CHAR = "印"
+            for text_obj, num_obj in O_WQ_INSTANCES:
+                detected_str = text_obj.detect_text(self.device.image)
+                if TARGET_CHAR in detected_str:
+                    cu, re, total = num_obj.ocr(self.device.image)
+                    if cu > total:
+                        logger.warning('Current number of wanted quests is greater than total number')
+                        cu %= 10
+                    if cu < total and re != 0:
+                        self.execute_mission(text_obj, re, number_challenge)
+                        wq_timer.reset()
+                        target_found = True
 
-            O_WQ_TEXT_2_str = self.O_WQ_TEXT_2.detect_text(self.device.image)
-            if '印' in O_WQ_TEXT_2_str:
-                cu, re, total = self.O_WQ_NUM_2.ocr(self.device.image)
-                if cu == re == total == 0:
-                    logger.warning('OCR failed and skip this round')
-                    ocr_error_count += 1
-                if cu > total:
-                    logger.warning('Current number of wanted quests is greater than total number')
-                    cu = cu % 10
-                if cu < total and re != 0:
-                    self.execute_mission(self.O_WQ_TEXT_2, total, number_challenge)
-                if cu == total != 0:
-                    sleep(1.5)
-                    self.screenshot()
-                    if not self.appear(self.I_WQ_CHECK_TASK):
-                        logger.info('No wanted quests')
-                        break
+            if target_found:
                 continue
 
-            if self.appear(self.I_WQ_BOX):
-                self.ui_get_reward(self.I_WQ_BOX)
-                continue
             if self.appear(self.I_WQ_CHECK_TASK):
+                logger.info('悬赏发现残留任务，尝试处理')
+                self.save_image(task_name='悬赏发现残留任务', wait_time=0, save_flag=True)
+                x, y, w, h = self.I_WQ_CHECK_TASK.roi_front
+                self.I_WQ_CHECK_TASK_CLICK.roi_front = (x - 70, y, w + 30, h)
+                logger.info(f'调整点击区域至: {self.I_WQ_CHECK_TASK_CLICK.roi_front}')
+                self.execute_mission(self.I_WQ_CHECK_TASK_CLICK, 1, number_challenge, flag=True)
+                wq_timer.reset()
                 continue
-            sleep(1.5)
-            self.screenshot()
-            if not self.appear(self.I_WQ_CHECK_TASK):
-                logger.info('No wanted quests')
-                break
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+            if wq_timer.reached():
+                logger.info('悬赏未检测到残留任务，退出循环')
+                self.save_image(task_name='悬赏未检测到残留任务', wait_time=0, save_flag=True)
+                break
 
     def next_run(self):
         now_datetime = datetime.now()
@@ -149,18 +133,18 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
         self.ui_get_current_page()
         self.ui_goto(page_main)
         done_timer = Timer(5)
+        if self.play_count >= 3:
+            return False
         while 1:
             self.screenshot()
             if self.appear(self.I_TARCE_DISENABLE):
-                if self.play_count > 3:
-                    self.ui_click_until_disappear(self.I_UI_BACK_RED)
-                    return False
                 break
             if self.appear_then_click(self.I_WQ_SEAL, interval=1):
                 continue
             if self.appear_then_click(self.I_WQ_DONE, interval=1):
                 continue
             if self.appear_then_click(self.I_TRACE_ENABLE, interval=1):
+                self.play_count = 0
                 continue
             if self.special_main and self.click(self.C_SPECIAL_MAIN, interval=3):
                 logger.info('Click special main left to find wanted quests')
@@ -185,20 +169,34 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
         self.ui_goto(page_exploration)
         return True
 
-    def execute_mission(self, ocr, num_want: int, num_challenge: int):
+    def execute_mission(self, ocr, num_want: int, num_challenge: int, flag=False):
         """
 
         :param ocr: 要点击的 文字
         :param num_want: 一共要打败的怪物数量
         :param num_challenge: 现在有的挑战卷数量
+        :param flag:
         :return:
         """
         logger.hr('Start wanted quests')
+        click_timer = Timer(5)
+        click_timer.start()
+        click_count = 0
         while 1:
             self.screenshot()
+            if flag:
+                if not self.appear(self.I_WQ_CHECK_TASK):
+                    return
+            if click_count > 5:
+                return
+            if click_timer.reached():
+                return
             if self.appear(self.I_TRACE_TRUE):
                 break
+            if self.appear(self.I_GOTO_1):
+                break
             if self.click(ocr, interval=1):
+                click_count += 1
                 continue
         if not self.appear(self.I_GOTO_1):
             # 如果没有出现 '前往'按钮， 那就是这个可能是神秘任务但是没有解锁
@@ -228,9 +226,13 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
                 one_number = 3
             # num_want / one_number = 一共要打几次
             if one_number > num_want:
+                logger.info(f'[悬赏类型: {type_wq}] [次数: 1]')
                 return battle, 1
             else:
-                return battle, min((num_want + one_number - 1) // one_number, 5)
+                # 添加 min 函数限制最大战斗次数为 5次，防止无限增加
+                battle_count = min((num_want + one_number - 1) // one_number, 5)
+                logger.info(f'[悬赏类型: {type_wq}] [次数: {battle_count}]')
+                return battle, battle_count
 
         battle, num, goto = None, None, None
         if not battle:
@@ -245,6 +247,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
         if not battle:
             battle, num = check_battle(challenge, self.O_WQ_TYPE_4, self.O_WQ_INFO_4)
             goto = self.I_GOTO_4
+
         if battle == 'CHALLENGE':
             self.challenge(goto, num)
         elif battle == 'SECRET':
@@ -459,7 +462,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()
