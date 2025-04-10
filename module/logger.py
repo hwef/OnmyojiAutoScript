@@ -1,27 +1,18 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from logging.handlers import TimedRotatingFileHandler
-import time
-from datetime import datetime, date
-import pytz
-import datetime
+import sys
+
 import logging
 import os
-import sys
-import traceback
-
+from datetime import datetime, date
 from io import TextIOBase
-from typing import Callable, List
-
+from logging.handlers import TimedRotatingFileHandler
 from rich.console import Console, ConsoleOptions, ConsoleRenderable, NewLine, RenderResult
-from rich.highlighter import RegexHighlighter, NullHighlighter
+from rich.highlighter import NullHighlighter
 from rich.logging import RichHandler
-from rich.text import Text
 from rich.rule import Rule
-from rich.style import Style
-from rich.theme import Theme
-from rich.traceback import Traceback
+from typing import Callable, List
 
 
 def empty_function(*args, **kwargs):
@@ -64,7 +55,7 @@ logging.raiseExceptions = True  # Set True if wanna see encode errors on console
 logger_debug = False
 logger = logging.getLogger('oas')
 logger.setLevel(logging.DEBUG if logger_debug else logging.INFO)
-logging.addLevelName(logging.WARNING,"WARN")
+logging.addLevelName(logging.WARNING, "WARN")
 file_formatter = logging.Formatter(
     fmt='%(asctime)s.%(msecs)03d|%(filename)14.14s:%(lineno)03d|%(levelname)4s| %(message)s',
     datefmt='%Y%m%d %H:%M:%S')
@@ -99,6 +90,16 @@ error_path = os.path.join(log_path, 'error')
 
 delete_path = os.path.join(backup_path, 'delete_home')
 old_path = os.path.join(backup_path, 'old_folder')
+
+
+def get_filename(config_name):
+    datetime_now = datetime.now()
+    today_date = datetime_now.strftime('%Y-%m-%d')
+    today_time = datetime_now.strftime('%H时%M分%S')
+    today_weekday = datetime.now().strftime("%A")
+    filename = f"{config_name} {today_date} {today_time}"
+    return filename
+
 
 class Logger:
     def __init__(self):

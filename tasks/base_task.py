@@ -23,7 +23,7 @@ from module.config.config import Config
 from module.config.utils import convert_to_underscore
 from module.device.device import Device
 from module.exception import ScriptError
-from module.logger import logger, log_path, week_path
+from module.logger import logger, log_path, week_path, get_filename
 from module.ocr.base_ocr import OcrMode
 from module.server.i18n import I18n
 from tasks.Component.Costume.costume_base import CostumeBase
@@ -643,13 +643,6 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 else:
                     task_name = "TestTask"  # 默认任务名
 
-            # 获取今日日期并格式化为字符串
-            datetime_now = datetime.now()
-            today_date = datetime_now.strftime('%Y-%m-%d')
-            today_time = datetime_now.strftime('%H时%M分%S')
-            today_weekday = datetime.now().strftime("%A")
-            config_name = self.config.config_name.upper()
-
             # 设置保存图像的文件夹
             WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
             if task_name in WeeklyTask:
@@ -661,9 +654,12 @@ class BaseTask(GlobalGameAssets, CostumeBase):
 
             # 截图等待时间
             sleep(wait_time)
-            self.screenshot()
+            # 使用getattr同时检查属性和值，避免冗长的条件判断
+            if getattr(self.device, 'image', None) is None:
+                self.screenshot()
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
-            filename = f"{config_name} {today_date} {today_time}"
+            
+            filename = get_filename(self.config.config_name.upper())
             image_path = folder_path / filename  # 使用pathlib路径对象
 
             if save_flag:
@@ -738,14 +734,22 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         return True
 
     def push_mail(self, task_name=None, head='', image_path=None):
+        # 处理task_name的逻辑优化
         if task_name is None:
+            task_name = 'task_name'
             if self.config and self.config.task:
                 task_name = self.config.task.command
-            else:
-                task_name = 'task_name'
+
+        # 处理image_path的逻辑优化
         if image_path is None:
+            # 使用getattr同时检查属性和值，避免冗长的条件判断
+            if getattr(self.device, 'image', None) is None:
+                self.screenshot()
             image_path = self.device.image
+
+        # 发送邮件
         self.config.notifier.send_mail(title=task_name, head=head, image_path=image_path)
+
 
 if __name__ == '__main__':
     from module.config.config import Config
@@ -755,8 +759,10 @@ if __name__ == '__main__':
     d = Device(c)
     t = BaseTask(c, d)
 
-    t.save_image("Orochi",wait_time=0)
-    # t.save_image()
+    # self.config.notifier.send_mail(title=task_name, head=head, image_path=image_path)
+
+    t.push_mail(head='任务结束')
+    t.save_image()
 
     # logger.hr('INVITE FRIEND')
     # logger.hr('INVITE FRIEND', 0)

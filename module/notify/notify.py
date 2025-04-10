@@ -9,6 +9,7 @@ import numpy
 import numpy as np
 import onepush.core
 import yaml
+from PIL import Image
 from aiohttp_socks import ProxyConnector
 from email.message import EmailMessage
 from module.logger import logger
@@ -174,7 +175,7 @@ class Notifier:
             logger.error(f"发送文本失败: {str(e)}")
             return False
 
-    def send_mail(self, title: str, head: str, image_path=None, log_path=None):
+    def send_mail(self, title: str, head: str, image_path='', log_path=''):
         """
         发送消息，包括标题、头部、图片和日志内容。
 
@@ -188,14 +189,14 @@ class Notifier:
         - 成功时返回 HTML 推送的结果，失败时返回普通推送的结果。
         """
         try:
-            content = '日志文件不存在'
+            content = f'无日志文件{log_path}'
             # 读取日志文件内容
             if log_path:
                 log_file = Path(log_path)
                 if log_file.exists():
                     content = log_file.read_text(encoding='utf-8')
                 else:
-                    logger.warning("日志文件不存在")
+                    logger.warning(f"无日志文件{log_path}")
 
             # 读取并处理图片
             b64_code = self.image_to_base64(image_path)
@@ -205,7 +206,7 @@ class Notifier:
             if b64_code:
                 image_b64 = f'<img src="data:image/png;base64,{b64_code}" alt="image" /><br/><br/>'
             else:
-                image_b64 = '图片文件不存在'
+                image_b64 = f'无图片文件{image_path}'
 
             content_text = ''.join(
                 f'<p style="font-size:8px;">{item}</p>'
@@ -230,7 +231,8 @@ class Notifier:
                 if not img_path.exists():
                     logger.warning("图片文件不存在")
                     return None
-                image = cv2.imread(str(img_path))
+                with Image.open(img_path) as pil_img:
+                    image = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
             elif isinstance(image_path,  numpy.ndarray):
                 image = image_path
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -270,7 +272,7 @@ if __name__ == '__main__':
 
     config = Config('oas1')
     device = Device(config)
-    image_path = r"D:\OnmyojiAutoScript\ljxun\log\error\DU 10-56-30 (2025-04-08).png"
-    log_path = r"D:\OnmyojiAutoScript\ljxun\log\error\DU 10-56-30 (2025-04-08).log"
-    config.notifier.send_mail(title='BondlingFairyland', head='契灵数量已达上限500，请及时处理', image_path=image_path, log_path=log_path)
-    # config.notifier.send_mail(title='Dokan', content='Dokan，请及时处理')
+    image_path = r"D:\OnmyojiAutoScript\ljxun\log\error\OAS1 2025-04-09 21时03分26.png"
+    log_path = r"D:\OnmyojiAutoScript\ljxun\log\error\OAS1 2025-04-09 21时03分26.log"
+    config.notifier.send_mail(title='AbyssTrials', head='请及时处理', image_path=image_path, log_path=log_path)
+    # config.notifier.send_mail(title='Dokan', head='Dokan，请及时处理')

@@ -13,6 +13,7 @@ import zerorpc
 import zmq
 from cached_property import cached_property
 from datetime import datetime, timedelta
+from module.server.i18n import I18n
 from multiprocessing.queues import Queue
 from pathlib import Path
 from pydantic import ValidationError
@@ -25,7 +26,7 @@ from module.config.config import Config
 from module.config.utils import convert_to_underscore
 from module.device.device import Device
 from module.exception import *
-from module.logger import logger, error_path
+from module.logger import logger, error_path, get_filename
 
 
 class Script:
@@ -87,21 +88,16 @@ class Script:
         from module.handler.sensitive_info import (handle_sensitive_image,
                                                    handle_sensitive_logs)
         if self.config.script.error.save_error:
-            config_name = self.config.config_name.upper()
-            datetime_now = datetime.now()
-            now_date = datetime_now.strftime('%Y-%m-%d')
-            now_time = datetime_now.strftime('%H-%M-%S')
 
             folder = f'{error_path}'
-            image_name = f'{config_name} {now_time} ({now_date})'
-            error_path_log = f'{folder}/{image_name}.log'
-            error_path_image = f'{folder}/{image_name}.png'
-            logger.warning(f'Saving error folder: {folder}')
+            filename = get_filename(self.config.config_name.upper())
+            error_log_path = f'{folder}/{filename}.log'
+            error_image_path = f'{folder}/{filename}.png'
             if not os.path.exists(folder):
                 os.mkdir(folder)
-            for data in self.device.screenshot_deque:
-                image = handle_sensitive_image(data['image'])
-                save_image(image, error_path_image)
+            if not getattr(self.device, 'image', None):
+                self.device.screenshot()
+            save_image(self.device.image, error_image_path)
             with open(logger.log_file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 start = 0
@@ -111,10 +107,10 @@ class Script:
                         start = index
                 lines = lines[start - 2:]
                 lines = handle_sensitive_logs(lines)
-            with open(error_path_log, 'w', encoding='utf-8') as f:
+            with open(error_log_path, 'w', encoding='utf-8') as f:
                 f.writelines(lines)
             # asyncio.run(self.config.pushtg.telegram_send(title, error_path_image, error_path_log))
-            self.config.notifier.send_mail(title, content, error_path_image, error_path_log)
+            self.config.notifier.send_mail(title, content, self.device.image, error_log_path)
 
     def init_server(self, port: int) -> int:
         """
@@ -299,6 +295,10 @@ class Script:
             time.sleep(1)
         logger.warning("倒计时完成！")
 
+    def get_wait_task(self, task) -> str:
+        logger.hr(f"emulator status {self.device_status}", level=1)
+        logger.info(f'Wait `{I18n.trans_zh_cn(task.command)}` ({task.next_run})')
+
     def get_next_task(self) -> str:
         """
         获取下一个任务的名字, 大驼峰。
@@ -332,8 +332,7 @@ class Script:
                         self.device.emulator_stop()
                         self.device_status = False
                         self.device.release_during_wait()
-                    logger.hr(f"emulator status {self.device_status}", level=1)
-                    logger.info(f'Wait until {task.next_run} for task `{task.command}`')
+                    self.get_wait_task(task)
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
@@ -347,14 +346,12 @@ class Script:
                     except Exception as e:
                         logger.error("app stop error")
                         logger.error(e)
-                    logger.hr(f"emulator status {self.device_status}", level=1)
-                    logger.info(f'Wait until {task.next_run} for task `{task.command}`')
+                    self.get_wait_task(task)
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
                 else:
-                    logger.hr(f"emulator status {self.device_status}", level=1)
-                    logger.info(f'Wait until {task.next_run} for task `{task.command}`')
+                    self.get_wait_task(task)
                     if self.device_status:
                         self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
@@ -437,11 +434,11 @@ class Script:
             self.device.stuck_record_clear()
             self.device.click_record_clear()
 
-            logger.hr(f'{task}  Start', 0)
+            logger.hr(f'{I18n.trans_zh_cn(task)}  Start', 0)
             self.config.model.running_task = task
             success = self.run(inflection.camelize(task))
             self.config.model.running_task = None
-            logger.hr(f'{task}  End', 0)
+            logger.hr(f'{I18n.trans_zh_cn(task)}  End', 0)
             self.is_first_task = False
 
             # Check failures
