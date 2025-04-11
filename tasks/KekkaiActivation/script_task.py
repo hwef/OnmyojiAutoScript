@@ -254,8 +254,9 @@ class ScriptTask(KU, KekkaiActivationAssets):
                 while 1:
                     self.screenshot()
                     if not self.appear(self.I_A_EMPTY):
-                        logger.info(f'已找到最优[{rule}]卡')
-                        self.save_image(content=f'已找到最优[{rule}]卡', push_flag=True)
+                        message = f'✅ 确认挂卡: {rule}'
+                        logger.info(message)
+                        self.save_image(content=message, push_flag=True)
                         return
                     if self.appear_then_click(target, interval=1):
                         continue

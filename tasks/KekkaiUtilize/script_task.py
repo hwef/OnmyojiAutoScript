@@ -69,8 +69,6 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 self.push_notify(title=self.config.task.command, content=f"没有合适可以蹭的卡, 5分钟后再次执行蹭卡")
                 self.set_next_run(task='KekkaiUtilize', target=datetime.now() + timedelta(minutes=5))
                 return
-            # 进入寮结界
-            self.goto_realm()
 
             # 无论收不收到菜，都会进入看看至少看一眼时间还剩多少
             time.sleep(0.5)
@@ -90,7 +88,10 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             if not self.grown_goto_utilize():
                 logger.info('Utilize failed, exit')
             if self.run_utilize(con.select_friend_list, con.shikigami_class, con.shikigami_order):
+                # 退出寮结界
                 self.back_guild()
+                # 进入寮结界
+                self.goto_realm()
             else:
                 self.back_realm()
 
@@ -374,23 +375,14 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     def order_targets(self) -> ImageGrid:
         rule = self.config.kekkai_utilize.utilize_config.utilize_rule
         if rule == UtilizeRule.DEFAULT:
-            return ImageGrid([self.I_U_FISH_6, self.I_U_TAIKO_6, self.I_U_FISH_5, self.I_U_TAIKO_5,
-                              self.I_U_TAIKO_4, self.I_U_FISH_4, self.I_U_TAIKO_3, self.I_U_FISH_3])
+            return ImageGrid([self.I_U_FISH_6, self.I_U_TAIKO_6, self.I_U_FISH_5, self.I_U_TAIKO_5])
         elif rule == UtilizeRule.FISH:
-            return ImageGrid([self.I_U_FISH_6, self.I_U_FISH_5,
-                              self.I_U_TAIKO_6, self.I_U_TAIKO_5, self.I_U_FISH_4, self.I_U_TAIKO_4, self.I_U_FISH_3,
-                              self.I_U_TAIKO_3])
+            return ImageGrid([self.I_U_FISH_6, self.I_U_FISH_5])
         elif rule == UtilizeRule.TAIKO:
-            return ImageGrid([self.I_U_TAIKO_6, self.I_U_TAIKO_5,
-                              self.I_U_FISH_6, self.I_U_FISH_5, self.I_U_TAIKO_4, self.I_U_FISH_4, self.I_U_TAIKO_3,
-                              self.I_U_FISH_3])
+            return ImageGrid([self.I_U_TAIKO_6, self.I_U_TAIKO_5])
         else:
             logger.error('Unknown utilize rule')
             raise ValueError('Unknown utilize rule')
-
-    @cached_property
-    def select_targets(self) -> ImageGrid:
-        return ImageGrid([self.I_U_FISH_6, self.I_U_TAIKO_6, self.I_U_FISH_5, self.I_U_TAIKO_5])
 
     @cached_property
     def order_cards(self) -> list[CardClass]:
@@ -442,7 +434,6 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         logger.info('开始执行进入结界蹭卡流程')
         # 进入结界
         self.screenshot()
-        self.save_image(push_flag=True, wait_time=0)
         if not self.appear(self.I_U_ENTER_REALM):
             logger.warning('Cannot find enter realm button')
             # 可能是滑动的时候出错
@@ -490,8 +481,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         """整合后的智能选卡主逻辑（无嵌套函数版）"""
         # 类常量声明（需在类中定义）
         RESOURCE_PRESETS = {
-            '斗鱼': [151, 143, 134, 126, 101],
-            '太鼓': [76, 75, 67, 59]
+            '斗鱼': [151, 143, 134, 126, 101, 84],
+            '太鼓': [76,  76,  67,  67,  59,  50]
         }
         MAX_INDEX = 99
 
@@ -502,7 +493,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             if self.ap_max_num == 0 and self.jade_max_num == 0:
                 logger.hr('第一阶段：初始记录获取', 2)
                 if self._current_select_best():
-                    logger.info('✅ 发现完美结界卡直接选择')
+                    message = f'✅ 发现完美结界卡直接选择'
+                    logger.info(message)
                     return True
                 logger.info(f'📝 记录最佳值 | 斗鱼:{self.ap_max_num} 太鼓:{self.jade_max_num}')
                 return False
@@ -534,7 +526,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             logger.hr('第三阶段：执行选卡操作', 2)
             # 第三阶段：执行选卡操作
             if self._current_select_best(res_type, target, selected_card=True):
-                logger.info(f'🎉 成功选择: {res_type}')
+                message = f'🎉 成功选择: {res_type}'
+                logger.info(message)
                 return True
             else:
                 logger.warning(f'❌ {res_type}卡确认失败，重置状态')
@@ -576,23 +569,23 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
             #------ 步骤1: 截图识别结界卡 ------#
             self.screenshot()
-            all_cards = self.select_targets.find_everyone(self.device.image)
+            all_cards = self.order_targets.find_everyone(self.device.image)
 
             # 处理无卡情况
             if not all_cards:
                 consecutive_miss += 1
+                logger.info(f'第[{swipe_count}]次滑动未发现所需卡' if swipe_count > 0 else '初始界面未发现所需卡')
                 # 连续无卡超过阈值则终止
                 if consecutive_miss > CONSECUTIVE_MISS_LIMIT:
                     logger.warning(f'⚠️ 连续[{consecutive_miss}]次滑动未发现所需卡, 终止流程')
                     return None
                 # 执行滑动操作
-                logger.info(f'第[{swipe_count}]次滑动未发现所需卡' if swipe_count > 0 else '初始界面未发现所需卡')
                 self.perform_swipe_action()
                 continue
 
             #------ 步骤2: 处理识别到的结界卡 ------#
             cards_list = [target for target, _, _ in all_cards]
-            logger.info((f'第[{swipe_count}]次滑动' if swipe_count > 0 else '初始界面') + f' | 识别到结界卡：{cards_list}')
+            logger.info((f'第[{swipe_count}]次滑动' if swipe_count > 0 else '初始界面') + f' | 检测到结界卡：{cards_list}')
 
             consecutive_miss = 0  # 重置无卡计数器
             # 遍历所有结界卡（已按位置排序）
@@ -623,12 +616,17 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                     is_target_type = (card_type == best_card_type)
                     meets_requirement = (card_value >= best_card_num)
                     if is_target_type and meets_requirement:
-                        logger.info(f'✅ 确认选择: {card_type} | 当前值: {card_value} ≥ 目标值: {best_card_num}')
+                        message = f'✅ 确认选择: {card_type} | 当前值: {card_value} ≥ 目标值: {best_card_num}'
+                        logger.info(message)
+                        content = f'✅ 确认选择: {card_type} | {card_value}'
+                        self.save_image(push_flag=True, wait_time=0, content=content)
                         return True
                 else:  # 探索记录模式
                     # 发现完美卡直接选择
                     if card_value >= current_max:
-                        logger.info(f'🎯 发现完美{card_type}: {card_value} / {current_max}')
+                        message = f'🎯 发现完美 {card_type}: {card_value}'
+                        logger.info(message)
+                        self.save_image(push_flag=True, wait_time=0, content=message)
                         return True
                     # 更新最佳记录
                     record_attr = RESOURCE_CONFIG[card_type]['record_attr']
