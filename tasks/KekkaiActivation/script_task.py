@@ -83,12 +83,6 @@ class ScriptTask(KU, KekkaiActivationAssets):
     def dict_image_card(self) -> dict:
         return {v: k for k, v in self.dict_card_image.items()}
 
-    # @cached_property
-    # def order_cards(self) -> list[CardClass]:
-    #     # 重写
-    #     config = self.config.kekkai_activation.activation_config.card_type
-    #     return config
-
     @cached_property
     def order_targets(self) -> ImageGrid:
         rule = self.config.kekkai_activation.activation_config.card_type
@@ -251,16 +245,17 @@ class ScriptTask(KU, KekkaiActivationAssets):
 
         # 找最优卡
         while 1:
-
             self.screenshot()
             target = self.order_targets.find_anyone(self.device.image)
             if target is None:
+                # 未发现卡，处理逻辑
                 self._card_not_found()
             if self.appear(self.I_A_EMPTY):
                 while 1:
                     self.screenshot()
                     if not self.appear(self.I_A_EMPTY):
-                        self.save_image(push_flag=True)
+                        logger.info(f'已找到最优[{rule}]卡')
+                        self.save_image(content=f'已找到最优[{rule}]卡', push_flag=True)
                         return
                     if self.appear_then_click(target, interval=1):
                         continue
@@ -268,38 +263,35 @@ class ScriptTask(KU, KekkaiActivationAssets):
     def _card_not_found(self):
         # 获取配置引用
         activation_config = self.config.kekkai_activation.activation_config
-        retry_minutes = 60
+        # 多少分钟后重试
+        retry_minutes = 180
         # 递增未找到卡的计数器
         activation_config.card_not_found_count += 1
 
-        logger.info(f'当前未发现[{activation_config.card_type}]卡, 已尝试[{activation_config.card_not_found_count}]次')
-        self.push_notify(content=f'当前未发现[{activation_config.card_type}]卡')
-
         if activation_config.card_not_found_count >= 2:
-
-            logger.info(f'连续[{activation_config.card_not_found_count}]次未发现卡,{retry_minutes}分钟后重试')
-            self.push_notify(content=f'连续[{activation_config.card_not_found_count}]次未发现卡,{retry_minutes}分钟后重试')
-
-            # 重置计数器并延长下次执行时间
-            activation_config.card_not_found_count = 0
-            self.config.save()
-
-            self.set_next_run("KekkaiActivation", success=True, finish=True,
-                              target=datetime.now() + timedelta(minutes=retry_minutes))
-            raise TaskEnd
+            # 达到重试上限时的处理
+            log_msg = f"⚠️{activation_config.card_type}卡未检出（累计2次），{retry_minutes}分钟后重试"
+            activation_config.card_not_found_count = 0  # 重置计数器并延长下次执行时间
+            next_run = datetime.now() + timedelta(minutes=retry_minutes)
         else:
-            # 切换卡类型
-            activation_config.card_type = (
+            # # 未达上限切换卡类型
+            new_type = (
                 CardType.FISH
                 if activation_config.card_type == CardType.TAIKO
                 else CardType.TAIKO
             )
-            logger.info(f'切换卡类型至: {activation_config.card_type}, 并保存到配置')
-            # 保存配置
-            self.config.save()
-            # 立即重试
-            self.set_next_run("KekkaiActivation", success=True, finish=True, target=datetime.now())
-            raise TaskEnd
+            log_msg = f"🔄{activation_config.card_type}卡未检出 → 切换{new_type}"
+            activation_config.card_type = new_type
+            next_run = datetime.now()
+
+        # 统一记录日志和推送
+        logger.info(log_msg)
+        self.save_image(content=log_msg, push_flag=True)
+
+        # 保存配置并设置下次执行
+        self.config.save()
+        self.set_next_run("KekkaiActivation", success=True, finish=True, target=next_run)
+        raise TaskEnd
 
     def check_max_lv(self, shikigami_class: ShikigamiClass = ShikigamiClass.N):
         """
