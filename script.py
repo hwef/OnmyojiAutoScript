@@ -95,8 +95,6 @@ class Script:
             error_image_path = f'{folder}/{filename}.png'
             if not os.path.exists(folder):
                 os.mkdir(folder)
-            if not getattr(self.device, 'image', None):
-                self.device.screenshot()
             save_image(self.device.image, error_image_path)
             with open(logger.log_file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
