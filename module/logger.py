@@ -95,10 +95,43 @@ old_path = os.path.join(backup_path, 'old_folder')
 def get_filename(config_name):
     datetime_now = datetime.now()
     today_date = datetime_now.strftime('%Y-%m-%d')
-    today_time = datetime_now.strftime('%H时%M分%S')
+    today_time = format_chinese_time(datetime_now)
     today_weekday = datetime.now().strftime("%A")
     filename = f"{config_name} {today_date} {today_time}"
     return filename
+
+
+from datetime import datetime
+
+
+def get_time_period(hour: int) -> str:
+    """智能匹配中文时间段（支持自定义规则）"""
+    periods = [
+        (0, "凌晨"),
+        (6, "早晨"),
+        (9, "上午"),
+        (12, "中午"),
+        (13, "下午"),
+        (18, "傍晚"),
+        (20, "晚上")
+    ]
+    # 逆序匹配第一个符合条件的时间段
+    return next((name for threshold, name in reversed(periods) if hour >= threshold), "凌晨")
+
+
+def format_chinese_time(dt: datetime = None) -> str:
+    """生成带秒数的中文时间描述"""
+    dt = dt or datetime.now()
+    hour = dt.hour
+    period = get_time_period(hour)
+    hour_12 = 12 if (h := hour % 12) == 0 else h  # 海象运算符简化代码
+    time_str = f"{period} {hour_12}点{dt.minute:02d}分{dt.second:02d}秒"
+    return time_str
+
+
+# 使用示例
+print(format_chinese_time())  # 输出：下午3点05分30秒
+print(format_chinese_time(datetime(2023, 10, 1, 23, 45, 59)))  # 晚上11点45分59秒
 
 
 class Logger:

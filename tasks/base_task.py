@@ -23,7 +23,7 @@ from module.config.config import Config
 from module.config.utils import convert_to_underscore
 from module.device.device import Device
 from module.exception import ScriptError
-from module.logger import logger, log_path, week_path, get_filename
+from module.logger import logger, log_path, week_path, get_filename, format_chinese_time
 from module.ocr.base_ocr import OcrMode
 from module.server.i18n import I18n
 from tasks.Component.Costume.costume_base import CostumeBase
@@ -687,7 +687,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                     f.write(buf.tobytes())
                 logger.info(f"截图已保存至：{image_path}")
                 if push_flag:
-                    self.push_notify(title=task_name, content=content if content else f"截图已保存至：{image_path}")
+                    self.push_notify(title=task_name, content=f'{content} | {format_chinese_time(datetime.now())}' if content else f"截图已保存至：{image_path}")
             else:
                 self.push_notify(title=task_name, content=f"保存{image_path}, 图像编码失败")
                 raise Exception("图像编码失败")
@@ -762,8 +762,8 @@ if __name__ == '__main__':
 
     # self.config.notifier.send_mail(title=task_name, head=head, image_path=image_path)
 
-    t.push_notify()
-    # t.save_image(content='成功找到最优挂卡', push_flag=True)
+    # t.push_notify()
+    t.save_image(content='成功找到最优挂卡', push_flag=True)
 
     # logger.hr('INVITE FRIEND')
     # logger.hr('INVITE FRIEND', 0)
