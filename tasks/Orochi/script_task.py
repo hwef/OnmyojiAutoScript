@@ -53,14 +53,20 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                 limit_count = 120
                 group_team = orochi_switch_soul.twelve_switch
                 layer = Layer.TWELVE
-            case Plan.other:
-                logger.info('Orochi Plan Other')
+            case Plan.default:
+                logger.info('Orochi Plan default')
+            case Plan.end:
+                self.config.orochi.next_day_orochi_config.plan = Plan.TEN30
+                self.config.save()
+                self.set_next_run('Orochi', finish=True, success=True)
+                logger.info('Orochi Plan end')
+                raise TaskEnd
             case _:
                 logger.error('Unknown user plan')
 
         if orochi_switch_soul.auto_enable:
             # 如果是循环根据选层，换御魂
-            if plan == Plan.other:
+            if plan == Plan.default:
                 match layer:
                     case Layer.TEN:
                         group_team = orochi_switch_soul.ten_switch
@@ -106,7 +112,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             self.close_buff()
 
         # 下一次运行时间
-        if plan == Plan.other:
+        if plan == Plan.default:
             if success:
                 self.set_next_run('Orochi', finish=True, success=True)
             else:
