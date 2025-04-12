@@ -381,7 +381,7 @@ class Script:
         except GameNotRunningError as e:
             logger.warning(e)
             self.config.task_call('Restart')
-            return True 
+            return True
         except Exception as e:
             error_type = type(e).__name__  # 获取异常类型名称
             if isinstance(e, (GameWaitTooLongError, GameTooManyClickError, GamePageUnknownError, GameStuckError, GameBugError, FileNotFoundError)):
@@ -391,8 +391,10 @@ class Script:
                 self.config.task_call('Restart')
             elif isinstance(e, (ScriptError, RequestHumanTakeover)):
                 logger.critical(e)
+                self.device.emulator_restart()
             else:
                 logger.exception(e)
+                self.device.emulator_restart()
             self.save_error_log(title=command, content=error_type)
             return False
 
@@ -409,71 +411,94 @@ class Script:
         self.config.model.running_task = None
 
         while 1:
+            try:
 
-            if self.is_first_task:
-                self.device = Device(self.config)
+                if self.is_first_task:
+                    self.device = Device(self.config)
 
-            # 获取下一个任务
-            task = self.get_next_task()
+                # 获取下一个任务
+                task = self.get_next_task()
 
-            # 如果设备断开，重新获取设备
-            if not self.device_status:
-                self.device = Device(self.config)
-                self.device_status = True
-                # self.config.notifier.push(title='StartMuMu', content=f'Start task `{task}`')
+                # 如果设备断开，重新获取设备
+                if not self.device_status:
+                    self.device = Device(self.config)
+                    self.device_status = True
 
-            # Skip first restart
-            if self.is_first_task and task == 'Restart':
-                logger.info('Skip task `Restart` at scheduler start')
-                self.config.task_delay(task='Restart', success=True, server=True)
+                # Skip first restart
+                if self.is_first_task and task == 'Restart':
+                    logger.info('Skip task `Restart` at scheduler start')
+                    self.config.task_delay(task='Restart', success=True, server=True)
+                    del_cached_property(self, 'config')
+                    continue
+
+                self.device.stuck_record_clear()
+                self.device.click_record_clear()
+
+                # 开始执行任务
+                logger.hr(f'{I18n.trans_zh_cn(task)}  Start', 0)
+                self.config.model.running_task = task
+                success = self.run(inflection.camelize(task))
+                self.config.model.running_task = None
+                logger.hr(f'{I18n.trans_zh_cn(task)}  End', 0)
+                self.is_first_task = False
                 del_cached_property(self, 'config')
-                continue
 
-            self.device.stuck_record_clear()
-            self.device.click_record_clear()
-
-            logger.hr(f'{I18n.trans_zh_cn(task)}  Start', 0)
-            self.config.model.running_task = task
-            success = self.run(inflection.camelize(task))
-            self.config.model.running_task = None
-            logger.hr(f'{I18n.trans_zh_cn(task)}  End', 0)
-            self.is_first_task = False
-
-            # Check failures
-            # failed = deep_get(self.failure_record, keys=task, default=0)
-            failed = self.failure_record[task] if task in self.failure_record else 0
-            failed = 0 if success else failed + 1
-            # deep_set(self.failure_record, keys=task, value=failed)
-            self.failure_record[task] = failed
-            if failed >= 3:
-                logger.critical(f"Task `{task}` failed 3 or more times.")
-                logger.critical("Possible reason #1: You haven't used it correctly. "
-                                "Please read the help text of the options.")
-                logger.critical("Possible reason #2: There is a problem with this task. "
-                                "Please contact developers or try to fix it yourself.")
-                logger.critical('Request human takeover')
-                self.config.notifier.push(title=task, content="Task failed 3 or more times")
-                exit(1)
-
-            if success:
+                # Check failures
+                failed = self.failure_record[task] if task in self.failure_record else 0
+                failed = 0 if success else failed + 1
+                self.failure_record[task] = failed
+                if failed >= 3:
+                    logger.critical(f"Task `{task}` failed 3 or more times.")
+                    logger.critical("Possible reason #1: You haven't used it correctly. "
+                                    "Please read the help text of the options.")
+                    logger.critical("Possible reason #2: There is a problem with this task. "
+                                    "Please contact developers or try to fix it yourself.")
+                    logger.critical('Request human takeover')
+                    self.config.notifier.push(title=task, content="Task failed 3 or more times")
+                    exit(1)
+            except Exception as e:
+                logger.error(f"Loop crashed: {e}", exc_info=True)
+                self.config.notifier.push(title="LOOP_CRASH", content=str(e))
+                """异常后清理设备并重置配置"""
+                if self.device:
+                    logger.info("Releasing device resources...")
+                    self.device.release_during_wait()
+                    self.device = None
                 del_cached_property(self, 'config')
-                continue
-            elif self.config.script.error.handle_error:
-                # self.config.task_delay(success=False)
-                del_cached_property(self, 'config')
-                # self.checker.check_now()
-                continue
-            else:
-                break
+                logger.info("Resources restarted")
+                time.sleep(10)  # 等待后继续循环
 
-    def start_loop(self) -> None:
-        """
-        创建一个线程，运行loop
-        :return:
-        """
-        if self.loop_thread is None:
-            self.loop_thread = Thread(target=self.loop, name='Script_loop')
-            self.loop_thread.start()
+    def start_loop(self):
+        max_retries = 3
+        retry_count = 0
+        while retry_count < max_retries:
+            try:
+                if self.loop_thread and self.loop_thread.is_alive():
+                    time.sleep(10)
+                    continue
+
+                logger.warning(f"Restarting loop (Attempt {retry_count + 1}/{max_retries})")
+                self.config.notifier.push(title="LOOP_RESTART", content=f"Restarting loop (Attempt {retry_count + 1}/{max_retries})")
+                self.loop_thread = Thread(target=self.loop, name='Script_loop')
+                self.loop_thread.start()
+                self.loop_thread.join()  # 等待线程结束
+                if not self.loop_thread.is_alive():
+                    retry_count += 1
+                    time.sleep(30)  # 递增等待时间
+                else:
+                    retry_count = 0
+            except (SystemExit, KeyboardInterrupt):
+                logger.info("Main loop interrupted. Exiting...")
+                if self.loop_thread:
+                    self.loop_thread.join(timeout=30)
+                raise
+            except Exception as e:
+                logger.critical(f"start_loop error: {e}", exc_info=True)
+                retry_count += 1
+                time.sleep(60)
+        logger.critical("Max restart attempts reached. Shutting down.")
+        self.config.notifier.push(title="Fatal Error", content="Script restart loop failed.")
+        exit(1)
 
 
 if __name__ == "__main__":
