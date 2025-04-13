@@ -763,8 +763,10 @@ if __name__ == '__main__':
     # self.config.notifier.send_mail(title=task_name, head=head, image_path=image_path)
 
     # t.push_notify()
-    t.save_image(content='成功找到最优挂卡', push_flag=True)
-
+    # t.save_image(content='成功找到最优挂卡', push_flag=True)
+    card_type = '斗鱼'
+    card_value = '118'
+    t.save_image(task_name='KekkaiUtilize', push_flag=True, wait_time=0, content=f'🎉 确认蹭卡 ({card_type}: {card_value})')
     # logger.hr('INVITE FRIEND')
     # logger.hr('INVITE FRIEND', 0)
     # logger.hr('INVITE FRIEND', 1)

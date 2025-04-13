@@ -256,7 +256,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
                     if not self.appear(self.I_A_EMPTY):
                         self.config.kekkai_activation.activation_config.card_not_found_count = 0
                         self.config.save()
-                        message = f'✅ 确认挂卡: {rule}'
+                        message = f'🎉 确认挂卡: {rule}'
                         logger.info(message)
                         self.save_image(content=message, push_flag=True)
                         return

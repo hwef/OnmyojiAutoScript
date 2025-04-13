@@ -65,7 +65,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         while 1:
             self.utilize_erroe_num += 1
             if self.utilize_erroe_num >= 5:
-                logger.warning('Utilize error more than 5 times, exit')
+                logger.warning('没有合适可以蹭的卡, 5分钟后再次执行蹭卡')
                 self.push_notify(title=self.config.task.command, content=f"没有合适可以蹭的卡, 5分钟后再次执行蹭卡")
                 self.set_next_run(task='KekkaiUtilize', target=datetime.now() + timedelta(minutes=5))
                 return
@@ -577,7 +577,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 logger.info(f'第[{swipe_count}]次滑动未发现所需卡' if swipe_count > 0 else '初始界面未发现所需卡')
                 # 连续无卡超过阈值则终止
                 if consecutive_miss > CONSECUTIVE_MISS_LIMIT:
-                    logger.warning(f'⚠️ 连续[{consecutive_miss}]次滑动未发现所需卡, 终止流程')
+                    logger.warning(f'⚠️ 连续[{consecutive_miss}]次未发现所需卡, 终止流程')
                     return None
                 # 执行滑动操作
                 self.perform_swipe_action()
@@ -616,15 +616,13 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                     is_target_type = (card_type == best_card_type)
                     meets_requirement = (card_value >= best_card_num)
                     if is_target_type and meets_requirement:
-                        message = f'✅ 确认选择: {card_type} | 当前值: {card_value} ≥ 目标值: {best_card_num}'
-                        logger.info(message)
-                        content = f'✅ 确认选择: {card_type} | {card_value}'
-                        self.save_image(push_flag=True, wait_time=0, content=content)
+                        logger.info(f'🎉 确认蹭卡: {card_type} | 当前值: {card_value} ≥ 目标值: {best_card_num}')
+                        self.save_image(push_flag=True, wait_time=0, content=f'🎉 确认蹭卡（{card_type}: {card_value}）')
                         return True
                 else:  # 探索记录模式
                     # 发现完美卡直接选择
                     if card_value >= current_max:
-                        message = f'🎯 发现完美 {card_type}: {card_value}'
+                        message = f'🎉 完美蹭卡 | {card_type}: {card_value}'
                         logger.info(message)
                         self.save_image(push_flag=True, wait_time=0, content=message)
                         return True

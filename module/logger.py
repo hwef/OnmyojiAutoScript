@@ -125,7 +125,7 @@ def format_chinese_time(dt: datetime = None) -> str:
     hour = dt.hour
     period = get_time_period(hour)
     hour_12 = 12 if (h := hour % 12) == 0 else h  # 海象运算符简化代码
-    time_str = f"{period} {hour_12}点{dt.minute:02d}分{dt.second:02d}秒"
+    time_str = f"{period} {hour_12}点{dt.minute:02d}分{dt.second:02d}"
     return time_str
 
 
