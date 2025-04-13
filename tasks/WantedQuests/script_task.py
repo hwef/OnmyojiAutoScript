@@ -69,11 +69,13 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
 
             target_found = False
             O_WQ_INSTANCES = [
-                (self.O_WQ_TEXT_1, self.O_WQ_NUM_1),
-                (self.O_WQ_TEXT_2, self.O_WQ_NUM_2)
+                (self.I_WQ_END_1, self.O_WQ_TEXT_1, self.O_WQ_NUM_1),
+                (self.I_WQ_END_2, self.O_WQ_TEXT_2, self.O_WQ_NUM_2)
             ]
             TARGET_CHAR = "印"
-            for text_obj, num_obj in O_WQ_INSTANCES:
+            for end_obj, text_obj, num_obj in O_WQ_INSTANCES:
+                if self.appear(end_obj):
+                    continue
                 detected_str = text_obj.detect_text(self.device.image)
                 if TARGET_CHAR in detected_str:
                     cu, re, total = num_obj.ocr(self.device.image)
@@ -95,6 +97,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
                 self.I_WQ_CHECK_TASK_CLICK.roi_front = (x - 70, y, w + 30, h)
                 logger.info(f'调整点击区域至: {self.I_WQ_CHECK_TASK_CLICK.roi_front}')
                 self.execute_mission(self.I_WQ_CHECK_TASK_CLICK, 1, number_challenge, flag=True)
+                self.save_image(task_name='悬赏发现残留任务,战斗结束', wait_time=0, image_type='png')
                 wq_timer.reset()
                 continue
 
@@ -462,7 +465,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('du')
+    c = Config('oa')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()

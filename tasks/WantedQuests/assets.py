@@ -154,6 +154,10 @@ class WantedQuestsAssets:
 	I_WQ_CHECK_TASK = RuleImage(roi_front=(110,154,21,125), roi_back=(73,122,69,459), threshold=0.9, method="Template matching", file="./tasks/WantedQuests/wq/wq_wq_check_task.png")
 	# 有任务(填充任务坐标的作用) 
 	I_WQ_CHECK_TASK_CLICK = RuleImage(roi_front=(110,154,21,125), roi_back=(73,122,69,459), threshold=0.8, method="Template matching", file="./tasks/WantedQuests/wq/wq_wq_check_task.png")
+	# 悬赏已完成1 
+	I_WQ_END_1 = RuleImage(roi_front=(110,258,21,21), roi_back=(110,258,21,21), threshold=0.8, method="Template matching", file="./tasks/WantedQuests/wq/wq_wq_end_1.png")
+	# 悬赏已完成2 
+	I_WQ_END_2 = RuleImage(roi_front=(112,402,21,21), roi_back=(112,402,21,21), threshold=0.8, method="Template matching", file="./tasks/WantedQuests/wq/wq_wq_end_2.png")
 
 
 	# Image Rule Assets

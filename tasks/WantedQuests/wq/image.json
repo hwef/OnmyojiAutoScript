@@ -115,5 +115,23 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "有任务(填充任务坐标的作用)"
+  },
+  {
+    "itemName": "wq_end_1",
+    "imageName": "wq_wq_end_1.png",
+    "roiFront": "110,258,21,21",
+    "roiBack": "110,258,21,21",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "悬赏已完成1"
+  },
+  {
+    "itemName": "wq_end_2",
+    "imageName": "wq_wq_end_2.png",
+    "roiFront": "112,402,21,21",
+    "roiBack": "112,402,21,21",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "悬赏已完成2"
   }
 ]
