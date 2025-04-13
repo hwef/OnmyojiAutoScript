@@ -25,7 +25,7 @@ class LoginHandler(LoginBase, BaseTask, RestartAssets):
         :return:
         """
         logger.hr('App login')
-        self.device.stuck_record_add('LOGIN_CHECK')
+        # self.device.stuck_record_add('LOGIN_CHECK')
 
         confirm_timer = Timer(1.5, count=2).start()
         orientation_timer = Timer(10)
