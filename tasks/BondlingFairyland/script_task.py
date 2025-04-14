@@ -44,16 +44,18 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
         self.ui_click(self.I_MALL_BONDLINGS_SURE, self.I_MALL_BONDLINGS_ON)
 
         MAX_COUNT = 3000
+        next_run_week = 2
         cu, re, total = self.O_BL_CHECK_MONEY.ocr(self.device.image)
 
         if cu >= MAX_COUNT:
-            logger.info(f'契忆数量: {cu}, 已足够: {MAX_COUNT}, 结束任务')
-            self.save_image()
-            self.push_notify(content=f'契忆数量: {cu}, 已足够: {MAX_COUNT}, 结束任务')
+            message = f'契忆数量: {cu} >= {MAX_COUNT}, 下次运行时间: 下周{next_run_week}'
+            logger.info(message)
+            self.save_image(content=message, push_flag=True)
             self.ui_get_current_page()
             self.ui_goto(page_main)
-            self.next_run_week(1)
+            self.next_run_week(next_run_week)
             raise TaskEnd
+
         logger.info(f'契忆数量: {cu}, 未足够: {MAX_COUNT}, 继续任务')
         logger.hr('第二步, 切换御魂', 2)
         # 引用配置
