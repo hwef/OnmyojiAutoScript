@@ -468,6 +468,8 @@ class Script:
                         logger.critical(f'[错误] 任务连续失败超过阈值 | 任务: {task} | 次数: {failed}')
                         self.config.notifier.push(title=task, content="任务失败次数超限")
                         stop_requested = True
+                        logger.error('[错误] 退出调度器')
+                        exit(1)
     
                 except Exception as e:
                     logger.error(f'[异常] 循环运行崩溃: {str(e)}', exc_info=True)
@@ -486,6 +488,7 @@ class Script:
             if self.device:
                 logger.warning('[安全] 最终资源清理')
                 self.device.release_during_wait()
+                exit(1)
     
     def start_loop(self):
         """
@@ -493,51 +496,39 @@ class Script:
         """
         logger.info('[启动] 启动循环守护线程')
         max_restarts = 2
-        restarts = 0
-    
-        while restarts <= max_restarts:
-            # ------------------------- 状态重置 -------------------------
-            self.is_first_task = True
-            self.device_status = False
-            self.failure_record = {}
-            self.device = None
-            logger.info(f'[重启] 重置内部状态 | 次数: {restarts}/{max_restarts}')
+        restarts = 1
+        self.loop_thread = Thread(target=self.loop)
+        self.loop_thread.start()
 
-            # ------------------------- 旧线程处理 -------------------------
-            if self.loop_thread and self.loop_thread.is_alive():
-                logger.warning('[线程] 发现未退出的旧线程，等待终止...')
-                self.loop_thread.join(timeout=10)
-                if self.loop_thread.is_alive():
-                    logger.error('[错误] 旧线程无法终止，放弃等待')
-                    restarts += 1
-                    continue
-    
-            # ------------------------- 启动新线程 -------------------------
-            logger.info(f'[线程] 启动新工作线程 | 重启次数: {restarts}/{max_restarts}')
-            self.loop_thread = Thread(target=self.loop)
-            self.loop_thread.start()
-    
+        while restarts <= max_restarts:
             # ------------------------- 线程监控 -------------------------
-            self.loop_thread.join(timeout=10)
-            if self.loop_thread.is_alive():
-                logger.error('[异常] 工作线程未在超时时间内退出')
-                restarts = 0
-            else:
-                logger.info('[状态] 工作线程正常退出')
+            # 使用join等待线程结束，设置超时以定期检查条件
+            self.loop_thread.join(timeout=5)
+            if not self.loop_thread.is_alive():
+                # ------------------------- 状态重置 -------------------------
+                self.is_first_task = True
+                self.device_status = False
+                self.failure_record = {}
+                self.device = None
+                logger.info(f'[重启] 重置内部状态 | 次数: {restarts}/{max_restarts}')
+
+                # ------------------------- 启动新线程 -------------------------
+                logger.info(f'[线程] 启动新工作线程 | 重启次数: {restarts}/{max_restarts}')
+                self.loop_thread = Thread(target=self.loop)
+                self.loop_thread.start()
+
                 restarts += 1
-    
-            logger.info(f'[状态] 当前重启计数器: {restarts}')
-            time.sleep(5)
-    
+
         # ------------------------- 最终处理 -------------------------
         logger.critical('[终止] 达到最大重启次数，系统退出')
         self.config.notifier.push(title='系统退出', content="[终止] 达到最大重启次数，系统退出")
+        time.sleep(5)
         exit(1)
 
 
 if __name__ == "__main__":
     script = Script("du")
-    script.loop()
+    script.start_loop()
     # while 1:
     # script = Script("oas3")
     # device = Device("oas3")
