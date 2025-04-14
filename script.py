@@ -406,11 +406,12 @@ class Script:
         # 执行日志
         logger.set_file_logger(self.config_name)
         logger.info(f'Start scheduler loop: {self.config_name}')
-
-        # 线程启动设置running_task is None
         self.config.model.running_task = None
 
-        while 1:
+        # 初始化停止标志
+        stop_requested = False
+
+        while not stop_requested:  # 当未被请求停止时循环
             try:
 
                 if self.is_first_task:
@@ -424,13 +425,14 @@ class Script:
                     self.device = Device(self.config)
                     self.device_status = True
 
-                # Skip first restart
+                # 跳过首次重启任务
                 if self.is_first_task and task == 'Restart':
                     logger.info('Skip task `Restart` at scheduler start')
                     self.config.task_delay(task='Restart', success=True, server=True)
                     del_cached_property(self, 'config')
                     continue
 
+                # 执行任务前的清理
                 self.device.stuck_record_clear()
                 self.device.click_record_clear()
 
@@ -443,62 +445,67 @@ class Script:
                 self.is_first_task = False
                 del_cached_property(self, 'config')
 
-                # Check failures
-                failed = self.failure_record[task] if task in self.failure_record else 0
+                # 失败处理
+                failed = self.failure_record.get(task, 0)
                 failed = 0 if success else failed + 1
                 self.failure_record[task] = failed
-                if failed >= 3:
-                    logger.critical(f"Task `{task}` failed 3 or more times.")
-                    logger.critical("Possible reason #1: You haven't used it correctly. "
-                                    "Please read the help text of the options.")
-                    logger.critical("Possible reason #2: There is a problem with this task. "
-                                    "Please contact developers or try to fix it yourself.")
-                    logger.critical('Request human takeover')
+                if failed >= 2:
+                    logger.critical(f"Task `{task}` failed 3 times. Request restart...")
                     self.config.notifier.push(title=task, content="Task failed 3 or more times")
-                    exit(1)
+                    stop_requested = True  # 标记需要停止当前线程
+
             except Exception as e:
                 logger.error(f"Loop crashed: {e}", exc_info=True)
                 self.config.notifier.push(title="LOOP_CRASH", content=str(e))
-                """异常后清理设备并重置配置"""
-                if self.device:
-                    logger.info("Releasing device resources...")
-                    self.device.release_during_wait()
-                    self.device = None
-                del_cached_property(self, 'config')
-                logger.info("Resources restarted")
-                time.sleep(10)  # 等待后继续循环
+                stop_requested = True  # 异常时也请求停止
+            finally:
+                # 无论是否异常都清理资源
+                if stop_requested:
+                    if self.device:
+                        logger.info("Releasing device resources...")
+                        self.device.release_during_wait()
+                        self.device = None
+                    del_cached_property(self, 'config')
+                    logger.info("Cleanup done, thread will exit")
 
     def start_loop(self):
-        max_retries = 3
-        retry_count = 0
-        while retry_count < max_retries:
-            try:
-                if self.loop_thread and self.loop_thread.is_alive():
-                    time.sleep(10)
+        """控制循环重启"""
+        max_restarts = 3
+        restarts = 0
+
+        while restarts <= max_restarts:
+            # 检查旧线程是否存活
+            if self.loop_thread and self.loop_thread.is_alive():
+                logger.warning("Old thread still alive, waiting...")
+                self.loop_thread.join(timeout=10)  # 等待最多10秒
+                if self.loop_thread.is_alive():
+                    logger.error("Old thread cannot be stopped, abort restart")
+                    restarts += 1
                     continue
 
-                logger.warning(f"Restarting loop (Attempt {retry_count + 1}/{max_retries})")
-                self.config.notifier.push(title="LOOP_RESTART", content=f"Restarting loop (Attempt {retry_count + 1}/{max_retries})")
-                self.loop_thread = Thread(target=self.loop, name='Script_loop')
-                self.loop_thread.start()
-                self.loop_thread.join()  # 等待线程结束
-                if not self.loop_thread.is_alive():
-                    retry_count += 1
-                    time.sleep(30)  # 递增等待时间
-                else:
-                    retry_count = 0
-            except (SystemExit, KeyboardInterrupt):
-                logger.info("Main loop interrupted. Exiting...")
-                if self.loop_thread:
-                    self.loop_thread.join(timeout=30)
-                raise
-            except Exception as e:
-                logger.critical(f"start_loop error: {e}", exc_info=True)
-                retry_count += 1
-                time.sleep(60)
-        logger.critical("Max restart attempts reached. Shutting down.")
-        self.config.notifier.push(title="Fatal Error", content="Script restart loop failed.")
-        exit(1)
+            # 启动新线程
+            logger.info(f"Starting loop thread (Attempt {restarts + 1}/{max_restarts + 1})")
+            self.loop_thread = Thread(target=self.loop)
+            self.loop_thread.start()
+
+            # 等待线程完成
+            self.loop_thread.join()
+            logger.info("Thread exited")
+
+            # 判断是否需要重启
+            if self.loop_thread.is_alive():
+                restarts = 0  # 线程仍在运行则重置计数器
+            else:
+                restarts += 1  # 线程正常退出才计数
+
+            time.sleep(5)  # 重启间隔
+
+        if restarts > max_restarts:
+            logger.critical("Max restart attempts reached. Shutting down.")
+            self.config.notifier.push(title="FATAL", content="Too many restarts")
+            exit(1)
+
+        time.sleep(5)  # 等待间隔避免高频重启
 
 
 if __name__ == "__main__":
