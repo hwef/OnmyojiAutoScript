@@ -58,7 +58,9 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             case Plan.end:
                 self.config.orochi.next_day_orochi_config.plan = Plan.TEN30
                 self.config.save()
-                self.set_next_run('Orochi', finish=True, success=True)
+                start_time = self.config.orochi.next_day_orochi_config.start_time
+                next_run = parse_tomorrow_server(start_time)
+                self.set_next_run('Orochi', target=next_run)
                 logger.info('Orochi Plan end')
                 raise TaskEnd
             case _:
