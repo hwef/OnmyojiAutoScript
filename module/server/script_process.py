@@ -134,7 +134,7 @@ def func(config: str, state_queue: multiprocessing.Queue, log_pipe_in) -> None:
         from script import Script
         script = Script(config_name=config)
         script.state_queue = state_queue
-        script.loop()
+        script.start_loop()
     except SystemExit as e:
         logger.info(f'Script {config} process exit')
         logger.error(f'Error: {e}')
