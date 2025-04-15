@@ -1,6 +1,8 @@
-
+import os
+import psutil
+import pywintypes
 from collections import deque
-from datetime import datetime
+from datetime import datetime, time
 
 # Patch pkg_resources before importing adbutils and uiautomator2
 from module.device.pkg_resources import get_distribution
@@ -33,26 +35,29 @@ class Device(Platform, Screenshot, Control, AppControl):
     stuck_long_wait_list = ['BATTLE_STATUS_S', 'PAUSE', 'LOGIN_CHECK']
 
     def __init__(self, *args, **kwargs):
-        for trial in range(4):
+        max_retries = 4
+        for trial in range(max_retries):
             try:
                 super().__init__(*args, **kwargs)
+                if IS_WINDOWS:
+                    self._validate_window_handle()
                 break
-            except EmulatorNotRunningError:
-                if trial >= 5:
-                    logger.critical('Failed to start emulator after 3 trial')
-                    self.config.notifier.push(title=self.config.task, content=f"Failed to start emulator")
-                    raise RequestHumanTakeover
-                # Try to start emulator
-                if self.emulator_instance is not None:
-                    # if self.config.task is not None:
-                    # self.config.notifier.push(title='StartMuMu', content=f'Run `{self.config.task.command}` {str(self.config.task.next_run.time())}')
+            except (EmulatorNotRunningError, pywintypes.error) as e:
+                # 处理窗口句柄异常
+                if isinstance(e, pywintypes.error) and e.winerror == 1400:
+                    logger.warning(f"窗口句柄无效，尝试清理残留进程 (重试 {trial+1}/{max_retries})")
+                    self.force_cleanup()
+                    time.sleep(5)
+                # 模拟器未运行的原有处理逻辑
+                elif isinstance(e, EmulatorNotRunningError):
+                    if trial >= max_retries:
+                        logger.critical('模拟器启动失败')
+                        self.config.notifier.push(title=self.config.task, content=f"模拟器启动失败{max_retries}次")
+                        raise RequestHumanTakeover
                     self.emulator_start()
+                # 其他异常继续抛出
                 else:
-                    logger.critical(
-                        f'No emulator with serial "{self.config.Emulator_Serial}" found, '
-                        f'please set a correct serial'
-                    )
-                    raise RequestHumanTakeover
+                    raise
 
         # Auto-fill emulator info
         if IS_WINDOWS and self.config.script.device.emulatorinfo_type == 'auto':
@@ -63,6 +68,105 @@ class Device(Platform, Screenshot, Control, AppControl):
         # Auto-select the fastest screenshot method
         if self.config.script.device.screenshot_method == 'auto':
             self.run_simple_screenshot_benchmark()
+
+    def _validate_window_handle(self):
+        """Windows平台专用句柄验证"""
+        try:
+            # 触发窗口属性检查
+            _ = self.screenshot_size
+        except pywintypes.error as e:
+            if e.winerror == 1400:
+                logger.error("窗口句柄验证失败")
+                raise pywintypes.error(e.args)  # 重新抛出给上层捕获
+            raise
+
+    def force_cleanup(self):
+        """精准终止当前模拟器实例关联进程"""
+        port = self.get_port_from_serial()
+        if port is None:
+            logger.error('无法获取有效端口号，跳过清理')
+            return
+
+        # 获取监听该端口的进程
+        listeners = []
+        for conn in psutil.net_connections(kind='tcp'):
+            if conn.status == 'LISTEN' and conn.laddr.port == port:
+                listeners.append(conn.pid)
+
+        if not listeners:
+            logger.info(f'端口 {port} 无监听进程')
+            return
+
+        # 终止进程树
+        killed = []
+        for pid in listeners:
+            try:
+                proc = psutil.Process(pid)
+                # 终止子进程
+                for child in proc.children(recursive=True):
+                    child.kill()
+                    killed.append(f"{child.name()}({child.pid})")
+                # 终止主进程
+                proc.kill()
+                killed.append(f"{proc.name()}({proc.pid})")
+            except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
+                logger.warning(f'进程终止失败: {e}')
+
+        # 日志输出
+        if killed:
+            logger.info(f'已清理端口 {port} 进程: {", ".join(killed)}')
+        else:
+            logger.warning(f'端口 {port} 无权限终止进程')
+
+        # 补充ADB清理
+        os.system(f'adb -s {self.serial} kill-server')
+        logger.info(f'已重置ADB连接: {self.serial}')
+
+    def _find_emulator_processes(self):
+        """通过ADB端口精准定位当前实例的模拟器进程"""
+        target_port = self.serial  # 从配置获取当前实例端口
+        # self.device.serial
+
+        # 查找监听该端口的进程
+        listeners = []
+        for conn in psutil.net_connections(kind='tcp'):
+            if conn.status == 'LISTEN' and conn.laddr.port == target_port:
+                listeners.append(conn.pid)
+
+        # 获取进程树
+        processes = []
+        for pid in listeners:
+            try:
+                main_proc = psutil.Process(pid)
+                # 获取父进程（模拟器主进程）
+                parent = main_proc.parent()
+                if parent:
+                    processes.append(parent)
+                # 包含子进程
+                processes.extend(main_proc.children(recursive=True))
+            except psutil.NoSuchProcess:
+                continue
+
+        # 去重
+        unique_procs = {proc.pid: proc for proc in processes}
+        return list(unique_procs.values())
+
+    def get_port_from_serial(self):
+        """
+        从serial中提取端口号
+        Returns:
+            int: 端口号，提取失败返回None
+        """
+        if ':' not in self.serial:
+            logger.warning(f'Serial格式异常，无端口号: {self.serial}')
+            return None
+
+        try:
+            _, port = self.serial.split(':', 1)
+            return int(port)
+        except ValueError:
+            logger.error(f'端口号非数字: {port}')
+            return None
 
     def run_simple_screenshot_benchmark(self):
         """
