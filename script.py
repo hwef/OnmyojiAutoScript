@@ -32,6 +32,7 @@ from module.logger import logger, error_path, get_filename
 class Script:
     def __init__(self, config_name: str = 'oas') -> None:
         self.device = None
+        self.device_status = False  # 模拟器状态 True:运行中，False:已关闭
         self.server = None
         self.state_queue: Queue = None
         self.gui_update_task: Callable = None  # 回调函数, gui进程注册当每次config更新任务的时候更新gui的信息
@@ -84,9 +85,9 @@ class Script:
                                                    handle_sensitive_logs)
         if self.config.script.error.save_error:
 
-            folder = f'{error_path}'
+            folder = f'{error_path}/{title}'
             filename = get_filename(self.config.config_name.upper())
-            error_path_base = f'{folder}/{title}/{filename}'
+            error_path_base = f'{folder}/{filename}'
             error_log_path = f'{error_path_base}.log'
             error_image_path = f'{error_path_base}.png'
             if not os.path.exists(folder):
@@ -290,7 +291,7 @@ class Script:
         logger.warning("倒计时完成！")
 
     def get_wait_task(self, task) -> str:
-        logger.hr(f"模拟器状态 {'True' if self.device else 'False'}", level=1)
+        logger.hr(f"模拟器状态 {self.device_status}", level=1)
         logger.info(f'Wait `{I18n.trans_zh_cn(task.command)}` ({task.next_run})')
 
     def get_next_task(self) -> str:
@@ -320,21 +321,23 @@ class Script:
 
                 if close_emulator_time_flag and task.next_run > datetime.now() + close_emulator_time:
                     # self.config.notifier.push(title='CloseMuMu',content=f'Wait `{task.command}` {str(task.next_run.time())}')
-                    if self.device:
-                        logger.warning("close emulator after 30s")
-                        time.sleep(30)
+                    if self.device_status:
+                        wait_time = 30
+                        logger.warning(f"等待{wait_time}秒后, 关闭模拟器")
+                        time.sleep(wait_time)
                         self.device.emulator_stop()
+                        self.device_status = False
                         self.device.release_during_wait()
-                        self.device = None
                     self.get_wait_task(task)
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
                         continue
                 elif close_game_time_flag and task.next_run > datetime.now() + close_game_time:
                     try:
-                        if self.device:
-                            logger.warning("close game after 10s")
-                            time.sleep(10)
+                        if self.device_status:
+                            wait_time = 10
+                            logger.warning(f"等待{wait_time}秒后, 关闭游戏")
+                            time.sleep(wait_time)
                             self.device.app_stop()
                             self.device.release_during_wait()
                     except Exception as e:
@@ -345,8 +348,9 @@ class Script:
                         del_cached_property(self, 'config')
                         continue
                 else:
+                    logger.warning(f"等待中, 无需任何操作")
                     self.get_wait_task(task)
-                    if self.device:
+                    if self.device_status:
                         self.device.release_during_wait()
                     if not self.wait_until(task.next_run):
                         del_cached_property(self, 'config')
@@ -387,10 +391,8 @@ class Script:
                 self.config.task_call('Restart')
             elif isinstance(e, (ScriptError, RequestHumanTakeover)):
                 logger.critical(e)
-                self.device.emulator_restart()
             else:
                 logger.exception(e)
-                self.device.emulator_restart()
             self.save_error_log(title=command, content=error_type)
             return False
 
@@ -413,11 +415,19 @@ class Script:
                     if not self.device:
                         logger.info('[设备] 正在初始化设备...')
                         self.device = Device(self.config)
+                        self.device_status = True
 
                     # ------------------------- 获取任务 -------------------------
                     task = self.get_next_task()
                     logger.info(f'[任务] 获取到待执行任务 | {I18n.trans_zh_cn(task)}')
-    
+
+                    # ------------------------- 设备重连逻辑 -------------------------
+                    if not self.device_status:
+                        logger.warning('[设备] 检测到设备断开，尝试重新连接')
+                        self.device = Device(self.config)
+                        self.device_status = True
+                        logger.info('[设备] 重连成功')
+
                     # ------------------------- 跳过首次重启任务 -------------------------
                     if is_first_task and task == 'Restart':
                         logger.info('[任务] 跳过启动时的重启任务')
@@ -427,15 +437,16 @@ class Script:
                         continue
     
                     # ------------------------- 执行前清理 -------------------------
-                    self.device.stuck_record_clear()
-                    self.device.click_record_clear()
+                    if self.device and self.device_status:
+                        self.device.stuck_record_clear()
+                        self.device.click_record_clear()
     
                     # ------------------------- 任务执行 -------------------------
-                    logger.hr(f'{I18n.trans_zh_cn(task)} 开始', 0)
+                    logger.hr(f'{I18n.trans_zh_cn(task)} Start', 0)
                     self.config.model.running_task = task
                     success = self.run(inflection.camelize(task))
                     self.config.model.running_task = None
-                    logger.hr(f'{I18n.trans_zh_cn(task)} 结束', 0)
+                    logger.hr(f'{I18n.trans_zh_cn(task)} End', 0)
                     is_first_task = False
                     del_cached_property(self, 'config')
     
@@ -491,6 +502,7 @@ class Script:
                 # ------------------------- 状态重置 -------------------------
                 self.failure_record = {}
                 self.device = None
+                self.device_status = False
 
                 # ------------------------- 启动新线程 -------------------------
                 logger.info(f'[重启线程] 启动新工作线程 | 重启次数: {restarts}/{max_restarts}')
