@@ -90,8 +90,7 @@ class Script:
             error_path_base = f'{folder}/{filename}'
             error_log_path = f'{error_path_base}.log'
             error_image_path = f'{error_path_base}.png'
-            if not os.path.exists(folder):
-                os.mkdir(folder)
+            Path(folder).mkdir(parents=True, exist_ok=True)
             save_image(self.device.image, error_image_path)
             with open(logger.log_file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
@@ -520,7 +519,7 @@ class Script:
 
 if __name__ == "__main__":
     script = Script("oa")
-    script.start_loop()
+    # script.start_loop()
     # while 1:
     # script = Script("oas3")
     # device = Device("oas3")
@@ -535,7 +534,7 @@ if __name__ == "__main__":
     # del_cached_property(script, 'device')
     # del_cached_property(script, 'config')
     # script.start_loop()
-    # script.save_error_log()
+    script.save_error_log(title='ad')
     # locale.setlocale(locale.LC_TIME, 'chinese')
     # today = datetime.now()
     # date = today.strftime('%Y-%m-%d %A')
