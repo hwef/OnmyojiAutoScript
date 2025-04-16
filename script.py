@@ -496,40 +496,45 @@ class Script:
     
     def start_loop(self):
         """
-        循环重启控制器
+        循环启动控制器
         """
         # 初始化日志
         logger.set_file_logger(self.config_name)
+
         logger.info('[启动] 启动循环守护线程')
-        max_restarts = 2
-        restarts = 1
-        self.loop_thread = Thread(target=self.loop)
-        self.loop_thread.start()
+        max_starts = 3
+        starts = 1
 
-        while restarts <= max_restarts:
-            # ------------------------- 线程监控 -------------------------
-            # 使用join等待线程结束，设置超时以定期检查条件
-            self.loop_thread.join(timeout=5)
+        while starts <= max_starts:
+            # 启动新线程
+            self.loop_thread = Thread(target=self.loop)
+            self.loop_thread.start()
+            logger.info(f'[启动线程] 工作线程已启动 | 启动次数: {starts}/{max_starts}')
 
-            if not self.loop_thread.is_alive():
-                # ------------------------- 状态重置 -------------------------
-                self.failure_record = {}
-                self.device = None
-                self.device_status = False
+            # 等待线程结束（无限等待，确保线程完成）
+            self.loop_thread.join()
 
-                # ------------------------- 启动新线程 -------------------------
-                logger.info(f'[重启线程] 启动新工作线程 | 重启次数: {restarts}/{max_restarts}')
-                self.loop_thread = Thread(target=self.loop)
-                self.loop_thread.start()
+            # 线程结束后准备启动
+            starts += 1
 
-                restarts += 1
+            # 检查是否超过最大启动次数
+            if starts > max_starts:
+                break
 
-        # ------------------------- 最终处理 -------------------------
-        logger.error('[终止] 达到最大重启次数，系统退出')
-        self.config.notifier.push(title='系统退出', content="[终止] 达到最大重启次数，系统退出")
+            # 重置状态
+            logger.info(f'[启动准备] 正在重置状态...')
+            self.failure_record = {}
+            self.device = None
+            self.device_status = False
+
+        # 达到最大启动次数后的处理
+        logger.error('[终止] 达到最大启动次数，系统退出')
+        self.config.notifier.push(
+            title='系统退出',
+            content=f"[终止] 达到最大启动次数，系统退出 {format_chinese_time()}"
+        )
         time.sleep(5)
         exit(1)
-
 
 if __name__ == "__main__":
     script = Script("oa")

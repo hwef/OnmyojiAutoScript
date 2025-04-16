@@ -129,11 +129,6 @@ def format_chinese_time(dt: datetime = None) -> str:
     return time_str
 
 
-# 使用示例
-print(format_chinese_time())  # 输出：下午3点05分30秒
-print(format_chinese_time(datetime(2023, 10, 1, 23, 45, 59)))  # 晚上11点45分59秒
-
-
 class Logger:
     def __init__(self):
         self.log_file_path = log_path
