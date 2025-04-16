@@ -79,8 +79,8 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets):
             self.screenshot()
             if self.appear(self.I_RECALL_TICKET):
                 break
-            if count >= 3:
-                self.push_notify(title='今忆召唤抽卡失败', content='每日任务,今忆召唤抽卡失败!!!')
+            if count >= 2:
+                self.save_image(wait_time=0, content='今忆召唤抽卡失败', push_flag=True, image_type='png')
                 return
 
         logger.info('Summon one RECALL')
@@ -289,8 +289,8 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('oa')
     d = Device(c)
     t = ScriptTask(c, d)
 
-    t.run_store()
+    t.run_one_summon()
