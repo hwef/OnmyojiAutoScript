@@ -26,7 +26,7 @@ from module.config.config import Config
 from module.config.utils import convert_to_underscore
 from module.device.device import Device
 from module.exception import *
-from module.logger import logger, error_path, get_filename
+from module.logger import logger, error_path, get_filename, format_chinese_time
 
 
 class Script:
@@ -104,7 +104,7 @@ class Script:
             with open(error_log_path, 'w', encoding='utf-8') as f:
                 f.writelines(lines)
             # asyncio.run(self.config.pushtg.telegram_send(title, error_path_image, error_path_log))
-            self.config.notifier.send_push(title, content, self.device.image, error_log_path)
+            self.config.notifier.send_push(title, f'{content} {format_chinese_time()}', self.device.image, error_log_path)
 
     def init_server(self, port: int) -> int:
         """
@@ -461,7 +461,7 @@ class Script:
                         self.config.notifier.push(title=task, content="任务失败次数超限")
                         stop_requested = True
                         logger.error('[错误] 退出调度器')
-                        # exit(1)
+                        exit(1)
     
                 except Exception as e:
                     logger.error(f'[异常] 循环运行崩溃: {str(e)}', exc_info=True)
@@ -480,12 +480,14 @@ class Script:
             if self.device:
                 logger.warning('[安全] 最终资源清理')
                 self.device.release_during_wait()
-                # exit(1)
+                exit(1)
     
     def start_loop(self):
         """
         循环重启控制器
         """
+        # 初始化日志
+        logger.set_file_logger(self.config_name)
         logger.info('[启动] 启动循环守护线程')
         max_restarts = 2
         restarts = 1

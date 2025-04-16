@@ -468,8 +468,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             stop_image = self.I_U_ADD_2
         if not stop_image:
             # 没有坑位可能是其他人的手速太快了抢占了
-            logger.warning('Cannot find stop image')
-            logger.warning('Maybe other people is faster than you')
+            self.save_image(content='没有坑位了', wait_time=0, push_flag=True, image_type='png')
+            logger.warning('没有坑位可能是其他人的手速太快了抢占了')
             return True
         # 切换式神的类型
         self.switch_shikigami_class(shikigami_class)
