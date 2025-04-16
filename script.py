@@ -453,13 +453,25 @@ class Script:
                     failed = self.failure_record.get(task, 0)
                     failed = 0 if success else failed + 1
                     self.failure_record[task] = failed
-                    MAX_FAIL_COUNT = 2
+                    MAX_FAIL_COUNT = 3
                     # logger.info(f'[任务统计] 任务: {I18n.trans_zh_cn(task)} | 累计失败次数: {failed}/{MAX_FAIL_COUNT}')
     
                     if failed >= MAX_FAIL_COUNT:
                         logger.critical(f'[错误] 任务连续失败超过阈值 | 任务: {I18n.trans_zh_cn(task)} | 次数: {failed}')
-                        self.config.notifier.push(title=task, content="任务失败次数超限")
                         stop_requested = True
+
+                        # 失败次数超限，关闭任务
+                        # task_name = convert_to_underscore(task)
+                        # task_object = getattr(self.config.model, task_name, None)
+                        # scheduler = getattr(task_object, 'scheduler', None)
+                        # scheduler.enable = False
+                        # self.config.save()
+
+                        # 失败次数超限, 默认任务成功，设置下次执行时间
+                        self.config.task_delay(task, success=True, server=True)
+
+                        self.config.notifier.push(title=task, content=f"失败次数超限, 默认任务成功, 设置下次执行 {format_chinese_time()}")
+
                         logger.error('[错误] 退出调度器')
                         exit(1)
     
@@ -521,7 +533,7 @@ class Script:
 
 if __name__ == "__main__":
     script = Script("oa")
-    # script.start_loop()
+    script.start_loop()
     # while 1:
     # script = Script("oas3")
     # device = Device("oas3")
@@ -536,7 +548,7 @@ if __name__ == "__main__":
     # del_cached_property(script, 'device')
     # del_cached_property(script, 'config')
     # script.start_loop()
-    script.save_error_log(title='ad')
+    # script.save_error_log(title='ad')
     # locale.setlocale(locale.LC_TIME, 'chinese')
     # today = datetime.now()
     # date = today.strftime('%Y-%m-%d %A')
