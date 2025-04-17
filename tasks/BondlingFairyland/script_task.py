@@ -46,9 +46,10 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
         MAX_COUNT = 3000
         next_run_week = 2
         cu, re, total = self.O_BL_CHECK_MONEY.ocr(self.device.image)
+        self.push_notify(content=f'契忆数量: {cu}')
 
-        if cu >= MAX_COUNT:
-            message = f'契忆数量: {cu} >= {MAX_COUNT}, 下次运行时间: 下周{next_run_week}'
+        if cu >= MAX_COUNT or cu <= 100:
+            message = f'契忆数量: {cu} 大于 {MAX_COUNT}, 设置下周{next_run_week}运行'
             logger.info(message)
             self.save_image(content=message, push_flag=True)
             self.ui_get_current_page()
@@ -865,7 +866,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('oas1')
+    config = Config('du')
     device = Device(config)
     task = ScriptTask(config, device)
     # image = task.screenshot()
