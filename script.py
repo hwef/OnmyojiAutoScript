@@ -410,22 +410,9 @@ class Script:
         try:
             while not stop_requested:
                 try:
-                    # ------------------------- 设备初始化检查 -------------------------
-                    if not self.device:
-                        logger.info('[设备] 正在初始化设备...')
-                        self.device = Device(self.config)
-                        self.device_status = True
-
                     # ------------------------- 获取任务 -------------------------
                     task = self.get_next_task()
                     logger.info(f'[任务] 获取到待执行任务 | {I18n.trans_zh_cn(task)}')
-
-                    # ------------------------- 设备重连逻辑 -------------------------
-                    if not self.device_status:
-                        logger.warning('[设备] 检测到设备断开，尝试重新连接')
-                        self.device = Device(self.config)
-                        self.device_status = True
-                        logger.info('[设备] 重连成功')
 
                     # ------------------------- 跳过首次重启任务 -------------------------
                     if is_first_task and task == 'Restart':
@@ -434,7 +421,14 @@ class Script:
                         del_cached_property(self, 'config')
                         is_first_task = False
                         continue
-    
+
+                    # ------------------------- 设备重连逻辑 -------------------------
+                    if not (self.device_status and self.device):
+                        logger.warning('[设备] 检测到设备断开，尝试重新连接')
+                        self.device = Device(self.config)
+                        self.device_status = True
+                        logger.info('[设备] 重连成功')
+
                     # ------------------------- 执行前清理 -------------------------
                     if self.device and self.device_status:
                         self.device.stuck_record_clear()
@@ -467,7 +461,7 @@ class Script:
                         # scheduler.enable = False
                         # self.config.save()
 
-                        # 失败次数超限, 默认任务成功，设置下次执行时间
+                        # 失败次数超限, 默认任务执行成功
                         self.config.task_delay(task, success=True, server=True)
 
                         self.config.notifier.push(title={I18n.trans_zh_cn(task)}, content=f"失败次数超限, 默认任务执行成功")
