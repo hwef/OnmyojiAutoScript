@@ -23,6 +23,7 @@ from pathlib import Path
 from requests import Response
 from smtplib import SMTPResponseException
 from typing import Optional
+from module.logger import format_chinese_time
 
 onepush.core.log = logger
 
@@ -90,6 +91,7 @@ class Notifier:
             return False
         # 更新配置
         kwargs["title"] = f"{self.config_name}▪{kwargs['title']}".replace(' ', '\u00A0')
+        kwargs["content"] = f'{format_chinese_time()} | {kwargs["content"]}'
         self.config.update(kwargs)
         # pre check
         for key in self.required:
@@ -249,7 +251,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('oas1')
+    config = Config('oa')
     device = Device(config)
     image_path = r"D:\OnmyojiAutoScript\ljxun\log\backup\2025-04-09 星期三\error\DU 2025-04-09 20时40分15.png"
     log_path = r"D:\OnmyojiAutoScript\ljxun\log\backup\2025-04-09 星期三\error\DU 2025-04-09 20时40分15.log"

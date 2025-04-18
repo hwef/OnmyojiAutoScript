@@ -26,7 +26,7 @@ from module.config.config import Config
 from module.config.utils import convert_to_underscore
 from module.device.device import Device
 from module.exception import *
-from module.logger import logger, error_path, get_filename, format_chinese_time
+from module.logger import logger, error_path, get_filename
 
 
 class Script:
@@ -104,7 +104,7 @@ class Script:
             with open(error_log_path, 'w', encoding='utf-8') as f:
                 f.writelines(lines)
             # asyncio.run(self.config.pushtg.telegram_send(title, error_path_image, error_path_log))
-            self.config.notifier.send_push(title, f'{content} {format_chinese_time()}', self.device.image, error_log_path)
+            self.config.notifier.send_push(title, content, self.device.image, error_log_path)
 
     def init_server(self, port: int) -> int:
         """
@@ -470,7 +470,7 @@ class Script:
                         # 失败次数超限, 默认任务成功，设置下次执行时间
                         self.config.task_delay(task, success=True, server=True)
 
-                        self.config.notifier.push(title=task, content=f"失败次数超限, 默认任务成功, 设置下次执行 {format_chinese_time()}")
+                        self.config.notifier.push(title={I18n.trans_zh_cn(task)}, content=f"失败次数超限, 默认任务执行成功")
 
                         logger.error('[错误] 退出调度器')
                         exit(1)
@@ -529,10 +529,7 @@ class Script:
 
         # 达到最大启动次数后的处理
         logger.error('[终止] 达到最大启动次数，系统退出')
-        self.config.notifier.push(
-            title='系统退出',
-            content=f"[终止] 达到最大启动次数，系统退出 {format_chinese_time()}"
-        )
+        self.config.notifier.push(title='系统退出',content=f"[终止] 达到最大启动次数，系统退出")
         time.sleep(5)
         exit(1)
 
