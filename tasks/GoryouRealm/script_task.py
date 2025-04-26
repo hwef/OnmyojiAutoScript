@@ -24,10 +24,14 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
         limit_time = con.goryou_config.limit_time
         self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute,
                                                seconds=limit_time.second)
-        if con.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
-            self.run_switch_soul(con.switch_soul_config.switch_group_team)
+        
+        # 换御魂
+        self.pre_process()
+
+        # if con.switch_soul_config.enable:
+        #     self.ui_get_current_page()
+        #     self.ui_goto(page_shikigami_records)
+        #     self.run_switch_soul(con.switch_soul_config.switch_group_team)
         self.ui_get_current_page()
         self.ui_goto(page_goryou_realm)
 

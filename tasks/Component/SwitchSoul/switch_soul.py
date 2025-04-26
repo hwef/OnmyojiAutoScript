@@ -1,6 +1,10 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
+
+import sys
+sys.path.append('H:\game\yys\OnmyojiAutoScript-easy-install\OnmyojiAutoScript-easy-install')
+
 from time import sleep
 from typing import Union
 
@@ -252,17 +256,20 @@ class SwitchSoul(BaseTask, SwitchSoulAssets):
                 break
         logger.info(f'Select team {teamName}')
         # 切换御魂
-        cnt_click: int = 0
-        self.O_SS_TEAM_NAME.keyword = teamName
-        while 1:
+        is_changed = False
+        for i in range(5):
+            sleep(1)
             self.screenshot()
-            if cnt_click >= 4:
-                break
-            if self.appear_then_click(self.I_SOU_SWITCH_SURE, interval=0.8):
-                continue
-            if self.ocr_appear_click_by_rule(self.O_SS_TEAM_NAME, self.I_SOU_CLICK_PRESENT, interval=1.5):
-                cnt_click += 1
-                continue
+            self.O_SS_TEAM_NAME.keyword = teamName
+            
+            if not is_changed and self.ocr_appear_click_by_rule(self.O_SS_TEAM_NAME, self.I_SOU_CLICK_PRESENT, interval=1)  :
+                for k in range(4):
+                    sleep(0.5)
+                    self.screenshot()
+                    self.appear_then_click(self.I_SOU_SWITCH_SURE,threshold=0.5, interval=1)  
+                    
+                is_changed = True
+                continue        
         logger.info(f'Switch soul_one group {groupName} team {teamName}')
 
     def ocr_appear_click_by_rule(self,
@@ -286,7 +293,10 @@ class SwitchSoul(BaseTask, SwitchSoulAssets):
         x1, y1, w1, h1 = target.area
         x, y = action.coord()
 
-        self.device.click(x=x, y=y1, control_name=target.name)
+        # self.device.click(x=x, y=y1, control_name=target.name)
+        for  i in range(3):
+            self.device.click(x=x, y=y1, control_name=target.name)
+            sleep(0.5)
         return True
 
 
@@ -294,11 +304,11 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('oas2')
     d = Device(c)
     s = SwitchSoul(c, d)
 
     s.click_preset()
     # s.switch_soul_one(4, 1)
     # s.switch_soul_by_name('契灵', '茨球')
-    s.switch_soul_by_name('默认分组', '队伍5')
+    s.switch_soul_by_name('逢魔2', '荒')

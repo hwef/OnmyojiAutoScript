@@ -46,8 +46,17 @@ class SoloExploration(BaseExploration):
             elif scene == Scene.ENTRANCE:
                 if self.check_exit():
                     break
-                self.ui_click(self.I_E_EXPLORATION_CLICK, stop=self.I_E_SETTINGS_BUTTON)
-                continue
+                # self.ui_click(self.I_E_EXPLORATION_CLICK, stop=self.I_E_SETTINGS_BUTTON)
+                while 1:
+                    self.screenshot()
+                    if self.appear(self.I_E_SETTINGS_BUTTON,threshold=0.55):
+                        break
+                    if self.appear_then_click(self.I_E_EXPLORATION_CLICK, interval=1,threshold=0.55):
+                        continue
+                    if  self.click(self.I_E_EXPLORATION_CLICK, interval=1):
+                        continue
+                    elif  self.ocr_appear_click(self.I_E_EXPLORATION_CLICK, interval=1):
+                        continue
             #
             elif scene == Scene.MAIN:
                 # 是否第一次进
