@@ -3,6 +3,8 @@
 # github https://github.com/runhey
 from time import sleep
 from datetime import time, datetime, timedelta
+from cached_property import cached_property
+
 from random import randint
 
 from module.logger import logger
@@ -18,6 +20,10 @@ from tasks.GoryouRealm.assets import GoryouRealmAssets
 
 """ 御灵 """
 class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
+    @cached_property
+    def _config(self):
+        
+        return self.config.model.goryou_realm
 
     def run(self):
         con = self.config.goryou_realm
@@ -26,7 +32,17 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
                                                seconds=limit_time.second)
         
         # 换御魂
-        self.pre_process()
+        explorationConfig = self._config
+        if explorationConfig.switch_soul_config.enable:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul(explorationConfig.switch_soul_config.switch_group_team)
+
+        if explorationConfig.switch_soul_config.enable_switch_by_name:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul_by_name(explorationConfig.switch_soul_config.group_name,
+                                         explorationConfig.switch_soul_config.team_name)
 
         # if con.switch_soul_config.enable:
         #     self.ui_get_current_page()

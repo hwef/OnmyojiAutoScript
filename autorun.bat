@@ -1,4 +1,4 @@
-ch 65001 1>nul 2>nul
+chcp  65001 1>nul 2>nul
 @rem
 @echo off
 

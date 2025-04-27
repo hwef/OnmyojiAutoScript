@@ -22,6 +22,7 @@ class Layer(str, Enum):
     ONE = '壹层'
     TWO = '贰层'
     THREE = '叁层'
+    Four = '日蚀'
 
 class FallenSunConfig(ConfigBase):
     # 身份
