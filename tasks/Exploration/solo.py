@@ -425,23 +425,23 @@ class SoloExploration(BaseExploration):
 
 class ScriptTask(SoloExploration):
     def run(self):
-        logger.hr('exploration')
-        random_click_cnt = 0
-        while 1:
-            self.screenshot()
-            scene = self.get_current_scene()
-            if random_click_cnt >= 2:
-                break
-            if scene == Scene.UNKNOWN:
-                logger.warning('Unknown scene, random click')
-                if self.click(self.C_SAFE_RANDOM, interval=1.5):
-                    random_click_cnt += 1
-                continue
-            else:
-                break
+        # logger.hr('exploration')
+        # random_click_cnt = 0
+        # while 1:
+        #     self.screenshot()
+        #     scene = self.get_current_scene()
+        #     if random_click_cnt >= 2:
+        #         break
+        #     if scene == Scene.UNKNOWN:
+        #         logger.warning('Unknown scene, random click')
+        #         if self.click(self.C_SAFE_RANDOM, interval=1.5):
+        #             random_click_cnt += 1
+        #         continue
+        #     else:
+        #         break
 
-        if scene == Scene.UNKNOWN:
-            pass
+        # if scene == Scene.UNKNOWN:
+        #     pass
         # 换御魂
         self.pre_process()
 

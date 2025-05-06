@@ -32,17 +32,17 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
                                                seconds=limit_time.second)
         
         # 换御魂
-        explorationConfig = self._config
-        if explorationConfig.switch_soul_config.enable:
+        cfg = self._config
+        if cfg.switch_soul_config.enable:
             self.ui_get_current_page()
             self.ui_goto(page_shikigami_records)
-            self.run_switch_soul(explorationConfig.switch_soul_config.switch_group_team)
+            self.run_switch_soul(cfg.switch_soul_config.switch_group_team)
 
-        if explorationConfig.switch_soul_config.enable_switch_by_name:
+        if cfg.switch_soul_config.enable_switch_by_name:
             self.ui_get_current_page()
             self.ui_goto(page_shikigami_records)
-            self.run_switch_soul_by_name(explorationConfig.switch_soul_config.group_name,
-                                         explorationConfig.switch_soul_config.team_name)
+            self.run_switch_soul_by_name(cfg.switch_soul_config.group_name,
+                                         cfg.switch_soul_config.team_name)
 
         # if con.switch_soul_config.enable:
         #     self.ui_get_current_page()
