@@ -2,7 +2,7 @@ chcp  65001 1>nul 2>nul
 @rem
 @echo off
 
-color F0
+color FF
 title oas Updater
 
 

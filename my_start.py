@@ -7,8 +7,8 @@ import time
 async def main(config_name):
     server_address = f"ws://127.0.0.1:22288/ws/{config_name}"
     close_event = asyncio.Event()
-    max_retries = 5  # 最大重试次数
-    retry_delay = 10  # 初始重试延迟（秒）
+    max_retries = 6  # 最大重试次数
+    retry_delay = 6  # 初始重试延迟（秒）
 
     async def connect_with_retry():
         nonlocal retry_delay
