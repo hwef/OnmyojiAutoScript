@@ -23,7 +23,7 @@ from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_bondling_fairyland, page_shikigami_records, page_mall
 from tasks.RichMan.assets import RichManAssets
 
-
+import re
 class BondlingNumberMax(Exception):
     pass
 
@@ -483,7 +483,6 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
 
         if not check_ball_number():
             return False
-
         def switch_soul(bondling_class: BondlingClass):
             # 按照结契的来切换御魂
             group_team: str = None
@@ -496,6 +495,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
                     group_team = bondling_switch_soul.little_kuro_switch
                 case BondlingClass.TOMB_GUARD:
                     group_team = bondling_switch_soul.tomb_guard_switch
+            logger.info(f'目标御魂: {group_team}')
             group_team = switch_parser(group_team)
             if group_team == [-1, -1]:
                 logger.info(f'{bondling_class.name} switch soul is not set, skip')
@@ -504,8 +504,8 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             self.run_switch_soul(tuple(group_team))
             # 返回的时候可能会多点一次导致 返回到探查界面
             self.exit_shikigami_records()
-
         bondling_class = self.get_bondling_class()
+          
         first_switch_soul = True
         if bondling_switch_soul.auto_switch_soul:
             first_switch_soul = False
@@ -676,16 +676,32 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
         获取契灵的种类 (这个不应该一开始就调用因为这些会有出场动画)
         :return:
         """
-        self.screenshot()
-        if self.appear(self.I_TOMB_GUARD):
-            return BondlingClass.TOMB_GUARD
-        elif self.appear(self.I_SNOWBALL):
-            return BondlingClass.SNOWBALL
-        elif self.appear(self.I_LITTLE_KURO):
-            return BondlingClass.LITTLE_KURO
-        elif self.appear(self.I_AZURE_BASAN, threshold=0.7):
-            return BondlingClass.AZURE_BASAN
-        return None
+        qiling_type = None
+        self.rec_result = []
+        for i in range(3): 
+            self.screenshot()
+            self.rec_result = self.O_QILING_TYPE.detect_and_ocr(self.device.image)
+            if len(self.rec_result) > 0:
+                break
+            sleep(0.4)
+            if i == 2 or len(self.rec_result) <= 0:
+                raise ValueError('契灵类型 检测 失败 !')
+        
+        result = self.rec_result[0]
+        ocr_text = result.ocr_text  
+        # 使用正则表达式进行模糊匹配
+        if re.search(r'镇[墓基]兽', ocr_text):
+            qiling_type = BondlingClass.TOMB_GUARD
+        elif re.search(r'茨球', ocr_text):
+            qiling_type = BondlingClass.SNOWBALL
+        elif re.search(r'小黑', ocr_text):
+            qiling_type = BondlingClass.LITTLE_KURO
+        elif re.search(r'火灵', ocr_text):
+            qiling_type = BondlingClass.AZURE_BASAN
+        else:
+            raise ValueError(f'未知契灵类型: {ocr_text}')  # 增加检测到的文字到错误信息
+            
+        return qiling_type
 
     @cached_property
     def limit_time(self) -> timedelta:
@@ -861,17 +877,20 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
         return gbc
 
 
+ 
+   
+
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('du')
+    config = Config('oas2')
     device = Device(config)
     task = ScriptTask(config, device)
     # image = task.screenshot()
-
     # con = config.bondling_fairyland
     # task.lock_team()
-    task.run()
+    # task.run()
+    task.get_bondling_class()
     # task.run_stone(True,BondlingClass.TOMB_GUARD)
     # task.run_invite(config=config.bondling_fairyland.invite_config, is_over=False, is_first=True)

@@ -44,7 +44,8 @@ class BondlingFairylandAssets:
 	O_FRIEND = RuleOcr(roi=(357,89,100,54), area=(357,89,100,54), mode="Single", method="Default", keyword="", name="friend")
 	# 跨区邀请 
 	O_KUAQU = RuleOcr(roi=(472,88,100,54), area=(472,88,100,54), mode="Single", method="Default", keyword="", name="kuaqu")
-
+	# 契灵类型 
+	O_QILING_TYPE = RuleOcr(roi=(284, 274, 41, 102), area=(284, 274, 41, 102), mode="Single", method="Default", keyword="", name="qiling_type")
 
 	# Image Rule Assets
 	# 挑战 
