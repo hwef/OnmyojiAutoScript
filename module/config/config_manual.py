@@ -9,7 +9,7 @@ class ConfigManual:
 
     SCHEDULER_PRIORITY = """
         Restart > BackUp
-        > KekkaiUtilize > KekkaiActivation  
+        > KekkaiUtilize > KekkaiActivation > MemoryScrolls
         > WantedQuests > DemonEncounter > SoulsTidy 
         > AreaBoss > GoldYoukai > ExperienceYoukai > Nian > NianTrue > Tako > RealmRaid > DailyTrifles > Exploration
         > Dokan > AbyssShadows > Hunt > DemonRetreat

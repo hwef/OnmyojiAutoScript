@@ -31,6 +31,7 @@ class ConfigMenu:
             "BondlingFairyland",
             "GoryouRealm",
             "Exploration",
+            'MemoryScrolls',
         ]
         # 阴阳寮
         self.menu["Guild"] = ['KekkaiUtilize', 'KekkaiActivation', 'RyouToppa', 'RealmRaid', 'Dokan',
