@@ -88,5 +88,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "领取奖励"
+  },
+  {
+    "itemName": "cm_flush",
+    "imageName": "cm_cm_flush.png",
+    "roiFront": "416,489,37,31",
+    "roiBack": "416,489,37,31",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "刷新"
   }
 ]

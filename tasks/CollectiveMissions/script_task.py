@@ -16,7 +16,7 @@ from module.atom.ocr import RuleOcr
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_guild
 from tasks.CollectiveMissions.assets import CollectiveMissionsAssets
-
+from datetime import datetime
 """ 集体任务 """
 class MC(str, Enum):
     BL = '契灵'
@@ -75,11 +75,13 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
 
             self.ui_get_current_page()
             self.ui_goto(page_main)
+            # 设置任务结束
+            self.next_run_task()
 
-            self.set_next_run(task='CollectiveMissions', success=True, finish=True)
-            raise TaskEnd('CollectiveMissions')
         # 判断最优的任务是哪一个
-        mission, index = self.detect_best()
+        # mission, index = self.detect_best()
+        # 刷新任务直到有御灵一
+        mission, index = self.select_gr1()
         logger.info(f'Best mission is {mission}')
         logger.info(f'Best mission index is {index}')
         if mission == MC.BL:
@@ -108,6 +110,12 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
 
         self.ui_get_current_page()
         self.ui_goto(page_main)
+        # 设置任务结束
+        self.next_run_task()
+
+    def next_run_task(self):
+        self.config.collective_missions.missions_config.task_date = str(datetime.now().date())
+        self.config.save()
         self.set_next_run(task='CollectiveMissions', success=True, finish=True)
         raise TaskEnd('CollectiveMissions')
 
@@ -146,6 +154,18 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
             logger.warning(f'Ocr task name: {result_1}')
             return MC.FEED
         return MC.UNKNOWN
+
+    def select_gr1(self):
+        while 1:
+            self.screenshot()
+            result_2 = self.O_CM_2.ocr(self.device.image)
+            if result_2 == '御灵一':
+                return MC.GR1, 0
+            if result_2 == '御灵三':
+                return MC.GR3, 0
+            if self.appear_then_click(self.I_CM_FLUSH, interval=1):
+                time.sleep(1)
+                continue
 
     def detect_best(self) -> tuple:
         """
@@ -234,9 +254,10 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
                 max_number = total
                 max_index = i
         if max_number <= 30:
-            logger.info('The number of all matter is less than 30')
-            logger.info('Please check your game resolution')
-            raise RequestHumanTakeover
+            self.save_image(push_flag=True, content=f'材料数量{max_number}少于30', image_type=True)
+            logger.error(f'材料数量{max_number}少于30')
+            # 设置任务结束
+            self.next_run_task()
 
         match_swipe = {
             0: self.S_CM_MATTER_1,
@@ -272,7 +293,6 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
             if window_control and self.click(random.choice(random_click), interval=0.7):
                 click_count += 1
                 continue
-
 
             if not window_control and swipe_count >= 5:
                 logger.info('Swipe to the most matter failed')
@@ -380,7 +400,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('du')
+    c = Config('mi')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()

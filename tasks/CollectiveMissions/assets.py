@@ -40,6 +40,8 @@ class CollectiveMissionsAssets:
 	I_CM_ADD_4 = RuleImage(roi_front=(904,510,47,47), roi_back=(904,510,47,47), threshold=0.8, method="Template matching", file="./tasks/CollectiveMissions/cm/cm_cm_add_4.png")
 	# 领取奖励 
 	I_CM_REWARDS = RuleImage(roi_front=(567,463,145,60), roi_back=(200,458,914,88), threshold=0.8, method="Template matching", file="./tasks/CollectiveMissions/cm/cm_cm_rewards.png")
+	# 刷新 
+	I_CM_FLUSH = RuleImage(roi_front=(416,489,37,31), roi_back=(416,489,37,31), threshold=0.8, method="Template matching", file="./tasks/CollectiveMissions/cm/cm_cm_flush.png")
 
 
 	# Ocr Rule Assets
