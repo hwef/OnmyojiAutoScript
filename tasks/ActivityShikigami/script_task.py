@@ -1,9 +1,11 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
+import os
 import random
 from datetime import datetime, timedelta, time
 
+from module.atom.image import RuleImage
 from tasks.base_task import BaseTask
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.AreaBoss.assets import AreaBossAssets
@@ -17,6 +19,33 @@ from tasks.GameUi.game_ui import GameUi
 from module.logger import logger
 from module.exception import TaskEnd
 from module.base.protect import random_sleep
+
+
+def _load_image_rules():
+    image_rules = []
+    image_folder = "./tasks/ActivityShikigami/auto/"
+
+    supported_formats = ('.png', '.jpg', '.jpeg')
+
+    # 遍历图片文件夹
+    for filename in os.listdir(image_folder):
+        if not filename.lower().endswith(supported_formats):
+            continue
+
+        # 构建完整路径
+        file_path = os.path.join(image_folder, filename)
+
+        # 创建RuleImage对象并添加到列表
+        image_rule = RuleImage(
+            roi_front=(0, 0, 1280, 720),  # 保持与原来相同的ROI参数
+            roi_back=(0, 0, 1280, 720),
+            threshold=0.8,
+            method="Template matching",
+            file=file_path
+        )
+        image_rules.append(image_rule)
+
+    return image_rules
 
 
 class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
@@ -44,6 +73,24 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
 
         self.ui_get_current_page()
         self.ui_goto(page_main)
+
+        # 动态加载所有图片（支持png/jpg/jpeg格式）
+        image_rules = _load_image_rules()
+        while 1:
+            self.screenshot()
+            for image_rule in image_rules:
+                new_rule = RuleImage(
+                    roi_front=(0, 0, 1280, 720),
+                    roi_back=image_rule.roi_back,
+                    threshold=image_rule.threshold,
+                    method=image_rule.method,
+                    file=image_rule.file
+                )
+                # logger.info(f"尝试点击图片: {new_rule.roi_front} {new_rule.file}")
+                if self.appear_then_click(new_rule, interval=1):
+                    print(f"成功点击图片: {os.path.basename(image_rule.file)}")
+                    self.device.stuck_record_add('BATTLE_STATUS_S')
+                    break
 
         # self.open_buff()
         # self.soul(is_open=True)
@@ -106,6 +153,7 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
             # 随机休息
             if config.general_climb.random_sleep:
                 random_sleep()
+
             # 点击战斗
             logger.info("Click battle")
             while 1:
@@ -345,11 +393,12 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
 
         return win
 
+
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('mi')
     d = Device(c)
     t = ScriptTask(c, d)
 
