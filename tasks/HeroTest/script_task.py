@@ -2,7 +2,8 @@
 # @author runhey
 # github https://github.com/runhey
 from datetime import datetime, timedelta, time
-import random  # type: ignore
+import random
+from time import sleep  # type: ignore
 
 from tasks.Component.BaseActivity.base_activity import BaseActivity
 from tasks.HeroTest.assets import HeroTestAssets
@@ -313,9 +314,16 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
 if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
+    from tasks.GameUi.assets import GameUiAssets as G
 
-    c = Config("oas1")
+    c = Config("oas2")
     d = Device(c)
     t = ScriptTask(c, d)
-
-    t.run()
+    while 1:   
+        t.screenshot()
+        
+        G.I_MAIN_GOTO_EXPLORATION.my_sift_math(t.device.image)
+        sleep(1)
+    # G.I_MAIN_GOTO_EXPLORATION.sift_match(t.device.image,show=True)
+    
+    # t.run()

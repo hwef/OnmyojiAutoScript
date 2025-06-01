@@ -56,6 +56,7 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
         self.switch(current_ap)
 
         # 设定是否锁定阵容
+
         if config.general_battle.lock_team_enable:
             logger.info("Lock team")
             while 1:
@@ -148,7 +149,8 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
                 break
             if self.appear_then_click(self.I_SHI, interval=1):
                 continue
-
+            if self.ocr_appear_click(self.O_ENTRY_ACTIVITY, interval=1):
+                continue
             if self.appear_then_click(self.I_BATTLE, interval=1):
                 continue
 
@@ -167,6 +169,8 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
             if self.appear_then_click(self.I_UI_BACK_YELLOW, interval=2):
                 continue
             if self.appear_then_click(self.I_BACK_GREEN, interval=2):
+                continue
+            if self.appear_then_click(self.I_EXIT, interval=2.2, threshold=0.6):
                 continue
 
     def check_ap_remain(self, current_ap: ApMode) -> bool:
