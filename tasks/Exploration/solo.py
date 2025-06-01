@@ -46,17 +46,8 @@ class SoloExploration(BaseExploration):
             elif scene == Scene.ENTRANCE:
                 if self.check_exit():
                     break
-                # self.ui_click(self.I_E_EXPLORATION_CLICK, stop=self.I_E_SETTINGS_BUTTON)
-                while 1:
-                    self.screenshot()
-                    if self.appear(self.I_E_SETTINGS_BUTTON,threshold=0.55):
-                        break
-                    if self.appear_then_click(self.I_E_EXPLORATION_CLICK, interval=1,threshold=0.55):
-                        continue
-                    if  self.click(self.I_E_EXPLORATION_CLICK, interval=1):
-                        continue
-                    elif  self.ocr_appear_click(self.I_E_EXPLORATION_CLICK, interval=1):
-                        continue
+                self.ui_click(self.I_E_EXPLORATION_CLICK, stop=self.I_E_SETTINGS_BUTTON)
+                continue
             #
             elif scene == Scene.MAIN:
                 # 是否第一次进
@@ -68,23 +59,27 @@ class SoloExploration(BaseExploration):
                     continue
                 # 小纸人
                 if self.appear(self.I_BATTLE_REWARD):
-                    if self.ui_get_reward(self.I_BATTLE_REWARD):
-                        continue
+                    # if self.ui_get_reward(self.I_BATTLE_REWARD):
+                    logger.info('识别到小纸人')
+                    self.quit_explore()
+                    continue
                 # boss
                 if self.appear(self.I_BOSS_BATTLE_BUTTON):
                     if self.fire(self.I_BOSS_BATTLE_BUTTON):
-                        logger.info(f'Boss battle, minions cnt {self.minions_cnt}')
+                        logger.info(f'Boss战斗完成')
+                        self.quit_explore()
                     continue
                 # 小怪
                 fight_button = self.search_up_fight()
                 if fight_button is not None:
                     if self.fire(fight_button):
-                        logger.info(f'Fight, minions cnt {self.minions_cnt}')
+                        logger.info(f'小怪战斗完成')
                     continue
                 # 向后拉,寻找怪
                 if search_fail_cnt >= 4:
                     search_fail_cnt = 0
                     if self.appear(self.I_SWIPE_END):
+                        logger.info('滚动到最后, 未发现怪物')
                         self.quit_explore()
                         continue
                     if self.swipe(self.S_SWIPE_BACKGROUND_RIGHT, interval=3):
@@ -425,8 +420,8 @@ class SoloExploration(BaseExploration):
 
 class ScriptTask(SoloExploration):
     def run(self):
-        # logger.hr('exploration')
-        # random_click_cnt = 0
+        logger.hr('exploration')
+        random_click_cnt = 0
         # while 1:
         #     self.screenshot()
         #     scene = self.get_current_scene()
@@ -439,12 +434,12 @@ class ScriptTask(SoloExploration):
         #         continue
         #     else:
         #         break
-
+        #
         # if scene == Scene.UNKNOWN:
         #     pass
         # 换御魂
         self.pre_process()
-
+        self.limit_count = self._config.exploration_config.minions_cnt
         match self._config.exploration_config.user_status:
             case UserStatus.ALONE: self.run_solo()
             case UserStatus.LEADER: self.run_leader()
@@ -458,7 +453,7 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('oas1')
+    config = Config('du')
     device = Device(config)
     t = ScriptTask(config, device)
     t.run()
