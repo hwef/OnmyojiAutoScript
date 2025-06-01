@@ -7,7 +7,7 @@ from time import sleep  # type: ignore
 
 from tasks.Component.BaseActivity.base_activity import BaseActivity
 from tasks.HeroTest.assets import HeroTestAssets
-from tasks.GameUi.page import page_main, page_shikigami_records
+from tasks.GameUi.page import page_main, page_shikigami_records,page_exploration
 from tasks.GameUi.game_ui import GameUi
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 
@@ -53,6 +53,11 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
 
         self.ui_get_current_page()
         self.ui_goto(page_main)
+        # self.ui_get_current_page()
+        
+        self.ui_goto(page_exploration)
+
+        
         self.home_main()
         # 设定是否锁定阵容
         if is_update:
@@ -273,8 +278,6 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
             if is_skill:
                 if self.appear(self.I_BCMJ_BATTLE):
                     break
-            if self.appear_then_click(self.I_ONE, interval=1):
-                continue
             if self.appear_then_click(self.I_TWO, interval=1):
                 continue
             if is_update:
@@ -319,11 +322,11 @@ if __name__ == "__main__":
     c = Config("oas2")
     d = Device(c)
     t = ScriptTask(c, d)
-    while 1:   
-        t.screenshot()
+    # while 1:   
+    #     t.screenshot()
         
-        G.I_MAIN_GOTO_EXPLORATION.my_sift_math(t.device.image)
-        sleep(1)
+    #     G.I_MAIN_GOTO_EXPLORATION.my_sift_math(t.device.image)
+    #     sleep(1)
     # G.I_MAIN_GOTO_EXPLORATION.sift_match(t.device.image,show=True)
     
-    # t.run()
+    t.run()

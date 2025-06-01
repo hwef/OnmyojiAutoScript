@@ -318,9 +318,9 @@ class Script:
             should_close_game = close_game_delta and wait_duration > close_game_delta
 
             # 执行等待策略
-            if opt.do_noting:
-                logger.warning("保持当前状态, 等待下一个任务")
-            elif should_close_emu:
+            # if opt.do_noting:
+            #     logger.warning("保持当前状态, 等待下一个任务")
+            if should_close_emu:
                 if self.device_status:
                     logger.info("模拟器关闭前, 等待30秒...")
                     time.sleep(30)
