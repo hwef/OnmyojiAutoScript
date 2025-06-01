@@ -268,12 +268,13 @@ class ScriptTask(KU, KekkaiActivationAssets):
         activation_config = self.config.kekkai_activation.activation_config
         # 多少分钟后重试
         retry_minutes = 180
+        retry_count = 3
         # 递增未找到卡的计数器
         activation_config.card_not_found_count += 1
 
-        if activation_config.card_not_found_count >= 2:
+        if activation_config.card_not_found_count >= retry_count:
             # 达到重试上限时的处理
-            log_msg = f"⚠️{activation_config.card_type}卡未检出（累计2次），{retry_minutes}分钟后重试"
+            log_msg = f"⚠️{activation_config.card_type}卡未检出（累计{retry_count}次），{retry_minutes}分钟后重试"
             activation_config.card_not_found_count = 0  # 重置计数器并延长下次执行时间
             next_run = datetime.now() + timedelta(minutes=retry_minutes)
         else:
