@@ -2,8 +2,6 @@
 # @author runhey
 # github https://github.com/runhey
 from datetime import datetime
-import sys
-sys.path.append('H:\game\yys\OnmyojiAutoScript-easy-install\OnmyojiAutoScript-easy-install')
 
 from tasks.Restart.config_scheduler import Scheduler
 from tasks.Restart.login import LoginHandler
@@ -82,7 +80,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('oas2')
+    config = Config('oas1')
     device = Device(config)
     task = ScriptTask(config, device)
     task.config.update_scheduler()
