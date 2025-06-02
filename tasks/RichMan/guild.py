@@ -42,6 +42,7 @@ class Guild(Buy, GameUi, RichManAssets):
             # 功勋商店 购买皮肤券 现在问题是皮肤券作为下滑判断标志,下滑过程中roi_front[1]发生了变化,
             # 导致后续识别本周剩余数量位置偏差,现在解决方案是创建一个相同属性的I_GUILD_SKIN_CHECK 来作为判断标志
             if self.appear(self.I_GUILD_SKIN_CHECK):
+                time.sleep(2)
                 break
             if self.swipe(self.S_GUILD_STORE, interval=1.5):
                 time.sleep(2)
@@ -72,17 +73,18 @@ class Guild(Buy, GameUi, RichManAssets):
 
     def _guild_mystery_amulet(self):
         # 蓝票
-        logger.hr('Guild mystery amulet', 3)
+        logger.hr('开始购买蓝票', 3)
         self.screenshot()
         if not self.buy_check_money(self.O_GUILD_TOTAL, 240):
             return False
         result = self.I_GUILD_BLUE.match(self.device.image)
+        self.save_image(wait_time=0, image_type=True)
         if not result:
-            logger.warning('No mystery amulet can buy')
+            logger.warning('未识别到蓝票')
             return False
         number = self.check_remain(self.I_GUILD_BLUE)
         if number == 0:
-            logger.warning('No mystery amulet can buy')
+            logger.warning('蓝票购买数量不足')
             return False
 
         self.buy_more(self.I_GUILD_BLUE)
@@ -91,15 +93,15 @@ class Guild(Buy, GameUi, RichManAssets):
 
     def _guild_libao(self):
         # 礼包
-        logger.hr('Guild libao', 3)
+        logger.hr('开始购买礼包', 3)
         self.screenshot()
         result = self.I_LIAOBAO.match(self.device.image)
         if not result:
-            logger.warning('No mystery amulet can buy')
+            logger.warning('未识别到礼包')
             return False
         number = self.check_remain(self.I_LIAOBAO)
         if number == 0:
-            logger.warning('No mystery amulet can buy')
+            logger.warning('礼包购买数量不足')
             return False
         self.buy_more(self.I_LIAOBAO)
         time.sleep(0.5)
@@ -107,15 +109,15 @@ class Guild(Buy, GameUi, RichManAssets):
 
     def _guild_exp(self):
         # 经验御札
-        logger.hr('Guild exp', 3)
+        logger.hr('开始购买经验御札', 3)
         self.screenshot()
         result = self.I_EXP.match(self.device.image)
         if not result:
-            logger.warning('No mystery amulet can buy')
+            logger.warning('未识别到经验御札')
             return False
         number = self.check_remain(self.I_EXP)
         if number == 0:
-            logger.warning('No mystery amulet can buy')
+            logger.warning('经验御札购买数量不足')
             return False
 
         self.buy_more(self.I_EXP)
@@ -124,15 +126,15 @@ class Guild(Buy, GameUi, RichManAssets):
 
     def _guild_yuhun(self):
         # 御魂
-        logger.hr('Guild yuhun', 3)
+        logger.hr('开始购买御魂', 3)
         self.screenshot()
         result = self.I_YUHUN.match(self.device.image)
         if not result:
-            logger.warning('No mystery amulet can buy')
+            logger.warning('未识别到御魂')
             return False
         number = self.check_remain(self.I_YUHUN)
         if number == 0:
-            logger.warning('No mystery amulet can buy')
+            logger.warning('御魂购买数量不足')
             return False
         self.buy_more(self.I_YUHUN)
         time.sleep(0.5)
@@ -140,17 +142,17 @@ class Guild(Buy, GameUi, RichManAssets):
 
     def _guild_black_daruma_scrap(self):
         # 黑碎
-        logger.hr('Guild black daruma scrap', 3)
+        logger.hr('开始购买黑碎', 3)
         self.screenshot()
         if not self.buy_check_money(self.O_GUILD_TOTAL, 200):
             return False
         result = self.I_GUILD_SCRAP.match(self.device.image)
         if not result:
-            logger.warning('No mystery amulet can buy')
+            logger.warning('未识别到黑碎')
             return False
         number = self.check_remain(self.I_GUILD_SCRAP)
         if number == 0:
-            logger.warning('No black daruma can buy')
+            logger.warning('黑碎购买数量不足')
             return False
 
         self.buy_one(self.I_GUILD_SCRAP, self.I_GUILD_CHECK_SCRAP, self.I_GUILD_BUY_SCRAP)
@@ -159,21 +161,21 @@ class Guild(Buy, GameUi, RichManAssets):
 
     def _guild_skin_ticket(self, num: int = 0):
         # 皮肤券
-        logger.hr('Guild skin ticket', 3)
+        logger.hr('开始购买皮肤券', 3)
         if num == 0:
-            logger.warning('No buy skin ticket')
+            logger.warning('不需要购买皮肤券')
             return False
         self.screenshot()
         if not self.buy_check_money(self.O_GUILD_TOTAL, 50):
             return False
         result = self.I_GUILD_SKIN.match(self.device.image)
         if not result:
-            logger.warning('No mystery amulet can buy')
+            logger.warning('未识别到皮肤券')
             return False
         # 检查功勋商店皮肤券 本周剩余数量
         number = self.check_remain(self.I_GUILD_SKIN)
         if number == 0:
-            logger.warning('No skin ticket can buy')
+            logger.warning('皮肤券购买数量不足')
             return False
 
         # 购买功勋商店皮肤券
@@ -203,7 +205,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('mi')
+    c = Config('DU')
     d = Device(c)
     t = Guild(c, d)
 
