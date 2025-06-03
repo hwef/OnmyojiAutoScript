@@ -183,7 +183,7 @@
     "itemName": "reward_gold",
     "imageName": "gb_reward_gold.png",
     "roiFront": "943,312,97,69",
-    "roiBack": "943,312,97,69",
+    "roiBack": "111, 158, 1081, 532",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "结算金币"

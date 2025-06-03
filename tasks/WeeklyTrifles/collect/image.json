@@ -3,7 +3,7 @@
     "itemName": "wt_shikiagmi",
     "imageName": "collect_wt_shikiagmi.png",
     "roiFront": "494,650,56,49",
-    "roiBack": "494,650,56,49",
+    "roiBack": "289, 618, 819, 100",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "点击“式神”"

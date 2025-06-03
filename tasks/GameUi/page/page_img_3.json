@@ -138,7 +138,7 @@
     "itemName": "check_collection",
     "imageName": "page_check_collection.png",
     "roiFront": "471,618,100,100",
-    "roiBack": "471,618,100,100",
+    "roiBack": "289, 618, 819, 100",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"

@@ -106,7 +106,7 @@ class GeneralBattleAssets:
 	# 结算时左下角统计图标 
 	I_REWARD_STATISTICS = RuleImage(roi_front=(51,629,54,59), roi_back=(51,629,54,59), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_reward_statistics.png")
 	# 结算金币 
-	I_REWARD_GOLD = RuleImage(roi_front=(943,312,97,69), roi_back=(943,312,97,69), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_reward_gold.png")
+	I_REWARD_GOLD = RuleImage(roi_front=(943,312,97,69), roi_back=(111, 158, 1081, 532), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_reward_gold.png")
 	# 针对封魔的特殊 
 	I_DE_WIN = RuleImage(roi_front=(472,49,100,100), roi_back=(239,36,399,133), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_de_win.png")
 	# description 

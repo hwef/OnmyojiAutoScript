@@ -219,8 +219,20 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
                 if not self.appear(self.I_FALSE, threshold=0.6):
                     return False
         # 最后保证能点击 获得奖励
-        if not self.wait_until_appear(self.I_REWARD):
-            # 有些的战斗没有下面的奖励，所以直接返回
+        has_reward = False
+        while 1:
+            self.screenshot()
+            if self.appear(self.I_REWARD, threshold=0.6):
+                # 有些的战斗没有下面的奖励，所以直接返回
+                has_reward = True
+                break
+
+            # 如果领奖励出现金币
+            if self.appear(self.I_REWARD_GOLD, threshold=0.8):
+                # 有些的战斗没有下面的奖励，所以直接返回
+                has_reward = True
+                break
+        if not has_reward:
             logger.info("There is no reward, Exit battle")
             return win
         logger.info("Get reward")
@@ -228,8 +240,8 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
             self.screenshot()
             # 如果出现领奖励
             action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
-            if self.appear_then_click(self.I_REWARD, action=action_click, interval=1.5) or \
-                    self.appear_then_click(self.I_REWARD_GOLD, action=action_click, interval=1.5):
+            if self.appear_then_click(self.I_REWARD, threshold=0.6, action=action_click, interval=1.5) or \
+                    self.appear_then_click(self.I_REWARD_GOLD, threshold=0.8, action=action_click, interval=1.5):
                 continue
             # if self.appear_then_click(self.I_GREED_GHOST, interval=1.5):
             #     continue
