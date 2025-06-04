@@ -10,6 +10,7 @@ from datetime import timedelta, datetime
 
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_summon
+from tasks.GameUi.page import page_main
 from tasks.MemoryScrolls.assets import MemoryScrollsAssets
 from tasks.MemoryScrolls.config import ScrollNumber
 
@@ -19,31 +20,27 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
     def run(self):        
         self.ui_get_current_page()
         self.ui_goto(page_summon)
+
         con = self.config.memory_scrolls.memory_scrolls_config
         # 进入绘卷主界面
-        self.goto_memoryscrolls_main(con) 
+        self.goto_memoryscrolls_main(con)
+
+        self.ui_get_current_page()
+        self.ui_goto(page_main)
+
+        # 设置下一次运行时间
+        self.set_next_run(task='MemoryScrolls', success=True)
         raise TaskEnd
     
     def goto_memoryscrolls_main(self, con):
         # 循环寻找&点击绘卷入口
-        if self.wait_until_appear(self.I_MS_ENTER, wait_time=30):
-            while 1:
-                self.screenshot()
-                if self.appear(self.I_MS_MAIN):
-                    logger.info('Entered Memory Scrolls main page')
-                    break
-                if self.appear_then_click(self.I_MS_ENTER, interval=1):
-                    continue
-        else:
-            logger.error('Failed to enter Memory Scrolls main page')
-            self.set_next_run(task='MemoryScrolls', success=False)
-            raise TaskEnd
+        self.ui_click(self.I_MS_ENTER, self.I_MS_MAIN)
         # 进入指定分卷
         self.goto_scroll(con)
         # 返回召唤界面，目前只发现此种返回按键
         self.ui_click_until_disappear(self.I_MS_BACK, interval=1)
-        logger.info('Return to Summon page')
-    
+        logger.info('已返回召唤界面')
+
     def goto_scroll(self, con):
         """
         进入指定分卷
@@ -53,7 +50,7 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
             self.screenshot()
             # 暂时用手动截取叉号，后续替换为通用图片
             if self.appear(self.I_MS_CLOSE):
-                logger.info('Entered Memory Scrolls contribution page')
+                logger.info('进入绘卷捐献页面')
                 break
             match con.scroll_number:
                 case ScrollNumber.ONE:
@@ -69,29 +66,28 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
                 case ScrollNumber.SIX:
                     self.click(self.C_MS_SCROLL_6, interval=1)
                 case _:
-                    logger.error(f'Unknown scroll number: {con.scroll_number.name}')
-                    self.set_next_run(task='MemoryScrolls', success=False)
-                    raise TaskEnd
-        
+                    logger.error(f'未知的绘卷编号：{con.scroll_number}')
+
         # 判断是否需要捐献碎片
         if self.appear(self.I_MS_CONTRIBUTE) or not self.appear(self.I_MS_COMPLETE):
-            logger.info(f'Contributing Memory Scrolls for scroll {con.scroll_number.name}')
+            logger.info(f'正在为{con.scroll_number}捐献碎片')
             self.contribute_memoryscrolls()
-            # 设置下一次运行时间
-            self.set_next_run(task='MemoryScrolls', success=True)
         else:
-            logger.info(f'Scroll {con.scroll_number.name} is already completed')
-            self.set_next_run(task='MemoryScrolls', success=False)
-            if con.close_exploration:
+            message = f'{con.scroll_number}进度100%'
+            logger.info(message)
+            if con.close_task:
                 # 关闭探索任务
                 logger.info('关闭探索任务')
                 self.config.exploration.scheduler.enable = False
+                logger.info('关闭绘卷任务')
+                self.config.memory_scrolls.scheduler.enable = False
                 self.config.save()
+                self.push_notify(content=message)
 
-    # 返回绘卷主界面
+        # 返回绘卷主界面
         self.ui_click_until_disappear(self.I_MS_CLOSE, interval=1)
-        logger.info('Closed Memory Scrolls contribution page')
-    
+        logger.info('已退出绘卷捐献界面')
+
     def contribute_memoryscrolls(self):
         """
         捐献碎片
@@ -100,13 +96,13 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
         while 1:
             self.screenshot()
             if self.appear(self.I_MS_ZERO_S) and self.appear(self.I_MS_ZERO_M) and self.appear(self.I_MS_ZERO_L):
-                logger.info('Memory Scrolls contribution is already completed')
+                logger.info('全部绘卷已捐献')
                 return
             self.swipe(self.S_MS_SWIPE_S, interval=1)
             self.swipe(self.S_MS_SWIPE_M, interval=1)
             self.swipe(self.S_MS_SWIPE_L, interval=1)
             if self.appear_then_click(self.I_MS_CONTRIBUTE, interval=3):
-                logger.info('Contributed Memory Scrolls')
+                logger.info('已捐献记忆绘卷')
                 # 等待捐献动画结束
                 while 1:
                     self.screenshot()
@@ -116,12 +112,10 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
                         break
     
 
-
-
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('oas1')
+    c = Config('MI')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()

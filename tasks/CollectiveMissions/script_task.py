@@ -279,6 +279,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
         while 1:
             self.screenshot()
             if self.appear(self.I_CM_MATTER):
+                self.save_image(push_flag=True, content='开始捐赠', image_type=True)
                 break
             if not window_control and self.swipe(match_swipe[max_index], interval=2.5):
                 swipe_count += 1
