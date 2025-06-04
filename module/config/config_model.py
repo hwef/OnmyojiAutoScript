@@ -56,8 +56,6 @@ from tasks.FloatParade.config import FloatParade
 from tasks.Quiz.config import Quiz
 from tasks.KittyShop.config import KittyShop
 from tasks.NianTrue.config import NianTrue
-from tasks.DyeTrials.config import DyeTrials
-from tasks.AbyssTrials.config import AbyssTrials
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -128,8 +126,6 @@ class ConfigModel(ConfigBase):
     quiz: Quiz = Field(default_factory=Quiz)
     kitty_shop: KittyShop = Field(default_factory=KittyShop)
     nian_true: NianTrue = Field(default_factory=NianTrue)
-    dye_trials: DyeTrials = Field(default_factory=DyeTrials)
-    abyss_trials: AbyssTrials = Field(default_factory=AbyssTrials)
 
     # 这些是肝帝专属
     bondling_fairyland: BondlingFairyland = Field(default_factory=BondlingFairyland)
