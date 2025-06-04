@@ -40,7 +40,7 @@ class ConfigMenu:
         self.menu["Weekly Task"] = ['Duel', 'RichMan', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms',
                                     'TrueOrochi']
         # 活动的任务
-        self.menu["Activity Task"] = ['ActivityShikigami', 'MetaDemon', 'FrogBoss', 'FloatParade', 'Quiz', 'KittyShop',
+        self.menu["Activity Task"] = ['ActivityCommon', 'ActivityShikigami', 'MetaDemon', 'FrogBoss', 'FloatParade', 'Quiz', 'KittyShop',
                                       'NianTrue', 'DyeTrials', 'AbyssTrials']
 
         self.menu["other"] = ['FallenSun', 'ExperienceYoukai', 'Nian', 'Delegation', 'Tako',  "EvoZone",   "Hyakkiyakou",

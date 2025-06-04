@@ -15,7 +15,7 @@ class ConfigManual:
         > Dokan > AbyssShadows > Hunt > DemonRetreat
         > Pets > EternitySea > Orochi > FallenSun > BondlingFairyland > EvoZone 
         > RyouToppa
-        > ActivityShikigami 
+        > ActivityCommon > ActivityShikigami 
         > GoryouRealm > HeroTest
         > TrueOrochi > RichMan > Secret > WeeklyTrifles > SixRealms > Sougenbi 
         > CollectiveMissions
