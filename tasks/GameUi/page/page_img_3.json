@@ -101,7 +101,7 @@
   {
     "itemName": "check_daily",
     "imageName": "page_check_daily.png",
-    "roiFront": "27,515,69,62",
+    "roiFront": "38,515,45,62",
     "roiBack": "1,489,155,127",
     "method": "Template matching",
     "threshold": 0.7,
