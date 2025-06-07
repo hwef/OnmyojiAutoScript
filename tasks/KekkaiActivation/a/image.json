@@ -38,8 +38,8 @@
   {
     "itemName": "a_card_kaiko",
     "imageName": "a_a_card_kaiko.png",
-    "roiFront": "355,237,169,62",
-    "roiBack": "355,237,169,62",
+    "roiFront": "392,251,112,38",
+    "roiBack": "392,251,112,38",
     "method": "Template matching",
     "threshold": 0.9,
     "description": "description"
@@ -47,8 +47,8 @@
   {
     "itemName": "a_card_fish",
     "imageName": "a_a_card_fish.png",
-    "roiFront": "352,303,173,62",
-    "roiBack": "352,303,173,62",
+    "roiFront": "388,318,118,37",
+    "roiBack": "388,318,118,37",
     "method": "Template matching",
     "threshold": 0.9,
     "description": "description"
