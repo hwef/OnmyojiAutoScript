@@ -24,7 +24,7 @@ from module.logger import logger
 from module.exception import RequestHumanTakeover, TaskEnd
 from module.atom.image_grid import ImageGrid
 from module.base.utils import load_image
-
+from time import sleep
 class Scene(Enum):
     UNKNOWN = 0  #
     WORLD = 1  # 探索大世界
@@ -213,11 +213,17 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
 
     # 添加式神
     def add_shiki(self, screenshot=True):
-        if screenshot:
+        attempt_count = 0
+        while attempt_count < 3:
             self.screenshot()
-            if not self.appear(self.I_E_OPEN_SETTINGS):
+            if self.appear(self.I_E_OPEN_SETTINGS,threshold=0.6):
                 logger.warning('Opening settings failed due to now in battle')
-                return
+                sleep(0.5)
+                break
+            else:
+                attempt_count += 1
+        else:
+            return 'Error: Failed to detect settings menu after 3 attempts.'
         choose_rarity = self._config.exploration_config.choose_rarity
         rarity = ShikigamiClass.N if choose_rarity == ChooseRarity.N else ShikigamiClass.MATERIAL
         self.switch_shikigami_class(rarity)
@@ -228,7 +234,7 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             # 慢一点
             time.sleep(0.5)
             self.screenshot()
-            if not self.appear(self.I_E_OPEN_SETTINGS):
+            if not self.appear(self.I_E_OPEN_SETTINGS,threshold=0.6):
                 logger.warning('Opening settings failed due to now in battle')
                 return
             if self.appear(self.I_E_RATATE_EXSIT):
@@ -400,11 +406,11 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('oas1')
+    config = Config('oas2')
     device = Device(config)
     t = BaseExploration(config, device)
     t.screenshot()
-
+    t.add_shiki()
     # IMAGE_FILE = r"C:\Users\萌萌哒\Desktop\QQ20240818-163854.png"
     # image = load_image(IMAGE_FILE)
     # t.device.image = image
