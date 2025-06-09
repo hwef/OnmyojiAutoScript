@@ -78,7 +78,7 @@ class Guild(Buy, GameUi, RichManAssets):
         if not self.buy_check_money(self.O_GUILD_TOTAL, 240):
             return False
         result = self.I_GUILD_BLUE.match(self.device.image)
-        self.save_image(wait_time=0, image_type=True)
+        # self.save_image(wait_time=0, image_type=True)
         if not result:
             logger.warning('未识别到蓝票')
             return False
