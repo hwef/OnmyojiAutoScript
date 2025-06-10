@@ -528,6 +528,8 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         scheduler = getattr(task_object, 'scheduler', None)
         server_update = scheduler.server_update
 
+        self.config.notifier.push(title=I18n.trans_zh_cn(TaskName), content=f'任务下周{target_day}执行')
+
         # 调用自定义函数设置下一次运行时间
         self.custom_next_run(task=TaskName,
                              custom_time=Time(hour=server_update.hour, minute=server_update.minute,
