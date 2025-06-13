@@ -169,7 +169,11 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
             # 综合判断是否需要推送
             if first_run:
                 need_push = (total_number < 90 and target == MC.GR1) or (total_number < 30 and target == MC.GR3)
-                self.save_image(push_flag=need_push, content=f'⚠️御灵材料不足，总数量{total_number}', image_type=True)
+                GRADE_MAP = {
+                    '御灵一': '低级',   # 对应原 MC.GR1
+                    '御灵三': '高级'    # 对应原 MC.GR3
+                }
+                self.save_image(push_flag=need_push, content=f'⚠️{GRADE_MAP.get(target)}御灵材料不足，总量仅剩{total_number}', image_type=True)
                 if need_push:
                     return False
                 first_run = False
