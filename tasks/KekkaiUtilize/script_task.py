@@ -629,14 +629,14 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                     # 检查是否符合选择条件
                     if (card_type == best_card_type) and (card_value >= best_card_num):
                         logger.info(f'🎉 确认蹭卡: {card_type} | 当前值: {card_value} ≥ 目标值: {best_card_num}')
-                        self.save_image(push_flag=True, wait_time=0, content=f'🎉 确认蹭卡（{card_type}: {card_value}）')
+                        self.save_image(push_flag=False, wait_time=0, content=f'🎉 确认蹭卡（{card_type}: {card_value}）')
                         return True
                 else:  # 探索记录模式
                     # 发现完美卡直接返回
                     if card_value >= current_max:
                         message = f'🎉 完美蹭卡 | {card_type}: {card_value}'
                         logger.info(message)
-                        self.save_image(push_flag=True, wait_time=0, content=message)
+                        self.save_image(push_flag=False, wait_time=0, content=message)
                         return True
 
             # ------ 步骤3: 滑动到下一屏 ------#

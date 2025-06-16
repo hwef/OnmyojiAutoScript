@@ -258,7 +258,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
                         self.config.save()
                         message = f'✅ 确认挂卡: {rule}'
                         logger.info(message)
-                        self.save_image(content=message, push_flag=True, wait_time=0)
+                        self.save_image(content=message, push_flag=False, wait_time=0)
                         return
                     if self.appear_then_click(target, interval=1):
                         continue
