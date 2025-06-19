@@ -183,7 +183,7 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
         """
         self.screenshot()
         if current_ap == ApMode.AP_ACTIVITY:
-            res: int = self.O_REMAIN_AP_ACTIVITY2.ocr_digit(self.device.image)
+            res = self.O_REMAIN_AP_ACTIVITY2.ocr(self.device.image)
             if res <= 0:
                 logger.warning(f'Activity ap {res} not enough')
                 return False
