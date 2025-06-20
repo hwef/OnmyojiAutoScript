@@ -24,6 +24,8 @@ class GoryouConfig(ConfigBase):
     limit_count: int = Field(default=30, description='limit_count_help')
     # 类型
     goryou_class: GoryouClass = Field(default=GoryouClass.RANDOM, description='goryou_class_help')
+    # 开启绘卷捐赠任务
+    open_memory_scrolls: bool = Field(title='开启绘卷捐赠任务', default=False, description='开启绘卷捐赠任务')
 
 
 class GoryouRealm(ConfigBase):

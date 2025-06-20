@@ -22,6 +22,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
     def run(self):
         con = self.config.goryou_realm
         limit_time = con.goryou_config.limit_time
+        self.limit_count = con.goryou_config.limit_count
         self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute,
                                                seconds=limit_time.second)
         if con.switch_soul_config.enable:
@@ -52,7 +53,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
             if not self.appear(self.I_GR_FIRE):
                 continue
 
-            if self.current_count >= con.goryou_config.limit_count:
+            if self.current_count >= self.limit_count:
                 logger.info('GoryouRealm count limit out')
                 break
             if datetime.now() - self.start_time >= self.limit_time:
@@ -71,12 +72,13 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
                     self.run_general_battle(config=con.general_battle_config)
                     break
 
-
         self.ui_click(self.I_UI_BACK_BLUE, self.I_CHECK_EXPLORATION)
         logger.info('Back to exploration')
         self.set_next_run(task='GoryouRealm', success=True, finish=True)
+        # 是否开启绘卷捐赠任务
+        if con.goryou_config.open_memory_scrolls:
+            self.set_next_run(task='MemoryScrolls', target=datetime.now())
         raise TaskEnd
-
 
     def check_date(self, goryou_class: GoryouClass = GoryouClass.RANDOM) -> GoryouClass:
         day_of_week = self.start_time.weekday()
@@ -107,9 +109,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
             logger.info(f'OAS will run {match_class[day_of_week].name} instead')
             goryou_class = match_class[day_of_week]
 
-
         return goryou_class
-
 
 
 if __name__ == '__main__':
