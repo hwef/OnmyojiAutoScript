@@ -14,7 +14,7 @@ from tasks.GameUi.page import page_main
 from tasks.MemoryScrolls.assets import MemoryScrollsAssets
 from tasks.MemoryScrolls.config import ScrollNumber
 
-
+""" 绘卷 捐赠 """
 class ScriptTask(GameUi, MemoryScrollsAssets):
 
     def run(self):        
@@ -72,6 +72,10 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
         if self.appear(self.I_MS_CONTRIBUTE) or not self.appear(self.I_MS_COMPLETE):
             logger.info(f'正在为{con.scroll_number}捐献碎片')
             self.contribute_memoryscrolls()
+            ms_scores = self.O_MS_SCORES.ocr(self.device.image)
+            ms_progress = self.O_MS_PROGRESS.ocr(self.device.image)
+            message = f'{con.scroll_number}已获得{ms_scores}积分，进度{ms_progress}%'
+            self.push_notify(content=message)
         else:
             message = f'{con.scroll_number}进度100%'
             logger.info(message)
@@ -93,20 +97,25 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
         捐献碎片
         :return: None
         """
+        wait_timer = Timer(120)
+        wait_timer.start()
         while 1:
             self.screenshot()
+            if wait_timer.reached():
+                logger.info('等待超时')
+                return
             if self.appear(self.I_MS_ZERO_S) and self.appear(self.I_MS_ZERO_M) and self.appear(self.I_MS_ZERO_L):
                 logger.info('全部绘卷已捐献')
                 return
             self.swipe(self.S_MS_SWIPE_S, interval=1)
             self.swipe(self.S_MS_SWIPE_M, interval=1)
             self.swipe(self.S_MS_SWIPE_L, interval=1)
-            if self.appear_then_click(self.I_MS_CONTRIBUTE, interval=3):
+            if self.appear_then_click(self.I_MS_CONTRIBUTE, interval=2):
                 logger.info('已捐献记忆绘卷')
                 # 等待捐献动画结束
                 while 1:
                     self.screenshot()
-                    if self.wait_until_appear(self.I_MS_CONTRIBUTED, wait_time=5):
+                    if self.wait_until_appear(self.I_MS_CONTRIBUTED, wait_time=3):
                         self.click(self.C_MS_CONTRIBUTED, interval=1)
                     else:
                         break

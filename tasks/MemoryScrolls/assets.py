@@ -50,6 +50,13 @@ class MemoryScrollsAssets:
 	I_MS_ZERO_L = RuleImage(roi_front=(968,464,51,27), roi_back=(968,464,51,27), threshold=0.8, method="Template matching", file="./tasks/MemoryScrolls/ms/ms_ms_zero_l.png")
 
 
+	# Ocr Rule Assets
+	# 绘卷分数 
+	O_MS_SCORES = RuleOcr(roi=(916,600,62,35), area=(916,600,62,35), mode="Digit", method="Default", keyword="", name="ms_scores")
+	# 绘卷进度 
+	O_MS_PROGRESS = RuleOcr(roi=(403,593,35,28), area=(403,593,35,28), mode="Digit", method="Default", keyword="", name="ms_progress")
+
+
 	# Swipe Rule Assets
 	# 小碎片拉满 
 	S_MS_SWIPE_S = RuleSwipe(roi_front=(838,199,37,27), roi_back=(1131,188,66,52), mode="default", name="ms_swipe_s")
