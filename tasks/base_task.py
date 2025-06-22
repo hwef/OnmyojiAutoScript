@@ -623,6 +623,24 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             elif self.appear_then_click(click, interval=interval):
                 continue
 
+    def ui_click_until_smt_disappear(self, click, stop, interval: float = 1):
+        """
+        点击一个按钮/区域/文字直到stop消失
+        """
+        while 1:
+            self.screenshot()
+            if not self.appear(stop):
+                break
+            if isinstance(click, RuleImage) or isinstance(click, RuleGif):
+                self.appear_then_click(click, interval=interval)
+                continue
+            if isinstance(click, RuleClick):
+                self.click(click, interval)
+                continue
+            if isinstance(click, RuleOcr):
+                self.click(click)
+                continue
+
     def load_image(file: str):
         file = Path(file)
         img = cv2.imdecode(fromfile(file, dtype=uint8), -1)
