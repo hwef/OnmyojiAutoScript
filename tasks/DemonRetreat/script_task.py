@@ -96,10 +96,8 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssSha
             self.custom_next_run(task='DemonRetreat', custom_time=cfg.demon_retreat_time.custom_run_time, time_delta=7)
         else:
             self.set_next_run(task="DemonRetreat", finish=True, server=True, success=False)
-
+        self.push_notify(content='任务结束')
         raise TaskEnd
-
-
 
     def goto_demon_retreat(self) -> bool:
         """
