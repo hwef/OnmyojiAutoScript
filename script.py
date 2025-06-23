@@ -436,16 +436,8 @@ class Script:
                     # ------------------------- 任务执行 -------------------------
                     logger.hr(f'{task_chinese_name} Start', 0)
                     self.config.model.running_task = task
-                    self.config.notifier.push(title=task_chinese_name, content=f"任务开始")
-                    start_time = datetime.now()
-                    # 执行任务
                     success = self.run(inflection.camelize(task))
                     self.config.model.running_task = None
-                    end_time = datetime.now()
-                    task_run_time = end_time - start_time
-                    # 格式化时间，只保留整数部分的秒
-                    task_run_time_seconds = timedelta(seconds=int(task_run_time.total_seconds()))
-                    self.config.notifier.push(title=task_chinese_name, content=f"任务结束,用时({task_run_time_seconds})")
                     logger.hr(f'{task_chinese_name} End', 0)
                     is_first_task = False
                     del_cached_property(self, 'config')
@@ -499,7 +491,7 @@ class Script:
                 logger.warning('[安全] 最终资源清理')
                 self.device.release_during_wait()
                 exit(1)
-
+    
     def start_loop(self):
         """
         循环启动控制器
