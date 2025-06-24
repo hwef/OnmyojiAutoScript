@@ -101,21 +101,24 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
         else:
             message = f'{con.scroll_number}进度100%'
             logger.info(message)
-            self.close_task(con, message)
+            self.push_notify(content=message)
+            self.close_task(con)
 
         # 返回绘卷主界面
         self.ui_click_until_disappear(self.I_MS_CLOSE, interval=1)
         logger.info('已退出绘卷捐献界面')
 
-    def close_task(self, con, message):
+    def close_task(self, con):
         if con.close_task:
-            # 关闭探索任务
             logger.info('关闭探索任务')
             self.config.exploration.scheduler.enable = False
+            self.push_notify(content='关闭探索任务')
+
             logger.info('关闭绘卷任务')
             self.config.memory_scrolls.scheduler.enable = False
+            self.push_notify(content='关闭绘卷任务')
+
             self.config.save()
-            self.push_notify(content=message)
 
     def contribute_memoryscrolls(self):
         """
