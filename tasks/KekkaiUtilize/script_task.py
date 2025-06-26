@@ -457,7 +457,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 logger.info('Appear enter friend realm button')
                 break
             if wait_timer.reached():
-                self.save_image(wait_time=0, push_flag=True, content='进入好友结界超时',image_type='png')
+                self.save_image(wait_time=0, push_flag=False, content='进入好友结界超时',image_type='png')
                 logger.warning('Appear friend realm timeout')
                 return
             if self.appear_then_click(self.I_CHECK_FRIEND_REALM_2, interval=1.5):
@@ -479,7 +479,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             stop_image = self.I_U_ADD_2
         if not stop_image:
             # 没有坑位可能是其他人的手速太快了抢占了
-            self.save_image(content='没有坑位了', wait_time=0, push_flag=True, image_type='png')
+            self.save_image(content='没有坑位了', wait_time=0, push_flag=False, image_type='png')
             logger.warning('没有坑位可能是其他人的手速太快了抢占了')
             return True
         # 切换式神的类型
