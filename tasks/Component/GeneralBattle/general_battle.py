@@ -426,6 +426,16 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
             self.wait_until_disappear(self.I_BUFF)
             self.green_mark(config.green_enable, config.green_mark)
 
+        # 本人选择的策略是只要进来了就算一次，不管是不是打完了
+        logger.hr("Check take over battle", 2)
+        self.current_count += 1
+        logger.info(f'Current tasks: {I18n.trans_zh_cn(self.config.task.command)}')
+        logger.info(f'Current count: {self.current_count} / {self.limit_count}')
+
+        task_run_time = datetime.now() - self.start_time
+        # 格式化时间，只保留整数部分的秒
+        task_run_time_seconds = timedelta(seconds=int(task_run_time.total_seconds()))
+        logger.info(f'Current times: {task_run_time_seconds} / {self.limit_time}')
         return self.battle_wait(config.random_click_swipt_enable)
 
     def check_lock(self, enable: bool, lock_image, unlock_image):
