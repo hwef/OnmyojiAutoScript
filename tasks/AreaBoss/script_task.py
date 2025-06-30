@@ -161,6 +161,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         :param random_click_swipt_enable:
         :return:
         """
+        # 打印战斗开始日志
+        self.battle_start_log()
+
         # 有的时候是长战斗，需要在设置stuck检测为长战斗
         # 但是无需取消设置，因为如果有点击或者滑动的话 handle_control_check会自行取消掉
         self.device.stuck_record_add('BATTLE_STATUS_S')

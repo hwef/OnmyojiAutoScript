@@ -1,24 +1,21 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from datetime import datetime, timedelta
-
-from module.exception import TaskEnd
-from module.logger import logger
-
-from tasks.GameUi.game_ui import GameUi, Page
-from tasks.GameUi.page import page_soul_zones, page_shikigami_records
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.GeneralRoom.general_room import GeneralRoom
-from tasks.Component.GeneralInvite.general_invite import GeneralInvite
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.EternitySea.assets import EternitySeaAssets
-from tasks.Orochi.config import UserStatus
-from tasks.EternitySea.config import EternitySea
-from module.exception import RequestHumanTakeover
-from tasks.GameUi.page import page_main, page_soul_zones, page_shikigami_records
 from time import sleep
 
+from datetime import datetime, timedelta
+from module.exception import RequestHumanTakeover
+from module.exception import TaskEnd
+from module.logger import logger
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.Component.GeneralInvite.general_invite import GeneralInvite
+from tasks.Component.GeneralRoom.general_room import GeneralRoom
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.EternitySea.assets import EternitySeaAssets
+from tasks.EternitySea.config import EternitySea
+from tasks.GameUi.game_ui import GameUi, Page
+from tasks.GameUi.page import page_main, page_soul_zones, page_shikigami_records
+from tasks.Orochi.config import UserStatus
 
 """ 永生之海 """
 class ScriptTask(
