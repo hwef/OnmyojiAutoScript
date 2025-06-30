@@ -226,22 +226,11 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         while 1:
             self.screenshot()
             current_score = self.O_D_SCORE.ocr(self.device.image)
-            if current_score < 1200:
-                # 分太低了
-                logger.warning('Score is too low')
-                logger.error('Please enhance your score')
-                continue
-                # raise RequestHumanTakeover
-            elif current_score > 10000:
+            if current_score > 10000:
                 # 识别错误分数超过一万, 去掉最高位
                 logger.warning('Recognition error, score is too high')
-                logger.warning('Remove the highest digit')
-                # current_score = int(str(current_score)[1:])
-                continue
-            elif current_score > 3000:
-                continue
+                current_score = int(str(current_score)[1:])
             return current_score
-
     def duel_one(self, current_score: int, enable: bool = False,
                  mark_mode: GreenMarkType = GreenMarkType.GREEN_MAIN) -> bool:
         """
@@ -275,9 +264,9 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 self.device.stuck_record_add('BATTLE_STATUS_S')
                 self.wait_until_disappear(self.I_D_WORD_BATTLE)
                 break
-            if current_score <= 1800 and self.appear(self.I_D_PREPARE):
+            if self.appear(self.I_D_PREPARE):
                 # 低段位有的准备
-                self.ui_click(self.I_D_PREPARE, self.I_D_PREPARE_DONE)
+                self.ui_click_until_disappear(self.I_D_PREPARE)
                 self.wait_until_disappear(self.I_D_PREPARE_DONE)
                 logger.info('Duel prepare')
                 break
