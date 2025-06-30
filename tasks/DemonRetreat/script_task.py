@@ -237,9 +237,6 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssSha
         :param random_click_swipt_enable:
         :return:
         """
-        # 打印战斗开始日志
-        self.battle_start_log()
-
         self.device.stuck_record_add('BATTLE_STATUS_S')
         self.device.click_record_clear()
         # 战斗过程 随机点击和滑动 防封 并点击 准备

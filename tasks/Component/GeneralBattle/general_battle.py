@@ -2,15 +2,17 @@
 # @author runhey
 # github https://github.com/runhey
 import time
-
 import random
 from datetime import datetime, timedelta
-from module.logger import logger
+
 from module.server.i18n import I18n
-from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
+from tasks.base_task import BaseTask
 from tasks.Component.GeneralBattle.config_general_battle import GreenMarkType, GeneralBattleConfig
+from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
 from tasks.Component.GeneralBuff.config_buff import BuffClass
 from tasks.Component.GeneralBuff.general_buff import GeneralBuff
+
+from module.logger import logger
 
 
 class GeneralBattle(GeneralBuff, GeneralBattleAssets):
@@ -23,6 +25,17 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
         运行脚本
         :return:
         """
+        # 本人选择的策略是只要进来了就算一次，不管是不是打完了
+        logger.hr("General battle start", 2)
+        self.current_count += 1
+        logger.info(f'Current tasks: {I18n.trans_zh_cn(self.config.task.command)}')
+        logger.info(f'Current count: {self.current_count} / {self.limit_count}')
+
+        task_run_time = datetime.now() - self.start_time
+        # 格式化时间，只保留整数部分的秒
+        task_run_time_seconds = timedelta(seconds=int(task_run_time.total_seconds()))
+        logger.info(f'Current times: {task_run_time_seconds} / {self.limit_time}')
+
         if config is None:
             config = GeneralBattleConfig()
 
@@ -152,9 +165,6 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
         :param random_click_swipt_enable:
         :return:
         """
-        # 打印战斗开始日志
-        self.battle_start_log()
-
         # 有的时候是长战斗，需要在设置stuck检测为长战斗
         # 但是无需取消设置，因为如果有点击或者滑动的话 handle_control_check会自行取消掉
         self.device.stuck_record_add('BATTLE_STATUS_S')

@@ -712,18 +712,6 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             self.push_notify(title=task_name, content=f"保存截图异常，{e}")
             logger.error(f"保存{task_name}截图异常，{e}")
 
-    def battle_start_log(self):
-        # 本人选择的策略是只要进来了就算一次，不管是不是打完了
-        logger.hr("General battle start", 2)
-        self.current_count += 1
-        logger.info(f'Current tasks: {I18n.trans_zh_cn(self.config.task.command)}')
-        logger.info(f'Current count: {self.current_count} / {self.limit_count}')
-
-        task_run_time = datetime.now() - self.start_time
-        # 格式化时间，只保留整数部分的秒
-        task_run_time_seconds = timedelta(seconds=int(task_run_time.total_seconds()))
-        logger.info(f'Current times: {task_run_time_seconds} / {self.limit_time}')
-
     def appear_rgb(self, target, image=None, difference: int = 10):
         """
         判断目标的平均颜色是否与图像中的颜色匹配。

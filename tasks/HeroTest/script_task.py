@@ -138,9 +138,6 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
         raise TaskEnd
 
     def battle_wait(self, random_click_swipt_enable: bool) -> bool:
-        # 打印战斗开始日志
-        self.battle_start_log()
-
         self.device.stuck_record_add("BATTLE_STATUS_S")
         self.device.click_record_clear()
         logger.info("Start battle process")

@@ -1,17 +1,23 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
+from cached_property import cached_property
 
-from module.base.timer import Timer
 from module.exception import TaskEnd
 from module.logger import logger
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.GeneralInvite.general_invite import GeneralInvite
-from tasks.Component.GeneralRoom.general_room import GeneralRoom
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.ExperienceYoukai.assets import ExperienceYoukaiAssets
+from module.base.timer import Timer
+
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_team, page_shikigami_records
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
+from tasks.Component.GeneralRoom.general_room import GeneralRoom
+from tasks.Component.GeneralInvite.general_invite import GeneralInvite
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.ExperienceYoukai.assets import ExperienceYoukaiAssets
+from tasks.ExperienceYoukai.config import ExperienceYoukaiConfig
+
+
 
 """ 经验妖怪 """
 class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, ExperienceYoukaiAssets):
@@ -76,9 +82,6 @@ class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, 
         self.experience_exit(con)
 
     def battle_wait(self, random_click_swipt_enable: bool) -> bool:
-        # 打印战斗开始日志
-        self.battle_start_log()
-
         # 重写
         self.device.stuck_record_add('BATTLE_STATUS_S')
         self.device.click_record_clear()

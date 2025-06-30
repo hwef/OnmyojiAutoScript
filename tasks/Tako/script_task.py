@@ -104,9 +104,6 @@ class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul):
         raise TaskEnd('Tako')
 
     def battle_wait(self, random_click_swipt_enable: bool) -> bool:
-        # 打印战斗开始日志
-        self.battle_start_log()
-
         # 重写
         self.device.stuck_record_add('BATTLE_STATUS_S')
         self.device.click_record_clear()

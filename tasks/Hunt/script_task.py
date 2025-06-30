@@ -137,9 +137,6 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
         :param random_click_swipt_enable:
         :return:
         """
-        # 打印战斗开始日志
-        self.battle_start_log()
-
         # 战斗过程 随机点击和滑动 防封
         logger.info("Start battle process")
         self.device.stuck_record_clear()
