@@ -92,12 +92,12 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
 
             if self.appear(self.I_WQ_CHECK_TASK):
                 logger.info('悬赏发现残留任务，尝试处理')
-                self.save_image(task_name='悬赏发现残留任务', wait_time=0, image_type='png')
+                # self.save_image(task_name='悬赏发现残留任务', wait_time=0, image_type='png')
                 x, y, w, h = self.I_WQ_CHECK_TASK.roi_front
                 self.I_WQ_CHECK_TASK_CLICK.roi_front = (x - 70, y, w + 30, h)
                 logger.info(f'调整点击区域至: {self.I_WQ_CHECK_TASK_CLICK.roi_front}')
                 self.execute_mission(self.I_WQ_CHECK_TASK_CLICK, 1, number_challenge, flag=True)
-                self.save_image(task_name='悬赏发现残留任务,战斗结束', wait_time=0, image_type='png')
+                # self.save_image(task_name='悬赏发现残留任务,战斗结束', wait_time=0, image_type='png')
                 wq_timer.reset()
                 continue
 
