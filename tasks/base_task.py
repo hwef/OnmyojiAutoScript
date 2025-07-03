@@ -652,12 +652,11 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             return None
         return img
 
-    def save_image(self, task_name=None, content=None, wait_time=2, image_type=False, push_flag=False):
+    def save_image(self, content=None, wait_time=2, image_type=False, push_flag=False):
         try:
-            if task_name is None:
-                task_name = "task_name"
-                if self.config and self.config.task:
-                    task_name = self.config.task.command
+            task_name = "task_name"
+            if self.config and self.config.task:
+                task_name = self.config.task.command
 
             # 设置保存图像的文件夹
             WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
@@ -704,12 +703,15 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                     f.write(buf.tobytes())
                 logger.info(f"截图已保存至：{image_path}")
                 if push_flag:
-                    self.push_notify(title=task_name, content=content if content else f"截图已保存至：{image_path}")
+                    self.push_notify(content=content if content else f"截图已保存至：{image_path}")
+                else:
+                    if content:
+                        logger.info(content)
             else:
-                self.push_notify(title=task_name, content=f"保存{image_path}, 图像编码失败")
+                self.push_notify(content=f"保存{image_path}, 图像编码失败")
                 raise Exception("图像编码失败")
         except Exception as e:
-            self.push_notify(title=task_name, content=f"保存截图异常，{e}")
+            self.push_notify(content=f"保存截图异常，{e}")
             logger.error(f"保存{task_name}截图异常，{e}")
 
     def appear_rgb(self, target, image=None, difference: int = 10):
@@ -753,12 +755,11 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         logger.info(f"颜色匹配成功: [{target.name}]")
         return True
 
-    def push_notify(self, title=None, content=''):
+    def push_notify(self, content=''):
         # 处理title的逻辑优化
-        if title is None:
-            title = 'task_name'
-            if self.config and self.config.task:
-                title = self.config.task.command
+        title = 'task_name'
+        if self.config and self.config.task:
+            title = self.config.task.command
 
         # 使用getattr同时检查属性和值，避免冗长的条件判断
         if getattr(self.device, 'image', None) is None:
@@ -785,7 +786,7 @@ if __name__ == '__main__':
     # t.save_image(content='成功找到最优挂卡', push_flag=True)
     card_type = '斗鱼'
     card_value = '118'
-    t.save_image(task_name='KekkaiUtilize', push_flag=True, wait_time=0, content=f'🎉 确认蹭卡 ({card_type}: {card_value})')
+    t.save_image(push_flag=True, wait_time=0, content=f'🎉 确认蹭卡 ({card_type}: {card_value})')
     # logger.hr('INVITE FRIEND')
     # logger.hr('INVITE FRIEND', 0)
     # logger.hr('INVITE FRIEND', 1)

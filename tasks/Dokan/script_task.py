@@ -102,9 +102,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             if scene_timer and scene_timer.reached():
                 scene_timer.reset()
                 if timer_count >= 100:
-                    logger.warning(f"道馆流程超时")
-                    self.push_notify(title=self.config.task.command, content=f"道馆流程超时")
-                    self.save_image(image_type='png')
+                    self.save_image(image_type='png', push_flag=True,content= f"道馆流程超时")
                     break
                 timer_count += 1
                 self.device.stuck_record_clear()

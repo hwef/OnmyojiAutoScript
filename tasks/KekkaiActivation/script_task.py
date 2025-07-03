@@ -257,7 +257,6 @@ class ScriptTask(KU, KekkaiActivationAssets):
                         self.config.kekkai_activation.activation_config.card_not_found_count = 0
                         self.config.save()
                         message = f'✅ 确认挂卡: {rule}'
-                        logger.info(message)
                         self.save_image(content=message, push_flag=False, wait_time=0)
                         return
                     if self.appear_then_click(target, interval=1):
@@ -289,7 +288,6 @@ class ScriptTask(KU, KekkaiActivationAssets):
             next_run = datetime.now()
 
         # 统一记录日志和推送
-        logger.info(log_msg)
         self.save_image(content=log_msg, push_flag=True)
 
         # 保存配置并设置下次执行

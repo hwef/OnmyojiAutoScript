@@ -49,7 +49,6 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
 
         if cu >= MAX_COUNT:
             message = f'契忆数量: {cu} 大于 {MAX_COUNT}'
-            logger.info(message)
             self.save_image(content=message, push_flag=True)
             self.ui_get_current_page()
             self.ui_goto(page_main)
@@ -58,7 +57,6 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
 
         message = f'契忆数量: {cu} 小于 {MAX_COUNT}, 继续任务'
         self.push_notify(content=message)
-        logger.info(message)
         logger.hr('第二步, 切换御魂', 2)
         # 引用配置
         cong = self.config.bondling_fairyland
@@ -229,8 +227,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
 
             if wait_timer.reached():
                 message = f"队员等待超时:{wait_timer.current()}, 退出"
-                logger.warning(message)
-                self.push_notify(title=self.config.task.command, content=message)
+                self.push_notify(content=message)
                 break
 
             # if self.current_count >= self.limit_count:
@@ -829,8 +826,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
 
             if accept_timer.reached():
                 message = f"队员点击接受超时:{accept_timer.current()}, 退出"
-                logger.warning(message)
-                self.push_notify(title=self.config.task.command, content=message)
+                self.push_notify(content=message)
                 break
 
             if self.is_in_room():

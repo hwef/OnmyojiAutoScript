@@ -66,7 +66,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             self.utilize_add_count += 1
             if self.utilize_add_count >= 5:
                 logger.warning('没有合适可以蹭的卡, 5分钟后再次执行蹭卡')
-                self.push_notify(title=self.config.task.command, content=f"没有合适可以蹭的卡, 5分钟后再次执行蹭卡")
+                self.push_notify(content=f"没有合适可以蹭的卡, 5分钟后再次执行蹭卡")
                 self.set_next_run(task='KekkaiUtilize', target=datetime.now() + timedelta(minutes=5))
                 return
 
@@ -666,7 +666,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             card_type = '太鼓'
         else:
             logger.warning(f'结界卡类型识别失败，原始内容: {raw_text}')
-            # self.push_notify(title=self.config.task.command,content=f'结界卡类型识别失败: {raw_text}')
+            # self.push_notify(content=f'结界卡类型识别失败: {raw_text}')
             return 'unknown', 0  # 未知类型返回0
 
         # 提取纯数字部分（兼容带+号的情况，如+100）
@@ -680,10 +680,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             value = 0
 
         if value <= 0:
-            self.push_notify(
-                title=self.config.task.command,
-                content=f'数值异常: {raw_text} -> 解析值: {value}'
-            )
+            self.push_notify(content=f'数值异常: {raw_text} -> 解析值: {value}')
             return card_type, 0
 
         # logger.info(f'识别成功: 卡类型: {card_type}, 数值: {value}')

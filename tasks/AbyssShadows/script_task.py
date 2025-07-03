@@ -149,7 +149,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AbyssShadowsAssets):
                 sleep(wait_time)
                 if self.error_count >= 6:
                     self.save_image(content='未能进入狭间暗域', wait_time=0, push_flag=True, image_type=True)
-                    logger.warning("未能进入狭间暗域")
                     self.goto_main()
                     self.set_next_run(task='AbyssShadows', finish=False, server=True, success=False)
                     raise TaskEnd
