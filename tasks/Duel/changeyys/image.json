@@ -54,12 +54,39 @@
     "description": "进入阴阳师交换页面"
   },
   {
-    "itemName": "zhan",
-    "imageName": "Screenshots_zhan.png",
+    "itemName": "qm_zhan",
+    "imageName": "qm_zhan.png",
+    "roiFront": "263,435,60,75",
+    "roiBack": "263,435,60,75",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "清明（出战）"
+  },
+  {
+    "itemName": "sl_zhan",
+    "imageName": "sl_zhan.png",
     "roiFront": "520,434,60,75",
     "roiBack": "520,434,60,75",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "神乐（出战）"
+  },
+  {
+    "itemName": "yby_zhan",
+    "imageName": "yby_zhan.png",
+    "roiFront": "775,435,60,75",
+    "roiBack": "775,435,60,75",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "源博雅（出战）"
+  },
+  {
+    "itemName": "bbbqn_zhan",
+    "imageName": "bbbqn_zhan.png",
+    "roiFront": "1030,437,60,75",
+    "roiBack": "1030,437,60,75",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "八百比丘尼（出战）"
   }
 ]

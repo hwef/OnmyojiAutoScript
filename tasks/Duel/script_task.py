@@ -53,11 +53,20 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         self.ui_goto(page_main)
         # 切换阴阳师
         if con.switch_enabled:
+            # 清明
+            if con.switch_onmyoji == Onmyoji.Qm:
+                self.switch_kagura(con, self.C_QM_ZHAN, self.I_QM_ZHAN)
             # 神乐
-            if con.switch_onmyoji == Onmyoji.Kagura:
-                self.switch_kagura()
+            elif con.switch_onmyoji == Onmyoji.Sl:
+                self.switch_kagura(con, self.C_SL_ZHAN, self.I_SL_ZHAN)
+            # 源博雅
+            elif con.switch_onmyoji == Onmyoji.Yby:
+                self.switch_kagura(con, self.C_YBY_ZHAN, self.I_YBY_ZHAN)
+            # 八百比丘尼
+            elif con.switch_onmyoji == Onmyoji.Bbbqn:
+                self.switch_kagura(con, self.C_BBBQN_ZHAN, self.I_BBBQN_ZHAN)
             # 源赖光
-            if con.switch_onmyoji == Onmyoji.Yorimitsu:
+            elif con.switch_onmyoji == Onmyoji.Ylg:
                 self.switch_yorimitsu()
 
         self.ui_get_current_page()
@@ -105,7 +114,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             self.duel_one(current_score, con.green_enable, con.green_mark)
 
         logger.info('Duel battle end')
-        self.push_notify( f'战斗次数: {self.battle_count} | 胜利: {self.battle_win_count} 失败: {self.battle_lose_count} | 分数: {current_score}')
+        self.push_notify( f'场次: {self.battle_count} | 胜: {self.battle_win_count} 败: {self.battle_lose_count} | 分数: {current_score}')
         # 记得退回去到町中
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_TOWN)
 
@@ -148,7 +157,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         logger.info('Souls Switch is complete')
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_D_TEAM)
 
-    def switch_kagura(self):
+    def switch_kagura(self,con, target1, target2):
         click_count = 0  # 计数
         while 1:
             self.screenshot()
@@ -176,14 +185,14 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             self.screenshot()
             if click_count >= 4:
                 break
-            if self.appear(self.I_ZHAN, interval=1):
+            if self.appear(target2, interval=1):
                 break
             if self.appear_then_click(self.I_JIAOTI, interval=1):
                 continue
-            if self.click(self.C_SHENLE, interval=1):
+            if self.click(target1, interval=1):
                 click_count += 1
                 continue
-        logger.info('切换阴阳师神乐')
+        logger.info(f'切换阴阳师{con.switch_onmyoji}')
         self.ui_get_current_page()
         self.ui_goto(page_main)
 
@@ -208,7 +217,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             if self.appear_then_click(self.I_YINYANGSHI, interval=1):
                 click_count += 1
                 continue
-        logger.info('切换英杰')
+        logger.info('切换英杰源赖光')
         self.ui_get_current_page()
         self.ui_goto(page_main)
 
