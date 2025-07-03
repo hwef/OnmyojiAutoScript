@@ -21,7 +21,9 @@ from tasks.GameUi.page import page_main, page_team, page_shikigami_records
 
 
 class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
-
+    battle_count = 0
+    battle_win_count = 0
+    battle_lose_count = 0
     def run(self):
 
         current_time = datetime.now().time()
@@ -101,6 +103,9 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 else:
                     break
             self.duel_one(current_score, con.green_enable, con.green_mark)
+
+        logger.info('Duel battle end')
+        self.push_notify(f'战斗次数: {self.battle_count} | 胜利: {self.battle_win_count} 失败: {self.battle_lose_count}')
         # 记得退回去到町中
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_TOWN)
 
@@ -240,6 +245,8 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         :param current_score: 当前分数, 不同的分数有不同的战斗界面
         :return:
         """
+        logger.hr('Duel battle', 2)
+        self.battle_count+=1
         while 1:
             self.screenshot()
             if not self.appear(self.I_D_HELP):
@@ -280,8 +287,8 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 continue
             # 如果对方直接秒退，那自己就是赢的
             if self.appear(self.I_D_VICTORY):
-                logger.info('Duel battle win')
                 self.ui_click_until_disappear(self.I_D_VICTORY)
+                self.battle_win_count+=1
                 return True
         # 绿标
         self.green_mark(enable, mark_mode)
@@ -299,25 +306,21 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 continue
             if self.appear(self.I_FALSE):
                 # 打输了
-                logger.info('Duel battle lose')
                 self.ui_click_until_disappear(self.I_FALSE)
                 battle_win = False
                 break
             if self.appear(self.I_D_FAIL):
                 # 输了
-                logger.info('Duel battle lose')
                 self.ui_click_until_disappear(self.I_D_FAIL)
                 battle_win = False
                 break
             if self.appear(self.I_WIN):
                 # 打赢了
-                logger.info('Duel battle win')
                 self.ui_click_until_disappear(self.I_WIN)
                 battle_win = True
                 break
             if self.appear(self.I_D_VICTORY):
                 # 打赢了
-                logger.info('Duel battle win')
                 self.ui_click_until_disappear(self.I_D_VICTORY)
                 battle_win = True
                 break
@@ -334,6 +337,18 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 self.device.stuck_record_clear()
                 self.device.stuck_record_add('BATTLE_STATUS_S')
 
+        if battle_win:
+            self.battle_win_count+=1
+        else:
+            self.battle_lose_count+=1
+
+        task_run_time = datetime.now() - self.start_time
+        # 格式化时间，只保留整数部分的秒
+        task_run_time_seconds = timedelta(seconds=int(task_run_time.total_seconds()))
+
+        logger.info(f'战斗结果: {battle_win}')
+        logger.info(f'战斗次数: {self.battle_count} | 胜利: {self.battle_win_count} 失败: {self.battle_lose_count}')
+        logger.info(f'战斗用时: {task_run_time_seconds} / {self.limit_time}')
         return battle_win
 
 

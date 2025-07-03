@@ -764,6 +764,8 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         if getattr(self.device, 'image', None) is None:
             self.screenshot()
         image = self.device.image
+        if content != '':
+            logger.info(content)
 
         # 发送邮件
         self.config.notifier.send_push(title=title, content=content, image=image)
