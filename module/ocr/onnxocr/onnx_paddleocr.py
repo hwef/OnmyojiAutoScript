@@ -182,6 +182,70 @@ class ONNXPaddleOcr(TextSystem):
                 return cls_res
             return ocr_res
 
+    def detect_and_ocr(self, image) -> list:
+        """
+        检测并识别图像中的文本
+        参数:
+            image: 输入图像(numpy数组)
+        返回:
+            包含BoxedResult对象的列表
+        """
+        from ppocronnx.predict_system import BoxedResult
+        from typing import List
+        
+        try:
+            results = []
+            ocr_output = self.ocr(image, det=True, rec=True, cls=True)
+            
+            if not ocr_output or not ocr_output[0]:
+                logger.info("未检测到文本区域")
+                return results
+                
+            for box_info in ocr_output[0]:
+                if len(box_info) != 2:
+                    continue
+                    
+                box = np.array(box_info[0])
+                text, score = box_info[1]
+                
+                # 创建BoxedResult对象
+                result = BoxedResult()
+                result.box = box
+                result.ocr_text = text
+                result.score = score
+                results.append(result)
+                
+            logger.info(f"检测到{len(results)}个文本区域")
+            return results
+        except Exception as e:
+            logger.error(f"检测和识别失败: {str(e)}")
+            return []
+
+    def ocr_single_line(self, image) -> tuple[str, float]:
+        """
+        单行文本识别
+        参数:
+            image: 输入图像(numpy数组)
+        返回:
+            元组(识别文本, 置信度)
+        """
+        try:
+            if not isinstance(image, np.ndarray):
+                raise ValueError("输入图像必须为numpy数组")
+                
+            ocr_output = self.ocr(image, det=False, rec=True, cls=False)
+            if not ocr_output or not ocr_output[0]:
+                logger.info("未识别到文本")
+                return "", 0.0
+                
+            # 返回第一个识别结果
+            text, score = ocr_output[0][0]
+            logger.info(f"识别结果: '{text}' 置信度: {score:.2f}")
+            return text, score
+        except Exception as e:
+            logger.error(f"单行识别失败: {str(e)}")
+            return "", 0.0
+
 
 def sav2Img(org_img, result, name="draw_ocr.jpg"):
     # 显示结果

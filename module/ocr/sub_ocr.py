@@ -5,7 +5,7 @@
 import cv2
 import re
 import cn2an
-
+import numpy as np
 from datetime import timedelta
 
 from module.ocr.ppocr import TextSystem
@@ -25,40 +25,63 @@ class Full(BaseCor):
 
     def ocr_full(self, image, keyword: str=None) -> tuple:
         """
-        检测整个图片的文本,并对结果进行过滤。返回的是匹配到的keyword的左边。如果没有匹配到返回(0, 0, 0, 0)
-        :param image:
-        :param keyword:
-        :return:
+        全图OCR识别并过滤结果
+        参数:
+            image: 输入图像(numpy数组)
+            keyword: 要匹配的关键词(默认为self.keyword)
+        返回:
+            匹配区域的坐标(x,y,w,h), 未匹配时返回(0,0,0,0)
+        异常:
+            ValueError: 当输入图像无效时抛出
         """
-        if keyword is None:
-            keyword = self.keyword
+        if image is None or not isinstance(image, np.ndarray):
+            raise ValueError("输入图像不能为空且必须为numpy数组")
+            
+        keyword = keyword if keyword is not None else self.keyword
+        if not keyword:
+            logger.warning(f"{self.name} 未设置关键词,将返回第一个检测区域")
 
-        boxed_results = self.detect_and_ocr(image)
-        if not boxed_results:
-            return 0, 0, 0, 0
+        try:
+            boxed_results = self.detect_and_ocr(image)
+            if not boxed_results:
+                logger.info(f"{self.name} 未检测到任何文本")
+                return 0, 0, 0, 0
 
-        index_list = self.filter(boxed_results, keyword)
-        logger.info(f"OCR [{self.name}] detected in {index_list}")
-        # 如果一个都没有匹配到
-        if not index_list:
-            return 0, 0, 0, 0
+            index_list = self.filter(boxed_results, keyword)
+            if not index_list:
+                logger.info(f"{self.name} 未找到匹配关键词'{keyword}'的区域")
+                return 0, 0, 0, 0
 
-        # 如果匹配到了多个,则合并所有的坐标，返回合并后的坐标
-        if len(index_list) > 1:
-            area_list = [(
-                boxed_results[index].box[0, 0],  # x
-                boxed_results[index].box[0, 1],  # y
-                boxed_results[index].box[1, 0] - boxed_results[index].box[0, 0],     # width
-                boxed_results[index].box[2, 1] - boxed_results[index].box[0, 1],     # height
-            ) for index in index_list]
-            area = merge_area(area_list)
-            self.area = area[0]+self.roi[0], area[1]+self.roi[1], area[2], area[3]
-        else:
-            box = boxed_results[index_list[0]].box
-            self.area = box[0, 0]+self.roi[0], box[0, 1]+self.roi[1], box[1, 0] - box[0, 0], box[2, 1] - box[0, 1]
+            # 处理匹配区域
+            if len(index_list) > 1:
+                logger.info(f"{self.name} 找到{len(index_list)}个匹配区域")
+                area_list = [(
+                    boxed_results[index].box[0, 0],  # x
+                    boxed_results[index].box[0, 1],  # y
+                    boxed_results[index].box[1, 0] - boxed_results[index].box[0, 0],  # width
+                    boxed_results[index].box[2, 1] - boxed_results[index].box[0, 1],  # height
+                ) for index in index_list]
+                area = merge_area(area_list)
+                self.area = (
+                    area[0] + self.roi[0], 
+                    area[1] + self.roi[1], 
+                    area[2], 
+                    area[3]
+                )
+            else:
+                box = boxed_results[index_list[0]].box
+                self.area = (
+                    box[0, 0] + self.roi[0],
+                    box[0, 1] + self.roi[1],
+                    box[1, 0] - box[0, 0],
+                    box[2, 1] - box[0, 1]
+                )
 
-        logger.info(f"OCR [{self.name}] detected in {self.area}")
-        return self.area
+            logger.info(f"{self.name} 匹配区域坐标: {self.area}")
+            return self.area
+        except Exception as e:
+            logger.error(f"{self.name} 全图OCR识别失败: {str(e)}")
+            raise
 
 class Single(BaseCor):
     """
@@ -69,132 +92,263 @@ class Single(BaseCor):
 
     def ocr_single(self, image) -> str:
         """
-        检测某个固定位置的roi的文本。可以是横方向也可以是竖方向
-        :param image:
-        :return: 返回到识别的文字, 如果没有返回空字符串
+        单行OCR识别(支持横向和纵向文本)
+        参数:
+            image: 输入图像(numpy数组)
+        返回:
+            识别结果字符串, 未识别到返回空字符串
+        异常:
+            ValueError: 当输入图像无效或ROI未设置时抛出
         """
-        if self.roi:
+        if image is None or not isinstance(image, np.ndarray):
+            raise ValueError("输入图像不能为空且必须为numpy数组")
+        if not self.roi:
+            raise ValueError("ROI区域未设置")
+
+        try:
+            # 首先尝试横向识别
             result = self.ocr_single_line(image)
-            if result != "":
+            if result:
                 return result
 
-            # 如果没有识别到，这个时候考虑到可能是竖方向的文本, 使用detect_and_ocr来进行识别
-            logger.info(f"[{self.name}] Try to detect vertically")
-            result = self.detect_and_ocr(image)
-            if not result:
-                logger.info(f"[{self.name}]: No text detected in ROI")
+            # 横向识别失败,尝试纵向识别
+            logger.info(f"{self.name} 尝试纵向文本识别")
+            boxed_results = self.detect_and_ocr(image)
+            if not boxed_results:
+                logger.info(f"{self.name} ROI区域内未检测到文本")
                 return ""
-            if result[0].ocr_text != "" and result[0].score > self.score:
-                return result[0].ocr_text
 
-            # 如果还是没有识别到。那可能就是真的没有识别到了
+            # 返回置信度最高的结果
+            best_result = max(boxed_results, key=lambda x: x.score)
+            if best_result.score > self.score:
+                return best_result.ocr_text
+
+            logger.info(f"{self.name} 文本置信度过低: {best_result.score:.2f}")
             return ""
-        else:
-            raise ScriptError("Roi is empty")
+        except Exception as e:
+            logger.error(f"{self.name} 单行OCR识别失败: {str(e)}")
+            raise
 
 class Digit(Single):
 
     def after_process(self, result):
-        result = super().after_process(result)
-        result = result.replace('I', '1').replace('D', '0').replace('S', '5')
-        result = result.replace('B', '8').replace('？', '2').replace('?', '2')
-        result = result.replace('d', '6')
-        result = [char for char in result if char.isdigit()]
-        result = ''.join(result)
+        """
+        数字OCR结果后处理
+        参数:
+            result: 原始识别结果
+        返回:
+            处理后的数字(int)
+        """
+        if not isinstance(result, str):
+            raise ValueError("输入结果必须为字符串")
 
-        prev = result
-        result = int(result) if result else 0
-        if str(result) != prev:
-            logger.warning(f'OCR {self.name}: Result "{prev}" is revised to "{result}"')
+        # 常见字符替换
+        replace_rules = {
+            'I': '1', 'D': '0', 'S': '5',
+            'B': '8', '？': '2', '?': '2',
+            'd': '6', 'o': '0', 'O': '0'
+        }
+        
+        for old, new in replace_rules.items():
+            result = result.replace(old, new)
 
-        return result
+        # 只保留数字字符
+        digits = [char for char in result if char.isdigit()]
+        result_str = ''.join(digits)
+        
+        # 转换为整数
+        try:
+            result_int = int(result_str) if result_str else 0
+        except ValueError:
+            logger.warning(f"{self.name} 数字转换失败: {result_str}")
+            result_int = 0
+
+        # 记录修正情况
+        if result_str and str(result_int) != result_str:
+            logger.warning(f'{self.name} 数字修正: "{result_str}" -> "{result_int}"')
+
+        return result_int
 
     def ocr_digit(self, image) -> int:
         """
-        返回数字
-        :param image:
-        :return:
+        数字OCR识别
+        参数:
+            image: 输入图像(numpy数组)
+        返回:
+            识别到的数字, 识别失败返回0
+        异常:
+            ValueError: 当输入图像无效时抛出
         """
-        result = self.ocr_single(image)
-
-        if result == "":
+        try:
+            result = self.ocr_single(image)
+            return self.after_process(result)
+        except Exception as e:
+            logger.error(f"{self.name} 数字OCR识别失败: {str(e)}")
             return 0
-        else:
-            return int(result)
 
 class DigitCounter(Single):
     def after_process(self, result):
-        result = super().after_process(result)
-        result = result.replace('I', '1').replace('D', '0').replace('S', '5')
-        result = result.replace('B', '8').replace('？', '2').replace('?', '2')
-        result = result.replace('d', '6')
-        result = [char for char in result if char.isdigit() or char == '/']
-        result = ''.join(result)
-        return result
+        """
+        计数器OCR结果后处理
+        参数:
+            result: 原始识别结果
+        返回:
+            处理后的计数器字符串
+        """
+        if not isinstance(result, str):
+            raise ValueError("输入结果必须为字符串")
+
+        # 常见字符替换
+        replace_rules = {
+            'I': '1', 'D': '0', 'S': '5',
+            'B': '8', '？': '2', '?': '2',
+            'd': '6', 'l': '1', ' ': ''
+        }
+        
+        for old, new in replace_rules.items():
+            result = result.replace(old, new)
+
+        # 只保留数字和斜杠
+        valid_chars = [char for char in result if char.isdigit() or char == '/']
+        return ''.join(valid_chars)
 
     @classmethod
     def ocr_str_digit_counter(cls, result: str) -> tuple[int, int, int]:
-        result = re.search(r'(\d+)/(\d+)', result)
-        if result:
-            result = [int(s) for s in result.groups()]
-            current, total = int(result[0]), int(result[1])
-            # 不知道为什么加了这一句，妈的
-            # current = min(current, total)
+        """
+        解析计数器字符串
+        参数:
+            result: 格式为"当前值/总值"的字符串
+        返回:
+            元组(当前值, 剩余值, 总值)
+        异常:
+            ValueError: 当输入格式无效时抛出
+        """
+        if not result:
+            return 0, 0, 0
+
+        match = re.search(r'(\d+)/(\d+)', result)
+        if not match:
+            logger.warning(f"{cls.name} 无效的计数器格式: {result}")
+            return 0, 0, 0
+
+        try:
+            current = int(match.group(1))
+            total = int(match.group(2))
+            
             if current > total:
-                logger.warning(f'[{cls.name}]: Current {current} is greater than total {total}')
+                logger.warning(f"{cls.name} 当前值{current}大于总值{total}")
+            
             return current, total - current, total
-        else:
-            logger.warning(f'Unexpected ocr result: {result}')
+        except (ValueError, IndexError) as e:
+            logger.error(f"{cls.name} 计数器解析失败: {str(e)}")
             return 0, 0, 0
 
     def ocr_digit_counter(self, image) -> tuple[int, int, int]:
         """
-        获取计数的结果
-        :param image:
-        :return: 例如 14/15，返回 (14, 1, 15) 。如果没有识别到，返回 (0, 0, 0)
+        计数器OCR识别
+        参数:
+            image: 输入图像(numpy数组)
+        返回:
+            元组(当前值, 剩余值, 总值)
+        异常:
+            ValueError: 当输入图像无效时抛出
         """
-        result = self.ocr_single(image)
-        if result == "":
+        try:
+            result = self.ocr_single(image)
+            if not result:
+                logger.info(f"{self.name} 未识别到计数器")
+                return 0, 0, 0
+                
+            return self.ocr_str_digit_counter(result)
+        except Exception as e:
+            logger.error(f"{self.name} 计数器OCR识别失败: {str(e)}")
             return 0, 0, 0
-        return self.ocr_str_digit_counter(result)
 
 class Duration(Single):
     def after_process(self, result):
-        result = result.replace('I', '1').replace('D', '0').replace('S', '5')
-        result = result.replace('o', '0').replace('l', '1').replace('O', '0')
-        result = result.replace('B', '8').replace('：', ':').replace(' ', '').replace('.', ':')
-        result = super().after_process(result)
+        """
+        持续时间OCR结果后处理
+        参数:
+            result: 原始识别结果
+        返回:
+            标准化后的时间字符串
+        """
+        if not isinstance(result, str):
+            raise ValueError("输入结果必须为字符串")
+
+        # 常见字符替换
+        replace_rules = {
+            'I': '1', 'D': '0', 'S': '5',
+            'o': '0', 'l': '1', 'O': '0',
+            'B': '8', '：': ':', ' ': '',
+            '.': ':', ';': ':', ',': ':'
+        }
+        
+        for old, new in replace_rules.items():
+            result = result.replace(old, new)
+
+        # 确保最终格式为HH:MM:SS
+        parts = result.split(':')
+        if len(parts) == 2:
+            result = f"{parts[0]}:{parts[1]}:00"
+        elif len(parts) > 3:
+            result = ":".join(parts[:3])
+
         return result
 
     @staticmethod
-    def parse_time(string):
+    def parse_time(string) -> timedelta:
         """
-        Args:
-            string (str): `01:30:00`
+        解析时间字符串为timedelta
+        参数:
+            string: 时间字符串(HH:MM:SS格式)
+        返回:
+            datetime.timedelta对象
+        异常:
+            ValueError: 当时间格式无效时抛出
+        """
+        if not string:
+            return timedelta(0)
 
-        Returns:
-            datetime.timedelta:
-        """
-        result = re.search(r'(\d{1,2}):?(\d{2}):?(\d{2})', string)
-        if result:
-            result = [int(s) for s in result.groups()]
-            return timedelta(hours=result[0], minutes=result[1], seconds=result[2])
-        else:
-            logger.warning(f'Invalid duration: {string}')
-            return timedelta(hours=0, minutes=0, seconds=0)
+        match = re.search(r'(\d{1,2}):?(\d{2}):?(\d{2})', string)
+        if not match:
+            logger.warning(f"无效的时间格式: {string}")
+            return timedelta(0)
+
+        try:
+            hours = int(match.group(1))
+            minutes = int(match.group(2))
+            seconds = int(match.group(3))
+            
+            # 验证时间单位范围
+            if minutes >= 60 or seconds >= 60:
+                raise ValueError("分钟或秒数超过范围")
+                
+            return timedelta(hours=hours, minutes=minutes, seconds=seconds)
+        except (ValueError, IndexError) as e:
+            logger.error(f"时间解析失败: {str(e)}")
+            return timedelta(0)
 
     def ocr_duration(self, image) -> timedelta:
         """
-
-        :param image:
-        :return:
+        持续时间OCR识别
+        参数:
+            image: 输入图像(numpy数组)
+        返回:
+            datetime.timedelta对象
+        异常:
+            ValueError: 当输入图像无效时抛出
         """
-        result = self.ocr_single(image)
-
-        if result == "":
-            return timedelta(hours=0, minutes=0, seconds=0)
-
-        return self.parse_time(result)
+        try:
+            result = self.ocr_single(image)
+            if not result:
+                logger.info(f"{self.name} 未识别到持续时间")
+                return timedelta(0)
+                
+            return self.parse_time(result)
+        except Exception as e:
+            logger.error(f"{self.name} 持续时间OCR识别失败: {str(e)}")
+            return timedelta(0)
 
 class Quantity(BaseCor):
     """
@@ -203,44 +357,87 @@ class Quantity(BaseCor):
     比如：”6.33亿“ ”1.2万“ “53万/100” -> 530,000
     """
     def after_process(self, result):
-        result = super().after_process(result)
-        result = result.replace('I', '1').replace('D', '0').replace('S', '5')
-        result = result.replace('B', '8').replace('？', '2').replace('?', '2').replace('d', '6')
-        result = [char
-                  for char in result
-                  if char.isdigit() or char == '.' or char == '/' or char == '万' or char == '亿' or char == '千']
-        result = ''.join(result)
+        """
+        数量OCR结果后处理(支持中文数字单位)
+        参数:
+            result: 原始识别结果
+        返回:
+            处理后的数量值(int)
+        异常:
+            ValueError: 当输入结果无效时抛出
+        """
+        if not isinstance(result, str):
+            raise ValueError("输入结果必须为字符串")
 
+        # 常见字符替换
+        replace_rules = {
+            'I': '1', 'D': '0', 'S': '5',
+            'B': '8', '？': '2', '?': '2',
+            'd': '6', 'o': '0', 'O': '0',
+            ' ': '', ',': '', '，': ''
+        }
+        
+        for old, new in replace_rules.items():
+            result = result.replace(old, new)
+
+        # 处理分数形式(如"100/200"取分子)
         if '/' in result:
-            result_split = result.split('/')
-            result = result_split[0]
-        result = cn2an.cn2an(result, 'smart')
+            result = result.split('/')[0]
+
+        # 只保留数字、小数点和中文单位
+        valid_chars = [char for char in result 
+                      if char.isdigit() or char == '.' or char in ['万', '亿', '千']]
+        result = ''.join(valid_chars)
 
         try:
-            result = int(result)
-        except ValueError:
-            logger.warning(f'[{self.name}]: Invalid quantity: {result}')
-            result = 0
-        return result
+            # 转换中文数字为阿拉伯数字
+            if '万' in result or '亿' in result or '千' in result:
+                quantity = cn2an.cn2an(result, 'smart')
+            else:
+                quantity = float(result) if '.' in result else int(result)
+                
+            return int(quantity)
+        except Exception as e:
+            logger.error(f"{self.name} 数量转换失败: {result} ({str(e)})")
+            return 0
 
     def ocr_quantity(self, image) -> int:
         """
-        返回数量
-        :param image:
-        :return:
+        数量OCR识别
+        参数:
+            image: 输入图像(numpy数组)
+        返回:
+            识别到的数量值
+        异常:
+            ValueError: 当输入图像无效时抛出
         """
-        boxed_results = self.detect_and_ocr(image)
-        if not boxed_results:
-            logger.warning(f'[{self.name}]: No text detected')
-            return 0
+        try:
+            boxed_results = self.detect_and_ocr(image)
+            if not boxed_results:
+                logger.info(f"{self.name} 未检测到数量文本")
+                return 0
 
-        box = boxed_results[0].box
-        self.area = box[0, 0] + self.roi[0], box[0, 1] + self.roi[1], box[1, 0] - box[0, 0], box[2, 1] - box[0, 1]
-        return boxed_results[0].ocr_text
+            # 更新检测区域
+            box = boxed_results[0].box
+            self.area = (
+                box[0, 0] + self.roi[0],
+                box[0, 1] + self.roi[1],
+                box[1, 0] - box[0, 0],
+                box[2, 1] - box[0, 1]
+            )
+
+            # 获取并处理识别结果
+            text = boxed_results[0].ocr_text
+            quantity = self.after_process(text)
+            
+            logger.info(f"{self.name} 识别到数量: {quantity}")
+            return quantity
+        except Exception as e:
+            logger.error(f"{self.name} 数量OCR识别失败: {str(e)}")
+            return 0
 
 
 
 if __name__ == '__main__':
     import cv2
     image = cv2.imread(r'E:\Project\OnmyojiAutoScript-assets\jade.png')
-

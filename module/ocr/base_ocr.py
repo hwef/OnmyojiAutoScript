@@ -65,30 +65,58 @@ class BaseCor:
                  area: tuple,
                  keyword: str) -> None:
         """
-
-        :param name:
-        :param mode:
-        :param method:
-        :param roi:
-        :param area:
-        :param keyword:
+        初始化OCR基础类
+        参数:
+            name: OCR名称
+            mode: OCR模式(FULL/SINGLE/DIGIT等)
+            method: OCR方法
+            roi: 检测区域(x,y,w,h)
+            area: 实际区域(x,y,w,h)
+            keyword: 关键词
         """
+        if not name or not isinstance(name, str):
+            raise ValueError("OCR名称不能为空且必须为字符串")
+        if not mode:
+            raise ValueError("OCR模式不能为空")
+        if not roi or len(roi) != 4:
+            raise ValueError("ROI区域必须为4元素元组(x,y,w,h)")
+        if not area or len(area) != 4:
+            raise ValueError("实际区域必须为4元素元组(x,y,w,h)")
+
         self.name = name.upper()
         if isinstance(mode, str):
             self.mode = OcrMode[mode.upper()]
         elif isinstance(mode, OcrMode):
             self.mode = mode
+        else:
+            raise ValueError("OCR模式必须为字符串或OcrMode枚举")
+
         if isinstance(method, str):
             self.method = OcrMethod[method.upper()]
         elif isinstance(method, OcrMethod):
             self.method = method
+        else:
+            raise ValueError("OCR方法必须为字符串或OcrMethod枚举")
+
         self.roi: list = list(roi)
         self.area: list = list(area)
-        self.keyword = keyword
+        self.keyword = keyword if keyword else ""
 
     @cached_property
-    def model(self) -> TextSystem:
-        return OCR_MODEL.__getattribute__(self.lang)
+    def model(self):
+        """
+        获取当前语言的OCR模型
+        返回:
+            TextSystem或ONNXPaddleOcr实例
+        """
+        try:
+            model = OCR_MODEL._get_model(self.lang)
+            if not model:
+                raise ValueError(f"无法获取{self.lang}语言的OCR模型")
+            return model
+        except Exception as e:
+            logger.error(f"获取OCR模型失败: {str(e)}")
+            raise
 
     def pre_process(self, image):
         """
@@ -139,52 +167,88 @@ class BaseCor:
 
     def ocr_single_line(self, image):
         """
-        只支持横方向的单行ocr，不支持竖方向的单行ocr
-        注意：这里使用了预处理和后处理
-        :param image:
-        :return:
+        单行OCR识别(仅支持横向文本)
+        参数:
+            image: 输入图像(numpy数组)
+        返回:
+            识别结果字符串
+        异常:
+            ValueError: 当输入图像无效时抛出
         """
-        # pre process
+        if image is None or not isinstance(image, np.ndarray):
+            raise ValueError("输入图像不能为空且必须为numpy数组")
+
         start_time = time.time()
-        image = self.crop(image, self.roi)
-        image = self.pre_process(image)
-        # ocr
-        result, score = self.model.ocr_single_line(image)
-        if score < self.score:
-            result = ""
-        # after proces
-        result = self.after_process(result)
-        # logger.info("ocr result score: %s" % score)
-        logger.attr(name='%s %ss' % (self.name, float2str(time.time() - start_time)),
-                    text=f'[{result}]')
-        return result
+        try:
+            # 预处理
+            image = self.crop(image, self.roi)
+            if image.size == 0:
+                raise ValueError("裁剪后的图像为空")
+                
+            image = self.pre_process(image)
+            
+            # OCR识别
+            result, score = self.model.ocr_single_line(image)
+            if score < self.score:
+                result = ""
+                
+            # 后处理
+            result = self.after_process(result)
+            
+            logger.attr(
+                name=f'{self.name} {float2str(time.time() - start_time)}s',
+                text=f'识别结果: [{result}] 置信度: {score:.2f}'
+            )
+            return result
+        except Exception as e:
+            logger.error(f'{self.name} OCR识别失败: {str(e)}')
+            raise
 
     def detect_and_ocr(self, image) -> list[BoxedResult]:
         """
-        注意：这里使用了预处理和后处理
-        :param image:
-        :return:
+        多行OCR识别(支持检测和识别)
+        参数:
+            image: 输入图像(numpy数组)
+        返回:
+            识别结果列表[BoxedResult]
+        异常:
+            ValueError: 当输入图像无效时抛出
         """
-        # pre process
+        if image is None or not isinstance(image, np.ndarray):
+            raise ValueError("输入图像不能为空且必须为numpy数组")
+
         start_time = time.time()
-        image = self.crop(image, self.roi)
-        image = self.pre_process(image)
-        image = enlarge_canvas(image)
+        try:
+            # 预处理
+            image = self.crop(image, self.roi)
+            if image.size == 0:
+                raise ValueError("裁剪后的图像为空")
+                
+            image = self.pre_process(image)
+            image = enlarge_canvas(image)
 
-        # ocr
-        boxed_results: list[BoxedResult] = self.model.detect_and_ocr(image)
-        results = []
-        # after proces
-        for result in boxed_results:
-            # logger.info("ocr result score: %s" % result.score)
-            if result.score < self.score:
-                continue
-            result.ocr_text = self.after_process(result.ocr_text)
-            results.append(result)
+            # OCR识别
+            boxed_results: list[BoxedResult] = self.model.detect_and_ocr(image)
+            if not boxed_results:
+                logger.info(f"{self.name} 未检测到任何文本")
+                return []
 
-        logger.attr(name='%s %ss' % (self.name, float2str(time.time() - start_time)),
-                    text=str([result.ocr_text for result in results]))
-        return results
+            # 后处理
+            results = []
+            for result in boxed_results:
+                if result.score < self.score:
+                    continue
+                result.ocr_text = self.after_process(result.ocr_text)
+                results.append(result)
+
+            logger.attr(
+                name=f'{self.name} {float2str(time.time() - start_time)}s',
+                text=f'检测到{len(results)}个文本区域'
+            )
+            return results
+        except Exception as e:
+            logger.error(f'{self.name} 多行OCR识别失败: {str(e)}')
+            raise
 
     def match(self, result: str, included: bool=False) -> bool:
         """
