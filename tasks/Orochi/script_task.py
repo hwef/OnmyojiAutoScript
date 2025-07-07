@@ -212,7 +212,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             # 检查猫咪奖励
             if self.current_count <= 1:
                 if self.appear(self.I_PET_PRESENT, interval=1):
-                    self.save_image(wait_time=1)
+                    self.save_image(task_name='Pets', wait_time=1)
                     if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
                         continue
 
@@ -300,7 +300,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             # 检查猫咪奖励
             if self.current_count <= 1:
                 if self.appear(self.I_PET_PRESENT, interval=1):
-                    self.save_image(wait_time=1)
+                    self.save_image(task_name='Pets', wait_time=1)
                     if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
                         continue
 
@@ -359,7 +359,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             # 检查猫咪奖励
             if self.current_count <= 1:
                 if self.appear(self.I_PET_PRESENT, interval=1):
-                    self.save_image( wait_time=1)
+                    self.save_image(task_name='Pets', wait_time=1)
                     if self.appear_then_click(self.I_PET_PRESENT, action=self.C_WIN_3, interval=1):
                         continue
             

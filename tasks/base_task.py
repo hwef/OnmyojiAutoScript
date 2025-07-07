@@ -652,11 +652,12 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             return None
         return img
 
-    def save_image(self, content=None, wait_time=2, image_type=False, push_flag=False):
+    def save_image(self, task_name=None, content=None, wait_time=2, image_type=False, push_flag=False):
         try:
-            task_name = "task_name"
-            if self.config and self.config.task:
-                task_name = self.config.task.command
+            if task_name is None:
+                task_name = "task_name"
+                if self.config and self.config.task:
+                    task_name = self.config.task.command
 
             # 设置保存图像的文件夹
             WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
