@@ -309,15 +309,15 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
                 if self.appear(self.I_TOPPA_RECORD, threshold=0.85):
                     continue
                 logger.info("开始进攻区域 [%s]" % str(index + 1))
-                result = self.run_general_battle(config=self.config.ryou_toppa.general_battle_config)
+                self.run_general_battle(config=self.config.ryou_toppa.general_battle_config)
                 if not self.wait_until_appear(self.I_TOPPA_RECORD, wait_time=5):
                     self.screenshot()
                     self.push_notify(content='长时间未识别到寮突破界面')
-                    return False
+                    return True
 
                 # 战斗结束进攻区域重置为0
                 self.area_index = 0
-                return result
+                return True
 
             if self.appear_then_click(RealmRaidAssets.I_FIRE, interval=2, threshold=0.8):
                 click_failure_count += 1
