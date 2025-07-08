@@ -220,6 +220,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets):
         self.screenshot()
         if not self.appear(self.I_GIFT_SIGN):
             logger.warning('There is no gift sign')
+            self.save_image(content="未发现每日签到", push_flag=True, wait_time=0, image_type=True)
             return
 
         if self.ui_get_reward(self.I_GIFT_SIGN, click_interval=2.5):
