@@ -26,8 +26,8 @@ class ScriptTask(LoginHandler):
         # 每日第一次启动游戏，运行集体任务
         if self.config.collective_missions.missions_config.task_date != str(datetime.now().date()):
             self.set_next_run(task='CollectiveMissions', target=datetime.now())
-        if not self.delay_pending_tasks():
-            self.app_restart()
+        # if not self.delay_pending_tasks():
+        self.app_restart()
         raise TaskEnd('ScriptTask end')
 
     def app_stop(self):
@@ -69,9 +69,7 @@ class ScriptTask(LoginHandler):
         datetime_now = datetime.now()
         if not (datetime_now.weekday() == 2 and 7 <= datetime_now.hour <= 8):
             return False
-        logger.info("The game server is updating, delay the pending tasks to 9:00")
         logger.warning("周三游戏更新,7:00-8:59的任务延迟到9:00")
-        logger.warning('Delay pending tasks')
         # running 中的必然是 Restart
         for task in self.config.pending_task:
             print(task.command)
