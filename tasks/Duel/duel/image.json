@@ -169,5 +169,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "活动的战斗按钮"
+  },
+  {
+    "itemName": "green_mark",
+    "imageName": "green_mark.png",
+    "roiFront": "206,207,930,182",
+    "roiBack": "206,207,930,182",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "区域找绿标"
   }
 ]

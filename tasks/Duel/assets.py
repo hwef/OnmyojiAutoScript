@@ -47,6 +47,8 @@ class DuelAssets:
 	# Click Rule Assets
 	# 战斗数据 
 	C_D_BATTLE_DATA = RuleClick(roi_front=(584,279,100,100), roi_back=(584,279,100,100), name="d_battle_data")
+	# 从左开始第五个绿标 
+	C_DUEL_GREEN_LEFT_5 = RuleClick(roi_front=(987,395,67,104), roi_back=(987,395,67,104), name="duel_green_left_5")
 
 
 	# Image Rule Assets
@@ -88,6 +90,8 @@ class DuelAssets:
 	I_BATTLE_WITH_TRAIN = RuleImage(roi_front=(1161,588,78,81), roi_back=(1114,547,163,172), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/duel_battle_with_train.png")
 	# 活动的战斗按钮 
 	I_D_BATTLE2 = RuleImage(roi_front=(1171,592,69,78), roi_back=(1119,566,154,143), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/duel_d_battle2.png")
+	# 区域找绿标 
+	I_GREEN_MARK = RuleImage(roi_front=(206,207,930,182), roi_back=(206,207,930,182), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/green_mark.png")
 
 
 	# Ocr Rule Assets

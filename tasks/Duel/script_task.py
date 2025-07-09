@@ -83,6 +83,8 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 continue
             if not self.duel_main():
                 continue
+            # 检查分数
+            current_score = self.check_score()
 
             if datetime.now() - self.start_time >= self.limit_time:
                 # 任务执行时间超过限制时间，退出
@@ -97,7 +99,6 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             #     # 荣誉满了，退出
             #     logger.info('Duel task is over honor')
             #     break
-            current_score = self.check_score()
             # 当前分数跟目标分数比较
             if current_score >= con.target_score:
                 # 分数够了
@@ -112,6 +113,8 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                         break
                 else:
                     break
+
+            # 进行一次斗技
             self.duel_one(current_score, con.green_enable, con.green_mark)
 
         logger.info('Duel battle end')
@@ -361,6 +364,63 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         logger.info(f'战斗用时: {task_run_time_seconds} / {self.limit_time}')
         return battle_win
 
+    def green_mark(self, enable: bool = False, mark_mode: GreenMarkType = GreenMarkType.GREEN_MAIN):
+        """
+        绿标， 如果不使能就直接返回
+        :param enable:
+        :param mark_mode:
+        :return:
+        """
+        if enable:
+            if self.wait_until_appear(self.I_GREEN_MARK, wait_time=1):
+                # logger.info("识别到绿标，返回")
+                return
+            # logger.info("Green is enable")
+            x, y = None, None
+            match mark_mode:
+                case GreenMarkType.GREEN_LEFT1:
+                    x, y = self.C_GREEN_LEFT_1.coord()
+                    logger.info("Green left 1")
+                case GreenMarkType.GREEN_LEFT2:
+                    x, y = self.C_GREEN_LEFT_2.coord()
+                    logger.info("Green left 2")
+                case GreenMarkType.GREEN_LEFT3:
+                    x, y = self.C_GREEN_LEFT_3.coord()
+                    logger.info("Green left 3")
+                case GreenMarkType.GREEN_LEFT4:
+                    x, y = self.C_GREEN_LEFT_4.coord()
+                    logger.info("Green left 4")
+                case GreenMarkType.GREEN_LEFT5:
+                    x, y = self.C_DUEL_GREEN_LEFT_5.coord()
+                    logger.info("Green left 5")
+                case GreenMarkType.GREEN_MAIN:
+                    x, y = self.C_GREEN_MAIN.coord()
+                    logger.info("Green main")
+
+            # 等待那个准备的消失
+            while 1:
+                self.screenshot()
+                if not self.appear(self.I_PREPARE_HIGHLIGHT):
+                    break
+
+            # 判断有无坐标的偏移
+            self.appear_then_click(self.I_LOCAL)
+            sleep(0.3)
+            # 点击绿标
+            mark_timer = Timer(5)
+            mark_timer.start()
+            while 1:
+                self.screenshot()
+                if self.wait_until_appear(self.I_GREEN_MARK, wait_time=1):
+                    # logger.info("识别到绿标,返回")
+                    break
+                if mark_timer.reached():
+                    # logger.warning("识别绿标超时,返回")
+                    break
+                # 判断有无坐标的偏移
+                # self.appear_then_click(self.I_LOCAL)
+                # 点击绿标
+                self.device.click(x, y)
 
 if __name__ == '__main__':
     from module.config.config import Config
