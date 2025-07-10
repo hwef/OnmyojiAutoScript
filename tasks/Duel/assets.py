@@ -47,8 +47,12 @@ class DuelAssets:
 	# Click Rule Assets
 	# 战斗数据 
 	C_D_BATTLE_DATA = RuleClick(roi_front=(584,279,100,100), roi_back=(584,279,100,100), name="d_battle_data")
+	# 从左开始第1个绿标 
+	C_DUEL_GREEN_LEFT_1 = RuleClick(roi_front=(301,375,67,104), roi_back=(301,375,67,104), name="duel_green_left_1")
 	# 从左开始第五个绿标 
 	C_DUEL_GREEN_LEFT_5 = RuleClick(roi_front=(987,395,67,104), roi_back=(987,395,67,104), name="duel_green_left_5")
+	# 补充点击位置 
+	C_DUEL_GREEN_LEFT_FULL = RuleClick(roi_front=(0,0,0,0), roi_back=(0,0,0,0), name="duel_green_left_full")
 
 
 	# Image Rule Assets
@@ -92,6 +96,8 @@ class DuelAssets:
 	I_D_BATTLE2 = RuleImage(roi_front=(1171,592,69,78), roi_back=(1119,566,154,143), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/duel_d_battle2.png")
 	# 区域找绿标 
 	I_GREEN_MARK = RuleImage(roi_front=(206,207,930,182), roi_back=(206,207,930,182), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/green_mark.png")
+	# 区域点击式神 
+	I_GREEN_MARK_IMG = RuleImage(roi_front=(114,238,1022,188), roi_back=(114,238,1022,188), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/green_mark_img.png")
 
 
 	# Ocr Rule Assets
@@ -103,5 +109,7 @@ class DuelAssets:
 	O_D_HAND = RuleOcr(roi=(31,639,63,45), area=(31,639,63,45), mode="Single", method="Default", keyword="手动", name="d_hand")
 	# 自动 
 	O_D_AUTO = RuleOcr(roi=(30,640,65,44), area=(30,640,65,44), mode="Single", method="Default", keyword="自动", name="d_auto")
+	# 绿标获取 
+	O_D_GREEN_MARKER = RuleOcr(roi=(111,202,1025,246), area=(111,202,1025,246), mode="Single", method="Default", keyword="456", name="d_green_marker")
 
 

@@ -178,5 +178,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "区域找绿标"
+  },
+  {
+    "itemName": "green_mark_img",
+    "imageName": "green_mark_img.png",
+    "roiFront": "114,238,1022,188",
+    "roiBack": "114,238,1022,188",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "区域点击式神"
   }
 ]

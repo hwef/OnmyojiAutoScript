@@ -249,6 +249,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 logger.warning('Recognition error, score is too high')
                 current_score = int(str(current_score)[1:])
             return current_score
+
     def duel_one(self, current_score: int, enable: bool = False,
                  mark_mode: GreenMarkType = GreenMarkType.GREEN_MAIN) -> bool:
         """
@@ -259,7 +260,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         :return:
         """
         logger.hr('Duel battle', 2)
-        self.battle_count+=1
+        self.battle_count += 1
         while 1:
             self.screenshot()
             if not self.appear(self.I_D_HELP):
@@ -292,6 +293,13 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 break
         # 正式进入战斗
         logger.info('Duel start battle')
+        timer = Timer(10)
+        timer.start()
+        while 1:
+            if timer.reached():
+                break
+            if self.is_in_battle():
+                break
         while 1:
             self.screenshot()
             if self.ocr_appear(self.O_D_AUTO, interval=0.4):
@@ -301,10 +309,10 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             # 如果对方直接秒退，那自己就是赢的
             if self.appear(self.I_D_VICTORY):
                 self.ui_click_until_disappear(self.I_D_VICTORY)
-                self.battle_win_count+=1
+                self.battle_win_count += 1
                 return True
         # 绿标
-        self.green_mark(enable, mark_mode)
+        self.duel_green_mark_1(enable, mark_mode)
         # 等待结果
         logger.info('Duel wait result')
         self.device.stuck_record_add('BATTLE_STATUS_S')
@@ -351,9 +359,9 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 self.device.stuck_record_add('BATTLE_STATUS_S')
 
         if battle_win:
-            self.battle_win_count+=1
+            self.battle_win_count += 1
         else:
-            self.battle_lose_count+=1
+            self.battle_lose_count += 1
 
         task_run_time = datetime.now() - self.start_time
         # 格式化时间，只保留整数部分的秒
@@ -364,7 +372,37 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         logger.info(f'战斗用时: {task_run_time_seconds} / {self.limit_time}')
         return battle_win
 
-    def green_mark(self, enable: bool = False, mark_mode: GreenMarkType = GreenMarkType.GREEN_MAIN):
+    def duel_green_mark_1(self, enable: bool = False, ocr_name: str = None) -> bool:
+        if enable:
+            # 点击绿标
+            mark_timer = Timer(5)
+            mark_timer.start()
+            while 1:
+                if mark_timer.reached():
+                    logger.info('Duel green mark timeout, dont appear I_GREEN_MARK_IMG')
+                    return
+                if self.appear(self.I_GREEN_MARK_IMG, interval=0.5):
+                    new_roi_front = (self.I_GREEN_MARK_IMG.roi_front[0],
+                                     self.I_GREEN_MARK_IMG.roi_front[1] + 33,
+                                     3,
+                                     100)
+                    self.C_DUEL_GREEN_LEFT_FULL.roi_front = new_roi_front
+                    logger.info(f'old Image roi {self.I_GREEN_MARK_IMG.roi_front}')
+                    logger.info(f'new Image roi {self.C_DUEL_GREEN_LEFT_FULL.roi_front}')
+                    break
+
+            # 点击绿标
+            mark_timer = Timer(8)
+            mark_timer.start()
+            while 1:
+                if mark_timer.reached():
+                    logger.info('Duel green mark timeout')
+                    break
+                if self.wait_until_appear(self.I_GREEN_MARK, wait_time=2):
+                    break
+                if self.click(self.C_DUEL_GREEN_LEFT_FULL, interval=0.5):
+                    continue
+    def duel_green_mark(self, enable: bool = False, mark_mode: GreenMarkType = GreenMarkType.GREEN_MAIN):
         """
         绿标， 如果不使能就直接返回
         :param enable:
@@ -379,7 +417,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             x, y = None, None
             match mark_mode:
                 case GreenMarkType.GREEN_LEFT1:
-                    x, y = self.C_GREEN_LEFT_1.coord()
+                    x, y = self.C_DUEL_GREEN_LEFT_1.coord()
                     logger.info("Green left 1")
                 case GreenMarkType.GREEN_LEFT2:
                     x, y = self.C_GREEN_LEFT_2.coord()
@@ -403,9 +441,6 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 if not self.appear(self.I_PREPARE_HIGHLIGHT):
                     break
 
-            # 判断有无坐标的偏移
-            self.appear_then_click(self.I_LOCAL)
-            sleep(0.3)
             # 点击绿标
             mark_timer = Timer(5)
             mark_timer.start()
@@ -417,16 +452,15 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 if mark_timer.reached():
                     # logger.warning("识别绿标超时,返回")
                     break
-                # 判断有无坐标的偏移
-                # self.appear_then_click(self.I_LOCAL)
                 # 点击绿标
                 self.device.click(x, y)
+
 
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('mi')
     d = Device(c)
     t = ScriptTask(c, d)
 
