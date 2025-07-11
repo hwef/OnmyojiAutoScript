@@ -179,7 +179,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
             # 如果出现失败 就点击，返回False
             if self.appear(self.I_FALSE, threshold=0.8):
                 self.save_image()
-                self.push_notify(content='战斗失败！！！！！！！！！！')
+                self.push_notify(content='❌ 战斗失败')
                 logger.info("Battle result is false")
                 win = False
                 break

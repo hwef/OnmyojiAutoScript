@@ -113,6 +113,8 @@ class GeneralBattleAssets:
 	I_PRESENT_LESS_THAN_5 = RuleImage(roi_front=(222,648,418,43), roi_back=(222,648,418,43), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_present_less_than_5.png")
 	# 封魔的金币 
 	I_DE_GOLD = RuleImage(roi_front=(61,52,30,25), roi_back=(45,33,65,64), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_de_gold.png")
+	# 御魂溢出确认 
+	I_SOUL_FULL_ENSURE = RuleImage(roi_front=(573,388,35,63), roi_back=(573,388,35,63), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_exit_ensure.png")
 
 
 	# Image Rule Assets

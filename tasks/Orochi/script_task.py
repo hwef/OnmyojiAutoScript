@@ -21,7 +21,7 @@ from module.exception import TaskEnd
 
 """八岐大蛇"""
 class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi, SwitchSoul, OrochiAssets):
-
+    soul_full_push = True
     def run(self):
 
         limit_count = self.config.orochi.next_day_orochi_config.limit_count
@@ -443,6 +443,12 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                     action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
                     if not self.appear(self.I_GREED_GHOST):
                         break
+                    if self.appear_then_click(self.I_SOUL_FULL_ENSURE):
+                        if self.soul_full_push:
+                            self.push_notify("御魂溢出")
+                            self.soul_full_push = False
+                            self.set_next_run(task='SoulsTidy',target=datetime.now())
+                        continue
                     if self.click(action_click, interval=1.5):
                         continue
                 return True
