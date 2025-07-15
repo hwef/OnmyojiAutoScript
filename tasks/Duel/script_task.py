@@ -93,6 +93,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             if self.appear(self.I_D_CELEB_STAR) or self.appear(self.I_D_CELEB_HONOR):
                 logger.info('You are already a celeb（名仕）')
                 current_score = 3000
+                duel_week_over = True
                 break
 
             # if con.honor_full_exit and self.check_honor():

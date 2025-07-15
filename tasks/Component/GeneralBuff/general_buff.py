@@ -62,7 +62,8 @@ class GeneralBuff(BaseTask, GeneralBuffAssets):
         self.screenshot()
         area = buff.ocr(self.device.image)
         if area == tuple([0, 0, 0, 0]):
-            logger.info('No gold 50 buff')
+            logger.info(f'No {buff} buff')
+            self.push_notify()
             return None
 
         # 开始的x坐标就是文字的右边
@@ -223,10 +224,11 @@ class GeneralBuff(BaseTask, GeneralBuffAssets):
         """
         self.reject_invite()
         self.screenshot()
-
-        if not target.match(self.device.image):
-            logger.warning(f'No {target.name} buff')
-            return None
+        while 1:
+            if not target.match(self.device.image):
+                self.push_notify(f'No {target.name} buff')
+            else:
+                break
             # logger.info(f'front area: {target.roi_front}')
             # logger.info(f'front center: {target.front_center()}')
         start_x = int(target.front_center()[0] + 364)
