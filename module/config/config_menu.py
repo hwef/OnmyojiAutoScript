@@ -35,7 +35,7 @@ class ConfigMenu:
         ]
         # 阴阳寮
         self.menu["Guild"] = ['KekkaiUtilize', 'KekkaiActivation', 'RyouToppa', 'RealmRaid', 'Dokan',
-                              'Hunt', 'AbyssShadows', "DemonRetreat"]
+                              'Hunt', 'AbyssShadows', "DemonRetreat", "GuildBanquet"]
         # 每周任务
         self.menu["Weekly Task"] = ['Duel', 'RichMan', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms',
                                     'TrueOrochi']

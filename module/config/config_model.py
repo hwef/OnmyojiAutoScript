@@ -46,6 +46,7 @@ from tasks.CollectiveMissions.config import CollectiveMissions
 from tasks.Hunt.config import Hunt
 from tasks.AbyssShadows.config import AbyssShadows
 from tasks.DemonRetreat.config import DemonRetreat
+from tasks.GuildBanquet.config import GuildBanquet
 
 # 这一部分是活动的配置-----------------------------------------------------------------------------------------------------
 from tasks.ActivityShikigami.config import ActivityShikigami
@@ -149,6 +150,7 @@ class ConfigModel(ConfigBase):
     dokan: Dokan = Field(default_factory=Dokan)
     abyss_shadows: AbyssShadows = Field(default_factory=AbyssShadows)
     demon_retreat: DemonRetreat = Field(default_factory=DemonRetreat)
+    guild_banquet: GuildBanquet = Field(default_factory=GuildBanquet)
 
     # Tools
     back_up: BackUp = Field(default_factory=BackUp)
