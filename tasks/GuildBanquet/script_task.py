@@ -54,6 +54,7 @@ class ScriptTask(GameUi, GuildBanquetAssets):
             logger.info("Start guild banquet!")
             self.device.stuck_record_add('BATTLE_STATUS_S')
         else:
+            self.save_image(content="未检测到宴会开启",push_flag=True,image_type=True,wait_time=0)
             # 如果没有找到FLAG，并且没超过晚上10点，可能是宴会时间没开始，5分钟后尝试再次查找，超过10点则直接退出
             if self.check_runtime():
                 time_now = datetime.now()
@@ -104,10 +105,12 @@ class ScriptTask(GameUi, GuildBanquetAssets):
                 logger.info(f'Banquet ongoing, waiting... (Count: {wait_count})')
                 self.device.stuck_record_clear()
                 self.device.stuck_record_add('BATTLE_STATUS_S')
-        self.device.stuck_record_clear()
-        self.set_config()
+
+        # self.device.stuck_record_clear()
+        # self.set_config()
         self.ui_get_current_page()
         self.ui_goto(page_main)
+
         self.plan_next_run()
         raise TaskEnd
     
