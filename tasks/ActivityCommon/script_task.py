@@ -4,12 +4,15 @@
 import time
 
 import os
+import random
+
 from module.atom.image import RuleImage
 from module.exception import TaskEnd
 from module.logger import logger
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_shikigami_records
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Restart.assets import RestartAssets
 from datetime import datetime, timedelta
 import time
@@ -17,7 +20,7 @@ import time
 """ 活动通用 """
 
 
-class ScriptTask(GameUi, SwitchSoul):
+class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
     SoulsFUll = False
     def run(self) -> None:
 
@@ -93,7 +96,7 @@ class ScriptTask(GameUi, SwitchSoul):
                                 self.push_notify_and_log("次数限制已到，结束任务")
                                 return
 
-                if self.appear_then_click(image_template):
+                if self.appear_then_click(image_template, interval=1):
                     if current_file == '御魂溢出确认.png':
                         self.push_notify_and_log("御魂溢出，结束任务")
                         over_task = True
@@ -101,6 +104,21 @@ class ScriptTask(GameUi, SwitchSoul):
                         self.set_next_run(task='SoulsTidy', success=False, finish=False, target=datetime.now())
 
                     if current_file == '赢（鼓）.png' and current_file != last_clicked_file:
+                        flag = False
+                        while 1:
+                            if flag:
+                                break
+                            action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
+                            self.click(action_click)
+                            time.sleep(1)
+                            for image_template_new in image_templates:
+                                current_file_new = os.path.basename(image_template_new.file)
+                                if current_file_new == '挑战.png':
+                                    self.screenshot()
+                                    if self.appear(image_template_new):
+                                        flag = True
+                                        break
+
                         self.current_count += 1
                         logger.info(f"Current count: {self.current_count} / {self.limit_count}")
                         task_run_time = datetime.now() - self.start_time
