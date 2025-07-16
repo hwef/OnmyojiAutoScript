@@ -222,11 +222,14 @@ class GeneralBuff(BaseTask, GeneralBuffAssets):
         :param target:
         :return:
         """
-        self.reject_invite()
-        self.screenshot()
+        logger.info(f'Get {target.name} buff area')
+        push_flag = True
         while 1:
+            self.reject_invite()
+            self.screenshot()
             if not target.match(self.device.image):
-                self.push_notify(f'No {target.name} buff')
+                self.save_image(content=f'No {target.name} buff', push_flag=push_flag, image_type=True, wait_time=0)
+                push_flag = False
             else:
                 break
             # logger.info(f'front area: {target.roi_front}')
