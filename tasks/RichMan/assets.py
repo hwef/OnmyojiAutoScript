@@ -25,6 +25,8 @@ class RichManAssets:
 	I_GUILD_SKIN = RuleImage(roi_front=(795,438,71,72), roi_back=(320,162,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_skin.png")
 	# 经验御札 
 	I_EXP = RuleImage(roi_front=(569,465,73,72), roi_back=(320,200,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/Screenshots_exp.png")
+	# 风铃 
+	I_FL = RuleImage(roi_front=(344,464,73,72), roi_back=(320,200,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/Screenshots_fl.png")
 	# 寮礼包 
 	I_LIAOBAO = RuleImage(roi_front=(566,208,76,80), roi_back=(320,162,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/Screenshots_libao.png")
 	# 御魂 

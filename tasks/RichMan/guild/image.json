@@ -63,6 +63,15 @@
     "description": "经验御札"
   },
   {
+    "itemName": "fl",
+    "imageName": "Screenshots_fl.png",
+    "roiFront": "344,464,73,72",
+    "roiBack": "320,200,573,371",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "风铃"
+  },
+  {
     "itemName": "liaobao",
     "imageName": "Screenshots_libao.png",
     "roiFront": "566,208,76,80",
