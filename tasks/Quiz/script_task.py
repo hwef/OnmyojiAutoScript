@@ -148,10 +148,8 @@ class ScriptTask(GameUi, QuizAssets, ActivityShikigamiAssets, Debugger):
         if index is None:
             logger.error('Now question has no answer, please check')
             self.append_one(question=question, options=[answer_1, answer_2, answer_3, answer_4])
-            self.push_notify(title='Quiz',
-                                      content=f"New question: \n{question} \n{[answer_1, answer_2, answer_3, answer_4]}")
+            self.push_notify(content=f"New question: \n{question} \n{[answer_1, answer_2, answer_3, answer_4]}")
             index = 1
-
         if self._config.quiz_per_round < 150 and self.answer_cnt > self._config.quiz_per_round:
             index_options = {1, 2, 3, 4}
             index_options.remove(index)

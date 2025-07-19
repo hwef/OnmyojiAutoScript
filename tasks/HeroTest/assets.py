@@ -14,7 +14,7 @@ class HeroTestAssets:
 	# 进入活动第一步 
 	I_ONE = RuleImage(roi_front=(633,106,88,105), roi_back=(633,106,88,105), threshold=0.7, method="Template matching", file="./tasks/HeroTest/as/as_one.png")
 	# 进入活动第二步 
-	I_TWO = RuleImage(roi_front=(826, 673, 80, 21), roi_back=(826, 673, 80, 21), threshold=0.7, method="Template matching", file="./tasks/HeroTest/as/as_two.png")
+	I_TWO = RuleImage(roi_front=(842,671,49,26), roi_back=(842,671,49,26), threshold=0.8, method="Template matching", file="./tasks/HeroTest/as/as_two.png")
 	# 点击鬼兵演武 
 	I_GBB = RuleImage(roi_front=(95,344,37,131), roi_back=(95,344,37,131), threshold=0.8, method="Template matching", file="./tasks/HeroTest/as/as_gbb.png")
 	# 爬塔返回按钮 
@@ -53,6 +53,8 @@ class HeroTestAssets:
 	I_BCMJ_RESET_CONFIRM = RuleImage(roi_front=(668,399,180,70), roi_back=(668,399,180,70), threshold=0.8, method="Template matching", file="./tasks/HeroTest/as/as_bcmj_reset_confirm.png")
 	# 通过兵藏秘境取消重置按钮 
 	I_BCMJ_RESET_CLOSE = RuleImage(roi_front=(429,397,186,71), roi_back=(429,397,186,71), threshold=0.8, method="Template matching", file="./tasks/HeroTest/as/as_bcmj_reset_close.png")
+	# 周一点击确认开始挑战 
+	I_START_CHALLENGE = RuleImage(roi_front=(685,407,142,47), roi_back=(685,407,142,47), threshold=0.8, method="Template matching", file="./tasks/HeroTest/as/as_start_challenge.png")
 
 
 	# Ocr Rule Assets

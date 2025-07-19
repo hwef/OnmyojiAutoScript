@@ -2,19 +2,19 @@
 # @author runhey
 # github https://github.com/runhey
 from datetime import datetime, timedelta, time
-import random
-from time import sleep  # type: ignore
+import random  # type: ignore
 
 from tasks.Component.BaseActivity.base_activity import BaseActivity
 from tasks.HeroTest.assets import HeroTestAssets
-from tasks.GameUi.page import page_main, page_shikigami_records,page_exploration
+from tasks.GameUi.page import page_main, page_shikigami_records
 from tasks.GameUi.game_ui import GameUi
+from tasks.GameUi.page import page_exploration
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 
 from module.logger import logger
 from module.exception import TaskEnd
 
-""" 英杰试炼 """
+
 class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
 
     is_update = False
@@ -53,11 +53,17 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
 
         self.ui_get_current_page()
         self.ui_goto(page_main)
-        # self.ui_get_current_page()
-        
-        self.ui_goto(page_exploration)
 
-        
+        # 启动经验加成
+        exp_50_buff_enable = config.herotest.exp_50_buff_enable_help
+        exp_100_buff_enable = config.herotest.exp_100_buff_enable_help
+        if exp_50_buff_enable or exp_100_buff_enable:
+            self.open_buff()
+            self.exp_100(exp_100_buff_enable)
+            self.exp_50(exp_50_buff_enable)
+            self.close_buff()
+
+        self.ui_goto(page_exploration)
         self.home_main()
         # 设定是否锁定阵容
         if is_update:
@@ -115,7 +121,7 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
             # 如果是兵藏秘境 看看是否有兵道帖
             if is_skill:
                 if not self.check_art_war_card():
-                    logger.info("Art war card is enough")
+                    logger.info("Art war card is not enough")
                     break
             # 点击战斗
             logger.info("Click battle")
@@ -128,6 +134,11 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
                     if not self.appear(self.I_BATTLE):
                         break
                 elif is_skill:
+                    if not self.check_art_war_card():
+                        logger.info("Art war card is not nough")
+                        break
+                    if self.appear_then_click(self.I_START_CHALLENGE, interval=1):
+                        continue
                     if self.appear_then_click(self.I_BCMJ_RESET_CONFIRM, interval=1):
                         continue
                     if self.appear_then_click(self.I_BCMJ_BATTLE, interval=2):
@@ -182,7 +193,8 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
             self.screenshot()
             if win:
                 # 点击赢了
-                action_click = random.choice([self.C_WIN_1, self.C_WIN_2, self.C_WIN_3])
+                # self.C_WIN_2 在掉落物品过多的时候可能会点击到物品，导致脚本卡死
+                action_click = random.choice([self.C_WIN_1, self.C_WIN_3])
                 if self.appear_then_click(
                     self.I_WIN, action=action_click, interval=0.5
                 ):
@@ -225,8 +237,9 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
         while 1:
             self.screenshot()
             # 如果出现领奖励
+            # self.C_REWARD_2 在掉落物品过多的时候可能会点击到物品，导致脚本卡死
             action_click = random.choice(
-                [self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3]
+                [self.C_REWARD_1, self.C_REWARD_3]
             )
             if self.appear_then_click(
                 self.I_REWARD, action=action_click, interval=1.5
@@ -264,12 +277,6 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
         logger.hr("Enter HeroTest", 2)
         global is_update
         global is_skill
-        # 启动经验加成
-        if is_update:
-            self.open_buff()
-            self.exp_100(True)
-            self.exp_50(True)
-            self.close_buff()
         while 1:
             self.screenshot()
             if is_update:
@@ -296,14 +303,6 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
         global is_update
         while 1:
             self.screenshot()
-            if self.appear(self.I_ONE):
-                if is_update:
-                    # 关闭经验加成
-                    self.open_buff()
-                    self.exp_100(False)
-                    self.exp_50(False)
-                    self.close_buff()
-                break
             if self.appear_then_click(self.I_UI_BACK_RED, interval=2):
                 continue
             if self.appear_then_click(self.I_UI_BACK_YELLOW, interval=2):
@@ -312,21 +311,24 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
                 continue
             if self.appear_then_click(self.I_GBB_BACK, interval=2):
                 continue
+            self.ui_get_current_page()
+            self.ui_goto(page_main)
+            if is_update:
+                # 关闭经验加成
+                self.open_buff()
+                self.exp_100(False)
+                self.exp_50(False)
+                self.close_buff()
+            break
+
 
 
 if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
-    from tasks.GameUi.assets import GameUiAssets as G
 
-    c = Config("oas2")
+    c = Config("du")
     d = Device(c)
     t = ScriptTask(c, d)
-    # while 1:   
-    #     t.screenshot()
-        
-    #     G.I_MAIN_GOTO_EXPLORATION.my_sift_math(t.device.image)
-    #     sleep(1)
-    # G.I_MAIN_GOTO_EXPLORATION.sift_match(t.device.image,show=True)
-    
+
     t.run()

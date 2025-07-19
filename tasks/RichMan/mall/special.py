@@ -163,7 +163,7 @@ class Special(Buy, MallNavbar):
         # logger.info(f'数字的ROI是: {self.O_SP_RES_NUMBER.roi}')
         result = self.O_SP_RES_NUMBER.ocr(self.device.image)
         result = result.replace('？', '2').replace('?', '2').replace(':', '；').replace('火', '次').replace('教', '数')
-        result = result.replace('刺', '剩')
+        result = result.replace('刺', '剩').result.replace('利', '剩')
         try:
             if '：' in result:
                 result = re.findall(r'剩余购买次数：(\d+)', result)[0]
@@ -174,6 +174,8 @@ class Special(Buy, MallNavbar):
         except:
             result = 0
         logger.info(f'Remain [{result}]')
+        if result == 0:
+            self.save_image(wait_time=0, image_type=True,push_flag=True,content=f"{target}剩余数量为0")
         return result
 
 

@@ -16,6 +16,16 @@ from tasks.Component.config_scheduler import Scheduler
 class DokanConfig(BaseModel):
     # # 寮管理开启道馆
     dokan_enable: bool = Field(default=False, description='寮管理开启道馆')
+
+    # 道馆系数,赏金/人数 根据喜好配置
+    find_dokan_score: float = Field(default=4.6, description='dokan_score_help')
+
+    # 道馆最小人数限制
+    min_people_num: int = Field(default=-1, description='min_people_num_help')
+
+    # 最少赏金设置
+    min_bounty: int = Field(default=0, description='min_bounty_help')
+
     # # 选择哪一个竂
     # dokan_declear_war_priority: int = Field(default=0, description='dokan_declear_war_priority_help')
 

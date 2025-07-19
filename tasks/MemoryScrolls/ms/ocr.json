@@ -1,0 +1,29 @@
+[
+  {
+    "itemName": "ms_scores",
+    "roiFront": "916,600,62,35",
+    "roiBack": "916,600,62,35",
+    "mode": "Digit",
+    "method": "Default",
+    "keyword": "",
+    "description": "绘卷分数"
+  },
+  {
+    "itemName": "ms_progress",
+    "roiFront": "403,593,35,28",
+    "roiBack": "403,593,35,28",
+    "mode": "Digit",
+    "method": "Default",
+    "keyword": "",
+    "description": "绘卷进度"
+  },
+  {
+    "itemName": "ms_count_s",
+    "roiFront": "473,517,60,25",
+    "roiBack": "473,517,60,25",
+    "mode": "DigitCounter",
+    "method": "Default",
+    "keyword": "",
+    "description": "小碎片掉落数量"
+  }
+]

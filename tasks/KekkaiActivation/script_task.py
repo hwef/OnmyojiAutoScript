@@ -257,8 +257,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
                         self.config.kekkai_activation.activation_config.card_not_found_count = 0
                         self.config.save()
                         message = f'✅ 确认挂卡: {rule}'
-                        logger.info(message)
-                        self.save_image(content=message, push_flag=True, wait_time=0)
+                        self.save_image(content=message, push_flag=False, wait_time=0)
                         return
                     if self.appear_then_click(target, interval=1):
                         continue
@@ -268,12 +267,13 @@ class ScriptTask(KU, KekkaiActivationAssets):
         activation_config = self.config.kekkai_activation.activation_config
         # 多少分钟后重试
         retry_minutes = 180
+        retry_count = 3
         # 递增未找到卡的计数器
         activation_config.card_not_found_count += 1
 
-        if activation_config.card_not_found_count >= 2:
+        if activation_config.card_not_found_count >= retry_count:
             # 达到重试上限时的处理
-            log_msg = f"⚠️{activation_config.card_type}卡未检出（累计2次），{retry_minutes}分钟后重试"
+            log_msg = f"⚠️{activation_config.card_type}卡未检出（累计{retry_count}次），{retry_minutes}分钟后重试"
             activation_config.card_not_found_count = 0  # 重置计数器并延长下次执行时间
             next_run = datetime.now() + timedelta(minutes=retry_minutes)
         else:
@@ -288,7 +288,6 @@ class ScriptTask(KU, KekkaiActivationAssets):
             next_run = datetime.now()
 
         # 统一记录日志和推送
-        logger.info(log_msg)
         self.save_image(content=log_msg, push_flag=True)
 
         # 保存配置并设置下次执行

@@ -25,6 +25,7 @@ from module.exception import RequestHumanTakeover, TaskEnd
 from module.atom.image_grid import ImageGrid
 from module.base.utils import load_image
 from time import sleep
+
 class Scene(Enum):
     UNKNOWN = 0  #
     WORLD = 1  # 探索大世界
@@ -343,16 +344,20 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         logger.info("RealmRaid and Exploration  set_next_run !")
         cd = con_scrolls.scrolls_cd
         timedelta_cd = timedelta(hours=cd.hour, minutes=cd.minute, seconds=cd.second)
-
-        self.set_next_run(task='Exploration', target=datetime.now() + timedelta_cd)
-        self.set_next_run(task='RealmRaid', target=datetime.now())
-        self.set_next_run(task='SoulsTidy',target=datetime.now())
+        datetime_now = datetime.now()
+        self.set_next_run(task='Exploration', target=datetime_now + timedelta_cd)
+        # 个突
+        self.set_next_run(task='RealmRaid', target=datetime_now)
+        # 御魂整理
+        self.set_next_run(task='SoulsTidy', target=datetime_now)
+        # 绘卷捐赠
+        self.set_next_run(task='MemoryScrolls', target=datetime_now)
         raise TaskEnd
 
     #
     def check_exit(self) -> bool:
 
-        # 判断是否开启检测
+        # 判断是否开启绘卷模式
         if not self._config.scrolls.scrolls_enable:
             # True 表示要退出这个任务
             if self.minions_cnt >= self._config.exploration_config.minions_cnt:
@@ -406,11 +411,11 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('oas2')
+    config = Config('oas1')
     device = Device(config)
     t = BaseExploration(config, device)
     t.screenshot()
-    t.add_shiki()
+
     # IMAGE_FILE = r"C:\Users\萌萌哒\Desktop\QQ20240818-163854.png"
     # image = load_image(IMAGE_FILE)
     # t.device.image = image

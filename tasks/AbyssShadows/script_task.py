@@ -113,6 +113,13 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AbyssShadowsAssets):
 
         :return:
         """
+
+        today = datetime.now().weekday()
+        if today not in [4, 5, 6]:
+            self.push_notify(f"今天不是狭间暗域开放日，退出")
+            self.set_next_run(task='AbyssShadows', finish=True, server=True, success=True)
+            raise TaskEnd
+
         cfg: AbyssShadows = self.config.abyss_shadows
 
         if cfg.switch_soul_config.enable:
@@ -123,11 +130,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AbyssShadowsAssets):
             self.ui_get_current_page()
             self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(cfg.switch_soul_config.group_name, cfg.switch_soul_config.team_name)
-        today = datetime.now().weekday()
-        if today not in [4, 5, 6]:
-            logger.info(f"今天不是狭间暗域开放日，退出")
-            self.set_next_run(task='AbyssShadows', finish=False, server=True, success=False)
-            raise TaskEnd
 
         # 进入狭间
         self.goto_abyss_shadows()
@@ -149,9 +151,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AbyssShadowsAssets):
                 sleep(wait_time)
                 if self.error_count >= 6:
                     self.save_image(content='未能进入狭间暗域', wait_time=0, push_flag=True, image_type=True)
-                    logger.warning("未能进入狭间暗域")
                     self.goto_main()
-                    self.set_next_run(task='AbyssShadows', finish=False, server=True, success=False)
+                    self.set_next_run(task='AbyssShadows', finish=True, server=True, success=True)
                     raise TaskEnd
 
         # 等待可进攻时间  
@@ -180,7 +181,15 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AbyssShadowsAssets):
 
         # 战斗结束处理
         logger.info(f"已打完所有区域: {boss_type_list}")
-        self.save_image(content='战斗完成', push_flag=True, image_type=True)
+        while 1:
+            self.screenshot()
+            # 点击战报按钮
+            if self.appear(self.I_ABYSS_MAP):
+                self.save_image(content='战斗完成', push_flag=True, image_type=True)
+                break
+            if self.appear_then_click(self.I_ABYSS_NAVIGATION, interval=1):
+                continue
+
         # 返回到庭院
         self.goto_main()
         # 设置下次执行时间

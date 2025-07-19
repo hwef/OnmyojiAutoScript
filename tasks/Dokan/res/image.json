@@ -2,10 +2,19 @@
   {
     "itemName": "green_mark",
     "imageName": "green_mark.png",
-    "roiFront": "157,220,979,229,",
-    "roiBack": "157,220,979,229,",
+    "roiFront": "157,220,979,229",
+    "roiBack": "157,220,979,229",
     "method": "Template matching",
-    "threshold": 0.8,
+    "threshold": 0.6,
+    "description": "区域找绿标"
+  },
+  {
+    "itemName": "green_mark_1",
+    "imageName": "green_mark_1.png",
+    "roiFront": "157,220,979,229",
+    "roiBack": "157,220,979,229",
+    "method": "Template matching",
+    "threshold": 0.6,
     "description": "区域找绿标"
   },
   {
@@ -376,5 +385,113 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "场景检测：阴阳竂"
+  },
+  {
+    "itemName": "center_point_people_number",
+    "imageName": "res_ryou_dokan_center_point_people_number.png",
+    "roiFront": "0,0,1280,720",
+    "roiBack": "0,0,1280,720",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "查找道馆时,中间防守人数字样,为了定位该图下方的 防守人数数字"
+  },
+  {
+    "itemName": "rightpad_point_bounty",
+    "imageName": "res_ryou_dokan_rightpad_point_bounty.png",
+    "roiFront": "1050,0,230,0",
+    "roiBack": "1050,0,230,50",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "查找道馆时,右侧道馆赏金图标,为了定位该图右侧的 赏金金额"
+  },
+  {
+    "itemName": "center_guanzhu_xiuxi",
+    "imageName": "res_ryou_dokan_center_guanzhu_xiuxi.png",
+    "roiFront": "0,0,1280,720",
+    "roiBack": "0,0,1280,720",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "查找道馆时,中间信息卡片 馆主等级-修习"
+  },
+  {
+    "itemName": "refresh_ensure",
+    "imageName": "res_ryou_dokan_refresh_ensure.png",
+    "roiFront": "0,0,1280,720",
+    "roiBack": "0,0,1280,720",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "查找道馆时,确认刷新道馆列表按钮"
+  },
+  {
+    "itemName": "ryou_dokan_center_top",
+    "imageName": "res_ryou_dokan_center_top.png",
+    "roiFront": "500,20,300,70",
+    "roiBack": "500,20,300,70",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "寮境中上部的标志"
+  },
+  {
+    "itemName": "ryou_dokan_dokan_quit",
+    "imageName": "res_ryou_dokan_dokan_quit.png",
+    "roiFront": "0,2,80,80",
+    "roiBack": "0,2,80,80",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "左上角退出按钮-"
+  },
+  {
+    "itemName": "ryou_dokan_spoils_of_dokan",
+    "imageName": "res_ryou_dokan_spoils_of_dokan.png",
+    "roiFront": "480,400,400,100",
+    "roiBack":  "480,400,400,100",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "道馆攻破后夺得资金界面"
+  },
+  {
+    "itemName": "ryou_dokan_remain_attack_count_two",
+    "imageName": "res_ryou_dokan_remain_attack_count_two.png",
+    "roiFront": "650,610,110,80",
+    "roiBack": "650,610,110,80",
+    "method": "Template matching",
+    "threshold": 0.9,
+    "description": "今日可挑战次数:2次"
+  },
+  {
+    "itemName": "center_challenge",
+    "imageName": "res_ryou_dokan_center_challenge.png",
+    "roiFront": "0,0,1280,720",
+    "roiBack": "0,0,1280,720",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "查找道馆时,挑战按钮"
+  },
+  {
+    "itemName": "challenge_ensure",
+    "imageName": "res_ryou_dokan_challenge_ensure.png",
+    "roiFront": "0,0,1280,720",
+    "roiBack": "0,0,1280,720",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "查找道馆时,确认挑战按钮"
+  },
+  {
+    "itemName": "ryou_dokan_finding_dokan",
+    "imageName": "res_ryou_dokan_finding_dokan.png",
+    "roiFront": "980,60,100,160",
+    "roiBack": "980,60,100,160",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "正在查找道馆,还未选择"
+  },
+  {
+    "itemName": "ryou_dokan_found_dokan",
+    "imageName": "res_ryou_dokan_found_dokan.png",
+    "roiFront": "440,580,360,140",
+    "roiBack": "440,580,360,140",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "已选择道馆"
   }
 ]

@@ -78,7 +78,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssSha
             if self.appear_then_click(self.I_HUNT, interval=1):
                 continue
             if self.appear_then_click(self.I_REWARD_ALL, interval=1.5):
-                self.save_image()
+                self.save_image(push_flag=True, content='已挑战完成')
                 self.ui_reward_appear_click(True)
                 logger.info('Claim rewards finished')
                 break
@@ -96,10 +96,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssSha
             self.custom_next_run(task='DemonRetreat', custom_time=cfg.demon_retreat_time.custom_run_time, time_delta=7)
         else:
             self.set_next_run(task="DemonRetreat", finish=True, server=True, success=False)
-
         raise TaskEnd
-
-
 
     def goto_demon_retreat(self) -> bool:
         """
@@ -140,7 +137,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssSha
 
             # 周六打完了，但是迟到了只能领取奖励
             if self.appear(self.I_REWARD_ALL, interval=1):
-                self.save_image()
+                self.save_image(push_flag=True, content='已挑战完成')
                 self.ui_click_until_disappear(self.I_REWARD_ALL)
                 logger.info("Already challenged demon_retreat")
                 sleep(1)

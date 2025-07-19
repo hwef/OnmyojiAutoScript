@@ -11,8 +11,8 @@
   {
     "itemName": "two",
     "imageName": "as_two.png",
-    "roiFront": "819,685,95,26",
-    "roiBack": "819,685,95,26",
+    "roiFront": "842,671,49,26",
+    "roiBack": "842,671,49,26",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "进入活动第二步"
@@ -187,5 +187,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "通过兵藏秘境取消重置按钮"
+  },
+  {
+    "itemName": "start_challenge",
+    "imageName": "as_start_challenge.png",
+    "roiFront": "685,407,142,47",
+    "roiBack": "685,407,142,47",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "周一点击确认开始挑战"
   }
 ]

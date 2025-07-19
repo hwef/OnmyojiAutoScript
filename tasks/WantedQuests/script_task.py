@@ -53,11 +53,12 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
         wq_timer = Timer(3)
         wq_timer.start()
         self.limit_count = 20
+        continue_count = 5
         while 1:
             self.screenshot()
 
             if self.appear(self.I_WQ_BOX):
-                logger.debug("检测到奖励宝箱，尝试领取")
+                logger.info("检测到奖励宝箱，尝试领取")
                 self.ui_get_reward(self.I_WQ_BOX)
                 wq_timer.reset()
                 continue
@@ -92,18 +93,20 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
 
             if self.appear(self.I_WQ_CHECK_TASK):
                 logger.info('悬赏发现残留任务，尝试处理')
-                self.save_image(task_name='悬赏发现残留任务', wait_time=0, image_type='png')
+                # self.save_image(task_name='悬赏发现残留任务', wait_time=0, image_type='png')
                 x, y, w, h = self.I_WQ_CHECK_TASK.roi_front
                 self.I_WQ_CHECK_TASK_CLICK.roi_front = (x - 70, y, w + 30, h)
                 logger.info(f'调整点击区域至: {self.I_WQ_CHECK_TASK_CLICK.roi_front}')
                 self.execute_mission(self.I_WQ_CHECK_TASK_CLICK, 1, number_challenge, flag=True)
-                self.save_image(task_name='悬赏发现残留任务,战斗结束', wait_time=0, image_type='png')
+                # self.save_image(task_name='悬赏发现残留任务,战斗结束', wait_time=0, image_type='png')
                 wq_timer.reset()
-                
+                if continue_count <5:
+                    continue_count += 1
+                    continue
 
             if wq_timer.reached():
                 logger.info('悬赏未检测到残留任务，退出循环')
-                self.save_image(task_name='悬赏未检测到残留任务', wait_time=0, image_type='png')
+                # self.save_image(task_name='悬赏未检测到残留任务', wait_time=0, image_type='png')
                 break
 
     def next_run(self):
@@ -210,7 +213,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
 
         def check_battle(cha: bool, wq_type, wq_info) -> tuple:
             battle = False
-           # 进行3次OCR识别，取出现次数最多的结果
+            # 进行3次OCR识别，取出现次数最多的结果
             type_results = []
             for _ in range(3):
                 self.screenshot()
@@ -482,7 +485,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas2')
+    c = Config('oa')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()

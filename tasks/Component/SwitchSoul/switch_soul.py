@@ -1,10 +1,6 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-
-import sys
-sys.path.append('H:\game\yys\OnmyojiAutoScript-easy-install\OnmyojiAutoScript-easy-install')
-
 from time import sleep
 from typing import Union
 
@@ -81,6 +77,7 @@ class SwitchSoul(BaseTask, SwitchSoulAssets):
                 5: tuple([self.C_SOU_GROUP_5, self.I_SOU_CHECK_GROUP_5]),
                 6: tuple([self.C_SOU_GROUP_6, self.I_SOU_CHECK_GROUP_6]),
                 7: tuple([self.C_SOU_GROUP_7, self.I_SOU_CHECK_GROUP_7]),
+                8: tuple([self.C_SOU_GROUP_8, self.I_SOU_CHECK_GROUP_8]),
             }
             return match[group]
 
@@ -108,8 +105,8 @@ class SwitchSoul(BaseTask, SwitchSoulAssets):
             # 等待滑动动画
             sleep(0.5)
 
-        if group < 1 or group > 7:
-            raise ValueError('Switch soul_one group must be in [1-7]')
+        if group < 1 or group > 8:
+            raise ValueError('Switch soul_one group must be in [1-8]')
         if team < 1 or team > 4:
             raise ValueError('Switch soul_one team must be in [1-4]')
         # 这一步是选择组
@@ -296,7 +293,7 @@ class SwitchSoul(BaseTask, SwitchSoulAssets):
         # self.device.click(x=x, y=y1, control_name=target.name)
         for  i in range(3):
             self.device.click(x=x, y=y1, control_name=target.name)
-            sleep(0.5)
+            sleep(0.3)
         return True
 
 
@@ -304,11 +301,11 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas2')
+    c = Config('oas1')
     d = Device(c)
     s = SwitchSoul(c, d)
 
     s.click_preset()
     # s.switch_soul_one(4, 1)
     # s.switch_soul_by_name('契灵', '茨球')
-    s.switch_soul_by_name('逢魔2', '荒')
+    s.switch_soul_by_name('默认分组', '队伍5')

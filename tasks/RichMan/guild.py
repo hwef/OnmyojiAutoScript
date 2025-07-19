@@ -78,9 +78,10 @@ class Guild(Buy, GameUi, RichManAssets):
         if not self.buy_check_money(self.O_GUILD_TOTAL, 240):
             return False
         result = self.I_GUILD_BLUE.match(self.device.image)
-        self.save_image(wait_time=0, image_type=True)
+        # self.save_image(wait_time=0, image_type=True)
         if not result:
             logger.warning('未识别到蓝票')
+            self.save_image(wait_time=0, image_type=True,push_flag=True,content='未识别到蓝票')
             return False
         number = self.check_remain(self.I_GUILD_BLUE)
         if number == 0:
@@ -98,6 +99,7 @@ class Guild(Buy, GameUi, RichManAssets):
         result = self.I_LIAOBAO.match(self.device.image)
         if not result:
             logger.warning('未识别到礼包')
+            self.save_image(wait_time=0, image_type=True,push_flag=True,content='未识别到礼包')
             return False
         number = self.check_remain(self.I_LIAOBAO)
         if number == 0:
@@ -114,6 +116,7 @@ class Guild(Buy, GameUi, RichManAssets):
         result = self.I_EXP.match(self.device.image)
         if not result:
             logger.warning('未识别到经验御札')
+            self.save_image(wait_time=0, image_type=True,push_flag=True,content='未识别到经验御札')
             return False
         number = self.check_remain(self.I_EXP)
         if number == 0:
@@ -131,6 +134,7 @@ class Guild(Buy, GameUi, RichManAssets):
         result = self.I_YUHUN.match(self.device.image)
         if not result:
             logger.warning('未识别到御魂')
+            self.save_image(wait_time=0, image_type=True,push_flag=True,content='未识别到御魂')
             return False
         number = self.check_remain(self.I_YUHUN)
         if number == 0:
@@ -149,6 +153,7 @@ class Guild(Buy, GameUi, RichManAssets):
         result = self.I_GUILD_SCRAP.match(self.device.image)
         if not result:
             logger.warning('未识别到黑碎')
+            self.save_image(wait_time=0, image_type=True,push_flag=True,content='未识别到黑碎')
             return False
         number = self.check_remain(self.I_GUILD_SCRAP)
         if number == 0:
@@ -171,6 +176,7 @@ class Guild(Buy, GameUi, RichManAssets):
         result = self.I_GUILD_SKIN.match(self.device.image)
         if not result:
             logger.warning('未识别到皮肤券')
+            self.save_image(wait_time=0, image_type=True,push_flag=True,content='未识别到皮肤券')
             return False
         # 检查功勋商店皮肤券 本周剩余数量
         number = self.check_remain(self.I_GUILD_SKIN)
@@ -198,6 +204,8 @@ class Guild(Buy, GameUi, RichManAssets):
         except:
             result = 0
         logger.info('Remain: %s' % result)
+        if result == 0:
+            self.save_image(wait_time=0, image_type=True,push_flag=True,content=f"{image}剩余数量为0")
         return int(result)
 
 

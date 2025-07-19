@@ -10,6 +10,7 @@ from winerror import NOERROR
 
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_summon, page_guild, page_mall, page_friends
+from tasks.Component.GeneralBuff.general_buff import GeneralBuff
 from tasks.DailyTrifles.config import DailyTriflesConfig
 from tasks.DailyTrifles.assets import DailyTriflesAssets
 from tasks.Component.Summon.summon import Summon
@@ -22,7 +23,7 @@ import re
 
 
 """ 每日琐事 """
-class ScriptTask(GameUi, Summon, DailyTriflesAssets):
+class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 
     def run(self):
         con = self.config.daily_trifles.trifles_config
@@ -217,9 +218,11 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets):
         self.appear_then_click(self.I_GIFT_RECOMMEND, interval=1)
         logger.info('Enter store sign')
         sleep(1)  # 等个动画
+        self.reject_invite()
         self.screenshot()
         if not self.appear(self.I_GIFT_SIGN):
             logger.warning('There is no gift sign')
+            self.save_image(content="未发现每日签到", push_flag=True, wait_time=0, image_type=True)
             return
 
         if self.ui_get_reward(self.I_GIFT_SIGN, click_interval=2.5):

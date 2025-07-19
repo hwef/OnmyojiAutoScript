@@ -3,8 +3,6 @@
 # github https://github.com/runhey
 from time import sleep
 from datetime import time, datetime, timedelta
-from cached_property import cached_property
-
 from random import randint
 
 from module.logger import logger
@@ -20,34 +18,17 @@ from tasks.GoryouRealm.assets import GoryouRealmAssets
 
 """ 御灵 """
 class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
-    @cached_property
-    def _config(self):
-        
-        return self.config.model.goryou_realm
 
     def run(self):
         con = self.config.goryou_realm
         limit_time = con.goryou_config.limit_time
+        self.limit_count = con.goryou_config.limit_count
         self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute,
                                                seconds=limit_time.second)
-        
-        # 换御魂
-        cfg = self._config
-        if cfg.switch_soul_config.enable:
+        if con.switch_soul_config.enable:
             self.ui_get_current_page()
             self.ui_goto(page_shikigami_records)
-            self.run_switch_soul(cfg.switch_soul_config.switch_group_team)
-
-        if cfg.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
-            self.run_switch_soul_by_name(cfg.switch_soul_config.group_name,
-                                         cfg.switch_soul_config.team_name)
-
-        # if con.switch_soul_config.enable:
-        #     self.ui_get_current_page()
-        #     self.ui_goto(page_shikigami_records)
-        #     self.run_switch_soul(con.switch_soul_config.switch_group_team)
+            self.run_switch_soul(con.switch_soul_config.switch_group_team)
         self.ui_get_current_page()
         self.ui_goto(page_goryou_realm)
 
@@ -72,7 +53,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
             if not self.appear(self.I_GR_FIRE):
                 continue
 
-            if self.current_count >= con.goryou_config.limit_count:
+            if self.current_count >= self.limit_count:
                 logger.info('GoryouRealm count limit out')
                 break
             if datetime.now() - self.start_time >= self.limit_time:
@@ -91,12 +72,13 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
                     self.run_general_battle(config=con.general_battle_config)
                     break
 
-
         self.ui_click(self.I_UI_BACK_BLUE, self.I_CHECK_EXPLORATION)
         logger.info('Back to exploration')
         self.set_next_run(task='GoryouRealm', success=True, finish=True)
+        # 是否开启绘卷捐赠任务
+        if con.goryou_config.open_memory_scrolls:
+            self.set_next_run(task='MemoryScrolls', target=datetime.now())
         raise TaskEnd
-
 
     def check_date(self, goryou_class: GoryouClass = GoryouClass.RANDOM) -> GoryouClass:
         day_of_week = self.start_time.weekday()
@@ -127,9 +109,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
             logger.info(f'OAS will run {match_class[day_of_week].name} instead')
             goryou_class = match_class[day_of_week]
 
-
         return goryou_class
-
 
 
 if __name__ == '__main__':

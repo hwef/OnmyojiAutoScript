@@ -24,12 +24,22 @@ class DokanAssets:
 	# 准备战斗 
 	C_DOKAN_READY_FOR_BATTLE = RuleClick(roi_front=(42,94,1207,543), roi_back=(42,94,1207,543), name="dokan_ready_for_battle")
 	# 道馆从左开始第五个绿标 
-	C_DOKAN_GREEN_LEFT_5 = RuleClick(roi_front=(993,474,67,104), roi_back=(993,474,67,104), name="dokan_green_left_5")
+	C_DOKAN_GREEN_LEFT_5 = RuleClick(roi_front=(1006,482,38,96), roi_back=(1006,482,38,96), name="dokan_green_left_5")
+	# 查找道馆时 点击此区域 隐藏道馆详情(显示防守人数,馆主等级等的卡片) 
+	C_DOKAN_CANCEL_SELECT_DOKAN = RuleClick(roi_front=(1070,610,30,90), roi_back=(1070,610,30,90), name="dokan_cancel_select_dokan")
+	# ruleanimate 用作检测选择道馆时,确定地图区域稳定无动作 
+	C_DOKAN_CANCEL_SELECT_DOKAN_CHECK_ANIMATE = RuleClick(roi_front=(600,330,80,60), roi_back=(600,330,80,60), name="dokan_cancel_select_dokan_check_animate")
+	# 查找道馆时 刷新道馆列表 
+	C_DOKAN_REFRESH = RuleClick(roi_front=(1140,630,40,30), roi_back=(1140,630,40,30), name="dokan_refresh")
+	# 道馆战斗时,左上角 退出按钮区域 
+	C_DOKAN_BATTLE_QUIT_AREA = RuleClick(roi_front=(10,36,50,14), roi_back=(10,36,50,14), name="dokan_battle_quit_area")
 
 
 	# Image Rule Assets
 	# 区域找绿标 
-	I_GREEN_MARK = RuleImage(roi_front=(157,220,979,229,), roi_back=(157,220,979,229,), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/green_mark.png")
+	I_GREEN_MARK = RuleImage(roi_front=(157,220,979,229), roi_back=(157,220,979,229), threshold=0.6, method="Template matching", file="./tasks/Dokan/res/green_mark.png")
+	# 区域找绿标 
+	I_GREEN_MARK_1 = RuleImage(roi_front=(157,220,979,229), roi_back=(157,220,979,229), threshold=0.6, method="Template matching", file="./tasks/Dokan/res/green_mark_1.png")
 	# 道馆 
 	I_DAOGUAN = RuleImage(roi_front=(462,159,100,100), roi_back=(462,159,100,100), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/Screenshots_daoguan.png")
 	# 寮称号 
@@ -112,6 +122,30 @@ class DokanAssets:
 	I_RYOU_DOKAN_CHEERING_ATTACKING_SAMA = RuleImage(roi_front=(948,182,56,295), roi_back=(948,182,56,295), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_cheering_attacking_sama.png")
 	# 场景检测：阴阳竂 
 	I_SCENE_RYOU = RuleImage(roi_front=(1161,674,75,31), roi_back=(1161,674,75,31), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/scene_ryou.png")
+	# 查找道馆时,中间防守人数字样,为了定位该图下方的 防守人数数字 
+	I_CENTER_POINT_PEOPLE_NUMBER = RuleImage(roi_front=(0,0,1280,720), roi_back=(0,0,1280,720), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_center_point_people_number.png")
+	# 查找道馆时,右侧道馆赏金图标,为了定位该图右侧的 赏金金额 
+	I_RIGHTPAD_POINT_BOUNTY = RuleImage(roi_front=(1050,0,230,0), roi_back=(1050,0,230,50), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_rightpad_point_bounty.png")
+	# 查找道馆时,中间信息卡片 馆主等级-修习 
+	I_CENTER_GUANZHU_XIUXI = RuleImage(roi_front=(0,0,1280,720), roi_back=(0,0,1280,720), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_center_guanzhu_xiuxi.png")
+	# 查找道馆时,确认刷新道馆列表按钮 
+	I_REFRESH_ENSURE = RuleImage(roi_front=(0,0,1280,720), roi_back=(0,0,1280,720), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_refresh_ensure.png")
+	# 寮境中上部的标志 
+	I_RYOU_DOKAN_CENTER_TOP = RuleImage(roi_front=(500,20,300,70), roi_back=(500,20,300,70), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_center_top.png")
+	# 左上角退出按钮- 
+	I_RYOU_DOKAN_DOKAN_QUIT = RuleImage(roi_front=(0,2,80,80), roi_back=(0,2,80,80), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_dokan_quit.png")
+	# 道馆攻破后夺得资金界面 
+	I_RYOU_DOKAN_SPOILS_OF_DOKAN = RuleImage(roi_front=(480,400,400,100), roi_back=(480,400,400,100), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_spoils_of_dokan.png")
+	# 今日可挑战次数:2次 
+	I_RYOU_DOKAN_REMAIN_ATTACK_COUNT_TWO = RuleImage(roi_front=(650,610,110,80), roi_back=(650,610,110,80), threshold=0.9, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_remain_attack_count_two.png")
+	# 查找道馆时,挑战按钮 
+	I_CENTER_CHALLENGE = RuleImage(roi_front=(0,0,1280,720), roi_back=(0,0,1280,720), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_center_challenge.png")
+	# 查找道馆时,确认挑战按钮 
+	I_CHALLENGE_ENSURE = RuleImage(roi_front=(0,0,1280,720), roi_back=(0,0,1280,720), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_challenge_ensure.png")
+	# 正在查找道馆,还未选择 
+	I_RYOU_DOKAN_FINDING_DOKAN = RuleImage(roi_front=(980,60,100,160), roi_back=(980,60,100,160), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_finding_dokan.png")
+	# 已选择道馆 
+	I_RYOU_DOKAN_FOUND_DOKAN = RuleImage(roi_front=(440,580,360,140), roi_back=(440,580,360,140), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_found_dokan.png")
 
 
 	# List Rule Assets
@@ -141,5 +175,14 @@ class DokanAssets:
 	O_DOKAN_BOSS_WAITING = RuleOcr(roi=(603,148,130,32), area=(603,148,130,32), mode="Single", method="Default", keyword="馆主", name="dokan_boss_waiting")
 	# 道馆里找文字：后关闭 
 	O_DOKAN_SUCCEEDED = RuleOcr(roi=(655,76,49,28), area=(655,76,49,28), mode="Full", method="Default", keyword="关闭", name="dokan_succeeded")
+	# 查找道馆时,右侧边栏中的赏金 
+	O_DOKAN_RIGHTPAD_BOUNTY = RuleOcr(roi=(0,0,0,0), area=(0,0,0,0), mode="Single", method="Default", keyword="", name="dokan_rightpad_bounty")
+	# 查找道馆时,中间卡片上防守人数 
+	O_DOKAN_CENTER_PEOPLE_NUMBER = RuleOcr(roi=(0,0,0,0), area=(0,0,0,0), mode="Full", method="Default", keyword="", name="dokan_center_people_number")
+
+
+	# Swipe Rule Assets
+	# 道馆选择界面 右侧侧边栏 手指向上滑动 
+	S_DOKAN_LIST_UP = RuleSwipe(roi_front=(1100,420,30,21), roi_back=(1240,240,30,21), mode="default", name="dokan_list_up")
 
 

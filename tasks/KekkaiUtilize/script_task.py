@@ -24,7 +24,7 @@ from tasks.GameUi.page import page_main, page_guild
 
 class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     last_best_index = 99
-    utilize_erroe_num = 0
+    utilize_add_count = 0
     ap_max_num = 0
     jade_max_num = 0
     first_utilize = True
@@ -63,10 +63,10 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     def check_utilize_add(self):
         con = self.config.kekkai_utilize.utilize_config
         while 1:
-            self.utilize_erroe_num += 1
-            if self.utilize_erroe_num >= 5:
+            self.utilize_add_count += 1
+            if self.utilize_add_count >= 5:
                 logger.warning('没有合适可以蹭的卡, 5分钟后再次执行蹭卡')
-                self.push_notify(title=self.config.task.command, content=f"没有合适可以蹭的卡, 5分钟后再次执行蹭卡")
+                self.push_notify(content=f"没有合适可以蹭的卡, 5分钟后再次执行蹭卡")
                 self.set_next_run(task='KekkaiUtilize', target=datetime.now() + timedelta(minutes=5))
                 return
 
@@ -430,10 +430,12 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         # 调用结界卡选择逻辑，根据返回值判断是否继续后续流程
         if not self._select_optimal_resource_card():
             return False
-
+        
+        # 找到卡,重置次数
+        self.utilize_add_count = 0
         logger.info('开始执行进入结界蹭卡流程')
-        # 进入结界
         self.screenshot()
+        # 进入结界
         if not self.appear(self.I_U_ENTER_REALM):
             logger.warning('Cannot find enter realm button')
             # 可能是滑动的时候出错
@@ -446,8 +448,16 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             if self.appear(self.I_U_ADD_1) or self.appear(self.I_U_ADD_2):
                 logger.info('Appear enter friend realm button')
                 break
+            if self.appear(self.I_CHECK_FRIEND_REALM_1):
+                self.wait_until_stable(self.I_CHECK_FRIEND_REALM_1)
+                logger.info('Appear enter friend realm button')
+                break
+            if self.appear(self.I_CHECK_FRIEND_REALM_3):
+                self.wait_until_stable(self.I_CHECK_FRIEND_REALM_3)
+                logger.info('Appear enter friend realm button')
+                break
             if wait_timer.reached():
-                self.save_image(wait_time=0, push_flag=True, content='进入好友结界超时',image_type='png')
+                self.save_image(wait_time=0, push_flag=False, content='进入好友结界超时',image_type='png')
                 logger.warning('Appear friend realm timeout')
                 return
             if self.appear_then_click(self.I_CHECK_FRIEND_REALM_2, interval=1.5):
@@ -469,7 +479,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             stop_image = self.I_U_ADD_2
         if not stop_image:
             # 没有坑位可能是其他人的手速太快了抢占了
-            self.save_image(content='没有坑位了', wait_time=0, push_flag=True, image_type='png')
+            self.save_image(content='没有坑位了', wait_time=0, push_flag=False, image_type='png')
             logger.warning('没有坑位可能是其他人的手速太快了抢占了')
             return True
         # 切换式神的类型
@@ -503,8 +513,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             if self.ap_max_num == 0 and self.jade_max_num == 0:
                 logger.hr('第一阶段：初始记录获取', 2)
                 if self._current_select_best():
-                    message = f'✅ 发现完美结界卡直接选择'
-                    logger.info(message)
+                    logger.info(f'✅ 完美结界卡确认成功，重置状态')
+                    self.ap_max_num, self.jade_max_num = 0, 0
                     return True
                 logger.info(f'📝 记录最佳值 | 斗鱼:{self.ap_max_num} 太鼓:{self.jade_max_num}')
                 return False
@@ -527,8 +537,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             # 第三阶段：执行选卡操作
             logger.hr('第三阶段：执行选卡操作', 2)
             if self._current_select_best(res_type, target, selected_card=True):
-                message = f'🎉 成功选择: {res_type}'
-                logger.info(message)
+                logger.info(f'✅ {res_type}卡确认成功，重置状态')
+                self.ap_max_num, self.jade_max_num = 0, 0
                 return True
             else:
                 logger.warning(f'❌ {res_type}卡确认失败，重置状态')
@@ -548,7 +558,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         """
         # ============== 配置常量 ==============#
         RESOURCE_CONFIG = {
-            '斗鱼': {'max': 151, 'record_attr': 'ap_max_num'},
+            '斗鱼': {'max': 143, 'record_attr': 'ap_max_num'},
             '太鼓': {'max': 76, 'record_attr': 'jade_max_num'}
         }
         MAX_SWIPES = 20  # 最大滑动次数
@@ -574,10 +584,10 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             # 处理无卡情况
             if not cards:
                 miss_count += 1
-                logger.info(f'第[{swipe_count}]次滑动未发现所需卡' if swipe_count > 0 else '初始界面未发现所需卡')
+                logger.info(f'第{swipe_count}次滑动 | 未检测到结界卡' if swipe_count > 0 else '初始界面 | 未检测到结界卡')
                 # 连续无卡超过阈值则终止
                 if miss_count > CONSEC_MISS:
-                    logger.warning(f'⚠️ 连续[{miss_count}]次未发现所需卡, 终止流程')
+                    logger.warning(f'⚠️ 连续{miss_count}次 | 未检测到结界卡, 终止流程')
                     return None
                 # 执行滑动操作
                 self.perform_swipe_action()
@@ -587,7 +597,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
             # ------ 步骤2: 处理识别到的结界卡 ------
             cards_list = [target for target, _, _ in cards]
-            logger.info((f'第[{swipe_count}]次滑动' if swipe_count > 0 else '初始界面') + f' | 检测到结界卡：{cards_list}')
+            logger.info((f'第{swipe_count}次滑动' if swipe_count > 0 else '初始界面') + f' | 检测到结界卡：{cards_list}')
 
             # 遍历所有结界卡（已按位置排序）
             for _, _, area in cards:
@@ -619,14 +629,14 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                     # 检查是否符合选择条件
                     if (card_type == best_card_type) and (card_value >= best_card_num):
                         logger.info(f'🎉 确认蹭卡: {card_type} | 当前值: {card_value} ≥ 目标值: {best_card_num}')
-                        self.save_image(push_flag=True, wait_time=0, content=f'🎉 确认蹭卡（{card_type}: {card_value}）')
+                        self.save_image(push_flag=False, wait_time=0, content=f'🎉 确认蹭卡（{card_type}: {card_value}）')
                         return True
                 else:  # 探索记录模式
                     # 发现完美卡直接返回
                     if card_value >= current_max:
                         message = f'🎉 完美蹭卡 | {card_type}: {card_value}'
                         logger.info(message)
-                        self.save_image(push_flag=True, wait_time=0, content=message)
+                        self.save_image(push_flag=False, wait_time=0, content=message)
                         return True
 
             # ------ 步骤3: 滑动到下一屏 ------#
@@ -656,7 +666,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             card_type = '太鼓'
         else:
             logger.warning(f'结界卡类型识别失败，原始内容: {raw_text}')
-            # self.push_notify(title=self.config.task.command,content=f'结界卡类型识别失败: {raw_text}')
+            # self.push_notify(content=f'结界卡类型识别失败: {raw_text}')
             return 'unknown', 0  # 未知类型返回0
 
         # 提取纯数字部分（兼容带+号的情况，如+100）
@@ -670,10 +680,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             value = 0
 
         if value <= 0:
-            self.push_notify(
-                title=self.config.task.command,
-                content=f'数值异常: {raw_text} -> 解析值: {value}'
-            )
+            self.push_notify(content=f'数值异常: {raw_text} -> 解析值: {value}')
             return card_type, 0
 
         # logger.info(f'识别成功: 卡类型: {card_type}, 数值: {value}')

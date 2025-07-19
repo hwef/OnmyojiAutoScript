@@ -131,16 +131,16 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
                 ryou_toppa_start_flag = True
                 break
 
-        logger.attr('ryou_toppa_start_flag', ryou_toppa_start_flag)
-        logger.attr('ryou_toppa_success_penetration', ryou_toppa_success_penetration)
+        logger.attr('寮突破开启标志', ryou_toppa_start_flag)
+        logger.attr('寮突破完全攻破标志', ryou_toppa_success_penetration)
         # 寮突未开 并且有权限， 开开寮突，没有权限则标记失败
         if not ryou_toppa_start_flag:
             if ryou_config.raid_config.ryou_access and ryou_toppa_admin_flag:
                 # 作为寮管理，开启今天的寮突
-                logger.info("As the manager of the ryou, try to start ryou toppa.")
+                logger.info("作为寮管理，尝试开启寮突破。")
                 self.start_ryou_toppa()
             else:
-                logger.info("The ryou toppa is not open and you are a ryou member.")
+                logger.info("寮突破未开启且您是寮成员。")
                 self.set_next_run(task='RyouToppa', finish=True, server=True, success=False)
                 self.set_next_run_talismanpass()
 
@@ -149,10 +149,10 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
             self.set_next_run(task='RyouToppa', finish=True, success=True)
             self.set_next_run_talismanpass()
         if self.config.ryou_toppa.general_battle_config.lock_team_enable:
-            logger.info("Lock team.")
+            logger.info("锁定队伍。")
             self.ui_click(self.I_TOPPA_UNLOCK_TEAM, self.I_TOPPA_LOCK_TEAM)
         else:
-            logger.info("Unlock team.")
+            logger.info("解锁队伍。")
             self.ui_click(self.I_TOPPA_LOCK_TEAM, self.I_TOPPA_UNLOCK_TEAM)
         # --------------------------------------------------------------------------------------------------------------
         # 开始突破
@@ -160,22 +160,23 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
         success = True
         while 1:
             if not self.has_ticket():
-                logger.info("We have no chance to attack. Try again after 1 hour.")
+                logger.info("我们没有进攻机会了，请一小时后再试。")
                 success = False
                 break
             if self.current_count >= ryou_config.raid_config.limit_count:
-                logger.warning("We have attacked the limit count.")
+                logger.warning("已达进攻次数上限。")
                 break
             if datetime.now() >= self.start_time + time_delta:
-                logger.warning("We have attacked the limit time.")
+                logger.warning("已达进攻时间上限。")
                 break
             # 进攻
             res = self.attack_area(self.area_index)
             # 如果战斗失败或区域不可用，则弹出当前区域索引，开始进攻下一个
             if not res:
                 self.area_index += 1
+                # logger.info("切换进攻区域 [%s]" % str(self.area_index + 1))
                 if self.area_index >= len(area_map):
-                    logger.warning('All areas are not available, it will flush the area cache')
+                    logger.warning('所有区域均不可用，将刷新区域缓存')
                     self.area_index = 0
                     self.flush_area_cache()
                 continue
@@ -189,7 +190,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
             self.set_next_run(task='RyouToppa', finish=True, server=True, success=True)
         else:
             self.set_next_run(task='RyouToppa', finish=True, server=True, success=False)
-        
+
         self.set_next_run_talismanpass()
 
     # 执行花合战
@@ -207,14 +208,12 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
             self.screenshot()
             if self.appear_then_click(self.I_SELECT_RYOU_BUTTON, interval=1):
                 break
-        logger.info(f'Click {self.I_SELECT_RYOU_BUTTON.name}')
 
         # 选择第一个寮
         while 1:
             self.screenshot()
             if self.appear_then_click(self.I_GUILD_ORDERS_REWARDS, action=self.C_SELECT_FIRST_RYOU, interval=1):
                 break
-        logger.info(f'Click {self.C_SELECT_FIRST_RYOU.name}')
 
         # 点击开始突入
         while 1:
@@ -224,7 +223,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
             # 出现寮奖励， 说明寮突已开
             if self.appear(self.I_RYOU_REWARD, threshold=0.8):
                 break
-        logger.info(f'Click {self.I_START_TOPPA_BUTTON.name}')
 
     def has_ticket(self) -> bool:
         """
@@ -247,18 +245,22 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
         检查该区域是否攻略失败
         :return:
         """
+        # logger.info('检查区域 [%s] 攻略情况' % str(index + 1))
         f1, f2 = area_map[index].get("fail_sign")
         f3, f4 = area_map[index].get("finished_sign")
         self.screenshot()
         # 如果该区域已经被攻破则退出
         # Ps: 这时候能打过的都打过了，没有能攻打的结界了, 代表任务已经完成，set_next_run time=1d
         if self.appear(f3, threshold=0.7) or self.appear(f4, threshold=0.7):
+            logger.info('区域 [%s] 已经攻略, 结束任务.' % str(index + 1))
             self.set_next_run(task='RyouToppa', finish=True, success=True)
             self.set_next_run_talismanpass()
         # 如果该区域攻略失败返回 False
         if self.appear(f1, threshold=0.7) or self.appear(f2, threshold=0.7):
-            logger.info('Area [%s] is futile attack, skip.' % str(index + 1))
+            logger.info('区域 [%s] 攻略失败, 跳过.' % str(index + 1))
             return False
+        # self.save_image(wait_time=0, image_type=True)
+        # logger.info('区域 [%s], 开始进攻.' % str(index + 1))
         return True
 
     def flush_area_cache(self):
@@ -286,33 +288,45 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
             return False
 
         # 正式进攻会设定 2s - 10s 的随机延迟，避免攻击间隔及其相近被检测为脚本。
-        if self.config.ryou_toppa.raid_config.random_delay:
-            delay = random_delay()
-            time.sleep(delay)
+        # if self.config.ryou_toppa.raid_config.random_delay:
+        #     delay = random_delay()
+        #     time.sleep(delay)
 
         rcl = area_map[index].get("rule_click")
         # # 点击攻击区域，等待攻击按钮出现。
         # self.ui_click(rcl, stop=RealmRaidAssets.I_FIRE, interval=2)
         # 塔塔开！
         click_failure_count = 0
+        click_rcl_count = 0
         while True:
             self.screenshot()
-            if click_failure_count >= 2:
-                logger.warning("Click failure, check your click position")
+            if click_failure_count >= 2 and self.appear(self.I_TOPPA_RECORD):
+                logger.warning("点击失败，请检查点击位置")
                 return False
             if not self.appear(self.I_TOPPA_RECORD, threshold=0.85):
                 time.sleep(1)
                 self.screenshot()
                 if self.appear(self.I_TOPPA_RECORD, threshold=0.85):
                     continue
-                logger.info("Start attach area [%s]" % str(index + 1))
+                logger.info("开始进攻区域 [%s]" % str(index + 1))
+                self.run_general_battle(config=self.config.ryou_toppa.general_battle_config)
+                if not self.wait_until_appear(self.I_TOPPA_RECORD, wait_time=5):
+                    self.screenshot()
+                    self.push_notify(content='长时间未识别到寮突破界面')
+                    return True
+
+                # 战斗结束进攻区域重置为0
                 self.area_index = 0
-                return self.run_general_battle(config=self.config.ryou_toppa.general_battle_config)
+                return True
 
             if self.appear_then_click(RealmRaidAssets.I_FIRE, interval=2, threshold=0.8):
                 click_failure_count += 1
                 continue
             if self.click(rcl, interval=5):
+                click_rcl_count += 1
+                if click_rcl_count >= 3:
+                    logger.info("区域多次点击未成功，应该已击败")
+                    return True
                 continue
 
 

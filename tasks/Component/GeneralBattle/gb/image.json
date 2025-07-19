@@ -214,5 +214,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "封魔的金币"
+  },
+  {
+    "itemName": "soul_full_ensure",
+    "imageName": "gb_exit_ensure.png",
+    "roiFront": "573,388,35,63",
+    "roiBack": "573,388,35,63",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "御魂溢出确认"
   }
 ]

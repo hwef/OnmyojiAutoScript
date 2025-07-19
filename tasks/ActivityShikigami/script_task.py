@@ -106,7 +106,7 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
 
             # 随机休息
             if config.general_climb.random_sleep:
-                random_sleep()
+                random_sleep(probability=0.2)
             # 点击战斗
             logger.info("Click battle")
             while 1:
@@ -128,9 +128,10 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
                 logger.info("General battle success")
 
         self.main_home()
-        self.open_buff()
-        self.soul(is_open=False)
-        self.close_buff()
+        # 某些活动需要开启御魂加成
+        # self.open_buff()
+        # self.soul(is_open=False)
+        # self.close_buff()
         if config.general_climb.active_souls_clean:
             self.set_next_run(task='SoulsTidy', success=False, finish=False, target=datetime.now())
         self.set_next_run(task="ActivityShikigami", success=True)
@@ -149,9 +150,11 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
                 break
             if self.appear_then_click(self.I_SHI, interval=1):
                 continue
-            if self.ocr_appear_click(self.O_ENTRY_ACTIVITY, interval=1):
-                continue
+            # if self.ocr_appear_click(self.O_ENTRY_ACTIVITY, interval=1):
+            #     continue
             if self.appear_then_click(self.I_BATTLE, interval=1):
+                continue
+            if self.appear_then_click(self.I_BATTLE_1, interval=1):
                 continue
 
     def main_home(self) -> bool:
@@ -180,7 +183,7 @@ class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
         """
         self.screenshot()
         if current_ap == ApMode.AP_ACTIVITY:
-            res: int = self.O_REMAIN_AP_ACTIVITY2.ocr_digit(self.device.image)
+            res = self.O_REMAIN_AP_ACTIVITY2.ocr(self.device.image)
             if res <= 0:
                 logger.warning(f'Activity ap {res} not enough')
                 return False
@@ -275,7 +278,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('mi')
     d = Device(c)
     t = ScriptTask(c, d)
 

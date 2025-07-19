@@ -47,7 +47,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, GameUi, MetaDemonAssets):
             self.screenshot()
             sleep(0.1)
             if boss_timer.reached():
-                self.push_notify(title='超鬼王', message='识别超时退出')
+                self.push_notify('识别超时退出')
                 break
             if self.appear(self.I_BACK_CHECK):
                 self.click(self.I_RED_BACK, interval=1.5)

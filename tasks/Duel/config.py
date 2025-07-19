@@ -8,18 +8,23 @@ from tasks.Component.config_scheduler import Scheduler
 from tasks.Component.config_base import ConfigBase, Time
 from tasks.Component.GeneralBattle.config_general_battle import GreenMarkType
 from enum import Enum
+from tasks.Component.SwitchSoul.switch_soul_config import SwitchSoulConfig
 
 
 class Onmyoji(str, Enum):
-    Kagura = '神乐'
-    Yorimitsu = '源赖光'
+    Ylg = '源赖光'
+    Qm = '晴明'
+    Sl = '神乐'
+    Yby = '源博雅'
+    Bbbqn = '八百比丘尼'
+
 
 
 class DuelConfig(ConfigBase):
     # 是否切换阴阳师
     switch_enabled: bool = Field(default=True, description='是否切换阴阳师')
     # 切换阴阳师
-    switch_onmyoji: Onmyoji = Field(default=Onmyoji.Kagura, description='切换阴阳师')
+    switch_onmyoji: Onmyoji = Field(default=Onmyoji.Ylg, description='切换阴阳师')
     # 一键切换斗技御魂
     switch_all_soul: bool = Field(default=False, description='switch_all_soul_help')
     # 限制时间
@@ -37,3 +42,5 @@ class DuelConfig(ConfigBase):
 class Duel(ConfigBase):
     scheduler: Scheduler = Field(default_factory=Scheduler)
     duel_config: DuelConfig = Field(default_factory=DuelConfig)
+    switch_soul: SwitchSoulConfig = Field(default_factory=SwitchSoulConfig)
+

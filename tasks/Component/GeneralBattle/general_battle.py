@@ -243,8 +243,11 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
             if self.appear_then_click(self.I_REWARD, threshold=0.6, action=action_click, interval=1.5) or \
                     self.appear_then_click(self.I_REWARD_GOLD, threshold=0.8, action=action_click, interval=1.5):
                 continue
-            # if self.appear_then_click(self.I_GREED_GHOST, interval=1.5):
-            #     continue
+            if self.appear(self.I_SOUL_FULL_ENSURE):
+                self.push_notify("御魂溢出")
+                self.appear_then_click(self.I_SOUL_FULL_ENSURE)
+                self.set_next_run(task='SoulsTidy', target=datetime.now())
+                continue
             if not self.appear(self.I_REWARD) and not self.appear(self.I_REWARD_GOLD) and not self.appear(self.I_GREED_GHOST):
                 break
 
@@ -438,6 +441,16 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
             self.wait_until_disappear(self.I_BUFF)
             self.green_mark(config.green_enable, config.green_mark)
 
+        # 本人选择的策略是只要进来了就算一次，不管是不是打完了
+        logger.hr("Check take over battle", 2)
+        self.current_count += 1
+        logger.info(f'Current tasks: {I18n.trans_zh_cn(self.config.task.command)}')
+        logger.info(f'Current count: {self.current_count} / {self.limit_count}')
+
+        task_run_time = datetime.now() - self.start_time
+        # 格式化时间，只保留整数部分的秒
+        task_run_time_seconds = timedelta(seconds=int(task_run_time.total_seconds()))
+        logger.info(f'Current times: {task_run_time_seconds} / {self.limit_time}')
         return self.battle_wait(config.random_click_swipt_enable)
 
     def check_lock(self, enable: bool, lock_image, unlock_image):
