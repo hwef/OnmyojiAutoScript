@@ -52,13 +52,14 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
                 cu, res, total = self.O_MS_COUNT_S.ocr(self.device.image)
                 message = f'已获得小绘卷，进度{cu}/{total}'
                 self.push_notify(content=message)
+                if self.appear(self.I_MS_FRAGMENT_S_50) or (cu == total == 50):
+                    time = self.config.memory_scrolls.memory_scrolls_finish.next_exploration_time
+                    self.push_notify(f'今日探索任务结束，设置明天{time}点执行')
+                    # 安排下次探索
+                    self.custom_next_run(task='Exploration', custom_time=time, time_delta=1)
                 break
             if self.appear_then_click(self.I_MS_FRAGMENT_S, interval=1.5):
                 continue
-        if self.appear(self.I_MS_FRAGMENT_S_50):
-            logger.info('小碎片数量达到50，今日探索任务结束，设置明天执行。')
-            # 安排下次探索
-            self.custom_next_run(task='Exploration', custom_time=self.config.memory_scrolls.memory_scrolls_finish.next_exploration_time, time_delta=1)
         self.ui_click_until_smt_disappear(self.I_MS_MAIN, stop=self.I_MS_FRAGMENT_S_VERIFICATION, interval=1.5)
 
     def goto_scroll(self, con):
