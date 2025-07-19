@@ -172,7 +172,10 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
             if self.appear(self.I_FALSE, threshold=0.8):
                 logger.info("Battle result is false")
                 win = False
-                break
+                self.push_notify(content="战斗失败")
+                self.set_next_run(task="HeroTest", success=True)
+                raise TaskEnd
+                # break
 
             # 如果领奖励
             if self.appear(self.I_REWARD, threshold=0.6):

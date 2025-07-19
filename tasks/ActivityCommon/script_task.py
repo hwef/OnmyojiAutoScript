@@ -70,7 +70,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
         image_templates = self._load_image_template()
 
         click_count = 0
-        click_count_max = 5
+        click_count_max = 8
         last_clicked_file = None  # 记录上一次点击的文件名
         over_task = False
         while 1:
