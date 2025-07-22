@@ -388,33 +388,11 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 # 判断有无坐标的偏移
                 # self.appear_then_click(self.I_LOCAL)
 
-
-    def dokan_wait_until_appear(self,
-                                target,
-                                target2,
-                                skip_first_screenshot=False,
-                                wait_time: int = None) -> bool:
-        """
-        等待直到出现目标
-        :param wait_time: 等待时间，单位秒
-        :param target:
-        :param target2:
-        :param skip_first_screenshot:
-        :return:
-
-        Parameters
-        ----------
-        target2
-        """
-        wait_timer = None
-        if wait_time:
-            wait_timer = Timer(wait_time)
-            wait_timer.start()
+    def dokan_wait_until_appear(self, target, target2, wait_time) -> bool:
+        wait_timer = Timer(wait_time)
+        wait_timer.start()
         while 1:
-            if skip_first_screenshot:
-                skip_first_screenshot = False
-            else:
-                self.screenshot()
+            self.screenshot()
             if wait_timer and wait_timer.reached():
                 logger.warning(f"Wait until appear {target.name} timeout")
                 return False
