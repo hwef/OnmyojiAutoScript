@@ -27,6 +27,7 @@ from module.config.utils import convert_to_underscore
 from module.device.device import Device
 from module.exception import *
 from module.logger import logger, error_path, get_filename
+from module.device.platform2.platform_windows import minimize_by_name,show_window_by_name
 
 
 class Script:
@@ -493,6 +494,16 @@ class Script:
                 exit(1)
     
     def start_loop(self):
+
+        # Update GUI 防呆, 读取设置并立刻显示后台模拟器到前台
+        if not self.config.script.device.run_background_only:
+            target_window_name = self.config.script.device.handle  # 在这里输入你的具体窗口名称
+            if self.config.script.device.emulator_window_minimize:
+                minimize_by_name(target_window_name)
+                logger.info(f'重新显示: {target_window_name}')
+            else:
+                show_window_by_name(target_window_name)
+
         """
         循环启动控制器
         """
@@ -526,7 +537,7 @@ class Script:
 
 
 if __name__ == "__main__":
-    script = Script("oa")
+    script = Script("du")
     script.start_loop()
     # while 1:
     # script = Script("oas3")

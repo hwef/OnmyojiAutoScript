@@ -13,6 +13,7 @@ class PackageName(str, Enum):
     NETEASE_MI = 'com.netease.onmyoji.mi'  # 小米
     NETEASE = 'com.netease.onmyoji'
     NETEASE_HUAWEI = 'com.netease.onmyoji.huawei'
+    NETEASE_BILIBILI = 'com.netease.onmyoji.bili'
 
 class ScreenshotMethod(str, Enum):
     AUTO = 'auto'
@@ -71,7 +72,10 @@ class Device(BaseModel):
     # 举例, E:\ProgramFiles\MuMuPlayer-12.0\shell\MuMuPlayer.exe
     # 模拟器启动后最小化
     emulator_window_minimize: bool = Field(default=False,
-                                           description='emulator_window_minimize_help')
+                                             description='emulator_window_minimize_help')
+    # 启动时纯后台运行模拟器，不显示窗口和任务栏
+    run_background_only: bool = Field(default=False,
+                                             description='run_background_only_help')
 
 
 if __name__ == '__main__':
