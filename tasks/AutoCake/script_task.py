@@ -75,26 +75,6 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle,  AutoCakeAssets, ActivityShi
                     continue
                 if self.appear(self.I_LOCK):
                     break
-        # 开启樱饼
-        while 1:
-            self.screenshot()
-            # 检测门票数量
-            if self.appear(self.I_IS_REACH, interval=10):
-                res, score = self.O_REMAIN_AP_ACTIVITY2.ocr(self.device.image, return_score=True)
-                if score > 0.6:
-                    if res <= 0:
-                        logger.warning(f'门票数量：{res}, 任务结束')
-                        return
-                else:
-                    logger.info(f'置信度过低：{score}')
-                    self.save_image(content=f'置信度过低：{score}', push_flag=True, image_type=True, wait_time=0)
-
-            if self.appear_rgb(self.I_IS_CLOSE):
-                logger.info('开启樱饼')
-                self.click(self.C_CAKE_AREA, interval=1)
-            else:
-                self.device.stuck_record_add('BATTLE_STATUS_S')
-                break
 
         # 任务开启
         swipe_timer = Timer(270)
@@ -112,6 +92,10 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle,  AutoCakeAssets, ActivityShi
                 break
             # 检测门票数量
             if self.appear(self.I_IS_REACH, interval=10):
+                if self.appear_rgb(self.I_IS_CLOSE):
+                    logger.info('开启樱饼')
+                    self.appear_then_click(self.I_IS_CLOSE, interval=1)
+                    self.device.stuck_record_add('BATTLE_STATUS_S')
                 res, score = self.O_REMAIN_AP_ACTIVITY2.ocr(self.device.image, return_score=True)
                 if score > 0.6:
                     if res <= 0:
