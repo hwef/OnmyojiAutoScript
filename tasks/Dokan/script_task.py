@@ -345,9 +345,12 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         :return:
         """
         if enable:
-            if self.appear(self.I_GREEN_MARK) or self.appear(self.I_GREEN_MARK_1):
+            if self.dokan_wait_until_appear(self.I_GREEN_MARK, self.I_GREEN_MARK_1, wait_time=1):
                 # logger.info("识别到绿标，返回")
                 return
+            else:
+                logger.info("第一步识别绿标失败")
+                # self.save_image(task_name="Dokan_greenmark_false_first", content="第一步识别绿标失败", push_flag=True, wait_time=0, image_type=True)
             # logger.info("Green is enable")
             x, y = None, None
             # logger.info(f"Green {mark_mode}")
@@ -373,11 +376,12 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 # 点击坐标
                 self.device.click(x, y)
                 if self.dokan_wait_until_appear(self.I_GREEN_MARK, self.I_GREEN_MARK_1, wait_time=1):
-                    # logger.info("识别到绿标,返回")
-                    self.save_image(task_name="Dokan_greenmark_ok", content="点击绿标成功", push_flag=True, wait_time=0, image_type=True)
+                    logger.info("识别到绿标,返回")
+                    # self.save_image(task_name="Dokan_greenmark_ok", content="点击绿标成功", push_flag=True, wait_time=0, image_type=True)
                     break
                 else:
-                    self.save_image(task_name="Dokan_greenmark_false", content="识别绿标超时", push_flag=True, wait_time=0, image_type=True)
+                    logger.info("识别到绿标失败")
+                    # self.save_image(task_name="Dokan_greenmark_false", content="识别绿标超时", push_flag=True, wait_time=0, image_type=True)
                 if mark_timer.reached():
                     # logger.warning("识别绿标超时,返回")
                     break
