@@ -13,7 +13,7 @@ from module.device.handle import Handle
 from module.device.platform2.platform_base import PlatformBase
 from module.device.platform2.emulator_windows import Emulator, EmulatorInstance, EmulatorManager
 from module.logger import logger
-
+from tasks.Script.config_device import EmulatorWindow
 import ctypes
 from ctypes import wintypes
 
@@ -30,7 +30,7 @@ def minimize_by_name(window_name, convert_hidden=True):
         convert_hidden (bool): 是否将隐藏窗口改为最小化
     """
 
-    def callback(hwnd):
+    def callback(hwnd, lParam):
         title = get_window_title(hwnd)
 
         if window_name.lower() == title.lower():
@@ -40,7 +40,7 @@ def minimize_by_name(window_name, convert_hidden=True):
             is_visible = ctypes.windll.user32.IsWindowVisible(hwnd)
             if is_visible:
                 # 可见窗口 → 最小化
-                minimize_window(hwnd)
+                ctypes.windll.user32.ShowWindow(hwnd, 6)
                 logger.info(f'最小化可见窗口: {title}')
             elif convert_hidden:
                 # 隐藏窗口 → 改为最小化不激活
@@ -179,7 +179,8 @@ class PlatformWindows(PlatformBase, EmulatorManager):
         """
         Start a emulator without error handling
         """
-        show_window = not self.config.script.device.emulator_window_minimize and not self.config.script.device.run_background_only
+        # show_window = not self.config.script.device.emulator_window_minimize and not self.config.script.device.run_background_only
+        show_window = False
         exe: str = instance.emulator.path
         if instance == Emulator.MuMuPlayer:
             # NemuPlayer.exe
@@ -355,12 +356,12 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             # Check emulator window showing up
             # logger.info([get_focused_window(), get_window_title(get_focused_window())])
             if current_window != 0 and new_window == 0:
-                new_window = get_focused_window()
-                if current_window != new_window and not self.config.script.device.emulator_window_minimize and not self.config.script.device.run_background_only:
-                    logger.info(f'New window showing up: {new_window}, focus back')
-                    set_focus_window(current_window)
-                else:
-                    new_window = 0
+                # new_window = get_focused_window()
+                # if current_window != new_window and not self.config.script.device.emulator_window_minimize and not self.config.script.device.run_background_only:
+                #     logger.info(f'New window showing up: {new_window}, focus back')
+                #     set_focus_window(current_window)
+                # else:
+                new_window = 0
 
             # Check device connection
             devices = self.list_device().select(serial=serial)
@@ -409,23 +410,16 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             # All check passed
             break
 
-        emulator_window_minimize = self.config.script.device.emulator_window_minimize
-        if emulator_window_minimize:
-            logger.info(f'Minimize new emulator window: {emulator_window_minimize}')
-        if self.config.script.device.run_background_only:
-            logger.info(f'run background only: {self.config.script.device.run_background_only}')
-            logger.warning('run_background_only will not show any UI, emulator will run background only')
-        if emulator_window_minimize and not self.config.script.device.run_background_only:
-            # 直接使用窗口名称最小化
-            sleep_time = 3
-            logger.info(f'Waiting {sleep_time} seconds before minimizing window')
-            Timer(sleep_time).wait()
-            target_window_name = self.config.script.device.handle  # 在这里输入你的具体窗口名称
+        emulator_window = self.config.script.device.emulator_window
+        target_window_name = self.config.script.device.handle
+        if emulator_window == EmulatorWindow.front:
+            show_window_by_name(target_window_name)
+            logger.info(f'前台显示窗口: {target_window_name}')
+        elif emulator_window == EmulatorWindow.min:
             minimize_by_name(target_window_name)
             logger.info(f'最小化窗口: {target_window_name}')
-            # if current_window:
-            #     logger.info(f'De-flash current window: {current_window}')
-            #     flash_window(current_window, flash=False)
+        else:
+            logger.info(f'后台显示窗口: {target_window_name}')
 
         logger.info('Emulator start completed')
         return True
