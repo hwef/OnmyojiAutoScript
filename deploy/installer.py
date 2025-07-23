@@ -22,4 +22,5 @@ class Installer(GitManager, PipManager, AdbManager, FluentuiManager, ProcessMana
 
 
 if __name__ == '__main__':
-    Installer().install()
+    pass
+    # Installer().install()

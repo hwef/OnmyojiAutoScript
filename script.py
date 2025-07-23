@@ -526,7 +526,7 @@ class Script:
 
 
 if __name__ == "__main__":
-    script = Script("oa")
+    script = Script("du")
     script.start_loop()
     # while 1:
     # script = Script("oas3")
