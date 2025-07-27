@@ -23,13 +23,13 @@ class WantedQuestsAssets:
 	# 悬赏封印 
 	O_WQ_WANTED = RuleOcr(roi=(9,145,123,381), area=(9,145,123,381), mode="Full", method="Default", keyword="", name="wq_wanted")
 	# Ocr-description 
-	O_WQ_TEXT_1 = RuleOcr(roi=(67,233,52,32), area=(67,233,52,32), mode="Full", method="Default", keyword="", name="wq_text_1")
+	O_WQ_TEXT_1 = RuleOcr(roi=(22,235,97,26), area=(22,235,97,26), mode="Full", method="Default", keyword="", name="wq_text_1")
 	# Ocr-description 
-	O_WQ_TEXT_2 = RuleOcr(roi=(66,377,52,32), area=(66,377,52,32), mode="Full", method="Default", keyword="", name="wq_text_2")
+	O_WQ_TEXT_2 = RuleOcr(roi=(22,378,96,28), area=(22,378,96,28), mode="Full", method="Default", keyword="", name="wq_text_2")
 	# Ocr-description 
-	O_WQ_NUM_1 = RuleOcr(roi=(30,260,75,27), area=(30,260,75,27), mode="DigitCounter", method="Default", keyword="", name="wq_num_1")
+	O_WQ_NUM_1 = RuleOcr(roi=(30,263,75,21), area=(30,263,75,21), mode="DigitCounter", method="Default", keyword="", name="wq_num_1")
 	# Ocr-description 
-	O_WQ_NUM_2 = RuleOcr(roi=(30,406,75,27), area=(30,406,75,27), mode="DigitCounter", method="Default", keyword="", name="wq_num_2")
+	O_WQ_NUM_2 = RuleOcr(roi=(30,406,75,24), area=(30,406,75,24), mode="DigitCounter", method="Default", keyword="", name="wq_num_2")
 	# 备用识别1 
 	O_WQ_NUM_UNKNOWN_1 = RuleOcr(roi=(32,260,72,27), area=(32,260,72,27), mode="Digit", method="Default", keyword="", name="wq_num_unknown_1")
 	# 备用识别2 

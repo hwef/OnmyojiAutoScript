@@ -18,6 +18,8 @@ from tasks.Secret.script_task import ScriptTask as SecretScriptTask
 from tasks.WantedQuests.assets import WantedQuestsAssets
 from tasks.WantedQuests.config import CooperationType, CooperationSelectMask
 from typing import List
+from module.ocr.models import OCR_MODEL
+
 
 """ 悬赏封印 """
 
@@ -27,6 +29,9 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
     play_count = 0
 
     def run(self):
+        # 使用ONNXOCR
+        # OCR_MODEL.switch_to_onnx()
+
         con = self.config.wanted_quests
         if con.switch_soul.enable:
             self.ui_get_current_page()
@@ -126,6 +131,8 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
                                                  time(hour=server_update_am.hour, minute=server_update_am.minute,
                                                       second=server_update_am.second))
         self.set_next_run(task='WantedQuests', target=next_run_datetime)
+        # 使用PPOCR
+        # OCR_MODEL.switch_to_ppocr()
 
     def pre_work(self):
         """
