@@ -1,5 +1,6 @@
 import ppocronnx.predict_system
-
+from module.logger import logger
+import numpy as np
 
 class TextSystem(ppocronnx.predict_system.TextSystem):
     def __init__(
@@ -11,6 +12,14 @@ class TextSystem(ppocronnx.predict_system.TextSystem):
             det_model_path=None,
             ort_providers=None
     ):
+        if not isinstance(use_angle_cls, bool):
+            raise ValueError("use_angle_cls参数必须为布尔值")
+        if not isinstance(box_thresh, float) or not 0 <= box_thresh <= 1:
+            raise ValueError("box_thresh参数必须为0到1之间的浮点数")
+        if not isinstance(unclip_ratio, (int, float)) or unclip_ratio <= 0:
+            raise ValueError("unclip_ratio参数必须为正数")
+            
+        logger.info(f"初始化PPOCR模型, 使用角度分类: {use_angle_cls}")
         super().__init__(
             use_angle_cls=use_angle_cls,
             box_thresh=box_thresh,
@@ -20,23 +29,20 @@ class TextSystem(ppocronnx.predict_system.TextSystem):
             ort_providers=ort_providers
         )
 
-    # def ocr_single_line(self, img):
-    #     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-    #     return super().ocr_single_line(img)
-    #
-    # def detect_and_ocr(self, img: np.ndarray,**kwargs):
-    #     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-    #     return super().detect_and_ocr(img, **kwargs)
-
 
 def sorted_boxes(dt_boxes):
     """
-    Sort text boxes in order from top to bottom, left to right
-    args:
-        dt_boxes(array):detected text boxes with shape [4, 2]
-    return:
-        sorted boxes(array) with shape [4, 2]
+    对文本框进行排序，从上到下，从左到右
+    参数:
+        dt_boxes(array): 检测到的文本框，形状为[4, 2]
+    返回:
+        排序后的文本框(array)，形状为[4, 2]
     """
+    if dt_boxes is None or dt_boxes.shape[0] == 0:
+        logger.warning("输入文本框为空")
+        return np.zeros((0, 4, 2), dtype=dt_boxes.dtype if dt_boxes is not None else np.float32)
+
+        
     num_boxes = dt_boxes.shape[0]
     sorted_boxes = sorted(dt_boxes, key=lambda x: (x[0][1], x[0][0]))
     _boxes = list(sorted_boxes)
@@ -52,5 +58,5 @@ def sorted_boxes(dt_boxes):
                 break
     return _boxes
 
-# sorted_boxes() from PaddleOCR 2.6, newer and better than the one in ppocr-onnx
+# 使用PaddleOCR 2.6中的sorted_boxes()替换ppocr-onnx中的实现
 ppocronnx.predict_system.sorted_boxes = sorted_boxes
