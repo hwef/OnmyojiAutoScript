@@ -350,7 +350,7 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             interval.wait()
             interval.reset()
             if timeout.reached():
-                logger.warning(f'Emulator start timeout')
+                logger.warning(f'模拟器启动超时')
                 return False
 
             # Check emulator window showing up

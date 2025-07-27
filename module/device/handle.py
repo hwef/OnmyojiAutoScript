@@ -203,11 +203,13 @@ class Handle:
         # 获取句柄树
         self.root_node = WindowNode(name=self.root_handle_title, num=self.root_handle_num)
         Handle.handle_tree(self.root_handle_num, self.root_node)
-        logger.info('Emulator handle structure:')
-        for pre, fill, node in RenderTree(self.root_node):
-            logger.info("%s%s" % (pre, node.name))
-        for pre, fill, node in RenderTree(self.root_node):
-            logger.info("%s%s" % (pre, node.num))
+        logger.info('模拟器句柄结构: ')
+        logger.info(f"根节点句柄的名称和编号: {self.root_node.name} ({self.root_node.num})")
+        logger.info(f"截图句柄的编号: {self.screenshot_handle_num}")
+        # for pre, fill, node in RenderTree(self.root_node):
+        #     logger.info("%s%s" % (pre, node.name))
+        # for pre, fill, node in RenderTree(self.root_node):
+        #     logger.info("%s%s" % (pre, node.num))
 
         # 判断是哪一个模拟器 通过句柄树结构
         logger.info(f'Emulator family: {self.emulator_family}')
