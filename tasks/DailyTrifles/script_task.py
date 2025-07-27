@@ -214,8 +214,17 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
                 break
             if self.appear_then_click(self.I_ROOM_GIFT, interval=1):
                 continue
-        self.screenshot()
-        self.appear_then_click(self.I_GIFT_RECOMMEND, interval=1)
+        timer = Timer(5)
+        timer.start()
+        while 1:
+            if timer.reached():
+                self.save_image(content="每日签到超时", push_flag=True, wait_time=0, image_type=True)
+                return
+            self.screenshot()
+            if not self.appear_rgb(self.I_GIFT_RECOMMEND):
+                break
+            if self.appear_then_click(self.I_GIFT_RECOMMEND, interval=1):
+                continue
         logger.info('Enter store sign')
         sleep(1)  # 等个动画
         self.reject_invite()
