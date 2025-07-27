@@ -182,6 +182,8 @@ class PlatformWindows(PlatformBase, EmulatorManager):
         # show_window = not self.config.script.device.emulator_window_minimize and not self.config.script.device.run_background_only
         show_window = False
         exe: str = instance.emulator.path
+        logger.info(f"模拟器instance:{instance}")
+
         if instance == Emulator.MuMuPlayer:
             # NemuPlayer.exe
             self.execute(exe, show_window=show_window)
