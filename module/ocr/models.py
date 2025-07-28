@@ -6,7 +6,7 @@ from module.logger import logger
 
 class OcrModel:
     def __init__(self):
-        self._model_type = 'onnx'  # 默认使用ppocr模型
+        self._model_type = 'ppocr'  # 默认使用ppocr模型
         self._onnx_params = {}  # ONNX模型参数
         self._model_cache = {}  # 模型缓存
         

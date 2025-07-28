@@ -27,6 +27,7 @@ from module.config.utils import convert_to_underscore
 from module.device.device import Device
 from module.exception import *
 from module.logger import logger, error_path, get_filename
+from module.ocr.models import OCR_MODEL
 
 
 class Script:
@@ -403,6 +404,7 @@ class Script:
         is_first_task = True
         stop_requested = False
         self.config.model.running_task = None
+        onnxocr_task = ["WantedQuests", "MemoryScrolls"]
 
         logger.info(f'[启动] 调度器循环开始 | 配置: {self.config_name}')
         try:
@@ -412,6 +414,20 @@ class Script:
                     task = self.get_next_task()
                     task_chinese_name = I18n.trans_zh_cn(task)
                     logger.info(f'[任务] 获取到任务 | {task_chinese_name}')
+
+                    # ------------------------- 任务启用何种ocr -------------------------
+                    logger.info(f"上一任务OCR模型: {OCR_MODEL._model_type}")
+                    # 当前是否需要使用ONNX模型？
+                    use_onnx = task in onnxocr_task
+                    # 如果模型类型和任务需求不匹配，就切换模型
+                    if use_onnx != (OCR_MODEL._model_type == 'onnx'):
+                        if use_onnx:
+                            OCR_MODEL.switch_to_onnx()  # 需要ONNX但当前不是，切换到ONNX
+                        else:
+                            OCR_MODEL.switch_to_ppocr()  # 不需要ONNX但当前是，切换回PPOCR
+                    else:
+                        logger.info(f"无需切换OCR模型")
+                        logger.info(f"当前OCR模型: {OCR_MODEL._model_type}")
 
                     # ------------------------- 跳过首次重启任务 -------------------------
                     if is_first_task and task == 'Restart':
@@ -441,7 +457,7 @@ class Script:
                     logger.hr(f'{task_chinese_name} End', 0)
                     is_first_task = False
                     del_cached_property(self, 'config')
-    
+
                     # ------------------------- 失败处理 -------------------------
                     if success:
                         self.start_loop_count = 1
