@@ -220,8 +220,9 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
             if timer.reached():
                 self.save_image(content="每日签到超时", push_flag=True, wait_time=0, image_type=True)
                 return
+            self.reject_invite()
             self.screenshot()
-            if not self.appear_rgb(self.I_GIFT_RECOMMEND):
+            if self.appear(self.I_GIFT_SIGN):
                 break
             if self.appear_then_click(self.I_GIFT_RECOMMEND, interval=1):
                 continue
