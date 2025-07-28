@@ -208,7 +208,9 @@ class NemuIpcImpl:
         self.instance_id: int = instance_id
         self.display_id: int = display_id
 
-        ipc_dll = os.path.abspath(os.path.join(nemu_folder, './shell/sdk/external_renderer_ipc.dll'))
+        # ipc_dll = os.path.abspath(os.path.join(nemu_folder, './nx_main/sdk/external_renderer_ipc.dll'))
+        ipc_dll = os.path.abspath(os.path.join(nemu_folder, './nx_device/12.0/shell/sdk/external_renderer_ipc.dll'))
+
         logger.info(
             f'NemuIpcImpl init, '
             f'nemu_folder={nemu_folder}, '
@@ -236,7 +238,6 @@ class NemuIpcImpl:
     def connect(self):
         if self.connect_id > 0:
             return
-
         connect_id = self.ev_run_sync(
             self.lib.nemu_connect,
             self.nemu_folder, self.instance_id
@@ -445,7 +446,7 @@ class NemuIpc():
         """
         # Try existing settings first
         if self.config.script.device.emulatorinfo_path:
-            folder = os.path.abspath(os.path.join(self.config.script.device.emulatorinfo_path, '../../'))
+            folder = os.path.abspath(os.path.join(self.config.script.device.emulatorinfo_path, '../../../../../../'))
             index = serial_to_id(self.serial)
             if index is not None:
                 try:
