@@ -602,7 +602,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     logger.warning(f"馆主不是修习等级的,不符合要求")
                     continue
                 logger.info(f"已找到符合要求的道馆")
-                self.push_notify(f"准备开启道馆: 资金:{bounty},人数:{p_num},系数:{item_score}")
+                self.push_notify(f"准备开启道馆: 名称:{dokan_name},资金:{bounty},人数:{p_num},系数:{item_score}")
                 return True
             # 在所有列表中都没有符合的,且忽略系数限制,那么就选择最低分数的那个,点击显示挑战按钮
             if ignore_score:
