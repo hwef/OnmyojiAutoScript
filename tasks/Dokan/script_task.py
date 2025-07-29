@@ -66,8 +66,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
     battle_count: int = 0
     # 寮友进入道馆次数
     goto_dokan_num: int = 0
-    # 今日是否第一次道馆
-    battle_dokan_flag: bool = False
+    # 今日是否第一次道馆 是否放弃
+    dokan_quit: bool = False
     # 上一个场景
     last_scene = None
 
@@ -131,7 +131,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             # 场景状态：等待馆主战开始
             elif current_scene == DokanScene.RYOU_DOKAN_SCENE_BOSS_WAITING:
                 # 管理放弃第一次道馆
-                if self.battle_dokan_flag and self.config.dokan.dokan_config.dokan_enable:
+                if self.dokan_quit and self.config.dokan.dokan_config.dokan_enable:
                     logger.info("今日第一次道馆，放弃本次道馆")
                     time.sleep(5)
                     while 1:
@@ -438,9 +438,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             self.goto_dokan_click()
         else:
             if '2次' in dokan_status_str:
-                self.battle_dokan_flag = True
+                self.dokan_quit = True
             else:
-                self.battle_dokan_flag = False
+                self.dokan_quit = False
             # 管理开道馆
             if self.config.dokan.dokan_config.dokan_enable:
                 self.open_dokan()
@@ -558,6 +558,14 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     logger.info(f"can't find challenge button,idx={idx} item={item}")
                     # 道馆不可挑战,挑战按钮不会弹出 ,直接进行下一个
                     continue
+
+                self.O_DOKAN_RIGHTPAD_NAME.roi = self.position_offset(item, (-37, 29, 127, 0))
+                dokan_name = self.O_DOKAN_RIGHTPAD_NAME.ocr(self.device.image)
+                if "鑫" in dokan_name:
+                    self.push_notify(f"准备开启道馆: 资金:{bounty},名称:{dokan_name}")
+                    self.dokan_quit = True
+                    return True
+
                 # 获取防守人数
                 self.screenshot()
                 if not self.appear(self.I_CENTER_POINT_PEOPLE_NUMBER):
@@ -837,7 +845,7 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('du')
+    config = Config('test')
     device = Device(config)
     t = ScriptTask(config, device)
     # t.save_image()

@@ -404,7 +404,7 @@ class Script:
         is_first_task = True
         stop_requested = False
         self.config.model.running_task = None
-        onnxocr_task = ["WantedQuests", "MemoryScrolls"]
+        onnxocr_task = ["WantedQuests", "MemoryScrolls", "Dokan"]
 
         logger.info(f'[启动] 调度器循环开始 | 配置: {self.config_name}')
         try:
