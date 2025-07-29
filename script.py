@@ -427,7 +427,7 @@ class Script:
                             OCR_MODEL.switch_to_ppocr()  # 不需要ONNX但当前是，切换回PPOCR
                     else:
                         logger.info(f"无需切换OCR模型")
-                        logger.info(f"当前OCR模型: {OCR_MODEL._model_type}")
+                        logger.info(f"当前任务OCR模型: {OCR_MODEL._model_type}")
 
                     # ------------------------- 跳过首次重启任务 -------------------------
                     if is_first_task and task == 'Restart':

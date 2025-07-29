@@ -47,6 +47,7 @@ async def config_all():
 # ---------------------------------   脚本实例管理   ----------------------------------
 @script_app.get('/{script_name}/start')
 async def script_start(script_name: str):
+    logger.info(f'[{script_name}] script process start')
     if script_name not in mm.script_process:
         mm.script_process[script_name] = ScriptProcess(script_name)
     mm.script_process[script_name].start()
@@ -54,6 +55,7 @@ async def script_start(script_name: str):
 
 @script_app.get('/{script_name}/stop')
 async def script_stop(script_name: str):
+    logger.info(f'[{script_name}] script process stop')
     if script_name not in mm.script_process:
         logger.warning(f'[{script_name}] script process does not exist')
         return
