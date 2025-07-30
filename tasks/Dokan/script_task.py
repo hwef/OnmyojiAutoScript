@@ -561,8 +561,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
                 self.O_DOKAN_RIGHTPAD_NAME.roi = self.position_offset(item, (-37, 29, 127, 0))
                 dokan_name = self.O_DOKAN_RIGHTPAD_NAME.ocr(self.device.image)
-                if "鑫" in dokan_name:
-                    self.push_notify(f"准备开启道馆: 资金:{bounty},名称:{dokan_name}")
+                welfare_name_list = ["叶落苑", "九亿少女梦", "我独自升级", "雾云川", "清梦", "三丫", "锦鲤一一", "茸茸神社"]
+                if dokan_name in welfare_name_list or "鑫鑫子" in dokan_name:
+                    self.push_notify(f"✅ 开启福利道馆: 资金:{bounty},名称:{dokan_name}")
                     self.dokan_quit = True
                     return True
 
