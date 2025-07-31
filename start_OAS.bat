@@ -24,5 +24,6 @@ timeout /t 5
 
 start  python start_script.py DU
 start  python start_script.py MI
+@REM start  python start_script.py "阴阳师副本"
 
 exit /B
