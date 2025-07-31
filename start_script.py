@@ -9,7 +9,7 @@ import time
 def start_websocket(config_name):
 
     # 日志配置部分保持不变...
-    log_dir = rf"D:\OnmyojiAutoScript\ljxun\log"
+    log_dir = rf".\log"
 
     # 配置日志：通过 handlers 实现文件+控制台输出
     file_handler = logging.FileHandler(os.path.join(log_dir, f"log_{config_name}.log"))
