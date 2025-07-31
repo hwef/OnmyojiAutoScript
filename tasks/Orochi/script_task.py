@@ -114,15 +114,12 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             self.close_buff()
 
         # 下一次运行时间
-        if plan == Plan.default:
-            if success:
-                self.set_next_run('Orochi', finish=True, success=True)
-            else:
-                self.set_next_run('Orochi', finish=False, success=False)
-        else:
+        if success and plan != Plan.default:
             start_time = self.config.orochi.next_day_orochi_config.start_time
             next_run = parse_tomorrow_server(start_time)
             self.set_next_run('Orochi', target=next_run)
+        else:
+            self.set_next_run('Orochi', finish=False, success=False)
 
         datetime_now = datetime.now()
         # 个人突破
