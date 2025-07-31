@@ -4,7 +4,7 @@ import sys
 import logging
 import os
 import time
-
+import urllib.parse
 
 def start_websocket(config_name):
 
@@ -23,6 +23,7 @@ def start_websocket(config_name):
     logging.info("日志配置成功！")
 
     logging.info("开始启动websocket")
+    config_name = urllib.parse.quote(config_name)
     ws = websocket.WebSocketApp(f"ws://127.0.0.1:22288/ws/{config_name}")
     logging.info("连接成功")
     ws.on_open = lambda ws: ws.send("start")
