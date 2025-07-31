@@ -561,9 +561,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
                 self.O_DOKAN_RIGHTPAD_NAME.roi = self.position_offset(item, (-37, 29, 127, 0))
                 dokan_name = self.O_DOKAN_RIGHTPAD_NAME.ocr(self.device.image)
-                welfare_name_list = ["叶落苑", "九亿少女梦", "我独自升级", "雾云川", "清梦", "三丫", "锦鲤一一", "茸茸神社"]
+                welfare_name_list = ["叶落苑", "九亿少女梦", "我独自升级", "雾云川", "清梦", "三丫小窝", "锦鲤一一", "茸茸神社", "雾云川", "镜姬岛", "江南雨", "帐中妖"]
                 if dokan_name in welfare_name_list or "鑫鑫子" in dokan_name:
-                    self.push_notify(f"✅ 开启福利道馆: 资金:{bounty},名称:{dokan_name}")
+                    self.push_notify(f"✅ 开启福利道馆: 名称:{dokan_name},资金:{bounty}")
                     self.dokan_quit = True
                     return True
 
@@ -572,9 +572,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 if not self.appear(self.I_CENTER_POINT_PEOPLE_NUMBER):
                     logger.warning(f"can't find point people number image, item={item}")
                     continue
-                self.O_DOKAN_CENTER_PEOPLE_NUMBER.roi = self.position_offset(
-                    self.I_CENTER_POINT_PEOPLE_NUMBER.roi_front,
-                    (0, 0, 0, 30))
+                self.O_DOKAN_CENTER_PEOPLE_NUMBER.roi = self.position_offset(self.I_CENTER_POINT_PEOPLE_NUMBER.roi_front,(0, 0, 0, 30))
                 p_num = self.O_DOKAN_CENTER_PEOPLE_NUMBER.detect_text(self.device.image)
                 tmp = re.search(r"(\d+)", p_num)
                 if not tmp:
@@ -583,7 +581,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 p_num = int(tmp.group())
 
                 item_score = float(f"{bounty / p_num:.2f}")
-                logger.info(f"========== 资金:{bounty},人数:{p_num},系数:{item_score} ==========")
+                logger.info(f"========== 名称:{dokan_name},资金:{bounty},人数:{p_num},系数:{item_score} ==========")
 
                 if item_score < min_score:
                     min_score = item_score
@@ -640,7 +638,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             # 恢复初始位置信息,防止下次使用出错
             restore_roi()
             num_fresh += 1
-            logger.info(f"=========第{num_fresh}次刷新列表=========")
+            logger.hr(f"第{num_fresh}次刷新列表", 2)
             self.ui_click(self.C_DOKAN_REFRESH, self.I_REFRESH_ENSURE, interval=1)
             self.ui_click_until_disappear(self.I_REFRESH_ENSURE, interval=1)
             sleep(1)
