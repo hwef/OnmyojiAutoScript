@@ -16,7 +16,8 @@ from tasks.Duel.config import Duel, Onmyoji
 from tasks.Duel.assets import DuelAssets
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.GameUi.page import page_main, page_team, page_shikigami_records
-
+import os
+from module.atom.image import RuleImage
 """ 斗技 """
 
 
@@ -90,30 +91,42 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 # 任务执行时间超过限制时间，退出
                 logger.info('Duel task is over time')
                 break
-            if self.appear(self.I_D_CELEB_STAR) or self.appear(self.I_D_CELEB_HONOR):
-                logger.info('You are already a celeb（名仕）')
-                current_score = 3000
-                duel_week_over = True
+            # 练
+            if self.appear(self.I_BATTLE_WITH_TRAIN) or self.appear(self.I_BATTLE_WITH_TRAIN2):
+                logger.info('不在斗鸡时间')
+                self.screenshot()
+                if self.appear(self.I_D_CELEB_STAR) or self.appear(self.I_D_CELEB_HONOR):
+                    logger.info('You are already a celeb（名仕）')
+                    current_score = "名仕"
                 break
-
+            if not con.celeb_battle:
+                # 不开启名仕战斗
+                if self.appear(self.I_D_CELEB_STAR) or self.appear(self.I_D_CELEB_HONOR):
+                    logger.info('You are already a celeb（名仕）')
+                    current_score = "名仕"
+                    duel_week_over = True
+                    break
+            #
             # if con.honor_full_exit and self.check_honor():
             #     # 荣誉满了，退出
             #     logger.info('Duel task is over honor')
             #     break
+
             # 当前分数跟目标分数比较
-            if current_score >= con.target_score:
-                # 分数够了
-                logger.info('Duel task is over score')
-                # 是否刷满荣誉就退出
-                if con.honor_full_exit:
-                    if self.check_honor():
-                        # 荣誉满了，退出
-                        self.save_image(content=f'分数: {current_score}, 本周斗技结束', push_flag=True)
-                        logger.info('Duel task is over honor')
-                        duel_week_over = True
+            if not con.celeb_battle:
+                if current_score >= con.target_score:
+                    # 分数够了
+                    logger.info('Duel task is over score')
+                    # 是否刷满荣誉就退出
+                    if con.honor_full_exit:
+                        if self.check_honor():
+                            # 荣誉满了，退出
+                            self.save_image(content=f'分数: {current_score}, 本周斗技结束', push_flag=True)
+                            logger.info('Duel task is over honor')
+                            duel_week_over = True
+                            break
+                    else:
                         break
-                else:
-                    break
 
             # 进行一次斗技
             self.duel_one(current_score, con.green_enable, con.green_mark)
@@ -262,19 +275,24 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         """
         logger.hr('Duel battle', 2)
         self.battle_count += 1
+        # 是否名士
+        celeb_status = False
         while 1:
             self.screenshot()
-            # if not self.appear(self.I_D_HELP):
-            #     break
             if self.appear(self.I_D_AUTO_ENTRY) or self.appear(self.I_D_PREPARE):
                 break
-            if self.appear_then_click(self.I_BATTLE_TYPE_COMMON, interval=1):
+            # 名士以上禁用
+            if self.appear_then_click(self.I_BAN, interval=1):
+                celeb_status = True
                 continue
+            # if self.appear_then_click(self.I_BATTLE_TYPE_COMMON, interval=1):
+            #     continue
             if self.appear_then_click(self.I_D_BATTLE, interval=1):
                 continue
             if self.appear_then_click(self.I_D_BATTLE2, interval=1):
                 continue
-            if self.appear_then_click(self.I_BATTLE_WITH_TRAIN, interval=1):
+            # 练
+            if self.appear_then_click(self.I_BATTLE_WITH_TRAIN, interval=1) or self.appear_then_click(self.I_BATTLE_WITH_TRAIN2, interval=1):
                 continue
             if self.appear_then_click(self.I_D_BATTLE_PROTECT, interval=1.6):
                 continue
@@ -283,6 +301,21 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         while 1:
             self.screenshot()
             if self.appear(self.I_D_AUTO_ENTRY):
+                if celeb_status:
+                    while 1:
+                        self.screenshot()
+                        if self.wait_until_appear(self.I_BAN_FLAG, wait_time=3):
+                            logger.info(f'斗技式神未被禁选, 继续战斗')
+                            break
+                        else:
+                            logger.warning(f'斗技式神被禁选, 退出')
+                            self.duel_exit_battle()
+                            if self.appear(self.I_D_FAIL):
+                                # 输了
+                                self.ui_click_until_disappear(self.I_D_FAIL)
+                                self.battle_lose_count += 1
+                                return True
+
                 # 出现自动上阵
                 self.ui_click_until_disappear(self.I_D_AUTO_ENTRY)
                 logger.info('Duel auto entry')
@@ -315,6 +348,11 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             if self.appear(self.I_D_VICTORY):
                 self.ui_click_until_disappear(self.I_D_VICTORY)
                 self.battle_win_count += 1
+                return True
+            if self.appear(self.I_D_FAIL):
+                # 输了
+                self.ui_click_until_disappear(self.I_D_FAIL)
+                self.battle_lose_count += 1
                 return True
         # 绿标
         if enable:
@@ -395,8 +433,8 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                                  10,
                                  100)
                 self.C_DUEL_GREEN_LEFT_FULL.roi_front = new_roi_front
-                logger.info(f'old Image roi {self.I_GREEN_MARK_IMG.roi_front}')
-                logger.info(f'new Image roi {self.C_DUEL_GREEN_LEFT_FULL.roi_front}')
+                # logger.info(f'old Image roi {self.I_GREEN_MARK_IMG.roi_front}')
+                # logger.info(f'new Image roi {self.C_DUEL_GREEN_LEFT_FULL.roi_front}')
                 break
         # 点击绿标
         mark_timer = Timer(5)
@@ -407,12 +445,12 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 self.save_image(wait_time=0, push_flag=True, content='超时未识别到绿标',image_type=True)
                 return False
             self.screenshot()
-            if self.wait_until_appear(self.I_GREEN_MARK, self.I_GREEN_MARK_1, wait_time=1):
+            if self.duel_wait_until_appear(self.I_GREEN_MARK, self.I_GREEN_MARK_1, wait_time=1):
                 # self.save_image(wait_time=0, push_flag=True, content='识别到绿标',image_type=True)
                 return True
             self.click(self.C_DUEL_GREEN_LEFT_FULL)
 
-    def wait_until_appear(self,
+    def duel_wait_until_appear(self,
                           target,
                           target2,
                           skip_first_screenshot=False,
@@ -489,13 +527,64 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 break
             # 点击绿标
             self.device.click(x, y)
+    # 判断是否在战斗中
 
+    def duel_exit_battle(self):
+        while 1:
+            self.screenshot()
+            if self.appear(self.I_D_FAIL) or self.appear(self.I_FALSE):
+                return
+            if self.appear_then_click(self.I_EXIT_ENSURE):
+                continue
+            if self.appear_then_click(self.I_DUEL_EXIT, interval=1):
+                continue
+    def is_in_battle(self, is_screenshot: bool = True) -> bool:
+        """
+        判断是否在战斗中
+        :return:
+        """
+        if is_screenshot:
+            self.screenshot()
+        if self.appear(self.I_FRIENDS) or \
+                self.appear(self.I_WIN) or \
+                self.appear(self.I_D_VICTORY) or \
+                self.appear(self.I_D_FAIL) or \
+                self.appear(self.I_FALSE) or \
+                self.appear(self.I_REWARD):
+            return True
+        else:
+            return False
+    def _load_image_template(self):
+        image_templates = []
+        image_folder = "./tasks/Duel/ban/"
+        supported_formats = ('.png', '.jpg', '.jpeg')
+
+        # 遍历图片文件夹
+        for filename in os.listdir(image_folder):
+            if not filename.lower().endswith(supported_formats):
+                continue
+            # 构建完整路径
+            file_path = os.path.join(image_folder, filename)
+
+            # 创建RuleImage对象并添加到列表
+            image_rule = RuleImage(
+                roi_front=(1126,326,124,136),  # 保持与原来相同的ROI参数
+                roi_back=(1126,326,124,136),
+                threshold=0.7,
+                method="Template matching",
+                file=file_path
+            )
+            image_templates.append(image_rule)
+
+        logger.info(f"加载图片模板集合: {image_templates}")
+        logger.info(f"加载图片模板数量: {len(image_templates)}")
+        return image_templates
 
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('mi')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
 

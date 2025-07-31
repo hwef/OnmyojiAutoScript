@@ -33,6 +33,8 @@ class DuelConfig(ConfigBase):
     target_score: int = Field(default=2000, description='target_score_help')
     # 刷满荣誉就退出
     honor_full_exit: bool = Field(default=False, description='honor_full_exit_help')
+    # 是否开启名仕战斗
+    celeb_battle: bool = Field(default=False, description='是否开启名仕战斗')
     # 是否开启绿标
     green_enable: bool = Field(default=False, description='green_enable_help')
     # 选哪一个绿标
