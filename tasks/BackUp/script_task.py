@@ -10,7 +10,7 @@ from datetime import datetime
 from module.exception import TaskEnd
 from module.logger import logger, log_path, log_names, backup_path, week_path, delete_path, old_path, error_path
 from tasks.base_task import BaseTask
-
+from deploy.git import GitManager
 """ 备份日志 """
 
 
@@ -27,6 +27,11 @@ class ScriptTask(BaseTask):
 
     def run(self):
         logger.set_file_logger(self.config.config_name)
+        try:
+            GitManager().git_install()
+        except Exception as e:
+            logger.error(f"自动更新异常： {e}")
+
         logger.hr('BackUp', 0)
         con = self.config.back_up.back_up_config
         # 检查并创建delete目录
