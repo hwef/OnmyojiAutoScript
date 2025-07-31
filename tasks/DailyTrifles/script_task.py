@@ -160,6 +160,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
                 logger.info('Get reward of luck msg')
                 break
             if check_timer.reached():
+                self.save_image(content="收取吉闻超时", wait_time=0, image_type=True, push_flag=True)
                 logger.warning('There is no any luck msg')
                 break
 
@@ -188,6 +189,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
                 logger.info('Get reward of friend love')
                 break
             if check_timer.reached():
+                self.save_image(content="收取友情点超时", wait_time=0, image_type=True, push_flag=True)
                 logger.warning('There is no any love')
                 break
 
