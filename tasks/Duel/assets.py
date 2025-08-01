@@ -99,9 +99,9 @@ class DuelAssets:
 	# 活动的战斗按钮 
 	I_D_BATTLE2 = RuleImage(roi_front=(1171,592,69,78), roi_back=(1119,566,154,143), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/duel_d_battle2.png")
 	# 区域找绿标1 
-	I_GREEN_MARK = RuleImage(roi_front=(124,207,1012,182), roi_back=(124,207,1012,182), threshold=0.6, method="Template matching", file="./tasks/Duel/duel/green_mark.png")
+	I_GREEN_MARK = RuleImage(roi_front=(124,192,1012,197), roi_back=(124,192,1012,197), threshold=0.6, method="Template matching", file="./tasks/Duel/duel/green_mark.png")
 	# 区域找绿标2 
-	I_GREEN_MARK_1 = RuleImage(roi_front=(124,207,1012,182), roi_back=(124,207,1012,182), threshold=0.6, method="Template matching", file="./tasks/Duel/duel/green_mark_1.png")
+	I_GREEN_MARK_1 = RuleImage(roi_front=(124,192,1012,197), roi_back=(124,192,1012,197), threshold=0.6, method="Template matching", file="./tasks/Duel/duel/green_mark_1.png")
 	# 区域点击式神 
 	I_GREEN_MARK_IMG = RuleImage(roi_front=(114,238,1022,188), roi_back=(114,238,1022,188), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/green_mark_img.png")
 	# 禁用 

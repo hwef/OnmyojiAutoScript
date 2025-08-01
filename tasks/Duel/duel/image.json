@@ -191,8 +191,8 @@
   {
     "itemName": "green_mark",
     "imageName": "green_mark.png",
-    "roiFront": "124,207,1012,182",
-    "roiBack": "124,207,1012,182",
+    "roiFront": "124,192,1012,197",
+    "roiBack": "124,192,1012,197",
     "method": "Template matching",
     "threshold": 0.6,
     "description": "区域找绿标1"
@@ -200,8 +200,8 @@
   {
     "itemName": "green_mark_1",
     "imageName": "green_mark_1.png",
-    "roiFront": "124,207,1012,182",
-    "roiBack": "124,207,1012,182",
+    "roiFront": "124,192,1012,197",
+    "roiBack": "124,192,1012,197",
     "method": "Template matching",
     "threshold": 0.6,
     "description": "区域找绿标2"
