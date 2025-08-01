@@ -433,8 +433,8 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                                  10,
                                  100)
                 self.C_DUEL_GREEN_LEFT_FULL.roi_front = new_roi_front
-                # logger.info(f'old Image roi {self.I_GREEN_MARK_IMG.roi_front}')
-                # logger.info(f'new Image roi {self.C_DUEL_GREEN_LEFT_FULL.roi_front}')
+                logger.info(f'old Image roi {self.I_GREEN_MARK_IMG.roi_front}')
+                logger.info(f'new Image roi {self.C_DUEL_GREEN_LEFT_FULL.roi_front}')
                 break
         # 点击绿标
         mark_timer = Timer(5)
