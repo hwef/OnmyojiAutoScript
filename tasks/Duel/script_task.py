@@ -421,19 +421,19 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
   
         match mark_mode:
             case GreenMarkType.GREEN_LEFT1:
-                target = self.self.I_GREEN_MARK_IMG1
+                target = self.I_GREEN_MARK_IMG1
                 logger.info("Green left 1")
             case GreenMarkType.GREEN_LEFT2:
-                target = self.self.I_GREEN_MARK_IMG2
+                target = self.I_GREEN_MARK_IMG2
                 logger.info("Green left 2")
             case GreenMarkType.GREEN_LEFT3:
-                target = self.self.I_GREEN_MARK_IMG3
+                target = self.I_GREEN_MARK_IMG3
                 logger.info("Green left 3")
             case GreenMarkType.GREEN_LEFT4:
-                target = self.self.I_GREEN_MARK_IMG4
+                target = self.I_GREEN_MARK_IMG4
                 logger.info("Green left 4")
             case GreenMarkType.GREEN_LEFT5:
-                target = self.self.I_GREEN_MARK_IMG5
+                target = self.I_GREEN_MARK_IMG5
                 logger.info("Green left 5")
             case GreenMarkType.GREEN_MAIN:
                 return
