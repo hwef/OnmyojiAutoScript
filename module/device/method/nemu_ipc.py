@@ -174,7 +174,7 @@ def retry(func):
                 break
             # Function call timeout
             except asyncio.TimeoutError:
-                logger.warning(f'Func {func.__name__}() call timeout, retrying: {_}')
+                # logger.warning(f'Func {func.__name__}() call timeout, retrying: {_}')
 
                 def init():
                     self.reconnect()
