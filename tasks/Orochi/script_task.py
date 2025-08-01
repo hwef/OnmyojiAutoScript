@@ -119,7 +119,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             next_run = parse_tomorrow_server(start_time)
             self.set_next_run('Orochi', target=next_run)
         else:
-            self.set_next_run('Orochi', finish=False, success=False)
+            self.set_next_run('Orochi', finish=success, success=success)
 
         datetime_now = datetime.now()
         # 个人突破
