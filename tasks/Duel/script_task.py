@@ -442,7 +442,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         while 1:
             if mark_timer.reached():
                 logger.info('Duel green mark timeout')
-                self.save_image(wait_time=0, push_flag=True, content='超时未识别到绿标',image_type=True)
+                self.save_image(task_name='斗技绿标超时', wait_time=0, push_flag=True, content='超时未识别到绿标',image_type=True)
                 return False
             self.screenshot()
             if self.duel_wait_until_appear(self.I_GREEN_MARK, self.I_GREEN_MARK_1, wait_time=1):
