@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 import cv2
@@ -36,6 +37,17 @@ class ONNXPaddleOcr(onnxocr.ONNXPaddleOcr):
                  benchmark=False,
                  use_onnx=False
                  ):
+        # 基于当前文件位置构建绝对路径
+        # 获取项目根目录
+        # project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+        # 构建模型目录路径
+        # det_model_dir = os.path.join(project_root, "toolkit", "Lib", "site-packages", "onnxocr", "models", "ppocrv4", "det", "det.onnx")  # 检测模型
+        # rec_model_dir = os.path.join(project_root, "toolkit", "Lib", "site-packages", "onnxocr", "models", "ppocrv4", "rec", "rec.onnx")  # 识别模型
+        # cls_model_dir = os.path.join(project_root, "toolkit", "Lib", "site-packages", "onnxocr", "models", "ppocrv4", "cls", "cls.onnx")  # 分类模型
+        # print(f'det_model_dir: {det_model_dir}')
+        # print(f'det_model_dir: {os.path.abspath(det_model_dir)}')
+
         super().__init__(
             use_gpu=use_gpu,
             gpu_mem=gpu_mem,
@@ -47,6 +59,12 @@ class ONNXPaddleOcr(onnxocr.ONNXPaddleOcr):
             cpu_threads=cpu_threads,
             benchmark=benchmark,
             use_onnx=use_onnx
+            # det_model_dir=os.path.abspath(det_model_dir),
+            # rec_model_dir=os.path.abspath(rec_model_dir),
+            # cls_model_dir=os.path.abspath(cls_model_dir)
+            # det_model_dir="D:/OnmyojiAutoScript/ljxun/toolkit/Lib/site-packages/onnxocr/models/ppocrv4/det/det.onnx",
+            # rec_model_dir="D:/OnmyojiAutoScript/ljxun/toolkit/Lib/site-packages/onnxocr/models/ppocrv4/rec/rec.onnx",
+            # cls_model_dir="D:/OnmyojiAutoScript/ljxun/toolkit/Lib/site-packages/onnxocr/models/ppocrv4/cls/cls.onnx"
         )
 
     def detect_and_ocr(self,img: np.ndarray):
