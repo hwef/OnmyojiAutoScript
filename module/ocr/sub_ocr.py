@@ -139,7 +139,9 @@ class Digit(Single):
         返回:
             处理后的数字(int)
         """
-        if not isinstance(result, str):
+        if isinstance(result, int):
+            return result
+        elif not isinstance(result, str):
             raise ValueError("输入结果必须为字符串")
 
         # 常见字符替换
@@ -195,9 +197,11 @@ class DigitCounter(Single):
         返回:
             处理后的计数器字符串
         """
-        if not isinstance(result, str):
+       # 直接返回数值类型数据
+        if isinstance(result ,int):
+            return result
+        elif not isinstance(result, str):
             raise ValueError("输入结果必须为字符串")
-
         # 常见字符替换
         replace_rules = {
             'I': '1', 'D': '0', 'S': '5',
@@ -273,9 +277,11 @@ class Duration(Single):
         返回:
             标准化后的时间字符串
         """
-        if not isinstance(result, str):
+        # 直接返回数值类型数据
+        if isinstance(result ,int):
+            return result
+        elif not isinstance(result, str):
             raise ValueError("输入结果必须为字符串")
-
         # 常见字符替换
         replace_rules = {
             'I': '1', 'D': '0', 'S': '5',
@@ -366,9 +372,12 @@ class Quantity(BaseCor):
         异常:
             ValueError: 当输入结果无效时抛出
         """
-        if not isinstance(result, str):
+        
+        # 直接返回数值类型数据
+        if isinstance(result ,int):
+            return result
+        elif not isinstance(result, str):
             raise ValueError("输入结果必须为字符串")
-
         # 常见字符替换
         replace_rules = {
             'I': '1', 'D': '0', 'S': '5',

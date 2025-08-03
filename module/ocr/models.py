@@ -23,13 +23,14 @@ class OcrModel:
         返回:
             OCR模型实例
         """
-        if lang not in self._model_cache:
-            if self._model_type == 'onnx':
-                logger.info(f'初始化ONNX OCR模型({lang})')
-                self._model_cache[lang] = ONNXPaddleOcr(**self._onnx_params)
-            else:
-                logger.info(f'初始化PPOCR模型({lang})')
-                self._model_cache[lang] = TextSystem()
+        self._model_cache[lang] = ONNXPaddleOcr(**self._onnx_params)
+        # if lang not in self._model_cache:
+        #     if self._model_type == 'onnx':
+        #         logger.info(f'初始化ONNX OCR模型({lang})')
+        #         self._model_cache[lang] = ONNXPaddleOcr(**self._onnx_params)
+        #     else:
+        #         logger.info(f'初始化PPOCR模型({lang})')
+        #         self._model_cache[lang] = TextSystem()
         return self._model_cache[lang]
     
     def switch_to_onnx(self, **kwargs):
