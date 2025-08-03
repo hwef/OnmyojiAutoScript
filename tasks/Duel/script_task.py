@@ -317,9 +317,12 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 self.battle_win_count += 1
                 return True
         # 绿标
-        if enable:
-            if not self.duel_green_mark_1():
-                self.duel_green_mark(mark_mode)
+        
+        # 绿标
+        self.green_mark(enable, mark_mode)
+        # if enable:
+        #     if not self.duel_green_mark_1():
+        #         self.duel_green_mark(mark_mode)
         # 等待结果
         logger.info('Duel wait result')
         self.device.stuck_record_add('BATTLE_STATUS_S')
@@ -407,7 +410,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 self.save_image(wait_time=0, push_flag=True, content='超时未识别到绿标',image_type=True)
                 return False
             self.screenshot()
-            if self.wait_until_appear(self.I_GREEN_MARK, self.I_GREEN_MARK_1, wait_time=1):
+            if self.wait_until_appear(self.I_GREEN_MARK, self.I_GREEN_MARK_1, wait_time=2):
                 # self.save_image(wait_time=0, push_flag=True, content='识别到绿标',image_type=True)
                 return True
             self.click(self.C_DUEL_GREEN_LEFT_FULL)
