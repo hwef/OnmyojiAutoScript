@@ -2,7 +2,7 @@ import traceback
 
 from tasks.GameUi.assets import GameUiAssets as G
 from tasks.RyouToppa.assets import RyouToppaAssets
-
+from tasks.Component.GeneralBuff.assets import GeneralBuffAssets
 class Page:
     parent = None
 
@@ -30,7 +30,7 @@ class Page:
 #登录login
 page_login=Page(G.I_CHECK_LOGIN_FORM)
 # Main Home 主页
-page_main = Page(G.I_CHECK_MAIN)
+page_main = Page(GeneralBuffAssets.I_BUFF_1)
 # 召唤summon
 page_summon = Page(G.I_CHECK_SUMMON)
 page_summon.link(button=G.I_SUMMON_GOTO_MAIN, destination=page_main)
