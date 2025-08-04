@@ -64,6 +64,10 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                 logger.info('Orochi Plan end')
                 raise TaskEnd
             case _:
+                logger.info('Orochi Plan Eleven 30')
+                limit_count = 30
+                group_team = orochi_switch_soul.eleven_switch
+                layer = Layer.ELEVEN
                 logger.error('Unknown user plan')
 
         if orochi_switch_soul.auto_enable:
