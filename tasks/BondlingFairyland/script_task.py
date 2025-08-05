@@ -130,8 +130,8 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
                         continue
                     if self.appear(self.I_CREATE_TEAM, interval=1):
                         self.ensure_private()
-                        self.appear_then_click(self.I_CREATE_TEAM, interval=2)
-                        continue
+                        self.ui_click(self.I_CREATE_TEAM,self.I_GI_IN_ROOM, interval=1)
+                        return True
                     # 求援
                     if self.appear(self.I_CHECK_BONDLING_FAIRYLAND, interval=1):
                         return False
@@ -141,7 +141,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
                         if cu <= 0 and total == 99:
                             logger.info('ball is not enough')
                             return False
-                        if self.ui_click(self.I_BALL_HELP, self.I_CREATE_TEAM, interval=2):
+                        if self.ui_click(self.I_BALL_HELP, self.I_CREATE_TEAM, interval=1):
                             # sleep(1)
                             click_count += 1
                             continue
