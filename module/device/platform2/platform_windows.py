@@ -86,6 +86,20 @@ def show_window_by_name(window_name):
         logger.info(f'没有找到窗口: {window_name}')
 
 
+def show_hide_by_name(window_name):
+    """
+    显示指定名称的窗口
+    Args:
+        window_name (str): 窗口名称（支持部分匹配）
+    """
+    hwnd = find_hwnd_by_name(window_name)
+    if hwnd:
+        ctypes.windll.user32.ShowWindow(hwnd, 0)  # SW_SHOW
+        set_focus_window(hwnd)
+        logger.info(f'隐藏窗口: {window_name}')
+    else:
+        logger.info(f'没有找到窗口: {window_name}')
+
 def get_focused_window():
     return ctypes.windll.user32.GetForegroundWindow()
 
@@ -421,6 +435,7 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             minimize_by_name(target_window_name)
             logger.info(f'最小化窗口: {target_window_name}')
         else:
+            show_hide_by_name(target_window_name)
             logger.info(f'后台显示窗口: {target_window_name}')
 
         logger.info('Emulator start completed')
