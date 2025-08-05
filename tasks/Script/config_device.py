@@ -37,9 +37,10 @@ class ControlMethod(str, Enum):
 
 
 class EmulatorWindow(str, Enum):
+    default = '默认'
     min = '最小化'
     front = '前台显示'
-    background = '后台显示'
+    background = '隐藏'
 
 
 class EmulatorInfoType(str, Enum):
@@ -81,7 +82,7 @@ class Device(BaseModel):
     emulatorinfo_path: str = Field(default='',
                                    description='emulatorinfo_path_help')
 
-    emulator_window: EmulatorWindow = Field(default=EmulatorWindow.front,
+    emulator_window: EmulatorWindow = Field(default=EmulatorWindow.default,
                                             description='模拟器静默启动后窗口如何显示')
 
 

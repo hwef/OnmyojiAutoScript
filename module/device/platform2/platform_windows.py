@@ -34,8 +34,6 @@ def minimize_by_name(window_name, convert_hidden=True):
         title = get_window_title(hwnd)
 
         if window_name.lower() == title.lower():
-            logger.info(f"title:{title}")
-            logger.info(f"window_name:{window_name}")
             # 检查窗口当前状态
             is_visible = ctypes.windll.user32.IsWindowVisible(hwnd)
             if is_visible:
@@ -81,7 +79,6 @@ def show_window_by_name(window_name):
     if hwnd:
         ctypes.windll.user32.ShowWindow(hwnd, 5)  # SW_SHOW
         set_focus_window(hwnd)
-        logger.info(f'显示窗口: {window_name}')
     else:
         logger.info(f'没有找到窗口: {window_name}')
 
@@ -95,8 +92,6 @@ def show_hide_by_name(window_name):
     hwnd = find_hwnd_by_name(window_name)
     if hwnd:
         ctypes.windll.user32.ShowWindow(hwnd, 0)  # SW_SHOW
-        set_focus_window(hwnd)
-        logger.info(f'隐藏窗口: {window_name}')
     else:
         logger.info(f'没有找到窗口: {window_name}')
 
@@ -360,7 +355,7 @@ class PlatformWindows(PlatformBase, EmulatorManager):
 
         interval = Timer(1).start()
         timeout = Timer(30).start()
-        struct_window = Timer(10)
+        # struct_window = Timer(10)
         new_window = 0
         while 1:
             interval.wait()
@@ -371,13 +366,13 @@ class PlatformWindows(PlatformBase, EmulatorManager):
 
             # Check emulator window showing up
             # logger.info([get_focused_window(), get_window_title(get_focused_window())])
-            if current_window != 0 and new_window == 0:
-                # new_window = get_focused_window()
-                # if current_window != new_window and not self.config.script.device.emulator_window_minimize and not self.config.script.device.run_background_only:
-                #     logger.info(f'New window showing up: {new_window}, focus back')
-                #     set_focus_window(current_window)
-                # else:
-                new_window = 0
+            # if current_window != 0 and new_window == 0:
+            #     new_window = get_focused_window()
+            #     if current_window != new_window and not self.config.script.device.emulator_window_minimize and not self.config.script.device.run_background_only:
+            #         logger.info(f'New window showing up: {new_window}, focus back')
+            #         set_focus_window(current_window)
+            #     else:
+            #         new_window = 0
 
             # Check device connection
             devices = self.list_device().select(serial=serial)
@@ -414,17 +409,19 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             show_package(packages)
 
             # Check Window structure
-            if not struct_window.started():
-                struct_window.start()
-            elif struct_window.reached():
-                break
-            if new_window == 0:
-                continue
+            # if not struct_window.started():
+            #     struct_window.start()
+            # elif struct_window.reached():
+            #     break
+            # if new_window == 0:
+            #     continue
             if not Handle.handle_has_children(hwnd=new_window):
                 continue
 
             # All check passed
             break
+
+        logger.info('Emulator start completed')
 
         emulator_window = self.config.script.device.emulator_window
         target_window_name = self.config.script.device.handle
@@ -434,11 +431,12 @@ class PlatformWindows(PlatformBase, EmulatorManager):
         elif emulator_window == EmulatorWindow.min:
             minimize_by_name(target_window_name)
             logger.info(f'最小化窗口: {target_window_name}')
-        else:
+        elif emulator_window == EmulatorWindow.background:
             show_hide_by_name(target_window_name)
-            logger.info(f'后台显示窗口: {target_window_name}')
+            logger.info(f'隐藏窗口: {target_window_name}')
+        else:
+            logger.info(f'默认窗口: {target_window_name}')
 
-        logger.info('Emulator start completed')
         return True
 
     def emulator_start(self):
@@ -450,8 +448,7 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             # Start
             if self._emulator_function_wrapper(self._emulator_start):
                 # Success
-                self.emulator_start_watch()
-                return True
+                return self.emulator_start_watch()
             else:
                 # Failed to start, stop and start again
                 if self._emulator_function_wrapper(self._emulator_stop):
