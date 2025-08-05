@@ -147,7 +147,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
             if self.appear_then_click(self.I_LUCK_MSG, interval=1):
                 continue
         logger.info('Start luck msg')
-        check_timer = Timer(2)
+        check_timer = Timer(5)
         check_timer.start()
         while 1:
             self.screenshot()
@@ -178,7 +178,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
             if self.appear_then_click(self.I_L_FRIENDS, interval=1):
                 continue
         logger.info('Start friend love')
-        check_timer = Timer(2)
+        check_timer = Timer(5)
         check_timer.start()
         while 1:
             self.screenshot()
