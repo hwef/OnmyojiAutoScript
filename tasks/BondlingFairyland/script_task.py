@@ -141,8 +141,8 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
                         if cu <= 0 and total == 99:
                             logger.info('ball is not enough')
                             return False
-                        if self.appear_then_click(self.I_BALL_HELP, interval=2):
-                            sleep(0.5)
+                        if self.ui_click(self.I_BALL_HELP, self.I_CREATE_TEAM, interval=2):
+                            # sleep(1)
                             click_count += 1
                             continue
 
