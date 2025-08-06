@@ -39,11 +39,9 @@ def minimize_by_name(window_name, convert_hidden=True):
             if is_visible:
                 # 可见窗口 → 最小化
                 ctypes.windll.user32.ShowWindow(hwnd, 6)
-                logger.info(f'最小化可见窗口: {title}')
             elif convert_hidden:
                 # 隐藏窗口 → 改为最小化不激活
                 ctypes.windll.user32.ShowWindow(hwnd, 6)  # SW_SHOWMINNOACTIVE
-                logger.info(f'隐藏窗口改为最小化: {title}')
         return True
 
     WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, wintypes.HWND, ctypes.POINTER(ctypes.c_int))
@@ -94,6 +92,7 @@ def show_hide_by_name(window_name):
         ctypes.windll.user32.ShowWindow(hwnd, 0)  # SW_SHOW
     else:
         logger.info(f'没有找到窗口: {window_name}')
+
 
 def get_focused_window():
     return ctypes.windll.user32.GetForegroundWindow()
@@ -153,14 +152,13 @@ class PlatformWindows(PlatformBase, EmulatorManager):
         else:
             startupinfo.wShowWindow = 1  # SW_SHOWNORMAL - 正常显示
 
-        command = command.replace(r"\\", "/").replace("\\", "/").replace('"', '"')
+        command = command.replace(r"\\", "/").replace("\\", "/").replace('"', '"').replace('MuMuNxMain', 'MuMuManager')
         logger.info(f'Execute: {command}')
         return subprocess.Popen(
             command,
             close_fds=True,
             startupinfo=startupinfo
         )
-        #return subprocess.Popen(command, close_fds=True)  # only work on Windows
 
     @classmethod
     def kill_process_by_regex(cls, regex: str) -> int:
@@ -201,9 +199,10 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             self.execute(f'"{exe}" -m {instance.name}', show_window=show_window)
         elif instance == Emulator.MuMuPlayer12:
             # MuMuPlayer.exe -v 0
+            # MuMuManager.exe control -v 2 launch
             if instance.MuMuPlayer12_id is None:
                 logger.warning(f'Cannot get MuMu instance index from name {instance.name}')
-            self.execute(f'"{exe}" -v {instance.MuMuPlayer12_id}', show_window=show_window)
+            self.execute(f'"{exe}" control -v {instance.MuMuPlayer12_id} launch', show_window=show_window)
         elif instance == Emulator.LDPlayerFamily:
             # ldconsole.exe launch --index 0
             self.execute(f'"{Emulator.single_to_console(exe)}" launch --index {instance.LDPlayer_id}',
@@ -363,6 +362,12 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             if timeout.reached():
                 logger.warning(f'模拟器启动超时')
                 return False
+
+            if "MuMuPlayer" not in self.emulator_instance.path:
+                logger.info(f'正在启动模拟器: {self.emulator_instance.path}')
+                if find_hwnd_by_name(self.config.script.device.handle):
+                    logger.info(f'{self.config.script.device.handle} 模拟器已启动')
+                    break
 
             # Check emulator window showing up
             # logger.info([get_focused_window(), get_window_title(get_focused_window())])
