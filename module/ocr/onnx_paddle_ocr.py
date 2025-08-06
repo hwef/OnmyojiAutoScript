@@ -32,7 +32,7 @@ class ONNXPaddleOcr(onnxocr.ONNXPaddleOcr):
                  use_tensorrt=False,
                  precision="fp32",
                  drop_score=0.5,
-                 use_angle_cls=True,
+                 use_angle_cls=False,
                  cpu_threads=10,
                  benchmark=False,
                  use_onnx=False
