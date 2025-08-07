@@ -32,7 +32,7 @@ class Page:
 #登录login
 page_login=Page(G.I_CHECK_LOGIN_FORM)
 # Main Home 主页
-page_main = Page(GeneralBuffAssets.I_BUFF_1)
+page_main = Page(G.I_CHECK_MAIN)
 # 召唤summon
 page_summon = Page(G.I_CHECK_SUMMON)
 page_summon.link(button=G.I_SUMMON_GOTO_MAIN, destination=page_main)
