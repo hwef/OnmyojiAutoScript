@@ -150,6 +150,7 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
             if self.run_general_battle(config=config.general_battle):
                 logger.info("General battle success")
 
+        self.save_image(content="战斗完成！", push_flag=True)
         self.main_home()
         self.set_next_run(task="HeroTest", success=True)
         raise TaskEnd
