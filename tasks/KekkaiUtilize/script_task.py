@@ -609,7 +609,6 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
                 # 解析结界卡类型和数值
                 card_type, card_value = self.check_card_num()
-                logger.info(f'🔍 识别卡片: {card_type} | 当前值: {card_value}')
 
                 # 跳过无效结界卡（类型未知或数值异常）
                 if card_type == 'unknown' or card_value <= 0 or card_type not in RESOURCE_CONFIG:
@@ -620,6 +619,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 current_max = RESOURCE_CONFIG[card_type]['max']
                 record_attr = RESOURCE_CONFIG[card_type]['record_attr']
                 current_record = getattr(self, record_attr, 0)
+                logger.info(f'🔍 识别卡片: {card_type} | 当前值: {card_value}, 最优值: {current_record}')
 
                 # 更新最佳记录
                 if card_value > current_record:
