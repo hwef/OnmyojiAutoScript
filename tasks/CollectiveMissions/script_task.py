@@ -173,7 +173,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
                     '御灵一': '低级',   # 对应原 MC.GR1
                     '御灵三': '高级'    # 对应原 MC.GR3
                 }
-                self.save_image(push_flag=need_push, content=f'⚠️{GRADE_MAP.get(target)}御灵材料，总量剩余{total_number}', image_type=True)
+                self.save_image(push_flag=need_push, content=f'⚠️{GRADE_MAP.get(target)}御灵材料，总量剩余{total_number}')
                 if need_push:
                     return False
                 first_run = False
