@@ -115,9 +115,9 @@ class MoonSea(MoonSeaMap, MoonSeaL101, MoonSeaL102, MoonSeaL103, MoonSeaL104, Mo
             if self.appear(self.I_MSTART,interval=1):
                 if self._conf.number_enable:
                     cu = self.O_SIXREALMS_NUMBER.ocr(self.device.image)
-                    logger.info("门票："+str(cu))
+                    logger.info(f"六道门票数量：{cu}")
                     if not cu > 0:
-                        logger.info("门票不足退出六道！")
+                        self.push_notify("六道门票数量不足, 退出！")
                         return False
                 break
             if self.appear_then_click(self.I_MENTER, interval=1):
