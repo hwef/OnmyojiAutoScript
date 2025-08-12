@@ -153,6 +153,10 @@ class Special(Buy, MallNavbar):
         :param target:
         :return:
         """
+        result = target.match(self.device.image)
+        if not result:
+            self.save_image(wait_time=0, image_type=True, push_flag=True, content=f"未识别到 {target}")
+            return 0
         upper_midpoint = target.roi_front[0] + target.roi_front[2] // 2, target.roi_front[1]
         # 重设roi
         roi = self.O_SP_RES_NUMBER.roi
