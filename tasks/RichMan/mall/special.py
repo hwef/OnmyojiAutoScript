@@ -162,9 +162,7 @@ class Special(Buy, MallNavbar):
         roi = self.O_SP_RES_NUMBER.roi
         self.O_SP_RES_NUMBER.roi[0] = upper_midpoint[0] - roi[2] // 2
         self.O_SP_RES_NUMBER.roi[1] = upper_midpoint[1] - roi[3]
-        # logger.info(f'图片的ROI是: {target.roi_front}')
-        # logger.info(f'上中点是：{upper_midpoint}')
-        # logger.info(f'数字的ROI是: {self.O_SP_RES_NUMBER.roi}')
+
         result = self.O_SP_RES_NUMBER.ocr(self.device.image)
         result = result.replace('？', '2').replace('?', '2').replace(';', '：').replace('火', '次').replace('教', '数')
         result = result.replace('刺', '剩').replace('利', '剩')
@@ -179,6 +177,9 @@ class Special(Buy, MallNavbar):
             result = 0
         logger.info(f'Remain [{result}]')
         if result == 0:
+            logger.info(f'图片的ROI是: {target.roi_front}')
+            logger.info(f'上中点是：{upper_midpoint}')
+            logger.info(f'数字的ROI是: {self.O_SP_RES_NUMBER.roi}')
             self.save_image(wait_time=0, image_type=True,push_flag=True,content=f"{target}剩余数量为0")
         return result
 
