@@ -116,7 +116,7 @@ class DevTool(ctk.CTk):
     def copy_to_clipboard(self, text):
         # 修改这里：改变复制到剪贴板的坐标格式
         x1, y1, x2, y2 = self.coordinates
-        formatted_text = f"{x1},{y1},{x2-x1},{y2-y1}"
+        formatted_text = f"{x1-4},{y1-4},{x2-x1},{y2-y1}"
         subprocess.run(["cmd", "/c", f"echo {formatted_text} | clip"], shell=True)
         self.log_print(f"复制坐标 {formatted_text} 到剪贴板")
 
@@ -286,14 +286,14 @@ class DevTool(ctk.CTk):
             self.draw_rectangle()
             # 修改这里：改变日志中坐标的显示格式
             x1, y1, x2, y2 = self.coordinates
-            self.log_print(f"矩形框坐标：{x1},{y1},{x2-x1},{y2-y1}")
+            self.log_print(f"矩形框坐标：{x1-4},{y1-4},{x2-x1},{y2-y1}")
             self.dyn_creat_info()
 
     def dyn_creat_info(self, *args, **kwargs):
         # 修改这里：改变矩形框坐标显示框中的格式
         x1, y1, x2, y2 = self.coordinates
         self.rect_info.delete(0, "end")
-        self.rect_info.insert(0, f"{x1},{y1},{x2-x1},{y2-y1}")
+        self.rect_info.insert(0, f"{x1-4},{y1-4},{x2-x1},{y2-y1}")
         self.img_info.delete(0, "end")
         self.img_info.insert(0, f"{self.format_img('image')}")
         self.page_info.delete(0, "end")
