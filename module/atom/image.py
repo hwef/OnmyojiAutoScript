@@ -157,6 +157,53 @@ class RuleImage:
         else:
             return False
 
+    def match_mask(self, image: np.array, threshold: float = None, mask_path: str = None) -> bool:
+        """
+        使用蒙版进行图像匹配，只比较蒙版覆盖区域内的像素
+
+        :param image: 输入图像(numpy array)
+        :param threshold: 匹配阈值，默认为实例的阈值
+        :param mask_path: 蒙版文件路径，如果为None则不使用蒙版
+        :return: 匹配成功返回True，否则返回False
+        """
+        if threshold is None:
+            threshold = self.threshold
+
+        if not self.is_template_match:
+            return self.sift_match(image)
+
+        # 裁剪图像到指定区域
+        source = self.corp(image)
+        template = self.image
+        # 如果提供了蒙版路径，则加载蒙版
+        mask = None
+        if mask_path:
+            try:
+                # 使用imdecode支持中文路径
+                mask = cv2.imdecode(fromfile(mask_path, dtype=uint8), cv2.IMREAD_GRAYSCALE)
+            except Exception as e:
+                logger.warning(f"无法加载蒙版 {mask_path}: {e}")
+                mask = None
+
+        # 执行模板匹配
+        if mask is not None:
+            logger.info(f"使用蒙版 {mask_path} 进行匹配")
+            res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
+        else:
+            res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
+
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+        logger.attr(self.name, max_val)
+
+        # 根据阈值判断匹配结果
+        if max_val > threshold:
+            # 更新ROI坐标
+            self.roi_front[0] = max_loc[0] + self.roi_back[0]
+            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            return True
+        else:
+            return False
+
     def match_test(self, image: np.array, threshold: float = None) -> bool:
         """
         :param threshold:
@@ -178,9 +225,11 @@ class RuleImage:
         if max_val > threshold:
             self.roi_front[0] = max_loc[0] + self.roi_back[0]
             self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            logger.info(f'{self.name} 匹配成功, 坐标为: {self.roi_front}')
             return True
         else:
             return False
+
     def match_first(self, image: np.array, threshold: float = None) -> bool:
         """
         自上而下找第一个匹配结果
