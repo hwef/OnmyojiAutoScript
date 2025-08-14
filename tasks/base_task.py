@@ -124,8 +124,12 @@ class BaseTask(GlobalGameAssets, CostumeBase):
 
         return self.device.image
 
+    def appear_mask(self, target: RuleImage, threshold: float = None, mask_path: str = None):
+        appear = target.match_mask(self.device.image, threshold=threshold, mask_path=mask_path)
+        return appear
+
     def appear(self,
-               target: RuleImage | RuleGif,
+               target: RuleImage,
                interval: float = None,
                threshold: float = None):
         """
