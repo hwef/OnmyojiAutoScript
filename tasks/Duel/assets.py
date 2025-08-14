@@ -98,20 +98,6 @@ class DuelAssets:
 	I_BATTLE_TYPE_COMMON = RuleImage(roi_front=(439,278,90,88), roi_back=(439,278,90,88), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/duel_battle_type_common.png")
 	# 活动的战斗按钮 
 	I_D_BATTLE2 = RuleImage(roi_front=(1171,592,69,78), roi_back=(1119,566,154,143), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/duel_d_battle2.png")
-	# 区域找绿标1 
-	I_GREEN_MARK = RuleImage(roi_front=(124,192,1012,197), roi_back=(124,192,1012,197), threshold=0.6, method="Template matching", file="./tasks/Duel/duel/green_mark.png")
-	# 区域找绿标2 
-	I_GREEN_MARK_1 = RuleImage(roi_front=(124,192,1012,197), roi_back=(124,192,1012,197), threshold=0.6, method="Template matching", file="./tasks/Duel/duel/green_mark_1.png")
-	# 区域找式神标记左1 
-	I_GREEN_MARK_IMG1 = RuleImage(roi_front=(145,258,212,176), roi_back=(145,258,212,176), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/green_mark_img.png")
-	# 区域找式神标记左2 
-	I_GREEN_MARK_IMG2 = RuleImage(roi_front=(397,262,163,176), roi_back=(397,262,163,176), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/green_mark_img.png")
-	# 区域找式神标记左3 
-	I_GREEN_MARK_IMG3 = RuleImage(roi_front=(586,248,163,176), roi_back=(586,248,163,176), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/green_mark_img.png")
-	# 区域找式神标记左4 
-	I_GREEN_MARK_IMG4 = RuleImage(roi_front=(749,271,163,176), roi_back=(749,271,163,176), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/green_mark_img.png")
-	# 区域找式神标记左5 
-	I_GREEN_MARK_IMG5 = RuleImage(roi_front=(943,318,192,176), roi_back=(943,318,192,176), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/green_mark_img.png")
 	# 禁用 
 	I_BAN = RuleImage(roi_front=(1112,537,100,100), roi_back=(1112,537,100,100), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/duel_ban.png")
 	# 式神被办第五个上的式神跟原先不同，来判断是否被办 
@@ -131,5 +117,24 @@ class DuelAssets:
 	O_D_AUTO = RuleOcr(roi=(30,640,65,44), area=(30,640,65,44), mode="Single", method="Default", keyword="自动", name="d_auto")
 	# 绿标获取 
 	O_D_GREEN_MARKER = RuleOcr(roi=(111,202,1025,246), area=(111,202,1025,246), mode="Single", method="Default", keyword="456", name="d_green_marker")
+
+
+	# Image Rule Assets
+	# 区域找绿标1 
+	I_GREEN_MARK = RuleImage(roi_front=(124,192,1012,197), roi_back=(124,192,1012,197), threshold=0.6, method="Template matching", file="./tasks/Duel/green_mark/green_mark.png")
+	# 区域找绿标2 
+	I_GREEN_MARK_1 = RuleImage(roi_front=(124,192,1012,197), roi_back=(124,192,1012,197), threshold=0.6, method="Template matching", file="./tasks/Duel/green_mark/green_mark_1.png")
+	# 通过蒙版区域找绿标 
+	I_GREEN_MARK_AUTO = RuleImage(roi_front=(124,192,1012,197), roi_back=(124,192,1012,197), threshold=0.8, method="Template matching", file="./tasks/Duel/green_mark/green_mark_auto.png")
+	# 区域找式神标记左1 
+	I_GREEN_MARK_IMG1 = RuleImage(roi_front=(145,258,212,176), roi_back=(145,258,212,176), threshold=0.8, method="Template matching", file="./tasks/Duel/green_mark/green_mark_img.png")
+	# 区域找式神标记左2 
+	I_GREEN_MARK_IMG2 = RuleImage(roi_front=(397,262,163,176), roi_back=(397,262,163,176), threshold=0.8, method="Template matching", file="./tasks/Duel/green_mark/green_mark_img.png")
+	# 区域找式神标记左3 
+	I_GREEN_MARK_IMG3 = RuleImage(roi_front=(586,248,163,176), roi_back=(586,248,163,176), threshold=0.8, method="Template matching", file="./tasks/Duel/green_mark/green_mark_img.png")
+	# 区域找式神标记左4 
+	I_GREEN_MARK_IMG4 = RuleImage(roi_front=(749,271,163,176), roi_back=(749,271,163,176), threshold=0.8, method="Template matching", file="./tasks/Duel/green_mark/green_mark_img.png")
+	# 区域找式神标记左5 
+	I_GREEN_MARK_IMG5 = RuleImage(roi_front=(943,318,192,176), roi_back=(943,318,192,176), threshold=0.8, method="Template matching", file="./tasks/Duel/green_mark/green_mark_img.png")
 
 

@@ -444,7 +444,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         mark_timer.start()
         while 1:
             if mark_timer.reached():
-                logger.info('Duel green mark timeout, dont appear I_GREEN_MARK_IMG')
+                self.save_image(task_name='未识别到式神名称', wait_time=0, push_flag=True, content='未识别到式神名称',image_type=True)
                 return False
             self.screenshot()
             if self.appear(target, interval=0.5):
@@ -453,28 +453,23 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                                  10,
                                  100)
                 self.C_DUEL_GREEN_LEFT_FULL.roi_front = new_roi_front
-                logger.info(f'old Image roi {target.roi_front}')
-                logger.info(f'new Image roi {self.C_DUEL_GREEN_LEFT_FULL.roi_front}')
                 break
         # 点击绿标
         mark_timer = Timer(5)
         mark_timer.start()
         while 1:
             if mark_timer.reached():
-                logger.info('Duel green mark timeout')
+                logger.info(f'old Image roi {target.roi_front}')
+                logger.info(f'new Image roi {self.C_DUEL_GREEN_LEFT_FULL.roi_front}')
                 self.save_image(task_name='斗技绿标超时', wait_time=0, push_flag=True, content='超时未识别到绿标',image_type=True)
                 return False
             self.screenshot()
-            if self.duel_wait_until_appear(self.I_GREEN_MARK, self.I_GREEN_MARK_1, wait_time=1):
+            if self.duel_wait_until_appear(self.I_GREEN_MARK_AUTO, mask_path=r"./tasks/Duel/green_mark/green_mark_auto_mask.png", wait_time=1):
                 # self.save_image(wait_time=0, push_flag=True, content='识别到绿标',image_type=True)
                 return True
             self.click(self.C_DUEL_GREEN_LEFT_FULL)
 
-    def duel_wait_until_appear(self,
-                          target,
-                          target2,
-                          skip_first_screenshot=False,
-                          wait_time: int = None) -> bool:
+    def duel_wait_until_appear(self, target, wait_time: int = None, mask_path: str = None) -> bool:
         """
         等待直到出现目标
         :param wait_time: 等待时间，单位秒
@@ -487,13 +482,10 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             wait_timer = Timer(wait_time)
             wait_timer.start()
         while 1:
-            if skip_first_screenshot:
-                skip_first_screenshot = False
-            else:
-                self.screenshot()
+            self.screenshot()
             if wait_timer and wait_timer.reached():
                 return False
-            if self.appear(target) or self.appear(target2):
+            if self.appear_mask(target=target, mask_path=mask_path):
                 return True
     def duel_green_mark(self, mark_mode: GreenMarkType = GreenMarkType.GREEN_MAIN):
         """

@@ -1,0 +1,74 @@
+[
+  {
+    "itemName": "green_mark",
+    "imageName": "green_mark.png",
+    "roiFront": "124,192,1012,197",
+    "roiBack": "124,192,1012,197",
+    "method": "Template matching",
+    "threshold": 0.6,
+    "description": "区域找绿标1"
+  },
+  {
+    "itemName": "green_mark_1",
+    "imageName": "green_mark_1.png",
+    "roiFront": "124,192,1012,197",
+    "roiBack": "124,192,1012,197",
+    "method": "Template matching",
+    "threshold": 0.6,
+    "description": "区域找绿标2"
+  },
+  {
+    "itemName": "green_mark_auto",
+    "imageName": "green_mark_auto.png",
+    "roiFront": "124,192,1012,197",
+    "roiBack": "124,192,1012,197",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "通过蒙版区域找绿标"
+  },
+  {
+    "itemName": "green_mark_img1",
+    "imageName": "green_mark_img.png",
+    "roiFront": "145,258,212,176",
+    "roiBack": "145,258,212,176",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "区域找式神标记左1"
+  },
+  {
+    "itemName": "green_mark_img2",
+    "imageName": "green_mark_img.png",
+    "roiFront": "397,262,163,176",
+    "roiBack": "397,262,163,176",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "区域找式神标记左2"
+  },
+  {
+    "itemName": "green_mark_img3",
+    "imageName": "green_mark_img.png",
+    "roiFront": "586,248,163,176",
+    "roiBack": "586,248,163,176",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "区域找式神标记左3"
+  },
+  {
+    "itemName": "green_mark_img4",
+    "imageName": "green_mark_img.png",
+    "roiFront": "749,271,163,176",
+    "roiBack": "749,271,163,176",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "区域找式神标记左4"
+  },
+  {
+    "itemName": "green_mark_img5",
+    "imageName": "green_mark_img.png",
+    "roiFront": "943,318,192,176",
+    "roiBack": "943,318,192,176",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "区域找式神标记左5"
+  }
+]
