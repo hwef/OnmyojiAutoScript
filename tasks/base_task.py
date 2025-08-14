@@ -135,7 +135,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         :param threshold:
         :return:
         """
-        if not isinstance(target, RuleImage) and not isinstance(target, RuleGif):
+        if not isinstance(target, RuleImage):
             return False
 
         if interval:
@@ -169,7 +169,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         :param threshold:
         :return: True or False
         """
-        if not isinstance(target, RuleImage) and not isinstance(target, RuleGif):
+        if not isinstance(target, RuleImage):
             return False
 
         appear = self.appear(target, interval=interval, threshold=threshold)
