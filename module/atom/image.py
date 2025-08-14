@@ -187,13 +187,12 @@ class RuleImage:
 
         # 执行模板匹配
         if mask is not None:
-            logger.info(f"使用蒙版 {mask_path} 进行匹配")
             res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
         else:
             res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
 
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-        logger.attr(self.name, max_val)
+        # logger.attr(self.name, max_val)
 
         # 根据阈值判断匹配结果
         if max_val > threshold:
