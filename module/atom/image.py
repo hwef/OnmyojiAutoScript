@@ -192,8 +192,10 @@ class RuleImage:
             res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
 
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-        # logger.attr(self.name, max_val)
-
+        if not np.isfinite(max_val) or max_val < -1.0 or max_val > 1.0:
+            logger.warning(f"匹配结果无效 {self.name}: {max_val}")
+            # 处理无效值情况
+            return False
         # 根据阈值判断匹配结果
         if max_val > threshold:
             # 更新ROI坐标
