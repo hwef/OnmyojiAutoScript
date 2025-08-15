@@ -76,6 +76,8 @@ class DevTool(ctk.CTk):
         # 框选坐标显示框
         self.rect_info = ctk.CTkEntry(self.left_frame, placeholder_text="矩形框坐标", width=260, justify="center")
         self.rect_info.grid(row=4, column=1, columnspan=2, padx=10, pady=10, sticky="ew")
+        # 绑定回车键事件，当在坐标输入框按回车时显示矩形框
+        self.rect_info.bind("<KeyRelease>", self.show_rectangle_from_entry)
         # 复制按钮
         self.copy_button = ctk.CTkButton(self.left_frame, width=20, text="复制坐标", command=lambda: self.copy_to_clipboard(str(self.coordinates)))
         self.copy_button.grid(row=4, column=3, padx=10, pady=10, sticky="ew")
@@ -117,7 +119,8 @@ class DevTool(ctk.CTk):
         # 修改这里：改变复制到剪贴板的坐标格式
         x1, y1, x2, y2 = self.coordinates
         formatted_text = f"{x1-4},{y1-4},{x2-x1},{y2-y1}"
-        subprocess.run(["cmd", "/c", f"echo {formatted_text} | clip"], shell=True)
+        formatted_text = formatted_text.replace('\n', '').replace('\r', '').replace(' ', '')
+        subprocess.run(["cmd", "/c", f"set /p dummy={formatted_text} <nul | clip"], shell=True)
         self.log_print(f"复制坐标 {formatted_text} 到剪贴板")
 
     def choose_folder(self):
@@ -304,6 +307,55 @@ class DevTool(ctk.CTk):
     def draw_rectangle(self):
         self.screen_canvas.delete("rect")
         self.screen_canvas.create_rectangle(self.rect["x1"], self.rect["y1"], self.rect["x2"], self.rect["y2"], outline="red", tags="rect")
+
+    def show_rectangle_from_entry(self, event=None):
+        """从坐标输入框获取坐标并在画布上显示矩形框"""
+        coord_text = self.rect_info.get().strip()
+        if not coord_text:
+            # 如果输入框为空，清除画布上的矩形框
+            self.screen_canvas.delete("rect")
+            return
+
+        # 只有当输入的坐标看起来是完整的时候才尝试绘制
+        if coord_text.count(',') != 3:
+            # 如果不是完整的4个坐标值，暂时不处理
+            return
+
+        try:
+            # 解析坐标格式 x,y,w,h
+            coords = [int(x.strip()) for x in coord_text.split(',')]
+            if len(coords) != 4:
+                return  # 不完整的坐标不处理
+
+            x, y, w, h = coords
+            # 转换为画布坐标 (加上偏移量4)
+            x1 = x + 4
+            y1 = y + 4
+            x2 = x1 + w
+            y2 = y1 + h
+
+            # 检查坐标是否在图像范围内
+            if self.np_image is not None:
+                if not (0 <= x1 < x2 <= self.np_image.shape[1]+8 and 0 <= y1 < y2 <= self.np_image.shape[0]+8):
+                    # 坐标超出范围时不绘制，但不清除现有矩形
+                    return
+
+            # 更新矩形坐标
+            self.rect["x1"] = x1
+            self.rect["y1"] = y1
+            self.rect["x2"] = x2
+            self.rect["y2"] = y2
+
+            # 绘制矩形
+            self.draw_rectangle()
+
+        except ValueError:
+            # 输入非数字时不处理
+            pass
+        except Exception:
+            # 其他异常也不处理
+            pass
+
 
 
 if __name__ == "__main__":
