@@ -16,6 +16,8 @@ import numpy as np
 from PIL import Image, ImageTk
 from tkinter import filedialog, Canvas
 import os
+from anyio import Path
+from numpy import fromfile
 
 
 class MaskGenerator(ctk.CTk):
@@ -35,6 +37,9 @@ class MaskGenerator(ctk.CTk):
         self.last_x = None
         self.last_y = None
         self.edit_mode = "draw"  # "draw" or "erase"
+        self.shape_mode = "free"  # "free", "rectangle", "circle", "ellipse"
+        self.shape_start_pos = None
+        self.temp_shape_id = None
         self.brush_size = 10
         self.scale_factor = 1.0
         self.image_position = (0, 0)
@@ -104,6 +109,14 @@ class MaskGenerator(ctk.CTk):
         ctk.CTkButton(tools_frame, text="擦除", width=60, command=lambda: self.set_edit_mode("erase")).pack(side="left", padx=2)
 
         ctk.CTkButton(tools_frame, text="撤销", width=60, command=self.undo_edit).pack(side="right", padx=2)
+
+        # 形状选择
+        shape_frame = ctk.CTkFrame(edit_frame)
+        shape_frame.pack(fill="x", pady=5)
+        ctk.CTkButton(shape_frame, text="自由绘制", width=80, command=lambda: self.set_shape_mode("free")).pack(side="left", padx=2)
+        ctk.CTkButton(shape_frame, text="矩形", width=60, command=lambda: self.set_shape_mode("rectangle")).pack(side="left", padx=2)
+        ctk.CTkButton(shape_frame, text="椭圆", width=60, command=lambda: self.set_shape_mode("ellipse")).pack(side="left", padx=2)
+        ctk.CTkButton(shape_frame, text="正圆", width=60, command=lambda: self.set_shape_mode("circle")).pack(side="left", padx=2)
 
         # 画笔大小调节
         brush_frame = ctk.CTkFrame(edit_frame)
@@ -230,7 +243,8 @@ class MaskGenerator(ctk.CTk):
 
     def update_brush_indicator(self, event):
         """更新画笔指示器位置和大小"""
-        if self.mask is None:
+        if self.mask is None or self.shape_mode != "free":
+            self.clear_brush_indicators()
             return
 
         # 清除所有旧的画笔指示器
@@ -262,7 +276,8 @@ class MaskGenerator(ctk.CTk):
 
     def show_brush_indicator(self, event):
         """显示画笔指示器"""
-        self.update_brush_indicator(event)
+        if self.shape_mode == "free":
+            self.update_brush_indicator(event)
 
     def change_method(self, method):
         """切换蒙版生成方式"""
@@ -275,6 +290,18 @@ class MaskGenerator(ctk.CTk):
         self.edit_mode = mode
         # 更新画笔指示器颜色
         if self.last_x is not None and self.last_y is not None:
+            self.result_canvas.event_generate("<Motion>", x=self.last_x, y=self.last_y)
+
+    def set_shape_mode(self, mode):
+        """设置形状绘制模式"""
+        self.shape_mode = mode
+        if self.temp_shape_id:
+            self.result_canvas.delete(self.temp_shape_id)
+            self.temp_shape_id = None
+
+        if mode != "free":
+            self.clear_brush_indicators()
+        elif self.last_x is not None:
             self.result_canvas.event_generate("<Motion>", x=self.last_x, y=self.last_y)
 
     def update_brush_size(self, value):
@@ -290,46 +317,104 @@ class MaskGenerator(ctk.CTk):
         if self.mask is None:
             return
 
-        # 保存当前状态用于撤销
         self.save_to_history()
-
         self.editing = True
-        self.last_x = event.x
-        self.last_y = event.y
-        self.edit(event)
+
+        if self.shape_mode == "free":
+            self.last_x = event.x
+            self.last_y = event.y
+            self.edit(event)  # 立即绘制一个点
+        else:
+            self.shape_start_pos = (event.x, event.y)
 
     def edit(self, event):
         """编辑蒙版"""
         if not self.editing or self.mask is None:
             return
 
-        # 获取画布上的相对位置
-        x, y = event.x, event.y
+        if self.shape_mode == "free":
+            x, y = event.x, event.y
+            img_x = int((x - self.image_position[0]) / self.scale_factor)
+            img_y = int((y - self.image_position[1]) / self.scale_factor)
+            last_img_x = int((self.last_x - self.image_position[0]) / self.scale_factor)
+            last_img_y = int((self.last_y - self.image_position[1]) / self.scale_factor)
 
-        # 计算实际图像上的位置
-        img_x = int((x - self.image_position[0]) / self.scale_factor)
-        img_y = int((y - self.image_position[1]) / self.scale_factor)
-        last_img_x = int((self.last_x - self.image_position[0]) / self.scale_factor)
-        last_img_y = int((self.last_y - self.image_position[1]) / self.scale_factor)
+            h, w = self.mask.shape
+            if 0 <= img_x < w and 0 <= img_y < h:
+                color = 255 if self.edit_mode == "draw" else 0
+                cv2.line(self.mask, (last_img_x, last_img_y), (img_x, img_y), color, self.brush_size)
+                self.update_image(update_mask=False)
 
-        # 确保坐标在图像范围内
-        h, w = self.mask.shape
-        if 0 <= img_x < w and 0 <= img_y < h:
-            # 绘制线条
-            cv2.line(self.mask, (last_img_x, last_img_y), (img_x, img_y), 255 if self.edit_mode == "draw" else 0, self.brush_size)
+            self.last_x, self.last_y = x, y
 
-            # 更新显示
-            self.update_image(update_mask=False)
+        elif self.shape_mode in ["rectangle", "ellipse", "circle"]:
+            if self.temp_shape_id:
+                self.result_canvas.delete(self.temp_shape_id)
 
-            # 更新画笔指示器
-            self.update_brush_indicator(event)
+            start_x, start_y = self.shape_start_pos
+            end_x, end_y = event.x, event.y
+            outline_color = "#00ff00" if self.edit_mode == "draw" else "#ff0000"
 
-        self.last_x = x
-        self.last_y = y
+            if self.shape_mode == "rectangle":
+                self.temp_shape_id = self.result_canvas.create_rectangle(start_x, start_y, end_x, end_y, outline=outline_color, width=1)
+            elif self.shape_mode == "ellipse":
+                self.temp_shape_id = self.result_canvas.create_oval(start_x, start_y, end_x, end_y, outline=outline_color, width=1)
+            elif self.shape_mode == "circle":
+                center_x, center_y = self.shape_start_pos
+                current_x, current_y = event.x, event.y
+                radius = int(((current_x - center_x) ** 2 + (current_y - center_y) ** 2) ** 0.5)
+                self.temp_shape_id = self.result_canvas.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, outline=outline_color, width=1)
 
     def stop_edit(self, event):
         """停止编辑"""
+        if not self.editing:
+            return
         self.editing = False
+
+        if self.temp_shape_id:
+            self.result_canvas.delete(self.temp_shape_id)
+            self.temp_shape_id = None
+
+        if self.shape_mode in ["rectangle", "ellipse", "circle"] and self.shape_start_pos:
+            start_x_canvas, start_y_canvas = self.shape_start_pos
+            end_x_canvas, end_y_canvas = event.x, event.y
+
+            if self.shape_mode in ["rectangle", "ellipse"]:
+                start_x_img = int((min(start_x_canvas, end_x_canvas) - self.image_position[0]) / self.scale_factor)
+                start_y_img = int((min(start_y_canvas, end_y_canvas) - self.image_position[1]) / self.scale_factor)
+                end_x_img = int((max(start_x_canvas, end_x_canvas) - self.image_position[0]) / self.scale_factor)
+                end_y_img = int((max(start_y_canvas, end_y_canvas) - self.image_position[1]) / self.scale_factor)
+
+                if self.shape_mode == "rectangle":
+                    if self.edit_mode == "draw":
+                        self.mask = np.zeros(self.current_image.shape[:2], dtype=np.uint8)
+                        cv2.rectangle(self.mask, (start_x_img, start_y_img), (end_x_img, end_y_img), 255, -1)
+                    else:
+                        cv2.rectangle(self.mask, (start_x_img, start_y_img), (end_x_img, end_y_img), 0, -1)
+                elif self.shape_mode == "ellipse":
+                    center = ((start_x_img + end_x_img) // 2, (start_y_img + end_y_img) // 2)
+                    axes = ((end_x_img - start_x_img) // 2, (end_y_img - start_y_img) // 2)
+                    if self.edit_mode == "draw":
+                        self.mask = np.zeros(self.current_image.shape[:2], dtype=np.uint8)
+                        cv2.ellipse(self.mask, center, axes, 0, 0, 360, 255, -1)
+                    else:
+                        cv2.ellipse(self.mask, center, axes, 0, 0, 360, 0, -1)
+
+            elif self.shape_mode == "circle":
+                center_x_canvas, center_y_canvas = self.shape_start_pos
+                radius_canvas = int(((end_x_canvas - center_x_canvas) ** 2 + (end_y_canvas - center_y_canvas) ** 2) ** 0.5)
+                center_x_img = int((center_x_canvas - self.image_position[0]) / self.scale_factor)
+                center_y_img = int((center_y_canvas - self.image_position[1]) / self.scale_factor)
+                radius_img = int(radius_canvas / self.scale_factor)
+
+                if self.edit_mode == "draw":
+                    self.mask = np.zeros(self.current_image.shape[:2], dtype=np.uint8)
+                    cv2.circle(self.mask, (center_x_img, center_y_img), radius_img, 255, -1)
+                else:
+                    cv2.circle(self.mask, (center_x_img, center_y_img), radius_img, 0, -1)
+
+            self.shape_start_pos = None
+            self.update_image(update_mask=False)
 
     def save_to_history(self):
         """保存当前状态到历史记录"""
@@ -374,22 +459,7 @@ class MaskGenerator(ctk.CTk):
         if file_path:
             self.current_image_path = file_path
             self.file_label.configure(text=os.path.basename(file_path))
-
-            try:
-                # 首先尝试使用PIL读取（对中文路径支持更好）
-                pil_image = Image.open(file_path)
-                # 确保是RGB模式
-                if pil_image.mode != 'RGB':
-                    pil_image = pil_image.convert('RGB')
-                # 转换为OpenCV格式
-                self.current_image = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
-            except Exception as e:
-                print(f"无法读取图片: {e}")
-                # 如果PIL也失败了，显示错误信息
-                import tkinter.messagebox as messagebox
-                messagebox.showerror("错误", f"无法读取图片文件:\n{file_path}\n\n错误信息:\n{str(e)}")
-                return
-
+            self.current_image = cv2.imdecode(fromfile(file_path, dtype=np.uint8), -1)
             self.edit_history = []  # 清空编辑历史
             self.update_image()
 
@@ -510,41 +580,16 @@ class MaskGenerator(ctk.CTk):
         # 生成保存路径
         dir_path = os.path.dirname(self.current_image_path)
         file_name = os.path.splitext(os.path.basename(self.current_image_path))[0]
-        save_path = os.path.join(dir_path, f"{file_name}_MASK.png")
+        save_path = os.path.join(dir_path, f"{file_name}_mask.png")
 
-        try:
-            # 尝试直接保存
-            success = cv2.imwrite(save_path, self.mask)
-            if not success:
-                # 如果直接保存失败，尝试创建目录并重新保存
-                os.makedirs(dir_path, exist_ok=True)
-                success = cv2.imwrite(save_path, self.mask)
+        # 保存蒙版
+        # result = cv2.imwrite(save_path, self.mask)
+        result = cv2.imencode('.png', self.mask)[1].tofile(save_path)
+        save_label = ctk.CTkLabel(self, text=f"已保存至: {os.path.basename(save_path)}", fg_color=("green", "#2D5"))
+        save_label.place(relx=0.5, rely=0.9, anchor="center")
 
-            if success:
-                # 显示保存成功消息
-                save_label = ctk.CTkLabel(self, text=f"已保存至: {os.path.basename(save_path)}", fg_color=("green", "#2D5"))
-                save_label.place(relx=0.5, rely=0.9, anchor="center")
-                # 2秒后移除消息
-                self.after(2000, save_label.destroy)
-            else:
-                raise Exception("OpenCV保存失败")
-
-        except Exception as e:
-            # 如果OpenCV保存失败，尝试使用PIL保存
-            try:
-                # 将蒙版转换为PIL图像
-                mask_pil = Image.fromarray(self.mask)
-                mask_pil.save(save_path)
-
-                # 显示保存成功消息
-                save_label = ctk.CTkLabel(self, text=f"已保存至: {os.path.basename(save_path)}", fg_color=("green", "#2D5"))
-                save_label.place(relx=0.5, rely=0.9, anchor="center")
-                # 2秒后移除消息
-                self.after(2000, save_label.destroy)
-            except Exception as e2:
-                # 如果两种方法都失败，显示错误信息
-                import tkinter.messagebox as messagebox
-                messagebox.showerror("保存失败", f"无法保存蒙版文件:\n{save_path}\n\n错误信息:\n{str(e2)}")
+        # 2秒后移除消息
+        self.after(2000, save_label.destroy)
 
 
 if __name__ == "__main__":
