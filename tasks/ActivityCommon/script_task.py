@@ -52,7 +52,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
             self.set_next_run(task='SoulsTidy', success=False, finish=False, target=datetime.now())
 
         if self.SoulsFUll:
-            self.push_notify_and_log("御魂溢出，结束任务,重新执行任务")
+            self.push_notify("御魂溢出，结束任务,重新执行任务")
             self.set_next_run(task='ActivityCommon', success=False, finish=False, target=datetime.now())
         else:
             self.set_next_run(task='ActivityCommon', success=True, finish=True)
@@ -90,15 +90,15 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                             return
                         if enable:
                             if datetime.now() - self.start_time >= self.limit_time:
-                                self.push_notify_and_log("时间限制已到，结束任务")
+                                self.push_notify("时间限制已到，结束任务")
                                 return
                             if self.current_count >= self.limit_count:
-                                self.push_notify_and_log("次数限制已到，结束任务")
+                                self.push_notify("次数限制已到，结束任务")
                                 return
 
                 if self.appear_then_click(image_template, interval=1):
                     if current_file == '御魂溢出确认.png':
-                        self.push_notify_and_log("御魂溢出，结束任务")
+                        self.push_notify("御魂溢出，结束任务")
                         over_task = True
                         self.SoulsFUll = True
                         self.set_next_run(task='SoulsTidy', success=False, finish=False, target=datetime.now())
@@ -130,7 +130,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                     if current_file == last_clicked_file:
                         click_count += 1
                         if click_count >= click_count_max:
-                            self.push_notify_and_log("点击同一图片最大次数，结束任务")
+                            self.push_notify("点击同一图片最大次数，结束任务")
                             over_task = True
                     else:
                         click_count = 0  # 点击不同图片时重置计数
@@ -139,10 +139,6 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                     if current_file == '挑战.png' or current_file == '准备.png':
                         self.device.stuck_record_add('BATTLE_STATUS_S')
                     break
-
-    def push_notify_and_log(self, content):
-        logger.info(f"{content}")
-        self.push_notify(content=f"{content}")
 
     def _load_image_template(self):
         image_templates = []

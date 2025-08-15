@@ -50,6 +50,7 @@ from tasks.GuildBanquet.config import GuildBanquet
 
 # 这一部分是活动的配置-----------------------------------------------------------------------------------------------------
 from tasks.ActivityShikigami.config import ActivityShikigami
+from tasks.AutoCake.config import AutoCake
 from tasks.ActivityCommon.config import ActivityCommon
 from tasks.MetaDemon.config import MetaDemon
 from tasks.FrogBoss.config import FrogBoss
@@ -121,6 +122,7 @@ class ConfigModel(ConfigBase):
     # 这些是活动的
     activity_shikigami: ActivityShikigami = Field(default_factory=ActivityShikigami)
     activity_common: ActivityCommon = Field(default_factory=ActivityCommon)
+    auto_cake: AutoCake = Field(default_factory=AutoCake)
     meta_demon: MetaDemon = Field(default_factory=MetaDemon)
     frog_boss: FrogBoss = Field(default_factory=FrogBoss)
     float_parade: FloatParade = Field(default_factory=FloatParade)

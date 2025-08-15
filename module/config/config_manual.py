@@ -20,7 +20,7 @@ class ConfigManual:
         > TrueOrochi > RichMan > Secret > WeeklyTrifles > SixRealms > Sougenbi 
         > CollectiveMissions
         > Delegation > Hyakkiyakou
-        > MysteryShop > Duel > MetaDemon > FrogBoss > FloatParade > Quiz > KittyShop
+        > MysteryShop > Duel > MetaDemon > FrogBoss > FloatParade > Quiz > KittyShop > AutoCake
         > TalismanPass
         """
 
