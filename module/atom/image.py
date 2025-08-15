@@ -192,7 +192,7 @@ class RuleImage:
             res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
 
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-        if not np.isfinite(max_val) or max_val < -1.0 or max_val > 1.0:
+        if not np.isfinite(max_val):
             logger.warning(f"匹配结果无效 {self.name}: {max_val}")
             # 处理无效值情况
             return False
