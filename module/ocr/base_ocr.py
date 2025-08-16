@@ -199,7 +199,7 @@ class BaseCor:
                 name=f'{self.name} {float2str(time.time() - start_time)}s',
                 text=f'识别结果: [{result}] 置信度: {score:.2f}'
             )
-            return result
+            return result, score
         except Exception as e:
             logger.error(f'{self.name} OCR识别失败: {str(e)}')
             raise
