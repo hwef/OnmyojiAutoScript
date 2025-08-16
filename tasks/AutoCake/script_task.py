@@ -78,6 +78,17 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle,  AutoCakeAssets, ActivityShi
         # 开启樱饼
         while 1:
             self.screenshot()
+            # 检测门票数量
+            if self.appear(self.I_IS_REACH, interval=10):
+                res, score = self.O_REMAIN_AP_ACTIVITY2.ocr(self.device.image, return_score=True)
+                if score > 0.6:
+                    if res <= 0:
+                        logger.warning(f'门票数量：{res}, 任务结束')
+                        return
+                else:
+                    logger.info(f'置信度过低：{score}')
+                    self.save_image(content=f'置信度过低：{score}', push_flag=True, image_type=True, wait_time=0)
+
             if self.appear_rgb(self.I_IS_CLOSE):
                 logger.info('开启樱饼')
                 self.click(self.C_CAKE_AREA, interval=1)
@@ -101,10 +112,14 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle,  AutoCakeAssets, ActivityShi
                 break
             # 检测门票数量
             if self.appear(self.I_IS_REACH, interval=10):
-                res = self.O_REMAIN_AP_ACTIVITY2.ocr(self.device.image)
-                if res <= 0:
-                    logger.warning(f'门票数量：{res}, 任务结束')
-                    break
+                res, score = self.O_REMAIN_AP_ACTIVITY2.ocr(self.device.image, return_score=True)
+                if score > 0.6:
+                    if res <= 0:
+                        logger.warning(f'门票数量：{res}, 任务结束')
+                        break
+                else:
+                    logger.info(f'置信度过低：{score}')
+                    self.save_image(content=f'置信度过低：{score}', push_flag=True, image_type=True, wait_time=0)
             # 定时重置状态
             if swipe_timer.reached():
                 swipe_timer.reset()
@@ -146,7 +161,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('zhu')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
 
