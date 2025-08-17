@@ -7,6 +7,7 @@ import os
 import subprocess
 from PIL import Image, ImageTk
 from datetime import datetime
+import pyperclip
 
 
 class DevTool(ctk.CTk):
@@ -119,8 +120,12 @@ class DevTool(ctk.CTk):
         # 修改这里：改变复制到剪贴板的坐标格式
         x1, y1, x2, y2 = self.coordinates
         formatted_text = f"{x1-4},{y1-4},{x2-x1},{y2-y1}"
-        formatted_text = formatted_text.replace('\n', '').replace('\r', '').replace(' ', '')
-        subprocess.run(["cmd", "/c", f"set /p dummy={formatted_text} <nul | clip"], shell=True)
+        # 彻底清理所有空白字符
+        import re
+        formatted_text = re.sub(r'\s+', '', formatted_text)
+
+        # 使用更可靠的剪贴板方法
+        pyperclip.copy(formatted_text)
         self.log_print(f"复制坐标 {formatted_text} 到剪贴板")
 
     def choose_folder(self):
@@ -297,12 +302,12 @@ class DevTool(ctk.CTk):
         x1, y1, x2, y2 = self.coordinates
         self.rect_info.delete(0, "end")
         self.rect_info.insert(0, f"{x1-4},{y1-4},{x2-x1},{y2-y1}")
-        self.img_info.delete(0, "end")
-        self.img_info.insert(0, f"{self.format_img('image')}")
-        self.page_info.delete(0, "end")
-        self.page_info.insert(0, f"{self.format_img('page')}")
-        self.click_info.delete(0, "end")
-        self.click_info.insert(0, f"{self.format_img('coor')}")
+        # self.img_info.delete(0, "end")
+        # self.img_info.insert(0, f"{self.format_img('image')}")
+        # self.page_info.delete(0, "end")
+        # self.page_info.insert(0, f"{self.format_img('page')}")
+        # self.click_info.delete(0, "end")
+        # self.click_info.insert(0, f"{self.format_img('coor')}")
 
     def draw_rectangle(self):
         self.screen_canvas.delete("rect")
