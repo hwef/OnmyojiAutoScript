@@ -25,7 +25,8 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
         config = self.config.hero_test
         global is_update
         global is_skill
-         # 自动换御魂
+
+        # 自动换御魂
         if config.switch_soul_config.enable:
             self.ui_get_current_page()
             self.ui_goto(page_shikigami_records)
@@ -258,20 +259,23 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
 
     def check_art_war_card(self):
         self.screenshot()
-        cu = self.O_ART_WAR_CARD.ocr(image=self.device.image)
-        if cu[0] >= 1:
-            logger.info("Art war card is enough")
-            return True
-        cu = self.O_ART_WAR_CARD_PLUS.ocr(image=self.device.image)
-        # 转换为int
-        if cu != "":
-            cu = int(cu)
+        if self.appear(self.I_BATTLE):
+            cu = self.O_ART_WAR_CARD.ocr(image=self.device.image)
+            if cu[0] >= 1:
+                logger.info("Art war card is enough")
+                return True
+            cu = self.O_ART_WAR_CARD_PLUS.ocr(image=self.device.image)
+            # 转换为int
+            if cu != "":
+                cu = int(cu)
+            else:
+                cu = 0
+            if cu >= 1:
+                logger.info("Art war card is not enough, but plus card is enough")
+                return True
+            return False
         else:
-            cu = 0
-        if cu >= 1:
-            logger.info("Art war card is not enough, but plus card is enough")
             return True
-        return False
 
     def home_main(self) -> bool:
         """
