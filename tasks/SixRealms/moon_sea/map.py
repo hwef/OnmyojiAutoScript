@@ -163,7 +163,7 @@ if __name__ == '__main__':
     from module.device.device import Device
     from module.base.utils import load_image
 
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     t = MoonSeaMap(c, d)
     t.device.image = load_image(r'C:\Users\Ryland\Desktop\Desktop\34.png')
