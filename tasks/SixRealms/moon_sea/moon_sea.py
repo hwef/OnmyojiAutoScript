@@ -47,8 +47,10 @@ class MoonSea(MoonSeaMap, MoonSeaL101, MoonSeaL102, MoonSeaL103, MoonSeaL104, Mo
             if datetime.now() - self.start_time >= max_time:
                 logger.info('Run out of time, exit')
                 break
-            self.one()
-            cnt += 1
+            if self.one():
+                cnt += 1
+            else:
+                break
         self.push_notify(content=f'任务已完成{cnt}次,用时: {timedelta(seconds=int((datetime.now() - self.start_time).total_seconds()))}')
         logger.info('Exit Moon Sea')
 
@@ -84,7 +86,7 @@ class MoonSea(MoonSeaMap, MoonSeaL101, MoonSeaL102, MoonSeaL103, MoonSeaL104, Mo
             if isl_type == MoonSeaType.island106:
                 self.boss_team_lock()
                 if self.boss_battle():
-                    break
+                    return True
                 else:
                     continue
 
