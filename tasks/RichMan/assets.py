@@ -281,7 +281,7 @@ class RichManAssets:
 
 	# Ocr Rule Assets
 	# 蛇皮剩余可买的 
-	O_SCA_NUMBER_OROCHI = RuleOcr(roi=(46,318,27,25), area=(46,318,27,25), mode="Digit", method="Default", keyword="", name="sca_number_orochi")
+	O_SCA_NUMBER_OROCHI = RuleOcr(roi=(40,319,41,23), area=(40,319,41,23), mode="Digit", method="Default", keyword="", name="sca_number_orochi")
 	# 首领御魂剩余可买的 
 	O_SCA_NUMBER_DEMON = RuleOcr(roi=(627,319,30,25), area=(627,319,30,25), mode="Digit", method="Default", keyword="", name="sca_number_demon")
 	# 永生之海潮汐御魂 

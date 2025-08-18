@@ -24,7 +24,7 @@ class Scales(Buy, MallNavbar):
         self._enter_scales()
 
         # 朴素的御魂
-        self._scales_orochi_new(con.orochi_scales)
+        self._scales_orochi(con.orochi_scales)
         # 首领御魂
         self._scales_demon(con.demon_souls, con.demon_class, con.demon_position)
         # 潮汐御魂
@@ -156,7 +156,7 @@ class Scales(Buy, MallNavbar):
                 self.save_image(task_name='ScalesSea', wait_time=0.5)
                 self.appear_then_click(self.I_SCA_SELECT_1, interval=1.6)
 
-    def _scales_orochi_new(self, buy_number: int):
+    def _scales_orochi(self, buy_number: int):
         """
         要求必须是在御魂礼盒界面
         :param buy_number:
@@ -189,48 +189,6 @@ class Scales(Buy, MallNavbar):
             # 购买
             self._scales_buy_more(self.I_SCA_OROCHI_SCALES)
             time.sleep(0.5)
-
-    def _scales_orochi(self, buy_number: int):
-        """
-        要求必须是在御魂礼盒界面
-        :param buy_number:
-        :return:
-        """
-        logger.hr('Scales orochi', 3)
-        if buy_number == 0:
-            logger.info('The purchase quantity of Scales orochi is 0')
-            return
-        self.screenshot()
-        # 检查是否出现了购买按钮
-        if not self.appear(self.I_SCA_OROCHI_SCALES):
-            logger.warning('Scales orochi is not appear')
-            return
-        # 检查剩余数量
-        remain_number = self.O_SCA_NUMBER_OROCHI.ocr(self.device.image)
-        if remain_number == 0:
-            logger.warning(f'The remaining purchase quantity of xx is {remain_number}')
-            return
-        if remain_number < buy_number:
-            buy_number = remain_number
-            logger.warning(f'Remaining purchase quantity is {remain_number}, buy_number is {buy_number}')
-        # 检查钱是否够
-        cu, res, total = self.O_SCA_RES_OROCHI.ocr(self.device.image)
-        if cu + res != total:
-            logger.warning('OCR error')
-            return
-        money_enough = cu >= 50 * buy_number
-        if not money_enough:
-            logger.warning('Scales orochi money is not enough')
-            # 判断够不够买2个
-            if cu < 100:
-                logger.warning('Scales orochi money can not buy two')
-                return
-        # 购买
-        if not money_enough:
-            self._scales_buy_more(self.I_SCA_OROCHI_SCALES)
-        else:
-            self._scales_buy_more(self.I_SCA_OROCHI_SCALES, buy_number)
-        time.sleep(0.5)
 
     def _scales_demon(self, buy_number: int, buy_class: DemonClass = DemonClass.ODOKURO, buy_position: int = 1):
         """
@@ -400,7 +358,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('MI')
     d = Device(c)
     t = Scales(c, d)
 
@@ -408,5 +366,5 @@ if __name__ == '__main__':
 
     # 朴素的御魂
     con = c.rich_man.scales
-    t._scales_orochi_new(con.orochi_scales)
-    t._scales_sea(buy_number=30)
+    t._scales_orochi(con.orochi_scales)
+    # t._scales_sea(buy_number=30)
