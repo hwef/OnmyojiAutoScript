@@ -404,7 +404,6 @@ class Script:
         is_first_task = True
         stop_requested = False
         self.config.model.running_task = None
-        ppocr_task = ["RichMan", "Secret", "SixRealms"]
 
         logger.info(f'[启动] 调度器循环开始 | 配置: {self.config_name}')
         try:
@@ -434,16 +433,6 @@ class Script:
                     if self.device and self.device_status:
                         self.device.stuck_record_clear()
                         self.device.click_record_clear()
-
-                    # ------------------------- 任务启用何种ocr -------------------------
-                    # 当前是否需要使用PPOCR模型？
-                    use_ppocr = task in ppocr_task
-                    # 如果模型类型和任务需求不匹配，就切换模型
-                    if use_ppocr != (OCR_MODEL._model_type == 'ppocr'):
-                        if use_ppocr:
-                            OCR_MODEL.switch_to_ppocr()  # 需要PPOCR但当前不是，切换回PPOCR
-                        else:
-                            OCR_MODEL.switch_to_onnx()  # 不需要PPOCR但当前是，切换到ONNX
 
                     # ------------------------- 任务执行 -------------------------
                     logger.hr(f'{task_chinese_name} Start', 0)
