@@ -65,7 +65,7 @@ class MoonSeaMap(MoonSeaSkills):
             elif isl_type == MoonSeaType.island100 and self.contains_any_char(result.ocr_text, chars='神秘'):
                 isl_type = MoonSeaType.island102
                 isl_roi = x1, y1, w, h
-            elif isl_type == MoonSeaType.island100 and self.contains_any_char(result.ocr_text, chars='回混范'):
+            elif isl_type == MoonSeaType.island100 and self.contains_any_char(result.ocr_text, chars='混范'):
                 isl_type = MoonSeaType.island103
                 isl_roi = x1, y1, w, h
             elif isl_type == MoonSeaType.island100 and self.contains_any_char(result.ocr_text, chars='蜜馨屡战'):
