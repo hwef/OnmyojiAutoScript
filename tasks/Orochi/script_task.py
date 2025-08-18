@@ -131,7 +131,10 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
         # self.set_next_run(task='CollectiveMissions', target=datetime_now)
         # 御魂整理
         if self.config.orochi.next_day_orochi_config.soulstidy_enabled or self.limit_count >= 99:
-            self.set_next_run(task='SoulsTidy',target=datetime_now)
+            self.set_next_run(task='SoulsTidy', target=datetime_now)
+        # 真八岐大蛇
+        if self.config.true_orochi.true_orochi_config.current_success >= 1:
+            self.set_next_run(task='TrueOrochi', target=datetime_now)
 
         raise TaskEnd
 
