@@ -142,6 +142,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         # else:
         #     return False
         if ap_enable or assets_enable:
+            self.ui_click(self.I_GUILD_EXPAND, self.I_GUILD_COLLAPSE)
             # 尝试移动寻找体力或资金
             try_find_ap = 0
             while try_find_ap < 1:
