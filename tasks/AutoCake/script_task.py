@@ -79,6 +79,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle,  AutoCakeAssets, ActivityShi
         # 任务开启
         swipe_timer = Timer(270)
         swipe_timer.start()
+        ocr_count = 0
         while 1:
             self.screenshot()
             # 时间结束判断
@@ -97,12 +98,15 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle,  AutoCakeAssets, ActivityShi
                     self.appear_then_click(self.I_IS_CLOSE, interval=1)
                     self.device.stuck_record_add('BATTLE_STATUS_S')
                 res, score = self.O_REMAIN_AP_ACTIVITY2.ocr(self.device.image, return_score=True)
+                ocr_count += 1
                 if score > 0.6:
                     if res <= 0:
                         logger.warning(f'门票数量：{res}, 任务结束')
                         break
                 else:
-                    logger.info(f'置信度过低：{score}')
+                    if ocr_count > 5:
+                        self.save_image(content=f'ocr识别多次，置信度过低：{score}，结束任务', push_flag=True, image_type=True, wait_time=0)
+                        return
                     self.save_image(content=f'置信度过低：{score}', push_flag=True, image_type=True, wait_time=0)
             # 定时重置状态
             if swipe_timer.reached():
