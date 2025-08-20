@@ -46,7 +46,7 @@ class CostumeAssets:
 	# 町中 
 	I_MAIN_GOTO_TOWN_11 = RuleImage(roi_front=(703,169,35,20), roi_back=(262,145,999,78), threshold=0.7, method="Template matching", file="./tasks/Component/Costume/main11/main11_main_goto_town_11.png")
 	# 宠物室 
-	I_PET_HOUSE_11 = RuleImage(roi_front=(966,323,29,29), roi_back=(724,295,440,69), threshold=0.8, method="Template matching", file="./tasks/Component/Costume/main11/main11_pet_house_11.png")
+	I_PET_HOUSE_11 = RuleImage(roi_front=(966,323,29,29), roi_back=(725,297,402,89), threshold=0.8, method="Template matching", file="./tasks/Component/Costume/main11/main11_pet_house_11.png")
 
 
 	# Image Rule Assets
