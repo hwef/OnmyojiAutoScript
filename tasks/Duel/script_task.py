@@ -88,11 +88,11 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             # 检查分数
             current_score = self.check_score()
 
-            if current_score == 3000:
-                # 3000分，退出
-                logger.info('Duel task is over score')
-                duel_week_over = True
-                break
+            # if current_score == 3000 and self.check_honor():
+            #     # 3000分和满荣誉退出，退出
+            #     logger.info('Duel task is over score')
+            #     duel_week_over = True
+            #     break
 
             if datetime.now() - self.start_time >= self.limit_time:
                 # 任务执行时间超过限制时间，退出
@@ -248,6 +248,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         :return:
         """
         current, remain, total = self.O_D_HONOR.ocr(self.device.image)
+        logger.info(f'当前荣誉: {current} / {total} 剩余: {remain}')
         if current == total and remain == 0:
             return True
         return False
@@ -289,6 +290,11 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         celeb_status = False
         while 1:
             self.screenshot()
+            # 如果对方直接秒退，那自己就是赢的
+            if self.appear(self.I_D_VICTORY):
+                self.ui_click_until_disappear(self.I_D_VICTORY)
+                self.battle_win_count += 1
+                return
             if self.appear(self.I_D_AUTO_ENTRY) or self.appear(self.I_D_PREPARE):
                 break
             # 名士以上禁用
@@ -302,11 +308,11 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             if self.appear_then_click(self.I_D_BATTLE_PROTECT, interval=1.6):
                 continue
             # 斗技模式（普通）
-            if self.appear_then_click(self.I_BATTLE_TYPE_COMMON, interval=1):
-                continue
+            # if self.appear_then_click(self.I_BATTLE_TYPE_COMMON, interval=1):
+            #     continue
             # 练习
-            if self.appear_then_click(self.I_BATTLE_WITH_TRAIN, interval=1) or self.appear_then_click(self.I_BATTLE_WITH_TRAIN2, interval=1):
-                continue
+            # if self.appear_then_click(self.I_BATTLE_WITH_TRAIN, interval=1) or self.appear_then_click(self.I_BATTLE_WITH_TRAIN2, interval=1):
+            #     continue
 
         # 点击斗技 开始匹配对手
         logger.hr('Duel start match')
@@ -326,6 +332,11 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                         self.click(self.C_DUEL_CLICK_5)
                         sleep(0.5)
                         self.screenshot()
+                        # 如果对方直接秒退，那自己就是赢的
+                        if self.appear(self.I_D_VICTORY):
+                            self.ui_click_until_disappear(self.I_D_VICTORY)
+                            self.battle_win_count += 1
+                            return
                         ocr_ban_name = self.O_D_BAN_NAME.ocr(self.device.image)
                         if ocr_ban_name == '':
                             continue
