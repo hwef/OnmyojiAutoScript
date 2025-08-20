@@ -535,19 +535,31 @@ class Minitouch(Connection):
         self.minitouch_send()
 
     @retry
-    def swipe_minitouch(self, p1, p2):
+    def swipe_minitouch(self, p1, p2, duration):
         points = insert_swipe(p0=p1, p3=p2)
         builder = self.minitouch_builder
 
+        # 计算每个点之间的等待时间，使总时间等于duration
+        total_duration_ms = int(duration * 1000)
+        if len(points) > 1:
+            wait_time_per_point = max(1, total_duration_ms // (len(points) - 1))
+        else:
+            wait_time_per_point = 10
+
+        # 按住起始点
         builder.down(*points[0]).commit()
         self.minitouch_send()
 
+        # 滑动到目标点
         for point in points[1:]:
-            builder.move(*point).commit().wait(10)
+            builder.move(*point).commit().wait(wait_time_per_point)
         self.minitouch_send()
 
+        # 释放
         builder.up().commit()
         self.minitouch_send()
+
+
 
     @retry
     def drag_minitouch(self, p1, p2, point_random=(-10, -10, 10, 10)):
