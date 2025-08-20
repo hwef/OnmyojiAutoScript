@@ -144,7 +144,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         if ap_enable or assets_enable:
             # 尝试移动寻找体力或资金
             try_find_ap = 0
-            while try_find_ap < 2:
+            while try_find_ap < 1:
                 self.screenshot()
                 try_find_ap += 1
                 if self.appear(self.I_GUILD_AP) or self.appear(self.I_GUILD_ASSETS):
@@ -152,7 +152,10 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                     break
                 else:
                     logger.info('Try find ap or assets')
-                    self.swipe(self.S_GUILD_FIND_AP)
+                    time.sleep(1)
+                    self.swipe(self.S_GUILD_FIND_AP, duration=1)
+                    self.swipe(self.S_GUILD_FIND_AP, duration=1)
+
             # 如果未找到则返回False
             if not self.appear(self.I_GUILD_AP) and not self.appear(self.I_GUILD_ASSETS):
                 logger.info('No ap or assets to collect')
@@ -449,7 +452,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         # 调用结界卡选择逻辑，根据返回值判断是否继续后续流程
         if not self._select_optimal_resource_card():
             return False
-        
+
         # 找到卡,重置次数
         self.utilize_add_count = 0
         logger.info('开始执行进入结界蹭卡流程')
@@ -476,7 +479,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 logger.info('Appear enter friend realm button')
                 break
             if wait_timer.reached():
-                self.save_image(wait_time=0, push_flag=False, content='进入好友结界超时',image_type='png')
+                self.save_image(wait_time=0, push_flag=False, content='进入好友结界超时', image_type='png')
                 logger.warning('Appear friend realm timeout')
                 return
             if self.appear_then_click(self.I_CHECK_FRIEND_REALM_2, interval=1.5):
