@@ -152,12 +152,19 @@ class PlatformWindows(PlatformBase, EmulatorManager):
         else:
             startupinfo.wShowWindow = 1  # SW_SHOWNORMAL - 正常显示
 
+        # 添加CREATE_NO_WINDOW标志以防止创建新窗口
+        creationflags = subprocess.CREATE_NO_WINDOW
+
         command = command.replace(r"\\", "/").replace("\\", "/").replace('"', '"').replace('MuMuNxMain', 'MuMuManager')
         logger.info(f'Execute: {command}')
         return subprocess.Popen(
             command,
             close_fds=True,
-            startupinfo=startupinfo
+            startupinfo=startupinfo,
+            creationflags=creationflags,
+            # 重定向标准输出和标准错误以防止弹窗
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
         )
 
     @classmethod
