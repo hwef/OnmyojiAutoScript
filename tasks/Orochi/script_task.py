@@ -28,21 +28,17 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
     def run(self):
 
         now = datetime.now()
-        # 今天晚上7点的时间
-        evening_7pm = now.replace(hour=19, minute=0, second=0, microsecond=0)
-        # 只有当当前时间在晚上7点之前，才计算时间差
-        if now < evening_7pm:
-            # 计算距离晚上7点还有多长时间
-            time_diff = evening_7pm - now
-            # 如果还剩不到60分钟，就退出任务
-            if time_diff <= timedelta(minutes=60):
-                self.config.orochi.next_day_orochi_config.plan = Plan.TEN30
-                self.config.save()
-                start_time = self.config.orochi.next_day_orochi_config.start_time
-                next_run = parse_tomorrow_server(start_time)
-                self.set_next_run('Orochi', target=next_run)
-                self.push_notify(content="距离寮活动不足一小时，结束任务")
-                raise TaskEnd
+        # 今天晚上6点的时间
+        evening_6pm = now.replace(hour=18, minute=0, second=0, microsecond=0)
+        # 如果当前时间在晚上6点之后，直接结束任务
+        if now >= evening_6pm:
+            self.config.orochi.next_day_orochi_config.plan = Plan.TEN30
+            self.config.save()
+            start_time = self.config.orochi.next_day_orochi_config.start_time
+            next_run = parse_tomorrow_server(start_time)
+            self.push_notify(content="当前时间已超过18点，结束任务")
+            self.set_next_run('Orochi', target=next_run)
+            raise TaskEnd
 
         limit_count = self.config.orochi.next_day_orochi_config.limit_count
         # 御魂层数
