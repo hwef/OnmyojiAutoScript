@@ -377,17 +377,22 @@ class Script:
             return True
         except Exception as e:
             error_type = type(e).__name__  # 获取异常类型名称
+            result = False
             if isinstance(e, (GameWaitTooLongError, GameTooManyClickError, GamePageUnknownError, GameStuckError, GameBugError, FileNotFoundError)):
                 logger.error(e)
                 logger.warning(f'{error_type}, Game will be restarted in 10 seconds')
                 self.device.sleep(10)
                 self.config.task_call('Restart')
-            elif isinstance(e, (ScriptError, RequestHumanTakeover)):
+            elif isinstance(e, ScriptError):
                 logger.critical(e)
+            elif isinstance(e, RequestHumanTakeover):
+                logger.error(e)
+                logger.critical(e)
+                result = 'exit'
             else:
                 logger.exception(e)
             self.save_error_log(task=command, error_type=error_type)
-            return False
+            return result
 
     def loop(self):
         """
@@ -444,6 +449,11 @@ class Script:
                     del_cached_property(self, 'config')
 
                     # ------------------------- 失败处理 -------------------------
+                    if success == 'exit':
+                        logger.info('[错误] RequestHumanTakeover异常,退出调度器')
+                        stop_requested = True
+                        exit(1)
+
                     if success:
                         self.start_loop_count = 1
                         self.failure_record[task] = 0
