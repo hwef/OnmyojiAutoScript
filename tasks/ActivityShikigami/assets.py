@@ -32,9 +32,9 @@ class ActivityShikigamiAssets:
 
 	# Click Rule Assets
 	# description 
-	C_RANDOM_LEFT = RuleClick(roi_front=(21,23,237,599), roi_back=(21,23,237,599), name="random_left")
+	C_RANDOM_LEFT = RuleClick(roi_front=(21,23,290,599), roi_back=(21,23,290,599), name="random_left")
 	# description 
-	C_RANDOM_RIGHT = RuleClick(roi_front=(1047,55,218,638), roi_back=(1047,55,218,638), name="random_right")
+	C_RANDOM_RIGHT = RuleClick(roi_front=(969,55,296,638), roi_back=(969,55,296,638), name="random_right")
 	# description 
 	C_RANDOM_TOP = RuleClick(roi_front=(85,46,1159,101), roi_back=(85,46,1159,101), name="random_top")
 	# description 
@@ -80,13 +80,13 @@ class ActivityShikigamiAssets:
 
 	# Ocr Rule Assets
 	# 体力的数量检测 
-	O_REMAIN_AP = RuleOcr(roi=(98,591,38,28), area=(98,591,38,28), mode="DigitCounter", method="Default", keyword="", name="remain_ap")
+	O_REMAIN_AP = RuleOcr(roi=(1100,16,68,32), area=(1100,16,68,32), mode="DigitCounter", method="Default", keyword="", name="remain_ap")
 	# 活动体力的剩余检测 
 	O_REMAIN_AP_ACTIVITY = RuleOcr(roi=(534,18,70,28), area=(534,18,70,28), mode="DigitCounter", method="Default", keyword="", name="remain_ap_activity")
 	# 还有多少次购买体力的机会 
 	O_REMAIN_BUY = RuleOcr(roi=(808,531,39,42), area=(808,531,39,42), mode="DigitCounter", method="Default", keyword="", name="remain_buy")
 	# 活动票数（没有百分比） 
-	O_REMAIN_AP_ACTIVITY2 = RuleOcr(roi=(740,25,71,29), area=(740,25,71,29), mode="Digit", method="Default", keyword="", name="remain_ap_activity2")
+	O_REMAIN_AP_ACTIVITY2 = RuleOcr(roi=(571,18,35,29), area=(571,18,35,29), mode="Digit", method="Default", keyword="", name="remain_ap_activity2")
 	# Ocr-description 
 	O_ENTRY_ACTIVITY = RuleOcr(roi=(71,241,98,32), area=(71,241,98,32), mode="Single", method="Default", keyword="阵练演武", name="entry_activity")
 
