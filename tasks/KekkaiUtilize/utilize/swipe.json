@@ -1,8 +1,8 @@
 [
   {
     "itemName": "u_up",
-    "roiFront": "235,419,50,21",
-    "roiBack": "225,300,72,21",
+    "roiFront": "247,520,43,20",
+    "roiBack": "247,180,43,20",
     "mode": "default",
     "description": "向下滑动"
   },

@@ -153,7 +153,7 @@ class KekkaiUtilizeAssets:
 
 	# Swipe Rule Assets
 	# 向下滑动 
-	S_U_UP = RuleSwipe(roi_front=(235,419,50,21), roi_back=(225,300,72,21), mode="default", name="u_up")
+	S_U_UP = RuleSwipe(roi_front=(247,520,43,20), roi_back=(247,180,43,20), mode="default", name="u_up")
 	# 滑动到底部 
 	S_U_END = RuleSwipe(roi_front=(175,179,26,26), roi_back=(164,518,49,102), mode="default", name="u_end")
 

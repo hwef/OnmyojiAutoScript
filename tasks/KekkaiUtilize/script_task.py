@@ -81,13 +81,14 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 if not isinstance(remaining_time, timedelta):
                     logger.warning('Ocr remaining time error')
                 logger.info(f'Utilize remaining time: {remaining_time}')
-                # 已经蹭上卡了，设置下次蹭卡时间  # 减少一分钟
-                remaining_time = remaining_time - timedelta(minutes=1)
+                # 已经蹭上卡了，设置下次蹭卡时间  # 减少30秒
+                remaining_time = remaining_time - timedelta(seconds=30)
                 next_time = datetime.now() + remaining_time
                 self.set_next_run(task='KekkaiUtilize', target=next_time)
                 return
             if not self.grown_goto_utilize():
                 logger.info('Utilize failed, exit')
+            # 开始执行寄养
             if self.run_utilize(con.select_friend_list, con.shikigami_class, con.shikigami_order):
                 # 退出寮结界
                 self.back_guild()
@@ -450,7 +451,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         else:
             self.switch_friend_list(friend)
 
-        # 调用结界卡选择逻辑，根据返回值判断是否继续后续流程
+        # --------------- 结界卡选择 ---------------
         if not self._select_optimal_resource_card():
             return False
 
@@ -671,7 +672,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
     def perform_swipe_action(self):
         """统一滑动操作"""
-        self.swipe(self.S_U_UP)
+        self.swipe(self.S_U_UP, duration=1)
         self.device.click_record_clear()
         time.sleep(2)
 
