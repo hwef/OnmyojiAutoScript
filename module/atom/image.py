@@ -10,7 +10,8 @@ from pathlib import Path
 from module.base.decorator import cached_property
 from module.logger import logger
 from module.base.utils import is_approx_rectangle
-
+# 带有金字塔加速的模板匹配
+from module.atom.template_match import match_template
 
 class RuleImage:
 
@@ -147,10 +148,13 @@ class RuleImage:
 
         source = self.corp(image)
         mat = self.image
-        res = cv2.matchTemplate(source, mat, cv2.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)  # 最小匹配度，最大匹配度，最小匹配度的坐标，最大匹配度的坐标
-        # logger.attr(self.name, max_val)
-        if max_val > threshold:
+        # res = cv2.matchTemplate(source, mat, cv2.TM_CCOEFF_NORMED)
+        # min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)  # 最小匹配度，最大匹配度，最小匹配度的坐标，最大匹配度的坐标
+        
+        max_val, max_loc, _ = match_template(source, mat, cv2.TM_CCOEFF_NORMED)
+        # logger.attr(self.name,f' max val:{max_val} max_loc: {max_loc}' ) 
+        tolerance = 0.02  # 容差
+        if max_val > threshold or abs(max_val - threshold) < tolerance:
             self.roi_front[0] = max_loc[0] + self.roi_back[0]
             self.roi_front[1] = max_loc[1] + self.roi_back[1]
             return True
