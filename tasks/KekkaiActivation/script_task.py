@@ -87,9 +87,9 @@ class ScriptTask(KU, KekkaiActivationAssets):
     def order_targets(self) -> ImageGrid:
         rule = self.config.kekkai_activation.activation_config.card_type
         if rule == CardType.TAIKO:
-            return ImageGrid([self.I_CARDS_KAIKO_6, self.I_CARDS_KAIKO_5])
+            return ImageGrid([self.I_CARDS_KAIKO_6, self.I_CARDS_KAIKO_5,self.I_CARDS_KAIKO_4,self.I_CARDS_KAIKO_3])
         elif rule == CardType.FISH:
-            return ImageGrid([self.I_CARDS_FISH_6, self.I_CARDS_FISH_5])
+            return ImageGrid([self.I_CARDS_FISH_6, self.I_CARDS_FISH_5,self.I_CARDS_FISH_4])
         else:
             logger.error('Unknown utilize rule')
             raise ValueError('Unknown utilize rule')
@@ -347,7 +347,7 @@ if __name__ == "__main__":
     from module.device.device import Device
     import cv2
 
-    c = Config('oas1')
+    c = Config('oas2')
     d = Device(c)
 
     t = ScriptTask(c, d)
