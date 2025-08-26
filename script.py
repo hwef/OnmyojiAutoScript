@@ -2,7 +2,7 @@
 # @author runhey
 # github https://github.com/runhey
 import time
-
+import requests
 import asyncio
 import cv2
 import inflection
@@ -352,6 +352,66 @@ class Script:
 
         return task.command
 
+    def send_team_task(self, task):
+        """
+        发送PUT请求到指定URL
+        """
+
+        # script_name = "test"
+        # ip = "http://127.0.0.1:22288"
+        # ip = "http://1a84o56629.zicp.fun"
+        # task = "Dokan"
+
+        if not self.config.script.team.enable:
+            logger.warning("协同任务未开启")
+            return
+
+        script_name = self.config.script.team.member_script_name
+        ip = self.config.script.team.member_ip
+    
+        # 请求URL - 注意路径末尾是 "/value"
+        url = f"{ip}/{script_name}/{task}/scheduler/next_run/value"
+    
+        # 获取当前时间
+        current_time = datetime.now()
+        # 格式化时间为指定格式
+        formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
+
+        # 请求参数 (URL查询参数)
+        params = {
+            'types': 'date_time',
+            'value': formatted_time
+        }
+    
+        # 请求头
+        headers = {
+            'Accept': 'application/json'
+        }
+    
+        try:
+            # 发送PUT请求
+            response = requests.put(url, params=params, headers=headers)
+    
+            # 输出请求信息
+            logger.info(f"请求URL: {url}")
+            logger.info(f"请求方法: PUT")
+            logger.info(f"请求参数: {params}")
+            logger.info(f"状态码: {response.status_code}")
+            logger.info(f"响应内容: {response.text}")
+    
+            # 检查请求是否成功
+            if response.status_code == 200:
+                logger.info("请求成功!")
+                self.config.notifier.push(title=I18n.trans_zh_cn(task), content=f"✅ 协同任务请求成功")
+            else:
+                self.config.notifier.push(title=I18n.trans_zh_cn(task), content=f"❌ 协同任务请求失败")
+                logger.warning(f"请求失败，状态码: {response.status_code}")
+                if response.status_code == 404:
+                    logger.warning("请检查URL路径是否正确")
+    
+        except requests.exceptions.RequestException as e:
+            logger.error(f"请求发生错误: {e}")
+
     def run(self, command: str) -> bool:
         """
 
@@ -409,6 +469,7 @@ class Script:
         is_first_task = True
         stop_requested = False
         self.config.model.running_task = None
+        team_list = ["Orochi", "BondlingFairyland", "EternitySea"]
 
         logger.info(f'[启动] 调度器循环开始 | 配置: {self.config_name}')
         try:
@@ -418,6 +479,11 @@ class Script:
                     task = self.get_next_task()
                     task_chinese_name = I18n.trans_zh_cn(task)
                     logger.info(f'[任务] 获取到任务 | {task_chinese_name}')
+
+                    # ------------------------- 调用协同任务 -------------------------
+                    if task in team_list:
+                        logger.info(f'[协同] 发送协同请求 | {task_chinese_name}')
+                        self.send_team_task(task)
 
                     # ------------------------- 跳过首次重启任务 -------------------------
                     if is_first_task and task == 'Restart':

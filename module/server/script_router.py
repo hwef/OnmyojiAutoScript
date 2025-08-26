@@ -70,6 +70,7 @@ async def script_task(script_name: str, task: str):
 @script_app.put('/{script_name}/{task}/{group}/{argument}/value')
 async def script_task(script_name: str, task: str, group: str, argument: str, types: str, value):
     try:
+        logger.info(f'/{script_name}/{task}/{group}/{argument}/{value}')
         match types:
             case 'integer':
                 value = int(value)
