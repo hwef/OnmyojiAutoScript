@@ -363,7 +363,7 @@ class Script:
         # task = "Dokan"
 
         if not self.config.script.team.enable:
-            logger.warning("协同任务未开启")
+            logger.warning(f'[协同] 协同任务未开启: {task}')
             return
 
         script_name = self.config.script.team.member_script_name
@@ -469,7 +469,15 @@ class Script:
         is_first_task = True
         stop_requested = False
         self.config.model.running_task = None
-        team_list = ["Orochi", "BondlingFairyland", "EternitySea"]
+
+        team_list = []
+        if self.config.script.team.team_task_Orochi:
+            team_list.append('Orochi')
+        if self.config.script.team.team_task_EternitySea:
+            team_list.append('EternitySea')
+        if self.config.script.team.team_task_BondlingFairyland:
+            team_list.append('BondlingFairyland')
+        logger.info(f'[协同] 协同任务列表: {team_list}')
 
         logger.info(f'[启动] 调度器循环开始 | 配置: {self.config_name}')
         try:
@@ -482,8 +490,9 @@ class Script:
 
                     # ------------------------- 调用协同任务 -------------------------
                     if task in team_list:
-                        logger.info(f'[协同] 发送协同请求 | {task_chinese_name}')
                         self.send_team_task(task)
+                    else:
+                        logger.warning(f'[协同] 任务不在协同任务列表')
 
                     # ------------------------- 跳过首次重启任务 -------------------------
                     if is_first_task and task == 'Restart':
