@@ -69,7 +69,7 @@
     "roiBack": "28,159,19,22",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "收起寮活动横幅"
+    "description": "收起的寮活动横幅"
   },
   {
     "itemName": "guild_expand",
@@ -78,6 +78,6 @@
     "roiBack": "264,162,16,18",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "展开寮活动横幅"
+    "description": "展开的寮活动横幅"
   }
 ]

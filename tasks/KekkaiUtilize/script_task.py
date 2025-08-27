@@ -82,7 +82,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                     logger.warning('Ocr remaining time error')
                 logger.info(f'Utilize remaining time: {remaining_time}')
                 # 已经蹭上卡了，设置下次蹭卡时间  # 减少30秒
-                remaining_time = remaining_time - timedelta(seconds=30)
+                # remaining_time = remaining_time - timedelta(seconds=30)
                 next_time = datetime.now() + remaining_time
                 self.set_next_run(task='KekkaiUtilize', target=next_time)
                 return
@@ -135,41 +135,11 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         如果有就顺带收取
         :return:
         """
-        # if ap_enable or assets_enable:
-        #     self.screenshot()
-        #     if not self.appear(self.I_GUILD_AP) and not self.appear(self.I_GUILD_ASSETS):
-        #         logger.info('No ap or assets to collect')
-        #         return False
-        # else:
-        #     return False
-        if ap_enable or assets_enable:
-            self.ui_click(self.I_GUILD_EXPAND, self.I_GUILD_COLLAPSE)
-            # 尝试移动寻找体力或资金
-            try_find_ap = 0
-            while try_find_ap < 1:
-                self.screenshot()
-                try_find_ap += 1
-                if self.appear(self.I_GUILD_AP) or self.appear(self.I_GUILD_ASSETS):
-                    logger.info('Find ap or assets')
-                    break
-                else:
-                    logger.info('Try find ap or assets')
-                    time.sleep(1)
-                    self.swipe(self.S_GUILD_FIND_AP, duration=1)
-                    self.swipe(self.S_GUILD_FIND_AP, duration=1)
-
-            # 如果未找到则返回False
-            if not self.appear(self.I_GUILD_AP) and not self.appear(self.I_GUILD_ASSETS):
-                logger.info('No ap or assets to collect')
-                return False
-        else:
-            return False
-
-        # 如果有就收取
         timer_check = Timer(2)
         timer_check.start()
         while 1:
             self.screenshot()
+            self.ui_click_until_disappear(self.I_GUILD_EXPAND)
 
             # 获得奖励
             if self.ui_reward_appear_click():
