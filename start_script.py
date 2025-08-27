@@ -6,47 +6,30 @@ import os
 import time
 import urllib.parse
 import io
+import json
 
 
 def start_websocket(config_name, command: str = "start"):
+
     # 日志配置部分保持不变...
     log_dir = rf".\log"
 
-    # 确保日志目录存在
-    os.makedirs(log_dir, exist_ok=True)
-    
-    # 配置文件处理器为 UTF-8 编码
-    file_handler = logging.FileHandler(
-        os.path.join(log_dir, f"log_{config_name}.log"), 
-        encoding='utf-8'
-    )
-    
-    # 配置控制台处理器，处理编码问题
-    class SafeStreamHandler(logging.StreamHandler):
-        def emit(self, record):
-            try:
-                super().emit(record)
-            except UnicodeEncodeError:
-                # 如果遇到编码错误，过滤掉无法编码的字符
-                original_message = record.getMessage()
-                # 尝试编码为 GBK，忽略错误字符
-                safe_message = original_message.encode('gbk', errors='ignore').decode('gbk')
-                record.msg = safe_message
-                super().emit(record)
-    
-    stream_handler = SafeStreamHandler(sys.stdout)
+    # 配置日志：通过 handlers 实现文件+控制台输出
+    file_handler = logging.FileHandler(os.path.join(log_dir, f"log_{config_name}.log"))
+    stream_handler = logging.StreamHandler(sys.stdout)  # 输出到控制台
 
     logging.basicConfig(
         level=logging.DEBUG,
         format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[file_handler, stream_handler],
-        force=True
+        handlers=[file_handler, stream_handler]
     )
     logging.info("日志配置成功！")
 
     logging.info(f"[{config_name}] 尝试连接到WebSocket")
     config_name = urllib.parse.quote(config_name)
-    ws = websocket.WebSocketApp(f"ws://127.0.0.1:22288/ws/{config_name}")
+    url = f"ws://127.0.0.1:22288/ws/{config_name}"
+    logging.info(f"[{config_name}] WebSocket URL: {url}")
+    ws = websocket.WebSocketApp(url)
 
     # 处理 WebSocket 连接打开事件
     def on_open(ws):
@@ -56,13 +39,23 @@ def start_websocket(config_name, command: str = "start"):
 
     # 处理接收到的消息
     def on_message(ws, response):
-        # 处理可能包含特殊字符的响应
-        try:
-            logging.info(f"收到响应: {response}")
-        except UnicodeEncodeError:
-            # 如果仍然有编码错误，安全地处理它
-            safe_response = response.encode('gbk', errors='ignore').decode('gbk')
-            logging.info(f"收到响应: {safe_response}")
+        print(f"收到响应: {response}")
+
+        if 'schedule' in response:
+            data = json.loads(response)
+            schedule = data['schedule']
+            if 'running' in schedule and schedule['running']:
+                running_task = schedule['running']
+                logging.info(f"[{config_name}] 当前运行任务: {running_task['name']}")
+            else:
+                logging.info(f"[{config_name}] 当前无运行任务")
+        if 'state' in response:
+            data = json.loads(response)
+            state = data['state']
+            if state == 1:
+                logging.info(f"[{config_name}] 当前运行中")
+            elif state == 0:
+                logging.info(f"[{config_name}] 当前已停止")
 
     # 设置 WebSocket 回调函数
     ws.on_open = on_open
