@@ -28,12 +28,17 @@ from module.device.device import Device
 from module.exception import *
 from module.logger import logger, error_path, get_filename
 from module.ocr.models import OCR_MODEL
+import urllib.parse
+import threading
+import websocket
+import sys
 
 
 class Script:
     def __init__(self, config_name: str = 'oas') -> None:
         self.device = None
         self.device_status = False  # 模拟器状态 True:运行中，False:已关闭
+        self.team_running = False
         self.server = None
         self.state_queue: Queue = None
         self.gui_update_task: Callable = None  # 回调函数, gui进程注册当每次config更新任务的时候更新gui的信息
@@ -356,33 +361,20 @@ class Script:
         """
         发送PUT请求到指定URL
         """
-
-        # script_name = "test"
-        # ip = "http://127.0.0.1:22288"
-        # ip = "http://1a84o56629.zicp.fun"
-        # task = "Dokan"
-
-        if not self.config.script.team.enable:
-            logger.warning(f'[协同] 协同任务未开启: {task}')
-            return
-
         script_name = self.config.script.team.member_script_name
         ip = self.config.script.team.member_ip
     
         # 请求URL - 注意路径末尾是 "/value"
         url = f"{ip}/{script_name}/{task}/scheduler/next_run/value"
     
-        # 获取当前时间
-        current_time = datetime.now()
         # 格式化时间为指定格式
-        formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
+        formatted_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # 请求参数 (URL查询参数)
         params = {
             'types': 'date_time',
             'value': formatted_time
         }
-    
         # 请求头
         headers = {
             'Accept': 'application/json'
@@ -401,8 +393,7 @@ class Script:
     
             # 检查请求是否成功
             if response.status_code == 200:
-                logger.info("请求成功!")
-                self.config.notifier.push(title=I18n.trans_zh_cn(task), content=f"✅ 协同任务请求成功")
+                logger.info(f"✅ 协同任务请求成功")
             else:
                 self.config.notifier.push(title=I18n.trans_zh_cn(task), content=f"❌ 协同任务请求失败")
                 logger.warning(f"请求失败，状态码: {response.status_code}")
@@ -411,6 +402,48 @@ class Script:
     
         except requests.exceptions.RequestException as e:
             logger.error(f"请求发生错误: {e}")
+
+    def start_websocket(self, config_name, command):
+        logger.info(f"尝试连接到[{config_name}] WebSocket")
+        config_name = urllib.parse.quote(config_name)
+        ws = websocket.WebSocketApp(f"ws://127.0.0.1:22288/ws/{config_name}")
+
+        # 处理 WebSocket 连接打开事件
+        def on_open(ws):
+            logger.info(f"[{config_name}] WebSocket连接成功!")
+            ws.send(command)
+            logger.info(f"已发送: {command}")
+
+        # 处理接收到的消息
+        def on_message(ws, response):
+            print(f"收到响应: {response}")
+            if command == 'get_schedule':
+                data = json.loads(response)
+                if 'schedule' in data:
+                    schedule = data['schedule']
+                    if 'running' in schedule and schedule['running']:
+                        running_task = schedule['running']
+                        logger.info(f"当前运行任务: {running_task['name']}")
+                        self.team_running = True
+                    else:
+                        logger.info("当前无运行任务")
+                        self.team_running = False
+
+        # 设置 WebSocket 回调函数
+        ws.on_open = on_open
+        ws.on_message = on_message
+
+        # 设置超时退出
+        def exit_timer():
+            logger.info("超时关闭连接...")
+            ws.close()
+            sys.exit(0)
+
+        timer = threading.Timer(5, exit_timer)  # 30秒后自动关闭
+        timer.start()
+
+        ws.run_forever()
+        timer.cancel()  # 如果连接正常关闭，取消定时器
 
     def run(self, command: str) -> bool:
         """
@@ -489,18 +522,24 @@ class Script:
                     logger.info(f'[任务] 获取到任务 | {task_chinese_name}')
 
                     # ------------------------- 调用协同任务 -------------------------
-                    if task in team_list:
+                    if task in team_list and self.config.script.team.enable:
+                        script_name = self.config.script.team.member_script_name
+                        self.start_websocket(script_name, 'get_schedule')
+                        if self.team_running and self.config.script.team.member_task_stop_enable:
+                            self.start_websocket(script_name, 'stop')
+                            self.send_team_task("Restart")
+                            self.start_websocket(script_name, 'start')
                         self.send_team_task(task)
                     else:
                         logger.warning(f'[协同] 任务不在协同任务列表')
 
                     # ------------------------- 跳过首次重启任务 -------------------------
-                    if is_first_task and task == 'Restart':
-                        logger.info('[任务] 跳过启动时的重启任务')
-                        self.config.task_delay(task='Restart', success=True, server=True)
-                        del_cached_property(self, 'config')
-                        is_first_task = False
-                        continue
+                    # if is_first_task and task == 'Restart':
+                    #     logger.info('[任务] 跳过启动时的重启任务')
+                    #     self.config.task_delay(task='Restart', success=True, server=True)
+                    #     del_cached_property(self, 'config')
+                    #     is_first_task = False
+                    #     continue
 
                     # ------------------------- 设备重连逻辑 -------------------------
                     if not (self.device_status and self.device):
