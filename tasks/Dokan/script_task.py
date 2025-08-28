@@ -527,6 +527,16 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             self.screenshot()
             bounty_list = self.find_all_element(self.I_RIGHTPAD_POINT_BOUNTY, (0, 0, 0, 50))
             logger.info(f'find elements list:{bounty_list}')
+            # 获取所有匹配结果并直接转换为所需格式
+            raw_matches = self.I_RIGHTPAD_POINT_BOUNTY.match_all_any(image=self.device.image, roi=[1095,33,82,569])
+            # 直接从匹配结果中提取坐标信息并按y坐标排序
+            bounty_list = sorted(
+                [[x, y, w, h] for (sc, x, y, w, h) in raw_matches],
+                key=lambda item: item[1]  # 按y坐标排序
+            )
+            logger.info(f'find elements list:{bounty_list}')
+            if len(bounty_list) < 3:
+                self.save_image(task_name='搜索到的道馆少于3个', image_type=True, wait_time=0, push_flag=True, content='搜索到的道馆少于4个')
             # 默认最小分数
             min_score = 10
             idx_selected = -1
@@ -844,11 +854,12 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('test')
+    config = Config('du')
     device = Device(config)
     t = ScriptTask(config, device)
     # t.save_image()
     t.run()
+    t.find_dokan()
 
     # test_ocr_locate_dokan_target()
     # test_anti_detect_random_click()
