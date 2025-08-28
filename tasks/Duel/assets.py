@@ -131,7 +131,7 @@ class DuelAssets:
 	# 区域找绿标2 
 	I_GREEN_MARK_1 = RuleImage(roi_front=(124,192,1012,197), roi_back=(124,192,1012,197), threshold=0.6, method="Template matching", file="./tasks/Duel/green_mark/green_mark_1.png")
 	# 通过蒙版区域找绿标 
-	I_GREEN_MARK_AUTO = RuleImage(roi_front=(124,192,1012,197), roi_back=(124,192,1012,197), threshold=0.8, method="Template matching", file="./tasks/Duel/green_mark/green_mark_auto.png")
+	I_GREEN_MARK_AUTO = RuleImage(roi_front=(124,192,1012,197), roi_back=(124,192,1012,197), threshold=0.8, method="Template matching mask", file="./tasks/Duel/green_mark/green_mark_auto.png")
 	# 区域找式神标记左1 
 	I_GREEN_MARK_IMG1 = RuleImage(roi_front=(145,258,212,176), roi_back=(145,258,212,176), threshold=0.8, method="Template matching", file="./tasks/Duel/green_mark/green_mark_img.png")
 	# 区域找式神标记左2 

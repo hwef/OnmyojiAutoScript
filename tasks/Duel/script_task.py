@@ -307,10 +307,10 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             # 战斗带保护的按钮
             if self.appear_then_click(self.I_D_BATTLE_PROTECT, interval=1.6):
                 continue
-            # 斗技模式（普通）
+            # # 斗技模式（普通）
             # if self.appear_then_click(self.I_BATTLE_TYPE_COMMON, interval=1):
             #     continue
-            # 练习
+            # # 练习
             # if self.appear_then_click(self.I_BATTLE_WITH_TRAIN, interval=1) or self.appear_then_click(self.I_BATTLE_WITH_TRAIN2, interval=1):
             #     continue
 
@@ -511,30 +511,13 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 self.save_image(task_name='斗技绿标超时', wait_time=0, push_flag=True, content='超时未识别到绿标',image_type=True)
                 return False
             self.screenshot()
-            if self.duel_wait_until_appear(self.I_GREEN_MARK_AUTO, mask_path=r"./tasks/Duel/green_mark/green_mark_auto_mask.png", wait_time=1):
+            if self.wait_until_appear(self.I_GREEN_MARK_AUTO, wait_time=1):
                 # self.save_image(wait_time=0, push_flag=True, content='识别到绿标',image_type=True)
                 logger.info('识别到绿标,返回')
                 return True
             self.click(self.C_DUEL_GREEN_LEFT_FULL)
 
-    def duel_wait_until_appear(self, target, wait_time: int = None, mask_path: str = None) -> bool:
-        """
-        等待直到出现目标
-        :param wait_time: 等待时间，单位秒
-        :param target:
-        :param skip_first_screenshot:
-        :return:
-        """
-        wait_timer = None
-        if wait_time:
-            wait_timer = Timer(wait_time)
-            wait_timer.start()
-        while 1:
-            self.screenshot()
-            if wait_timer and wait_timer.reached():
-                return False
-            if self.appear_mask(target=target, mask_path=mask_path):
-                return True
+
     def duel_green_mark(self, mark_mode: GreenMarkType = GreenMarkType.GREEN_MAIN):
         """
         绿标， 如果不使能就直接返回

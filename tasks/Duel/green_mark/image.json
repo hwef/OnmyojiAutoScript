@@ -22,7 +22,7 @@
     "imageName": "green_mark_auto.png",
     "roiFront": "124,192,1012,197",
     "roiBack": "124,192,1012,197",
-    "method": "Template matching",
+    "method": "Template matching mask",
     "threshold": 0.8,
     "description": "通过蒙版区域找绿标"
   },
