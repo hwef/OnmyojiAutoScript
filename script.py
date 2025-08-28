@@ -417,17 +417,23 @@ class Script:
         # 处理接收到的消息
         def on_message(ws, response):
             print(f"收到响应: {response}")
-            if command == 'get_schedule':
+            if 'state' in response:
                 data = json.loads(response)
-                if 'schedule' in data:
-                    schedule = data['schedule']
-                    if 'running' in schedule and schedule['running']:
-                        running_task = schedule['running']
-                        logger.info(f"当前运行任务: {running_task['name']}")
-                        self.team_running = True
-                    else:
-                        logger.info("当前无运行任务")
-                        self.team_running = False
+                state = data['state']
+                if state == 1:
+                    logger.info(f"[{config_name}] 当前运行中")
+                elif state == 0:
+                    logger.info(f"[{config_name}] 当前已停止")
+            elif 'schedule' in response:
+                data = json.loads(response)
+                schedule = data['schedule']
+                if 'running' in schedule and schedule['running']:
+                    running_task = schedule['running']
+                    logger.info(f"[{config_name}] 当前运行任务: {running_task['name']}")
+                    self.team_running = True
+                else:
+                    logger.info(f"[{config_name}] 当前无运行任务")
+                    self.team_running = False
 
         # 设置 WebSocket 回调函数
         ws.on_open = on_open
@@ -552,6 +558,12 @@ class Script:
                     if self.device and self.device_status:
                         self.device.stuck_record_clear()
                         self.device.click_record_clear()
+
+                    # ------------------------- 游戏未启动设置重启任务 -------------------------
+                    if task != 'Restart' and not self.device.app_is_running():
+                        logger.warning(f'[任务] 检测到游戏未启动，设置重启任务')
+                        self.config.task_call('Restart')
+                        continue
 
                     # ------------------------- 任务执行 -------------------------
                     logger.hr(f'{task_chinese_name} Start', 0)
