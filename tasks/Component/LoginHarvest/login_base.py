@@ -41,8 +41,10 @@ class LoginBase:
             asset_before_object.roi_back = asset_after.roi_back
         asset_before_object.threshold = asset_after.threshold
         asset_before_object.file = asset_after.file
+        asset_before_object.method = asset_after.method
         # logger.info(f'Replace {asset_before} to {asset_after}')
         # logger.info(f'{asset_before} roi_front: {asset_before_object.roi_front}')
+        # logger.info(f'{asset_before} method: {asset_before_object.method}')
 
     def check_login_harvest(self, main_type: MainType):
         if main_type == MainType.COSTUME_MAIN:
