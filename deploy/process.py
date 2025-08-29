@@ -60,12 +60,44 @@ class ProcessManager(DeployConfig):
             logger.info(' '.join(map(str, row)))
             self.execute(f'taskkill /f /pid {row[2]}', allow_failure=True, output=False)
 
+    def kill_oas_server(self):
+        """
+        更精确地杀死OAS服务器进程，避免影响其他Python程序
+        """
+        # 杀死所有运行server.py的Python进程
+        killed_pids = []
+
+        for name in ['python.exe', 'pythonw.exe']:
+            for row in self.iter_process_by_name(name):
+                # 检查命令行参数是否包含server.py
+                try:
+                    executable_path, process_name, process_id = row
+                    # 获取进程的命令行参数
+                    from win32com.client import GetObject
+                    wmi = GetObject('winmgmts:')
+                    processes = wmi.ExecQuery(f'Select * from Win32_Process where ProcessId = {process_id}')
+                    for p in processes:
+                        cmdline = p.CommandLine
+                        if cmdline and 'server.py' in cmdline.lower() and process_id not in killed_pids:
+                            logger.info(f'Killing OAS server tree: {cmdline}')
+                            # 使用 /t 参数杀死进程树（包括子进程）
+                            # 允许失败，因为进程可能已经结束
+                            result = self.execute(f'taskkill /f /t /pid {process_id}', allow_failure=True, output=False)
+                            if result:
+                                logger.info(f'Successfully killed process {process_id}')
+                            else:
+                                # 检查进程是否还存在
+                                logger.info(f'Failed to kill process {process_id}')
+                            killed_pids.append(process_id)
+                except Exception as e:
+                    logger.info(f'Error checking process {process_id}: {e}')
+
     def process_kill(self):
-        logger.hr(f'Kill existing Alas', 0)
-        self.kill_by_name('oas.exe')
-        self.kill_by_name('python.exe')
-        self.kill_by_name('pythonw.exe')
+        logger.hr(f'Kill  OAS  Server', 0)
+        self.kill_oas_server()
+        # self.kill_by_name("pythonw.exe")
 
 
 if __name__ == '__main__':
-    ProcessManager().kill_by_name('pythonw')
+    # ProcessManager().kill_by_name('pythonw')
+    ProcessManager().process_kill()
