@@ -8,11 +8,13 @@ import subprocess
 from PIL import Image, ImageTk
 from datetime import datetime
 import pyperclip
-
+from tkinter import messagebox
 
 class DevTool(ctk.CTk):
     def __init__(self):
         super().__init__()
+        self.last_selected_image = None
+        self.last_selected_folder = None
         self.np_image = None  # 截图的 NumPy 图像
         self.current_image = None  # 当前显示的图像
         self.rect = {"x1": 0, "y1": 0, "x2": 0, "y2": 0}  # 矩形框
@@ -24,7 +26,7 @@ class DevTool(ctk.CTk):
 
         # 设置默认路径
         self.screenshots_path = r"D:\共享文件夹\Screenshots"
-        self.save_img_path = r"D:\共享文件夹\Screenshots\save_img"
+        self.save_img_path = r"D:\共享文件夹\Screenshots"
 
         # 确保默认路径存在
         if not os.path.exists(self.screenshots_path):
@@ -129,21 +131,26 @@ class DevTool(ctk.CTk):
         self.log_print(f"复制坐标 {formatted_text} 到剪贴板")
 
     def choose_folder(self):
-        # 使用保存图片的默认路径作为初始目录
-        folder_path = filedialog.askdirectory(initialdir=self.save_img_path)
+        # 使用上次选择的路径或默认路径作为初始目录
+        initial_dir = self.last_selected_folder or self.save_img_path
+        folder_path = filedialog.askdirectory(initialdir=initial_dir)
         if folder_path:  # 如果选择了文件夹
+            self.last_selected_folder = folder_path  # 记住选择的路径
             self.folder_path_entry.delete(0, "end")
             self.folder_path_entry.insert(0, folder_path)
             self.log_print(folder_path)
 
     def choose_image_file(self):
         """打开文件对话框选择PNG图片文件"""
-        # 使用读取图片的默认路径作为初始目录
+        # 使用上次选择的路径或默认路径作为初始目录
+        initial_dir = self.last_selected_image or self.screenshots_path
         file_path = filedialog.askopenfilename(
-            initialdir=self.screenshots_path,
+            initialdir=initial_dir,
             title="选择PNG图片",
             filetypes=(("PNG图片", "*.png"), ("所有文件", "*.*"))
         )
+        if file_path:  # 如果选择了文件
+            self.last_selected_image = os.path.dirname(file_path)  # 记住文件所在目录
         return file_path
 
     def load_image(self):
@@ -176,9 +183,17 @@ class DevTool(ctk.CTk):
             self.img_name.delete(0, "end")
             self.img_name.insert(0, img_name)
 
+            # 设置默认保存名称为加载图片名_1
+            self.save_name_entry.delete(0, "end")
+            self.save_name_entry.insert(0, f"{img_name}_1")
+
             # 自动填充文件夹路径为默认保存路径
             self.folder_path_entry.delete(0, "end")
             self.folder_path_entry.insert(0, self.save_img_path)
+
+            # 重新绘制矩形框（如果存在）
+            if self.rect["x1"] != self.rect["x2"] and self.rect["y1"] != self.rect["y2"]:
+                self.draw_rectangle()
 
         except Exception as e:
             self.log_print(f"加载图片时出错: {e}")
@@ -215,15 +230,47 @@ class DevTool(ctk.CTk):
         return path
 
     def save_img(self):
-        # 获取保存名字输入框的值
-        save_name = self.save_name_entry.get().strip()
 
-        if not save_name:
-            # 如果名字为空，给出提示
-            self.log_print("保存图片的名字不能为空")
+        # 检查是否已加载图片
+        if self.np_image is None:
+            self.log_print("请先加载图片")
             return
 
+        # 检查是否已选择有效区域
+        x1, y1, x2, y2 = self.coordinates
+        if not (x1 != x2 and y1 != y2):  # 检查是否已选择区域
+            self.log_print("请先选择要保存的区域")
+            return
+
+        # 获取保存名称输入框的内容作为文件名
+        save_name = self.save_name_entry.get().strip()
+
+        # 如果输入框为空，使用加载的图片名称作为基础名称
+        if not save_name:
+            base_name = self.name.strip()
+            if base_name:
+                save_name = f"{base_name}_1"
+            else:
+                self.log_print("保存图片的名字不能为空")
+                return
+
         path = os.path.join(self.folder_path_entry.get(), f"{save_name}.png")
+
+        # 检查文件是否已存在
+        if os.path.exists(path):
+            # 弹窗提示用户文件已存在，提供三个选项
+            # self.withdraw()  # 隐藏主窗口，使对话框成为模态
+            result = messagebox.askyesno(
+                "文件已存在",
+                f"文件 {save_name}.png 已存在，是否要覆盖该文件？\n\n '是' 覆盖文件\n '否' 取消保存"
+            )
+            # self.deiconify()  # 恢复主窗口
+
+            if not result:  # 用户选择否，取消保存
+                self.log_print("取消保存操作")
+                return
+            else:  # 用户选择是，覆盖文件
+                self.log_print(f"将覆盖文件: {save_name}.png")
 
         if self.np_image is not None and any(self.rect.values()):  # 确保 np_image 和矩形框有效
             x1, y1, x2, y2 = self.coordinates
