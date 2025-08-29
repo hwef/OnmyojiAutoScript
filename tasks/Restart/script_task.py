@@ -46,20 +46,34 @@ class ScriptTask(LoginHandler):
         self.device.app_start()
         self.app_handle_login()
 
-        self.set_next_run(task='Restart', success=True, finish=True, server=True)
+        # self.set_next_run(task='Restart', success=True, finish=True, server=True)
 
-        # # 如果启用了定时领体力（每天 12-14、20-22 时内各有 20 体力）
-        # if self.config.restart.harvest_config.enable_ap:
-        #     now = datetime.now()
-        #     # 如果时间在00:00-12:30之间则设定时间为当日 12:30 时
-        #     if now.time() < time(12, 30):
-        #         self.custom_next_run(task='Restart', custom_time=Time(hour=12, minute=30, second=0), time_delta=0)
-        #     # 如果时间在12:30-21:00之间则设定时间为当日 21 时
-        #     elif time(12, 30) <= now.time() < time(21, 0):
-        #         self.custom_next_run(task='Restart', custom_time=Time(hour=21, minute=0, second=0), time_delta=0)
-        #     # 如果时间在21:00-23:59之间则设定时间为次日 12:30 时
-        #     else:
-        #         self.custom_next_run(task='Restart', custom_time=Time(hour=12, minute=30, second=0), time_delta=1)
+        # 如果启用了定时领体力（每天 12-14、20-22 时内各有 20 体力）
+        if self.config.restart.harvest_config.enable_ap:
+            now = datetime.now()
+            # 检查是否在12:00-14:00或20:00-22:00时间段内
+            in_ap_time_1 = time(12, 0) <= now.time() < time(14, 0)
+            in_ap_time_2 = time(20, 0) <= now.time() < time(22, 0)
+
+            # 如果当前在领体力时间段内，设置下一次重启时间为下一个时间段
+            if in_ap_time_1 or in_ap_time_2:
+                # 如果在12:00-14:00之间，设置为当日21:50
+                if in_ap_time_1:
+                    self.custom_next_run(task='Restart', custom_time=Time(hour=21, minute=50, second=0), time_delta=0)
+                # 如果在20:00-22:00之间，设置为次日13:50
+                else:
+                    self.custom_next_run(task='Restart', custom_time=Time(hour=13, minute=50, second=0), time_delta=1)
+            else:
+                # 如果不在领体力时间段内，根据当前时间设置最近的重启时间
+                # 如果时间在00:00-13:50之间则设定时间为当日 13:50 时
+                if now.time() < time(13, 50):
+                    self.custom_next_run(task='Restart', custom_time=Time(hour=13, minute=50, second=0), time_delta=0)
+                # 如果时间在13:50-21:50之间则设定时间为当日 21:50 时
+                elif time(13, 50) <= now.time() < time(21, 50):
+                    self.custom_next_run(task='Restart', custom_time=Time(hour=21, minute=50, second=0), time_delta=0)
+                # 如果时间在21:50-23:59之间则设定时间为次日 13:50 时
+                else:
+                    self.custom_next_run(task='Restart', custom_time=Time(hour=13, minute=50, second=0), time_delta=1)
 
     def delay_pending_tasks(self) -> bool:
         """
