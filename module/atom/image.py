@@ -164,8 +164,8 @@ class RuleImage:
     def match_first(self, image: np.array, threshold: float = None) -> bool:
         """
         自上而下找第一个匹配结果
-        :param threshold:
-        :param image:
+        :param threshold: 
+        :param image: 
         :return:
         """
         if threshold is None:
@@ -177,15 +177,16 @@ class RuleImage:
 
         source = self.corp(image)
         mat = self.image
-        res = cv2.matchTemplate(source, mat, cv2.TM_CCOEFF_NORMED)
-        # 获取所有超过阈值的坐标
-        loc = np.where(res >= threshold)
-        if loc[0].size == 0:  # 无匹配
+        # 使用优化的模板匹配函数
+        matches, _ = match_template(source, mat, cv2.TM_CCOEFF_NORMED, min_confidence=threshold, multi_target=True)
+        
+        if not matches:  # 无匹配
             return False
 
         # 直接取 y 最小的点（即最顶部）
-        top_loc = loc[0]
-        # 更新 ROI（根据需求调整）
+        top_match = min(matches, key=lambda x: x[1][1])
+        top_loc = top_match[1]
+        # 更新 ROI
         self.roi_front[0] = top_loc[0] + self.roi_back[0]
         self.roi_front[1] = top_loc[1] + self.roi_back[1]
 
@@ -213,9 +214,8 @@ class RuleImage:
         if template.ndim == 3:
             template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
 
-        # 执行模板匹配
-        res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+        # 使用优化的模板匹配函数
+        max_val, max_loc, _ = match_template(source, template, cv2.TM_CCOEFF_NORMED, min_confidence=threshold)
         # logger.attr(self.name, max_val)
         # 根据阈值判断匹配结果
         if max_val > threshold:
@@ -242,16 +242,16 @@ class RuleImage:
             raise Exception(f"unknown method {self.method}")
         source = self.corp(image)
         mat = self.image
-        results = cv2.matchTemplate(source, mat, cv2.TM_CCOEFF_NORMED)
-        locations = np.where(results >= threshold)
-        matches = []
-        for pt in zip(*locations[::-1]):  # (x, y) coordinates
-            score = results[pt[1], pt[0]]
+        # 使用优化的模板匹配函数
+        matches, _ = match_template(source, mat, cv2.TM_CCOEFF_NORMED, min_confidence=threshold, multi_target=True)
+        
+        result = []
+        for score, loc in matches:
             # 得分, x, y, w, h
-            x = self.roi_back[0] + pt[0]
-            y = self.roi_back[1] + pt[1]
-            matches.append((score, x, y, mat.shape[1], mat.shape[0]))
-        return matches
+            x = self.roi_back[0] + loc[0]
+            y = self.roi_back[1] + loc[1]
+            result.append((score, x, y, mat.shape[1], mat.shape[0]))
+        return result
 
     def match_all_any(self, image: np.array, threshold: float = None, roi: list = None, nms_threshold: float = 0.3) -> list[tuple]:
         """
@@ -269,23 +269,18 @@ class RuleImage:
             raise Exception(f"unknown method {self.method}")
         source = self.corp(image)
         mat = self.image
-        results = cv2.matchTemplate(source, mat, cv2.TM_CCOEFF_NORMED)
-        locations = np.where(results >= threshold)
-        matches = []
-        for pt in zip(*locations[::-1]):  # (x, y) coordinates
-            score = results[pt[1], pt[0]]
+        # 使用优化的模板匹配函数
+        matches, _ = match_template(source, mat, cv2.TM_CCOEFF_NORMED, min_confidence=threshold, multi_target=True)
+        
+        result = []
+        for score, loc in matches:
             # 得分, x, y, w, h
-            x = self.roi_back[0] + pt[0]
-            y = self.roi_back[1] + pt[1]
-            matches.append((score, x, y, mat.shape[1], mat.shape[0]))
-        if len(matches) > 0:
-            scores = np.array([m[0] for m in matches])
-            boxes = np.array([[m[1], m[2], m[3], m[4]] for m in matches])
-            # 使用OpenCV的NMSBoxes
-            indices = cv2.dnn.NMSBoxes(boxes.tolist(), scores.tolist(), score_threshold=threshold, nms_threshold=nms_threshold)
-            filtered_matches = [matches[i] for i in indices]
-            return filtered_matches
-        return matches
+            x = self.roi_back[0] + loc[0]
+            y = self.roi_back[1] + loc[1]
+            result.append((score, x, y, mat.shape[1], mat.shape[0]))
+        
+        # 由于match_template已经进行了NMS处理，这里可以简化
+        return result
     def coord(self) -> tuple:
         """
         获取roi_front的随机的点击的坐标
