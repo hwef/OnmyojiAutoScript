@@ -10,8 +10,10 @@ from module.logger import logger
 from module.base.timer import Timer
 
 from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_guild, page_main
+from tasks.GameUi.page import page_guild, page_main, page_secret_zones
 from tasks.GuildBanquet.assets import GuildBanquetAssets
+from tasks.Secret.assets import SecretAssets
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 
 WEEKDAYDICT = {
     0: '星期一',
@@ -32,18 +34,18 @@ class Weekday(str,Enum):
     Saturday: str = "星期六"
     Sunday: str = "星期日"
     
-class ScriptTask(GameUi, GuildBanquetAssets):
+class ScriptTask(GameUi, GeneralBattle, GuildBanquetAssets, SecretAssets):
 
     def run(self):
         self.run_time = self.config.guild_banquet.guild_banquet_time
         # 第一天宴会日期及时间
         self.banquet_day_1 = self.get_key_from_value(WEEKDAYDICT, self.run_time.day_1.value)
         self.banquet_day_1_start_time = self.run_time.run_time_1
-        
+
         # 第二天宴会日期及时间
         self.banquet_day_2 = self.get_key_from_value(WEEKDAYDICT, self.run_time.day_2.value)
         self.banquet_day_2_start_time = self.run_time.run_time_2
-        
+
         self.ui_get_current_page()
         self.ui_goto(page_guild)
 
@@ -76,13 +78,13 @@ class ScriptTask(GameUi, GuildBanquetAssets):
                 last_flag_status = actual_status
                 last_check_time = current_time
                 logger.debug(f"Actual detection at {current_time}, status: {actual_status}")
-                
+
                 # 重置日志计时器
                 last_log_time = current_time
             else:
                 # 未达间隔时沿用上次结果
                 logger.debug(f"Using cached status: {last_flag_status}")
-                
+
             # 条件2: 状态判断逻辑
             if last_flag_status:
                 if current_time - last_log_time >= 10:
@@ -104,14 +106,42 @@ class ScriptTask(GameUi, GuildBanquetAssets):
                 self.device.stuck_record_clear()
                 self.device.stuck_record_add('BATTLE_STATUS_S')
 
-        # self.device.stuck_record_clear()
-        # self.set_config()
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        if self.run_time.enable:
+            # 荒川9层三只石距战斗
+            self.goto_sercet_hc()
 
         self.plan_next_run()
         raise TaskEnd
-    
+
+    def goto_sercet_hc(self):
+        self.ui_get_current_page()
+        self.ui_goto(page_secret_zones)
+        while 1:
+            self.screenshot()
+            if self.appear(self.I_SECRET_HC):
+                break
+            self.swipe(self.S_U_UP, interval=1)
+            time.sleep(2)
+        self.ui_click(self.I_SECRET_HC, self.I_SECRET_HC_FLAG)
+        self.ui_click(self.I_SE_ENTER, self.I_SE_FIRE)
+        while 1:
+            self.screenshot()
+            if self.appear(self.I_SECRET_9_LAYER):
+                break
+            self.swipe(self.S_U_UP, interval=1)
+            time.sleep(2)
+        self.ui_click(self.I_SECRET_9_LAYER, self.I_SECRET_9_LAYER_FLAG)
+        self.limit_count = 1
+        while 1:
+            self.screenshot()
+            if self.current_count >= self.limit_count:
+                break
+            if self.appear(self.I_PREPARE_HIGHLIGHT):
+                self.run_general_battle()
+            if self.appear_then_click(self.I_SE_FIRE, interval=1):
+                continue
+        self.back_main()
+
     def check_runtime(self) -> bool:
         """
         检查时间, 一般寮不会晚上10点再开吧。。。。。
