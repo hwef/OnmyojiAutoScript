@@ -14,6 +14,8 @@ from tasks.GameUi.page import page_guild, page_main, page_secret_zones
 from tasks.GuildBanquet.assets import GuildBanquetAssets
 from tasks.Secret.assets import SecretAssets
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.GameUi.page import page_main, page_secret_zones, page_shikigami_records
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 
 WEEKDAYDICT = {
     0: '星期一',
@@ -34,7 +36,7 @@ class Weekday(str,Enum):
     Saturday: str = "星期六"
     Sunday: str = "星期日"
     
-class ScriptTask(GameUi, GeneralBattle, GuildBanquetAssets, SecretAssets):
+class ScriptTask(GameUi, GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAssets):
 
     def run(self):
         self.run_time = self.config.guild_banquet.guild_banquet_time
@@ -114,8 +116,18 @@ class ScriptTask(GameUi, GeneralBattle, GuildBanquetAssets, SecretAssets):
         raise TaskEnd
 
     def goto_sercet_hc(self):
+        secret = self.config.secret
+        if secret.switch_soul.enable:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul(secret.switch_soul.switch_group_team)
+        if secret.switch_soul.enable_switch_by_name:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul_by_name(secret.switch_soul.group_name, secret.switch_soul.team_name)
         self.ui_get_current_page()
         self.ui_goto(page_secret_zones)
+
         while 1:
             self.screenshot()
             if self.appear(self.I_SECRET_HC):
@@ -131,7 +143,7 @@ class ScriptTask(GameUi, GeneralBattle, GuildBanquetAssets, SecretAssets):
             self.swipe(self.S_U_UP, interval=1)
             time.sleep(2)
         self.ui_click(self.I_SECRET_9_LAYER, self.I_SECRET_9_LAYER_FLAG)
-        self.limit_count = 1
+        self.limit_count = 3
         while 1:
             self.screenshot()
             if self.current_count >= self.limit_count:
@@ -223,5 +235,5 @@ if __name__ == '__main__':
     c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
-    t.run()
+    t.goto_sercet_hc()
 
