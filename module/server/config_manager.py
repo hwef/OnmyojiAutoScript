@@ -104,9 +104,9 @@ class ConfigManager:
         if not old_path.exists():
             logger.error(f'{old_path} is not exists')
             return False
-        if new_path.exists():
-            logger.error(f'{new_path} is exists')
-            return False
+        # if new_path.exists():
+        #     logger.error(f'{new_path} is exists')
+        #     return False
         try:
             old_path.rename(new_path)
             logger.info(f'rename {old_path} to {new_path}')

@@ -13,8 +13,8 @@ from fastapi.responses import StreamingResponse
 from module.logger import logger
 from module.server.main_manager import MainManager
 from module.server.main_qqbot import MainQQBotManager
-from module.server.script_process import ScriptProcess
 from tasks.Component.config_base import TimeDelta
+from module.server.script_process import ScriptProcess, ScriptState
 
 script_app = APIRouter()
 mm = MainManager()
@@ -52,7 +52,7 @@ async def config_all():
 
 
 @script_app.put('/config')
-async def rename_config(old_name: str = '', new_name: str = ''):
+async def config_rename(old_name: str = '', new_name: str = ''):
     """
     update config name
     :param old_name: old config name
@@ -61,15 +61,17 @@ async def rename_config(old_name: str = '', new_name: str = ''):
     """
     if old_name == new_name or new_name == '':
         return False
+    if old_name in mm.script_process:
+        if mm.script_process[old_name].state != ScriptState.INACTIVE:
+            mm.script_process[old_name].stop()
+        del mm.script_process[old_name]
     if not mm.rename(old_name, new_name):
         raise HTTPException(status_code=400, detail='Rename failed')
-    if old_name in mm.script_process:
-        del mm.script_process[old_name]
     return True
 
 
 @script_app.delete('/config')
-async def config(name: str = ''):
+async def config_delete(name: str = ''):
     """
     delete config file
     :param name: config name
@@ -77,10 +79,12 @@ async def config(name: str = ''):
     """
     if name == '' or name == 'template':
         raise HTTPException(status_code=400, detail='Delete failed')
+    if name in mm.script_process:
+        if mm.script_process[name].state != ScriptState.INACTIVE:
+            mm.script_process[name].stop()
+        del mm.script_process[name]
     if not mm.delete(name):
         raise HTTPException(status_code=400, detail='Delete failed')
-    if name in mm.script_process:
-        del mm.script_process[name]
     return True
 
 
