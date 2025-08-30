@@ -28,7 +28,8 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
         # 本人选择的策略是只要进来了就算一次，不管是不是打完了
         logger.hr("General battle start", 2)
         self.current_count += 1
-        logger.info(f'Current tasks: {I18n.trans_zh_cn(self.config.task.command)}')
+        if self.config.task:
+            logger.info(f'Current tasks: {I18n.trans_zh_cn(self.config.task.command)}')
         logger.info(f'Current count: {self.current_count} / {self.limit_count}')
 
         task_run_time = datetime.now() - self.start_time
