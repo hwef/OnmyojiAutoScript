@@ -18,6 +18,8 @@ from tasks.Secret.script_task import ScriptTask as SecretScriptTask
 from tasks.WantedQuests.assets import WantedQuestsAssets
 from tasks.WantedQuests.config import CooperationType, CooperationSelectMask
 from typing import List
+from module.ocr.models import OCR_MODEL
+
 
 """ 悬赏封印 """
 
@@ -27,6 +29,9 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
     play_count = 0
 
     def run(self):
+        # 使用ONNXOCR
+        # OCR_MODEL.switch_to_onnx()
+
         con = self.config.wanted_quests
         if con.switch_soul.enable:
             self.ui_get_current_page()
@@ -53,7 +58,6 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
         wq_timer = Timer(3)
         wq_timer.start()
         self.limit_count = 20
-        continue_count = 5
         while 1:
             self.screenshot()
 
@@ -100,9 +104,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
                 self.execute_mission(self.I_WQ_CHECK_TASK_CLICK, 1, number_challenge, flag=True)
                 # self.save_image(task_name='悬赏发现残留任务,战斗结束', wait_time=0, image_type='png')
                 wq_timer.reset()
-                if continue_count <5:
-                    continue_count += 1
-                    continue
+                continue
 
             if wq_timer.reached():
                 logger.info('悬赏未检测到残留任务，退出循环')
@@ -129,6 +131,8 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
                                                  time(hour=server_update_am.hour, minute=server_update_am.minute,
                                                       second=server_update_am.second))
         self.set_next_run(task='WantedQuests', target=next_run_datetime)
+        # 使用PPOCR
+        # OCR_MODEL.switch_to_ppocr()
 
     def pre_work(self):
         """
@@ -213,18 +217,8 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
 
         def check_battle(cha: bool, wq_type, wq_info) -> tuple:
             battle = False
-            # 进行3次OCR识别，取出现次数最多的结果
-            type_results = []
-            for _ in range(3):
-                self.screenshot()
-                detected_type = wq_type.ocr(self.device.image)
-                type_results.append(detected_type)
-                sleep(0.1)  # 短暂等待避免连续识别同一帧
-            # 统计出现频率
-            from collections import Counter
-            type_counter = Counter(type_results)
-            type_wq = type_counter.most_common(1)[0][0]  # 取出现次数最多的结果
-            
+            self.screenshot()
+            type_wq = wq_type.ocr(self.device.image)
             if cha and type_wq == '挑战':
                 battle = 'CHALLENGE'
             if type_wq == '秘闻':
@@ -232,14 +226,6 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
             if not battle:
                 return None, None
             info = wq_info.ocr(self.device.image)
-            if (('拾' in info
-                or '柒' in info 
-                or '玖' in info  
-                or '捌' in info )
-                and battle == 'SECRET'):
-                
-                logger.info(f'悬赏封印出现 高层 不挑战')
-                return None, None
             try:
                 # 匹配： 第九章(数量:5)
                 one_number = int(re.findall(r'(\d+)', info)[-1])
