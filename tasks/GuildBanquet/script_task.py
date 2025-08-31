@@ -116,15 +116,15 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAs
         raise TaskEnd
 
     def goto_sercet_hc(self):
-        secret = self.config.secret
-        if secret.switch_soul.enable:
+        con = self.config.guild_banquet
+        if con.switch_soul.enable:
             self.ui_get_current_page()
             self.ui_goto(page_shikigami_records)
-            self.run_switch_soul(secret.switch_soul.switch_group_team)
-        if secret.switch_soul.enable_switch_by_name:
+            self.run_switch_soul(con.switch_soul.switch_group_team)
+        if con.switch_soul.enable_switch_by_name:
             self.ui_get_current_page()
             self.ui_goto(page_shikigami_records)
-            self.run_switch_soul_by_name(secret.switch_soul.group_name, secret.switch_soul.team_name)
+            self.run_switch_soul_by_name(con.switch_soul.group_name, con.switch_soul.team_name)
         self.ui_get_current_page()
         self.ui_goto(page_secret_zones)
 
@@ -134,15 +134,19 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAs
                 break
             self.swipe(self.S_U_UP, interval=1)
             time.sleep(2)
+
         self.ui_click(self.I_SECRET_HC, self.I_SECRET_HC_FLAG)
         self.ui_click(self.I_SE_ENTER, self.I_SE_FIRE)
+
         while 1:
             self.screenshot()
             if self.appear(self.I_SECRET_9_LAYER):
                 break
             self.swipe(self.S_U_UP, interval=1)
             time.sleep(2)
+
         self.ui_click(self.I_SECRET_9_LAYER, self.I_SECRET_9_LAYER_FLAG)
+
         self.limit_count = 3
         while 1:
             self.screenshot()
@@ -152,6 +156,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAs
                 self.run_general_battle()
             if self.appear_then_click(self.I_SE_FIRE, interval=1):
                 continue
+        # 回到庭院
         self.back_main()
 
     def check_runtime(self) -> bool:
