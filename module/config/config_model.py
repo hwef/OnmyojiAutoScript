@@ -46,18 +46,17 @@ from tasks.CollectiveMissions.config import CollectiveMissions
 from tasks.Hunt.config import Hunt
 from tasks.AbyssShadows.config import AbyssShadows
 from tasks.DemonRetreat.config import DemonRetreat
-from tasks.GuildBanquet.config import GuildBanquet
 
 # 这一部分是活动的配置-----------------------------------------------------------------------------------------------------
 from tasks.ActivityShikigami.config import ActivityShikigami
-from tasks.AutoCake.config import AutoCake
-from tasks.ActivityCommon.config import ActivityCommon
 from tasks.MetaDemon.config import MetaDemon
 from tasks.FrogBoss.config import FrogBoss
 from tasks.FloatParade.config import FloatParade
 from tasks.Quiz.config import Quiz
 from tasks.KittyShop.config import KittyShop
 from tasks.NianTrue.config import NianTrue
+from tasks.DyeTrials.config import DyeTrials
+from tasks.AbyssTrials.config import AbyssTrials
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -67,7 +66,6 @@ from tasks.EvoZone.config import EvoZone
 from tasks.GoryouRealm.config import GoryouRealm
 from tasks.Hyakkiyakou.config import Hyakkiyakou
 from tasks.HeroTest.config import HeroTest
-from tasks.MemoryScrolls.config import MemoryScrolls
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -121,14 +119,14 @@ class ConfigModel(ConfigBase):
 
     # 这些是活动的
     activity_shikigami: ActivityShikigami = Field(default_factory=ActivityShikigami)
-    activity_common: ActivityCommon = Field(default_factory=ActivityCommon)
-    auto_cake: AutoCake = Field(default_factory=AutoCake)
     meta_demon: MetaDemon = Field(default_factory=MetaDemon)
     frog_boss: FrogBoss = Field(default_factory=FrogBoss)
     float_parade: FloatParade = Field(default_factory=FloatParade)
     quiz: Quiz = Field(default_factory=Quiz)
     kitty_shop: KittyShop = Field(default_factory=KittyShop)
     nian_true: NianTrue = Field(default_factory=NianTrue)
+    dye_trials: DyeTrials = Field(default_factory=DyeTrials)
+    abyss_trials: AbyssTrials = Field(default_factory=AbyssTrials)
 
     # 这些是肝帝专属
     bondling_fairyland: BondlingFairyland = Field(default_factory=BondlingFairyland)
@@ -136,7 +134,6 @@ class ConfigModel(ConfigBase):
     goryou_realm: GoryouRealm = Field(default_factory=GoryouRealm)
     hyakkiyakou: Hyakkiyakou = Field(default_factory=Hyakkiyakou)
     hero_test: HeroTest = Field(default_factory=HeroTest)
-    memory_scrolls: MemoryScrolls = Field(default_factory=MemoryScrolls)
 
     # 这些是每周任务
     true_orochi: TrueOrochi = Field(default_factory=TrueOrochi)
@@ -152,7 +149,6 @@ class ConfigModel(ConfigBase):
     dokan: Dokan = Field(default_factory=Dokan)
     abyss_shadows: AbyssShadows = Field(default_factory=AbyssShadows)
     demon_retreat: DemonRetreat = Field(default_factory=DemonRetreat)
-    guild_banquet: GuildBanquet = Field(default_factory=GuildBanquet)
 
     # Tools
     back_up: BackUp = Field(default_factory=BackUp)

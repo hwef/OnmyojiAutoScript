@@ -122,7 +122,7 @@ class Emulator(EmulatorBase):
                 return cls.MuMuPlayerX
             else:
                 return cls.MuMuPlayer
-        if exe in ['mumuplayer.exe', 'mumunxmain.exe']:
+        if exe == 'mumuplayer.exe':
             return cls.MuMuPlayer12
         if exe == 'memu.exe':
             return cls.MEmuPlayer
@@ -171,9 +171,6 @@ class Emulator(EmulatorBase):
         """
         if 'MuMuPlayer.exe' in exe:
             return exe.replace('MuMuPlayer.exe', 'MuMuManager.exe')
-        # MuMuPlayer12 5.0
-        elif 'MuMuNxMain.exe' in exe:
-            return exe.replace('MuMuNxMain.exe', 'MuMuManager.exe')
         elif 'LDPlayer.exe' in exe:
             return exe.replace('LDPlayer.exe', 'ldconsole.exe')
         elif 'dnplayer.exe' in exe:
@@ -467,9 +464,7 @@ class EmulatorManager(EmulatorManagerBase):
             'leidian9',
             'Nemu',
             'Nemu9',
-            'MuMuPlayer',
-            'MuMuPlayer-12.0',
-            'MuMu Player 12.0',
+            'MuMuPlayer-12.0'
             'MEmu',
         ]
         for path in known_uninstall_registry_path:

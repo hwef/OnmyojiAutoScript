@@ -24,18 +24,8 @@ class ScriptWSManager:
 
     async def broadcast_state(self, data: dict):
         # 广播自身的状态
-        disconnected_connections = []
         for connection in self.active_connections:
-            try:
-                await connection.send_json(data)
-            except (WebSocketDisconnect, RuntimeError) as e:
-                print(f"WebSocket send_json error: {e}")
-                disconnected_connections.append(connection)
-
-            # 安全地移除断开的连接
-            for connection in disconnected_connections:
-                if connection in self.active_connections:
-                    self.active_connections.remove(connection)
+            await connection.send_json(data)
 
     async def broadcast_log(self, log: str):
         # 广播日志

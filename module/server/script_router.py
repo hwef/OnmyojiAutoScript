@@ -7,8 +7,7 @@ from fastapi.responses import StreamingResponse
 from fastapi import WebSocket, WebSocketDisconnect
 from datetime import datetime
 from module.config.config import Config
-import time
-from collections import defaultdict
+
 from module.logger import logger
 from module.server.main_manager import MainManager
 from module.server.script_process import ScriptProcess
@@ -48,7 +47,6 @@ async def config_all():
 # ---------------------------------   脚本实例管理   ----------------------------------
 @script_app.get('/{script_name}/start')
 async def script_start(script_name: str):
-    logger.info(f'[{script_name}] script process start')
     if script_name not in mm.script_process:
         mm.script_process[script_name] = ScriptProcess(script_name)
     mm.script_process[script_name].start()
@@ -56,7 +54,6 @@ async def script_start(script_name: str):
 
 @script_app.get('/{script_name}/stop')
 async def script_stop(script_name: str):
-    logger.info(f'[{script_name}] script process stop')
     if script_name not in mm.script_process:
         logger.warning(f'[{script_name}] script process does not exist')
         return
@@ -70,7 +67,6 @@ async def script_task(script_name: str, task: str):
 @script_app.put('/{script_name}/{task}/{group}/{argument}/value')
 async def script_task(script_name: str, task: str, group: str, argument: str, types: str, value):
     try:
-        logger.info(f'/{script_name}/{task}/{group}/{argument}/{value}')
         match types:
             case 'integer':
                 value = int(value)
@@ -140,40 +136,19 @@ async def script_task_log(script_name: str):
     return response
 
 # -------------------------------------- websocket --------------------------------------
-# 全局连接时间记录
-last_connections = defaultdict(float)
+
 @script_app.websocket("/ws/{script_name}")
 async def websocket_endpoint(websocket: WebSocket, script_name: str):
-
-    client_host = websocket.client.host if websocket.client else "unknown"
-    client_key = f"{client_host}:{script_name}"
-
-    # 检查连接频率 - 每秒最多一次连接
-    current_time = time.time()
-    last_connect_time = last_connections[client_key]
-
-    if current_time - last_connect_time < 1.0:
-        logger.warning(f'[{script_name}] 连接频率过高，拒绝连接请求 from {client_host}')
-
-        await websocket.close(code=1008, reason="Connection rate limit exceeded (1 per second)")
-        return
-
-    # 更新最后连接时间
-    last_connections[client_key] = current_time
-
     if script_name not in mm.script_process:
         mm.script_process[script_name] = ScriptProcess(script_name)
     script_process = mm.script_process[script_name]
     await script_process.connect(websocket)
+    await script_process.broadcast_state({"state": script_process.state})
+    config = mm.config_cache(script_name)
+    config.get_next()
+    await script_process.broadcast_state({"schedule": config.get_schedule_data()})
 
     try:
-        # 连接建立后广播初始状态
-        time.sleep(0.1)
-        await script_process.broadcast_state({"state": script_process.state})
-        config = mm.config_cache(script_name)
-        config.get_next()
-        await script_process.broadcast_state({"schedule": config.get_schedule_data()})
-
         while True:
             # 初次进入，广播state schedule
             data = await websocket.receive_text()
@@ -191,14 +166,8 @@ async def websocket_endpoint(websocket: WebSocket, script_name: str):
 
     except WebSocketDisconnect:
         logger.warning(f'[{script_name}] websocket disconnect')
-    except Exception as e:
-        logger.error(f'[{script_name}] websocket error: {e}')
-    finally:
-        # 确保连接被正确清理
-        try:
-            script_process.disconnect(websocket)
-        except Exception as e:
-            logger.error(f'[{script_name}] error disconnecting websocket: {e}')
+        script_process.disconnect(websocket)
+
 
 
 

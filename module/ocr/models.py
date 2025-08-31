@@ -1,12 +1,12 @@
 from module.base.decorator import cached_property
 from module.ocr.ppocr import TextSystem
-from module.ocr.onnx_paddle_ocr import ONNXPaddleOcr
+from module.ocr.onnxocr.onnx_paddleocr import ONNXPaddleOcr
 from module.logger import logger
 
 
 class OcrModel:
     def __init__(self):
-        self._model_type = 'onnx'  # 默认使用ppocr模型
+        self._model_type = 'ppocr'  # 默认使用ppocr模型
         self._onnx_params = {}  # ONNX模型参数
         self._model_cache = {}  # 模型缓存
         
@@ -23,13 +23,14 @@ class OcrModel:
         返回:
             OCR模型实例
         """
-        if lang not in self._model_cache:
-            if self._model_type == 'onnx':
-                logger.info(f'初始化ONNX OCR模型({lang})')
-                self._model_cache[lang] = ONNXPaddleOcr(**self._onnx_params)
-            else:
-                logger.info(f'初始化PPOCR模型({lang})')
-                self._model_cache[lang] = TextSystem()
+        self._model_cache[lang] = ONNXPaddleOcr(**self._onnx_params)
+        # if lang not in self._model_cache:
+        #     if self._model_type == 'onnx':
+        #         logger.info(f'初始化ONNX OCR模型({lang})')
+        #         self._model_cache[lang] = ONNXPaddleOcr(**self._onnx_params)
+        #     else:
+        #         logger.info(f'初始化PPOCR模型({lang})')
+        #         self._model_cache[lang] = TextSystem()
         return self._model_cache[lang]
     
     def switch_to_onnx(self, **kwargs):

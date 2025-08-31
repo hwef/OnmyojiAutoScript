@@ -198,7 +198,7 @@ class Notifier:
             body = head_text + image_b64 + content_text
 
             # 返回 HTML 内容的推送结果
-            return self.push_html(title=f'{I18n.trans_zh_cn(title)}', content=body)
+            return self.push_html(title=f'{I18n.trans_zh_cn(title)} | {content}', content=body)
         except Exception as e:
             # 记录异常错误
             logger.error(f"出现异常: {e}")

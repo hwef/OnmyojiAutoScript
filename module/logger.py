@@ -336,9 +336,6 @@ class GuiRule(Rule):
 
 
 def rule(title="", *, characters="─", style="rule.line", end="\n", align="center"):
-    # 确保使用基本字符避免编码问题
-    if characters == "":
-        characters = "-"
     rule = GuiRule(title=title, characters=characters,
                    style=style, end=end)
     print(rule)

@@ -3,7 +3,6 @@ import ctypes
 import os
 import sys
 from functools import partial, wraps
-from pathlib import Path
 
 import cv2
 import numpy as np
@@ -209,29 +208,7 @@ class NemuIpcImpl:
         self.instance_id: int = instance_id
         self.display_id: int = display_id
 
-        list_dll = [
-            # MuMuPlayer12
-            os.path.abspath(os.path.join(nemu_folder, './shell/sdk/external_renderer_ipc.dll')),
-            # MuMuPlayer12 5.0
-            os.path.abspath(os.path.join(nemu_folder, './nx_device/12.0/shell/sdk/external_renderer_ipc.dll')),
-        ]
-        self.lib = None
-        for ipc_dll in list_dll:
-            if not os.path.exists(ipc_dll):
-                continue
-            try:
-                self.lib = ctypes.CDLL(ipc_dll)
-                break
-            except OSError as e:
-                logger.error(e)
-                logger.error(f'ipc_dll={ipc_dll} exists, but cannot be loaded')
-                continue
-        if self.lib is None:
-            # not found
-            raise NemuIpcIncompatible(
-                f'NemuIpc requires MuMu12 version >= 3.8.13, please check your version. '
-                f'None of the following path exists: {list_dll}')
-        # success
+        ipc_dll = os.path.abspath(os.path.join(nemu_folder, './shell/sdk/external_renderer_ipc.dll'))
         logger.info(
             f'NemuIpcImpl init, '
             f'nemu_folder={nemu_folder}, '
@@ -240,6 +217,18 @@ class NemuIpcImpl:
             f'display_id={display_id}'
         )
 
+        try:
+            self.lib = ctypes.CDLL(ipc_dll)
+        except OSError as e:
+            logger.error(e)
+            # OSError: [WinError 126] 找不到指定的模块。
+            if not os.path.exists(ipc_dll):
+                raise NemuIpcIncompatible(
+                    f'ipc_dll={ipc_dll} does not exist, '
+                    f'NemuIpc requires MuMu12 version >= 3.8.13, please check your version')
+            else:
+                raise NemuIpcIncompatible(
+                    f'ipc_dll={ipc_dll} exists, but cannot be loaded')
         self.connect_id: int = 0
         self.width = 0
         self.height = 0
@@ -252,7 +241,6 @@ class NemuIpcImpl:
             self.lib.nemu_connect,
             self.nemu_folder, self.instance_id
         )
-        logger.info(f'NemuIpc connect: {self.connect_id}')
         if connect_id == 0:
             raise NemuIpcError(
                 'Connection failed, please check if nemu_folder is correct and emulator is running'
@@ -270,7 +258,7 @@ class NemuIpcImpl:
             self.connect_id
         )
 
-        logger.info(f'NemuIpc disconnected: {self.connect_id}')
+        # logger.info(f'NemuIpc disconnected: {self.connect_id}')
         self.connect_id = 0
 
     def reconnect(self):
@@ -457,7 +445,7 @@ class NemuIpc():
         """
         # Try existing settings first
         if self.config.script.device.emulatorinfo_path:
-            folder = str(Path(self.config.script.device.emulatorinfo_path).parent.parent)
+            folder = os.path.abspath(os.path.join(self.config.script.device.emulatorinfo_path, '../../'))
             index = serial_to_id(self.serial)
             if index is not None:
                 try:
