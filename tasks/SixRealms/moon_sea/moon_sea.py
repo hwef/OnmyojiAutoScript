@@ -47,8 +47,10 @@ class MoonSea(MoonSeaMap, MoonSeaL101, MoonSeaL102, MoonSeaL103, MoonSeaL104, Mo
             if datetime.now() - self.start_time >= max_time:
                 logger.info('Run out of time, exit')
                 break
-            self.one()
-            cnt += 1
+            if self.one():
+                cnt += 1
+            else:
+                break
         self.push_notify(content=f'任务已完成{cnt}次,用时: {timedelta(seconds=int((datetime.now() - self.start_time).total_seconds()))}')
         logger.info('Exit Moon Sea')
 
@@ -84,7 +86,7 @@ class MoonSea(MoonSeaMap, MoonSeaL101, MoonSeaL102, MoonSeaL103, MoonSeaL104, Mo
             if isl_type == MoonSeaType.island106:
                 self.boss_team_lock()
                 if self.boss_battle():
-                    break
+                    return True
                 else:
                     continue
 
@@ -115,9 +117,9 @@ class MoonSea(MoonSeaMap, MoonSeaL101, MoonSeaL102, MoonSeaL103, MoonSeaL104, Mo
             if self.appear(self.I_MSTART,interval=1):
                 if self._conf.number_enable:
                     cu = self.O_SIXREALMS_NUMBER.ocr(self.device.image)
-                    logger.info("门票："+str(cu))
+                    logger.info(f"六道门票数量：{cu}")
                     if not cu > 0:
-                        logger.info("门票不足退出六道！")
+                        self.push_notify("六道门票数量不足, 退出！")
                         return False
                 break
             if self.appear_then_click(self.I_MENTER, interval=1):
@@ -236,7 +238,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     t = MoonSea(c, d)
     t.screenshot()

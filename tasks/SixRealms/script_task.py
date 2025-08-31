@@ -3,13 +3,10 @@
 # github https://github.com/runhey
 from cached_property import cached_property
 
-
-
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_soul_zones, page_shikigami_records
 from module.logger import logger
 from module.exception import TaskEnd
-
 
 from time import sleep
 from datetime import time, datetime, timedelta
@@ -24,6 +21,8 @@ from tasks.SixRealms.moon_sea.moon_sea import MoonSea
 from module.logger import logger
 
 """ 六道之门 """
+
+
 class ScriptTask(GameUi, SwitchSoul, MoonSea):
 
     @property
@@ -58,14 +57,11 @@ class ScriptTask(GameUi, SwitchSoul, MoonSea):
         self.ui_click(self.I_BACK_EXIT, self.I_CHECK_SIX_GATES)
 
 
-
-
-
-
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('oas1')
+
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()
