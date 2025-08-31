@@ -1,8 +1,8 @@
 [
   {
     "itemName": "sca_number_orochi",
-    "roiFront": "46,318,27,25",
-    "roiBack": "46,318,27,25",
+    "roiFront": "40,319,41,23",
+    "roiBack": "40,319,41,23",
     "mode": "Digit",
     "method": "Default",
     "keyword": "",

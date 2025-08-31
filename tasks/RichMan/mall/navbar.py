@@ -107,8 +107,8 @@ class MallNavbar(GameUi, RichManAssets):
         }
         self.screenshot()
         result = match[index].ocr(self.device.image)
-        match = re.search(r'\d+', result)
-        result = int(match.group())
+        # match = re.search(r'\d+', result)
+        # result = int(match.group())
         if not isinstance(result, int):
             logger.warning(f'Get mall resource {index} error, result: {result}')
         if result == 0:
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     t = MallNavbar(c, d)
 

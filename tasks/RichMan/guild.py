@@ -34,6 +34,8 @@ class Guild(Buy, GameUi, RichManAssets):
         time.sleep(0.5)
         # 功勋礼包
         self._guild_libao()
+        # 风铃
+        self._guild_fl()
         # 经验手札
         self._guild_exp()
         self.save_image()
@@ -106,6 +108,25 @@ class Guild(Buy, GameUi, RichManAssets):
             logger.warning('礼包购买数量不足')
             return False
         self.buy_more(self.I_LIAOBAO)
+        time.sleep(0.5)
+        return True
+
+    def _guild_fl(self):
+        # 风铃
+        logger.hr('开始购买风铃', 3)
+        self.screenshot()
+        result = self.I_FL.match(self.device.image)
+        if not result:
+            logger.warning('未识别到风铃')
+            self.save_image(wait_time=0, image_type=True,push_flag=True,content='未识别到风铃')
+            return False
+        number = self.check_remain(self.I_FL)
+        if number == 0:
+            logger.warning('风铃购买数量不足')
+            return False
+        self.buy_more(self.I_FL)
+        time.sleep(0.5)
+        self.buy_more(self.I_FL)
         time.sleep(0.5)
         return True
 

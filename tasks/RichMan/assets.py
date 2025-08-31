@@ -25,6 +25,8 @@ class RichManAssets:
 	I_GUILD_SKIN = RuleImage(roi_front=(795,438,71,72), roi_back=(320,162,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_skin.png")
 	# 经验御札 
 	I_EXP = RuleImage(roi_front=(569,465,73,72), roi_back=(320,200,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/Screenshots_exp.png")
+	# 风铃 
+	I_FL = RuleImage(roi_front=(344,464,73,72), roi_back=(320,200,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/Screenshots_fl.png")
 	# 寮礼包 
 	I_LIAOBAO = RuleImage(roi_front=(566,208,76,80), roi_back=(320,162,573,371), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/Screenshots_libao.png")
 	# 御魂 
@@ -279,7 +281,7 @@ class RichManAssets:
 
 	# Ocr Rule Assets
 	# 蛇皮剩余可买的 
-	O_SCA_NUMBER_OROCHI = RuleOcr(roi=(46,318,27,25), area=(46,318,27,25), mode="Digit", method="Default", keyword="", name="sca_number_orochi")
+	O_SCA_NUMBER_OROCHI = RuleOcr(roi=(40,319,41,23), area=(40,319,41,23), mode="Digit", method="Default", keyword="", name="sca_number_orochi")
 	# 首领御魂剩余可买的 
 	O_SCA_NUMBER_DEMON = RuleOcr(roi=(627,319,30,25), area=(627,319,30,25), mode="Digit", method="Default", keyword="", name="sca_number_demon")
 	# 永生之海潮汐御魂 

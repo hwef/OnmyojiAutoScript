@@ -153,20 +153,22 @@ class Special(Buy, MallNavbar):
         :param target:
         :return:
         """
+        result = target.match(self.device.image)
+        if not result:
+            self.save_image(wait_time=0, image_type=True, push_flag=True, content=f"未识别到 {target}")
+            return 0
         upper_midpoint = target.roi_front[0] + target.roi_front[2] // 2, target.roi_front[1]
         # 重设roi
         roi = self.O_SP_RES_NUMBER.roi
         self.O_SP_RES_NUMBER.roi[0] = upper_midpoint[0] - roi[2] // 2
         self.O_SP_RES_NUMBER.roi[1] = upper_midpoint[1] - roi[3]
-        # logger.info(f'图片的ROI是: {target.roi_front}')
-        # logger.info(f'上中点是：{upper_midpoint}')
-        # logger.info(f'数字的ROI是: {self.O_SP_RES_NUMBER.roi}')
+
         result = self.O_SP_RES_NUMBER.ocr(self.device.image)
-        result = result.replace('？', '2').replace('?', '2').replace(':', '；').replace('火', '次').replace('教', '数')
-        result = result.replace('刺', '剩').result.replace('利', '剩')
+        result = result.replace('？', '2').replace('?', '2').replace(';', '：').replace('火', '次').replace('教', '数')
+        result = result.replace('刺', '剩').replace('利', '剩')
         try:
-            if '：' in result:
-                result = re.findall(r'剩余购买次数：(\d+)', result)[0]
+            if '：' in result or ':' in result:
+                result = re.findall(r'剩余购买次数[:：](\d+)', result)[0]
                 result = int(result)
             else:
                 result = re.findall(r'本周剩余数量(\d+)', result)[0]
@@ -175,6 +177,9 @@ class Special(Buy, MallNavbar):
             result = 0
         logger.info(f'Remain [{result}]')
         if result == 0:
+            logger.info(f'图片的ROI是: {target.roi_front}')
+            logger.info(f'上中点是：{upper_midpoint}')
+            logger.info(f'数字的ROI是: {self.O_SP_RES_NUMBER.roi}')
             self.save_image(wait_time=0, image_type=True,push_flag=True,content=f"{target}剩余数量为0")
         return result
 

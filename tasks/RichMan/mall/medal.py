@@ -90,7 +90,7 @@ class Medal(FriendshipPoints):
         while 1:
             self.screenshot()
 
-            result = start_click.match(self.device.image)
+            result = start_click.match_gray(self.device.image)
             if result:
                 if self.appear(start_click) and not self.appear_rgb(start_click, difference=10):
                     logger.warning('Buy button end')
