@@ -277,3 +277,11 @@ console.bat
 /tasks/AbyssShadows/__pycache__
 /backup
 /config/config.7z
+
+# 本地测试文件和文件夹
+/test_shape_match/
+/optimization_versions/
+test_template_match.py
+todo.md
+提示词.md
+setup_env.ps1
