@@ -147,7 +147,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
             if self.appear_then_click(self.I_LUCK_MSG, interval=1):
                 continue
         logger.info('Start luck msg')
-        check_timer = Timer(2)
+        check_timer = Timer(5)
         check_timer.start()
         while 1:
             self.screenshot()
@@ -160,6 +160,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
                 logger.info('Get reward of luck msg')
                 break
             if check_timer.reached():
+                self.save_image(content="收取吉闻超时", wait_time=0, image_type=True, push_flag=True)
                 logger.warning('There is no any luck msg')
                 break
 
@@ -177,7 +178,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
             if self.appear_then_click(self.I_L_FRIENDS, interval=1):
                 continue
         logger.info('Start friend love')
-        check_timer = Timer(2)
+        check_timer = Timer(5)
         check_timer.start()
         while 1:
             self.screenshot()
@@ -188,6 +189,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
                 logger.info('Get reward of friend love')
                 break
             if check_timer.reached():
+                self.save_image(content="收取友情点超时", wait_time=0, image_type=True, push_flag=True)
                 logger.warning('There is no any love')
                 break
 
@@ -214,8 +216,18 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
                 break
             if self.appear_then_click(self.I_ROOM_GIFT, interval=1):
                 continue
-        self.screenshot()
-        self.appear_then_click(self.I_GIFT_RECOMMEND, interval=1)
+        timer = Timer(5)
+        timer.start()
+        while 1:
+            if timer.reached():
+                self.save_image(content="每日签到超时", push_flag=True, wait_time=0, image_type=True)
+                return
+            self.reject_invite()
+            self.screenshot()
+            if self.appear(self.I_GIFT_SIGN):
+                break
+            if self.appear_then_click(self.I_GIFT_RECOMMEND, interval=1):
+                continue
         logger.info('Enter store sign')
         sleep(1)  # 等个动画
         self.reject_invite()
