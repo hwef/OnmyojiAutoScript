@@ -70,6 +70,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
     dokan_quit: bool = False
     # 上一个场景
     last_scene = None
+    # 查找的所有道馆
+    find_dokan_list = []
 
     def check_current_weekday(self, success=False):
         today = datetime.today()
@@ -524,19 +526,24 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             @rtype:
             """
             restore_roi()
-            self.screenshot()
-            bounty_list = self.find_all_element(self.I_RIGHTPAD_POINT_BOUNTY, (0, 0, 0, 50))
-            logger.info(f'find elements list:{bounty_list}')
-            # 获取所有匹配结果并直接转换为所需格式
-            raw_matches = self.I_RIGHTPAD_POINT_BOUNTY.match_all_any(image=self.device.image, roi=[1095,33,82,569])
-            # 直接从匹配结果中提取坐标信息并按y坐标排序
-            bounty_list = sorted(
-                [[x, y, w, h] for (sc, x, y, w, h) in raw_matches],
-                key=lambda item: item[1]  # 按y坐标排序
-            )
-            logger.info(f'find elements list:{bounty_list}')
-            if len(bounty_list) < 3:
-                self.save_image(task_name='搜索到的道馆少于3个', image_type=True, wait_time=0, push_flag=True, content='搜索到的道馆少于4个')
+            find_bounty_count = 0
+            while find_bounty_count < 3:
+                self.screenshot()
+                bounty_list = self.find_all_element(self.I_RIGHTPAD_POINT_BOUNTY, (0, 0, 0, 50))
+                logger.info(f'find elements list:{bounty_list}')
+                # 获取所有匹配结果并直接转换为所需格式
+                raw_matches = self.I_RIGHTPAD_POINT_BOUNTY.match_all_any(image=self.device.image, roi=[1095,33,82,569])
+                # 直接从匹配结果中提取坐标信息并按y坐标排序
+                bounty_list = sorted(
+                    [[x, y, w, h] for (sc, x, y, w, h) in raw_matches],
+                    key=lambda item: item[1]  # 按y坐标排序
+                )
+                logger.info(f'find elements list:{bounty_list}')
+                if len(bounty_list) < 3:
+                    self.save_image(task_name='搜索到的道馆少于3个', image_type=True, wait_time=0, push_flag=True, content='搜索到的道馆少于4个')
+                    find_bounty_count += 1
+                else:
+                    break
             # 默认最小分数
             min_score = 10
             idx_selected = -1
@@ -591,7 +598,10 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 p_num = int(tmp.group())
 
                 item_score = float(f"{bounty / p_num:.2f}")
-                logger.info(f"========== 名称:{dokan_name},资金:{bounty},人数:{p_num},系数:{item_score} ==========")
+                dokan_info = (f"道馆: {dokan_name},资金: {bounty},人数: {p_num},系数: {item_score}")
+                if dokan_info not in self.find_dokan_list:  # 检查是否已存在
+                    self.find_dokan_list.append(dokan_info)
+                logger.info(f"========== {dokan_info} ==========")
 
                 if item_score < min_score:
                     min_score = item_score
@@ -682,58 +692,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 continue
 
         self.find_dokan(self.config.dokan.dokan_config.find_dokan_score)
-        # # 识别寮资金 选择最低的
-        # count = 0
-        # num = 0
-        # while 1:
-        #     self.screenshot()
-        #
-        #     DOKAN_1 = self.O_DOKAN_READY_SEL1.ocr_digit(self.device.image)
-        #     DOKAN_2 = self.O_DOKAN_READY_SEL2.ocr_digit(self.device.image)
-        #     DOKAN_3 = self.O_DOKAN_READY_SEL3.ocr_digit(self.device.image)
-        #     DOKAN_4 = self.O_DOKAN_READY_SEL4.ocr_digit(self.device.image)
-        #
-        #     # 只要有一个不为0，立即退出循环
-        #     if DOKAN_1 != 0 or DOKAN_2 != 0 or DOKAN_3 != 0 or DOKAN_4 != 0:
-        #         break
-        #
-        # dokan_list = [DOKAN_1, DOKAN_2, DOKAN_3, DOKAN_4]
-        #
-        # # reverse 可选。布尔值。False 将按升序排序，True 将按降序排序。默认为 False。
-        # dokan_list_sort = sorted(dokan_list, reverse=False)
-        #
-        # # 使用 sorted 函数和 lambda 函数进行排序
-        # dokan_list_sort = sorted(dokan_list, key=lambda x: (x < 550 or x >= 750, x))
-        #
-        # dokan_click_list = [self.O_DOKAN_READY_SEL1, self.O_DOKAN_READY_SEL2,
-        #                     self.O_DOKAN_READY_SEL3, self.O_DOKAN_READY_SEL4]
-        #
-        # while 1:
-        #     dokan_index = dokan_list.index(dokan_list_sort[num])
-        #
-        #     if self.click(dokan_click_list[dokan_index], interval=1):
-        #         if num < 3:
-        #             num += 1
-        #         else:
-        #             num = 0
-        #
-        #     self.screenshot()
-        #     self.wait_until_stable(self.I_NEWTZ, timer=Timer(0.6, 2))
-        #     if self.appear(self.I_NEWTZ, interval=1):
-        #         break
-        #
-        # # 识别挑战按钮
-        # while 1:
-        #     self.screenshot()
-        #     if self.appear_then_click(self.I_NEWTZ, interval=1):
-        #         continue
-        #     if self.appear_then_click(self.I_OK, interval=1):
-        #         count += 1
-        #         if count < 3:
-        #             continue
-        #         break
-        #     if self.appear(self.I_RYOU_DOKAN_CHECK, threshold=0.6):
-        #         break
+        logger.info(f"所有查找到的道馆列表数量为: {len(self.find_dokan_list)}")
+        for i, item in enumerate(self.find_dokan_list):
+            logger.info(f"Item {i+1}: {item}")
 
     def goto_main(self):
         while 1:
@@ -858,7 +819,7 @@ if __name__ == "__main__":
     device = Device(config)
     t = ScriptTask(config, device)
     # t.save_image()
-    t.run()
+    # t.run()
     t.find_dokan()
 
     # test_ocr_locate_dokan_target()
