@@ -9,18 +9,18 @@ class ConfigManual:
 
     SCHEDULER_PRIORITY = """
         Restart > BackUp
-        > KekkaiUtilize > KekkaiActivation  
+        > KekkaiUtilize > KekkaiActivation > MemoryScrolls
         > WantedQuests > DemonEncounter > SoulsTidy 
         > AreaBoss > GoldYoukai > ExperienceYoukai > Nian > NianTrue > Tako > RealmRaid > DailyTrifles > Exploration
-        > Dokan > AbyssShadows > Hunt > DemonRetreat
+        > Dokan > AbyssShadows > DemonRetreat > GuildBanquet > Hunt
         > Pets > EternitySea > Orochi > FallenSun > BondlingFairyland > EvoZone 
         > RyouToppa
-        > ActivityShikigami 
+        > ActivityCommon > ActivityShikigami 
         > GoryouRealm > HeroTest
         > TrueOrochi > RichMan > Secret > WeeklyTrifles > SixRealms > Sougenbi 
         > CollectiveMissions
         > Delegation > Hyakkiyakou
-        > MysteryShop > Duel > MetaDemon > FrogBoss > FloatParade > Quiz > KittyShop > DyeTrials > AbyssTrials
+        > MysteryShop > Duel > MetaDemon > FrogBoss > FloatParade > Quiz > KittyShop > AutoCake
         > TalismanPass
         """
 

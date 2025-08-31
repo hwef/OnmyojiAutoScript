@@ -21,31 +21,31 @@ class ConfigMenu:
         # 开发工具
         self.menu["Tools"] = ['Image Rule', 'Ocr Rule', 'Click Rule', 'Long Click Rule', 'Swipe Rule', 'List Rule']
 
-        # 刷御魂
-        self.menu["Soul Zones"] = ['Orochi', 'Sougenbi']
         # 日常的任务
         self.menu["Daily Task"] = ['Pets', 'DailyTrifles', 'WantedQuests', 'GoldYoukai', 'AreaBoss',
                                    'DemonEncounter',  'SoulsTidy', 'CollectiveMissions', 'TalismanPass', ]
+        # 刷御魂
+        self.menu["Soul Zones"] = ['Sougenbi', 'Orochi', "BondlingFairyland",]
+
         # 很肝的任务
         self.menu["Liver Emperor Exclusive"] = [
-            "BondlingFairyland",
             "GoryouRealm",
             "Exploration",
+            'MemoryScrolls',
         ]
         # 阴阳寮
         self.menu["Guild"] = ['KekkaiUtilize', 'KekkaiActivation', 'RyouToppa', 'RealmRaid', 'Dokan',
-                              'Hunt', 'AbyssShadows', "DemonRetreat"]
+                              'Hunt', 'AbyssShadows', "DemonRetreat", "GuildBanquet"]
         # 每周任务
         self.menu["Weekly Task"] = ['Duel', 'RichMan', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms',
                                     'TrueOrochi']
         # 活动的任务
-        self.menu["Activity Task"] = ['ActivityShikigami', 'MetaDemon', 'FrogBoss', 'FloatParade', 'Quiz', 'KittyShop',
-                                      'NianTrue', 'DyeTrials', 'AbyssTrials']
+        self.menu["Activity Task"] = ['ActivityCommon', 'AutoCake', 'ActivityShikigami', 'MetaDemon', 'FrogBoss', 'FloatParade', 'Quiz', 'KittyShop',
+                                      'NianTrue']
 
         self.menu["other"] = ['FallenSun', 'ExperienceYoukai', 'Nian', 'Delegation', 'Tako',  "EvoZone",   "Hyakkiyakou",
-                              "HeroTest",  'MysteryShop',]
+                              "HeroTest",  'MysteryShop','BackUp',]
 
-        self.menu["Tool"] = ['BackUp',]
 
     @cached_property
     def gui_menu(self) -> str:

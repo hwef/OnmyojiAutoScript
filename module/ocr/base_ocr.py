@@ -5,7 +5,7 @@ import time
 import cv2
 import numpy as np
 
-from ppocronnx.predict_system import BoxedResult
+from module.ocr.onnx_paddle_ocr import BoxedResult
 from enum import Enum
 
 
@@ -124,11 +124,6 @@ class BaseCor:
         :param image:
         :return:
         """
-        # 判断图像是不是opencv的 bgr格式的图像，如果是的话，需要转换成rgb格式的
-
-        
-        if image.shape[-1] == 3 :
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image
 
     def after_process(self, result):
@@ -204,7 +199,7 @@ class BaseCor:
                 name=f'{self.name} {float2str(time.time() - start_time)}s',
                 text=f'识别结果: [{result}] 置信度: {score:.2f}'
             )
-            return result
+            return result, score
         except Exception as e:
             logger.error(f'{self.name} OCR识别失败: {str(e)}')
             raise
@@ -221,7 +216,7 @@ class BaseCor:
         """
         if image is None or not isinstance(image, np.ndarray):
             raise ValueError("输入图像不能为空且必须为numpy数组")
-        debug = False
+
         start_time = time.time()
         try:
             # 预处理
@@ -231,9 +226,7 @@ class BaseCor:
                 
             image = self.pre_process(image)
             image = enlarge_canvas(image)
-            if(debug == True):
-                cv2.imshow('resize', image)
-                cv2.waitKey()
+
             # OCR识别
             boxed_results: list[BoxedResult] = self.model.detect_and_ocr(image)
             if not boxed_results:
@@ -248,17 +241,10 @@ class BaseCor:
                 result.ocr_text = self.after_process(result.ocr_text)
                 results.append(result)
 
-            # 记录OCR结果和置信度
-            for idx, result in enumerate(results):
-                logger.attr(
-                    name=f'{self.name} 结果[{idx}]',
-                    text=f'文本: [{result.ocr_text}] 置信度: {result.score:.4f}'
-                )
-                
-            # logger.attr(
-            #     name=f'{self.name} {float2str(time.time() - start_time)}s',
-            #     text=f'检测到{len(results)}个文本区域'
-            # )
+            logger.attr(
+                name=f'{self.name} {float2str(time.time() - start_time)}s',
+                text=f'检测到{len(results)}个文本区域'
+            )
             return results
         except Exception as e:
             logger.error(f'{self.name} 多行OCR识别失败: {str(e)}')

@@ -43,7 +43,7 @@ class PaintImage(QQuickPaintedItem):
 
 
         if self._image.load(image_name):
-            logger.info("load image success")
+            # logger.info("load image success")
             self.update()
         else:
             logger.error("load image failed")
