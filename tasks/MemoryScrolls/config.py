@@ -19,8 +19,12 @@ class ScrollNumber(str, Enum):
 
 class MemoryScrollsConfig(ConfigBase):
     auto_contribute_memoryscrolls: bool = Field(default=True, description='自动贡献绘卷碎片')
+    ranking: int = Field(default=80, description='排名多少前不进行贡献,0默认贡献')
+    score: int = Field(default=200, description='一次贡献指定分数,0默认全部贡献')
     scroll_number: ScrollNumber = Field(default=ScrollNumber.ONE, description='scroll_number_help')
-    close_task: bool = Field(default=True, description='指定绘卷结束后，关闭探索和绘卷任务')
+    close_exploration: bool = Field(default=False, description='指定绘卷结束后，关闭探索任务')
+    close_memoryscrolls: bool = Field(default=False, description='指定绘卷结束后，关闭绘卷任务')
+
 
 class MemoryScrollsFinish(ConfigBase):
     auto_finish_exploration: bool = Field(default=False, description='小绘卷满50后自动结束当日探索任务')
