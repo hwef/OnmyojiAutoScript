@@ -39,7 +39,7 @@
     "itemName": "pet_house_11",
     "imageName": "main11_pet_house_11.png",
     "roiFront": "966,323,29,29",
-    "roiBack": "724,295,440,69",
+    "roiBack": "725,297,402,89",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "宠物室"
