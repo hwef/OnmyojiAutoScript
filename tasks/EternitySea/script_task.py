@@ -63,7 +63,6 @@ class ScriptTask(
         # 个人突破
         self.set_next_run(task='RealmRaid', target=datetime.now())
 
-        self.push_notify(content=f'任务已完成{self.current_count}次,用时: {timedelta(seconds=int((datetime.now() - self.start_time).total_seconds()))}')
         raise TaskEnd(self.task_name)
 
     def run_leader(self):
@@ -135,7 +134,7 @@ class ScriptTask(
 
         # 当结束或者是失败退出循环的时候只有两个UI的可能，在房间或者是在组队界面
         # 如果在房间就退出
-        self.save_image()
+        self.save_image(push_flag=True, wait_time=0, content=f'任务已完成{self.current_count}次,用时: {timedelta(seconds=int((datetime.now() - self.start_time).total_seconds()))}')
         if self.exit_room():
             pass
         # 如果在组队界面就退出
@@ -181,7 +180,7 @@ class ScriptTask(
             elif self.check_take_over_battle(False, config=self._task_config.general_battle_config):
                 continue
 
-        self.save_image()
+        self.save_image(push_flag=True, wait_time=0, content=f'任务已完成{self.current_count}次,用时: {timedelta(seconds=int((datetime.now() - self.start_time).total_seconds()))}')
         while 1:
             # 有一种情况是本来要退出的，但是队长邀请了进入的战斗的加载界面
             if self.appear(self.I_GI_HOME) or self.appear(self.I_GI_EXPLORE):
