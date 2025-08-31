@@ -124,8 +124,12 @@ class BaseTask(GlobalGameAssets, CostumeBase):
 
         return self.device.image
 
+    def appear_mask(self, target: RuleImage, threshold: float = None, mask_path: str = None):
+        appear = target.match_mask(self.device.image, threshold=threshold, mask_path=mask_path)
+        return appear
+
     def appear(self,
-               target: RuleImage | RuleGif,
+               target: RuleImage,
                interval: float = None,
                threshold: float = None):
         """
@@ -135,7 +139,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         :param threshold:
         :return:
         """
-        if not isinstance(target, RuleImage) and not isinstance(target, RuleGif):
+        if not isinstance(target, RuleImage):
             return False
 
         if interval:
@@ -169,7 +173,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         :param threshold:
         :return: True or False
         """
-        if not isinstance(target, RuleImage) and not isinstance(target, RuleGif):
+        if not isinstance(target, RuleImage):
             return False
 
         appear = self.appear(target, interval=interval, threshold=threshold)
@@ -307,11 +311,12 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 logger.info(f'Wait_animate_stable({rule}) timeout')
                 break
 
-    def swipe(self, swipe: RuleSwipe, interval: float = None) -> None:
+    def swipe(self, swipe: RuleSwipe, interval: float = None, duration: float = 0.1) -> None:
         """
 
         :param interval:
         :param swipe:
+        :param  duration
         :return:
         """
         if not isinstance(swipe, RuleSwipe):
@@ -330,7 +335,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 return
 
         x1, y1, x2, y2 = swipe.coord()
-        self.device.swipe(p1=(x1, y1), p2=(x2, y2), control_name=swipe.name)
+        self.device.swipe(p1=(x1, y1), p2=(x2, y2), control_name=swipe.name, duration=(duration, duration + 0.1))
 
         # 执行后，如果有限制时间，则重置限制时间
         if interval:
