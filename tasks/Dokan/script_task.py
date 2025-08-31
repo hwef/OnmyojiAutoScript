@@ -66,8 +66,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
     battle_count: int = 0
     # 寮友进入道馆次数
     goto_dokan_num: int = 0
-    # 今日是否第一次道馆
-    battle_dokan_flag: bool = False
+    # 今日是否第一次道馆 是否放弃
+    dokan_quit: bool = False
     # 上一个场景
     last_scene = None
 
@@ -131,7 +131,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             # 场景状态：等待馆主战开始
             elif current_scene == DokanScene.RYOU_DOKAN_SCENE_BOSS_WAITING:
                 # 管理放弃第一次道馆
-                if self.battle_dokan_flag and self.config.dokan.dokan_config.dokan_enable:
+                if self.dokan_quit and self.config.dokan.dokan_config.dokan_enable:
                     logger.info("今日第一次道馆，放弃本次道馆")
                     time.sleep(5)
                     while 1:
@@ -345,9 +345,12 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         :return:
         """
         if enable:
-            if self.appear(self.I_GREEN_MARK) or self.appear(self.I_GREEN_MARK_1):
+            if self.dokan_wait_until_appear(self.I_GREEN_MARK, self.I_GREEN_MARK_1, wait_time=1):
                 # logger.info("识别到绿标，返回")
                 return
+            else:
+                logger.info("第一步识别绿标失败")
+                # self.save_image(task_name="Dokan_greenmark_false_first", content="第一步识别绿标失败", push_flag=True, wait_time=0, image_type=True)
             # logger.info("Green is enable")
             x, y = None, None
             # logger.info(f"Green {mark_mode}")
@@ -373,44 +376,23 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 # 点击坐标
                 self.device.click(x, y)
                 if self.dokan_wait_until_appear(self.I_GREEN_MARK, self.I_GREEN_MARK_1, wait_time=1):
-                    # logger.info("识别到绿标,返回")
-                    self.save_image(task_name="Dokan_greenmark_ok", content="点击绿标成功", push_flag=True, wait_time=0, image_type=True)
+                    logger.info("识别到绿标,返回")
+                    # self.save_image(task_name="Dokan_greenmark_ok", content="点击绿标成功", push_flag=True, wait_time=0, image_type=True)
                     break
                 else:
-                    self.save_image(task_name="Dokan_greenmark_false", content="识别绿标超时", push_flag=True, wait_time=0, image_type=True)
+                    logger.info("识别到绿标失败")
+                    # self.save_image(task_name="Dokan_greenmark_false", content="识别绿标超时", push_flag=True, wait_time=0, image_type=True)
                 if mark_timer.reached():
                     # logger.warning("识别绿标超时,返回")
                     break
                 # 判断有无坐标的偏移
                 # self.appear_then_click(self.I_LOCAL)
 
-
-    def dokan_wait_until_appear(self,
-                                target,
-                                target2,
-                                skip_first_screenshot=False,
-                                wait_time: int = None) -> bool:
-        """
-        等待直到出现目标
-        :param wait_time: 等待时间，单位秒
-        :param target:
-        :param target2:
-        :param skip_first_screenshot:
-        :return:
-
-        Parameters
-        ----------
-        target2
-        """
-        wait_timer = None
-        if wait_time:
-            wait_timer = Timer(wait_time)
-            wait_timer.start()
+    def dokan_wait_until_appear(self, target, target2, wait_time) -> bool:
+        wait_timer = Timer(wait_time)
+        wait_timer.start()
         while 1:
-            if skip_first_screenshot:
-                skip_first_screenshot = False
-            else:
-                self.screenshot()
+            self.screenshot()
             if wait_timer and wait_timer.reached():
                 logger.warning(f"Wait until appear {target.name} timeout")
                 return False
@@ -456,9 +438,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             self.goto_dokan_click()
         else:
             if '2次' in dokan_status_str:
-                self.battle_dokan_flag = True
+                self.dokan_quit = True
             else:
-                self.battle_dokan_flag = False
+                self.dokan_quit = False
             # 管理开道馆
             if self.config.dokan.dokan_config.dokan_enable:
                 self.open_dokan()
@@ -467,7 +449,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 wait_time = 30
                 logger.info(f"寮成员第{self.goto_dokan_num}次进入,等待{wait_time}秒, 管理开启道馆")
                 time.sleep(wait_time)
-                if self.goto_dokan_num >= 10:
+                if self.goto_dokan_num >= 15:
                     logger.info(f"寮成员{self.goto_dokan_num}次未进入道馆, 结束任务!")
                     self.goto_main()
                     self.check_current_weekday(True)
@@ -576,14 +558,21 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     logger.info(f"can't find challenge button,idx={idx} item={item}")
                     # 道馆不可挑战,挑战按钮不会弹出 ,直接进行下一个
                     continue
+
+                self.O_DOKAN_RIGHTPAD_NAME.roi = self.position_offset(item, (-37, 29, 127, 0))
+                dokan_name = self.O_DOKAN_RIGHTPAD_NAME.ocr(self.device.image)
+                welfare_name_list = ["叶落苑", "九亿少女梦", "我独自升级", "雾云川", "清梦", "三丫小窝", "锦鲤一一", "茸茸神社", "雾云川", "镜姬岛", "江南雨", "帐中妖"]
+                if dokan_name in welfare_name_list or "鑫鑫子" in dokan_name:
+                    self.push_notify(f"✅ 开启福利道馆: 名称:{dokan_name},资金:{bounty}")
+                    self.dokan_quit = True
+                    return True
+
                 # 获取防守人数
                 self.screenshot()
                 if not self.appear(self.I_CENTER_POINT_PEOPLE_NUMBER):
                     logger.warning(f"can't find point people number image, item={item}")
                     continue
-                self.O_DOKAN_CENTER_PEOPLE_NUMBER.roi = self.position_offset(
-                    self.I_CENTER_POINT_PEOPLE_NUMBER.roi_front,
-                    (0, 0, 0, 30))
+                self.O_DOKAN_CENTER_PEOPLE_NUMBER.roi = self.position_offset(self.I_CENTER_POINT_PEOPLE_NUMBER.roi_front,(0, 0, 0, 30))
                 p_num = self.O_DOKAN_CENTER_PEOPLE_NUMBER.detect_text(self.device.image)
                 tmp = re.search(r"(\d+)", p_num)
                 if not tmp:
@@ -592,7 +581,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 p_num = int(tmp.group())
 
                 item_score = float(f"{bounty / p_num:.2f}")
-                logger.info(f"========== 资金:{bounty},人数:{p_num},系数:{item_score} ==========")
+                logger.info(f"========== 名称:{dokan_name},资金:{bounty},人数:{p_num},系数:{item_score} ==========")
 
                 if item_score < min_score:
                     min_score = item_score
@@ -612,7 +601,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     logger.warning(f"馆主不是修习等级的,不符合要求")
                     continue
                 logger.info(f"已找到符合要求的道馆")
-                self.push_notify(f"准备开启道馆: 资金:{bounty},人数:{p_num},系数:{item_score}")
+                self.push_notify(f"准备开启道馆: 名称:{dokan_name},资金:{bounty},人数:{p_num},系数:{item_score}")
                 return True
             # 在所有列表中都没有符合的,且忽略系数限制,那么就选择最低分数的那个,点击显示挑战按钮
             if ignore_score:
@@ -649,14 +638,14 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             # 恢复初始位置信息,防止下次使用出错
             restore_roi()
             num_fresh += 1
-            logger.info(f"=========第{num_fresh}次刷新列表=========")
+            logger.hr(f"第{num_fresh}次刷新列表", 2)
             self.ui_click(self.C_DOKAN_REFRESH, self.I_REFRESH_ENSURE, interval=1)
             self.ui_click_until_disappear(self.I_REFRESH_ENSURE, interval=1)
             sleep(1)
 
         # 刷新次数用完,仍未找到符合条件的道馆,选择当前列表(约4个)中系数最低的
+        logger.warning("刷新次数已经上限,未找到符合条件的道馆,选择当前列表中系数最低的")
         if find_challengeable(ignore_score=True):
-            logger.warning("未找到符合条件的道馆,选择当前列表中系数最低的")
             while 1:
                 self.screenshot()
                 if self.appear(self.I_RYOU_DOKAN_CHECK, interval=1):
@@ -855,7 +844,7 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('du')
+    config = Config('test')
     device = Device(config)
     t = ScriptTask(config, device)
     # t.save_image()
