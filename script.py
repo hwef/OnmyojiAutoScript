@@ -2,7 +2,7 @@
 # @author runhey
 # github https://github.com/runhey
 import time
-
+import requests
 import asyncio
 import cv2
 import inflection
@@ -27,12 +27,18 @@ from module.config.utils import convert_to_underscore
 from module.device.device import Device
 from module.exception import *
 from module.logger import logger, error_path, get_filename
+from module.ocr.models import OCR_MODEL
+import urllib.parse
+import threading
+import websocket
+import sys
 
 
 class Script:
     def __init__(self, config_name: str = 'oas') -> None:
         self.device = None
         self.device_status = False  # 模拟器状态 True:运行中，False:已关闭
+        self.team_running = False
         self.server = None
         self.state_queue: Queue = None
         self.gui_update_task: Callable = None  # 回调函数, gui进程注册当每次config更新任务的时候更新gui的信息
@@ -318,9 +324,9 @@ class Script:
             should_close_game = close_game_delta and wait_duration > close_game_delta
 
             # 执行等待策略
-            # if opt.do_noting:
-            #     logger.warning("保持当前状态, 等待下一个任务")
-            if should_close_emu:
+            if opt.do_noting:
+                logger.warning("不关闭游戏, 等待下一个任务")
+            elif should_close_emu:
                 if self.device_status:
                     logger.info("模拟器关闭前, 等待30秒...")
                     time.sleep(30)
@@ -335,7 +341,7 @@ class Script:
                 except Exception as e:
                     logger.error(f"关闭游戏出错: {str(e)}")
             else:
-                logger.warning("保持当前状态, 等待下一个任务")
+                logger.warning("不关闭游戏, 等待下一个任务")
 
             # 执行等待操作
             logger.hr(f"模拟器状态 {self.device_status}", level=1)
@@ -350,6 +356,94 @@ class Script:
                 continue
 
         return task.command
+
+    def send_team_task(self, task):
+        """
+        发送PUT请求到指定URL
+        """
+        script_name = self.config.script.team.member_script_name
+        ip = self.config.script.team.member_ip
+    
+        # 请求URL - 注意路径末尾是 "/value"
+        url = f"{ip}/{script_name}/{task}/scheduler/next_run/value"
+    
+        # 格式化时间为指定格式
+        formatted_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # 请求参数 (URL查询参数)
+        params = {
+            'types': 'date_time',
+            'value': formatted_time
+        }
+        # 请求头
+        headers = {
+            'Accept': 'application/json'
+        }
+    
+        try:
+            # 发送PUT请求
+            response = requests.put(url, params=params, headers=headers)
+    
+            # 输出请求信息
+            logger.info(f"请求URL: {url}")
+            logger.info(f"请求方法: PUT")
+            logger.info(f"请求参数: {params}")
+            logger.info(f"状态码: {response.status_code}")
+            logger.info(f"响应内容: {response.text}")
+    
+            # 检查请求是否成功
+            if response.status_code == 200:
+                logger.info(f"✅ 协同任务请求成功")
+            else:
+                self.config.notifier.push(title=I18n.trans_zh_cn(task), content=f"❌ 协同任务请求失败")
+                logger.warning(f"请求失败，状态码: {response.status_code}")
+                if response.status_code == 404:
+                    logger.warning("请检查URL路径是否正确")
+    
+        except requests.exceptions.RequestException as e:
+            logger.error(f"请求发生错误: {e}")
+
+    def start_websocket(self, config_name, command):
+        logger.info(f"尝试连接到[{config_name}] WebSocket")
+        config_name = urllib.parse.quote(config_name)
+        ws = websocket.WebSocketApp(f"ws://127.0.0.1:22288/ws/{config_name}")
+
+        # 处理 WebSocket 连接打开事件
+        def on_open(ws):
+            logger.info(f"[{config_name}] WebSocket连接成功!")
+            ws.send(command)
+            logger.info(f"已发送: {command}")
+
+        # 处理接收到的消息
+        def on_message(ws, response):
+            print(f"收到响应: {response}")
+            if command == 'get_schedule':
+                data = json.loads(response)
+                if 'schedule' in data:
+                    schedule = data['schedule']
+                    if 'running' in schedule and schedule['running']:
+                        running_task = schedule['running']
+                        logger.info(f"当前运行任务: {running_task['name']}")
+                        self.team_running = True
+                    else:
+                        logger.info("当前无运行任务")
+                        self.team_running = False
+
+        # 设置 WebSocket 回调函数
+        ws.on_open = on_open
+        ws.on_message = on_message
+
+        # 设置超时退出
+        def exit_timer():
+            logger.info("超时关闭连接...")
+            ws.close()
+            sys.exit(0)
+
+        timer = threading.Timer(5, exit_timer)  # 30秒后自动关闭
+        timer.start()
+
+        ws.run_forever()
+        timer.cancel()  # 如果连接正常关闭，取消定时器
 
     def run(self, command: str) -> bool:
         """
@@ -376,17 +470,22 @@ class Script:
             return True
         except Exception as e:
             error_type = type(e).__name__  # 获取异常类型名称
+            result = False
             if isinstance(e, (GameWaitTooLongError, GameTooManyClickError, GamePageUnknownError, GameStuckError, GameBugError, FileNotFoundError)):
                 logger.error(e)
                 logger.warning(f'{error_type}, Game will be restarted in 10 seconds')
                 self.device.sleep(10)
                 self.config.task_call('Restart')
-            elif isinstance(e, (ScriptError, RequestHumanTakeover)):
+            elif isinstance(e, ScriptError):
                 logger.critical(e)
+            elif isinstance(e, RequestHumanTakeover):
+                logger.error(e)
+                logger.critical(e)
+                result = 'exit'
             else:
                 logger.exception(e)
             self.save_error_log(task=command, error_type=error_type)
-            return False
+            return result
 
     def loop(self):
         """
@@ -404,6 +503,15 @@ class Script:
         stop_requested = False
         self.config.model.running_task = None
 
+        team_list = []
+        if self.config.script.team.team_task_Orochi:
+            team_list.append('Orochi')
+        if self.config.script.team.team_task_EternitySea:
+            team_list.append('EternitySea')
+        if self.config.script.team.team_task_BondlingFairyland:
+            team_list.append('BondlingFairyland')
+        logger.info(f'[协同] 协同任务列表: {team_list}')
+
         logger.info(f'[启动] 调度器循环开始 | 配置: {self.config_name}')
         try:
             while not stop_requested:
@@ -413,13 +521,25 @@ class Script:
                     task_chinese_name = I18n.trans_zh_cn(task)
                     logger.info(f'[任务] 获取到任务 | {task_chinese_name}')
 
+                    # ------------------------- 调用协同任务 -------------------------
+                    if task in team_list and self.config.script.team.enable:
+                        script_name = self.config.script.team.member_script_name
+                        self.start_websocket(script_name, 'get_schedule')
+                        if self.team_running and self.config.script.team.member_task_stop_enable:
+                            self.start_websocket(script_name, 'stop')
+                            self.send_team_task("Restart")
+                            self.start_websocket(script_name, 'start')
+                        self.send_team_task(task)
+                    else:
+                        logger.warning(f'[协同] 任务不在协同任务列表')
+
                     # ------------------------- 跳过首次重启任务 -------------------------
-                    if is_first_task and task == 'Restart':
-                        logger.info('[任务] 跳过启动时的重启任务')
-                        self.config.task_delay(task='Restart', success=True, server=True)
-                        del_cached_property(self, 'config')
-                        is_first_task = False
-                        continue
+                    # if is_first_task and task == 'Restart':
+                    #     logger.info('[任务] 跳过启动时的重启任务')
+                    #     self.config.task_delay(task='Restart', success=True, server=True)
+                    #     del_cached_property(self, 'config')
+                    #     is_first_task = False
+                    #     continue
 
                     # ------------------------- 设备重连逻辑 -------------------------
                     if not (self.device_status and self.device):
@@ -432,7 +552,7 @@ class Script:
                     if self.device and self.device_status:
                         self.device.stuck_record_clear()
                         self.device.click_record_clear()
-    
+
                     # ------------------------- 任务执行 -------------------------
                     logger.hr(f'{task_chinese_name} Start', 0)
                     self.config.model.running_task = task
@@ -441,8 +561,13 @@ class Script:
                     logger.hr(f'{task_chinese_name} End', 0)
                     is_first_task = False
                     del_cached_property(self, 'config')
-    
+
                     # ------------------------- 失败处理 -------------------------
+                    if success == 'exit':
+                        logger.info('[错误] RequestHumanTakeover异常,退出调度器')
+                        stop_requested = True
+                        exit(1)
+
                     if success:
                         self.start_loop_count = 1
                         self.failure_record[task] = 0
@@ -493,6 +618,7 @@ class Script:
                 exit(1)
     
     def start_loop(self):
+
         """
         循环启动控制器
         """
@@ -526,7 +652,7 @@ class Script:
 
 
 if __name__ == "__main__":
-    script = Script("oa")
+    script = Script("MI")
     script.start_loop()
     # while 1:
     # script = Script("oas3")
