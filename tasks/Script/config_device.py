@@ -7,12 +7,15 @@ from pydantic import BaseModel, ValidationError, validator, Field
 
 from module.logger import logger
 
+
 class PackageName(str, Enum):
     AUTO = 'auto'
     NETEASE_ONMYOJI = 'com.netease.onmyoji.wyzymnqsd_cps'  # 网易自家的阴阳师
     NETEASE_MI = 'com.netease.onmyoji.mi'  # 小米
     NETEASE = 'com.netease.onmyoji'
     NETEASE_HUAWEI = 'com.netease.onmyoji.huawei'
+    NETEASE_BILIBILI = 'com.netease.onmyoji.bili'
+
 
 class ScreenshotMethod(str, Enum):
     AUTO = 'auto'
@@ -25,11 +28,20 @@ class ScreenshotMethod(str, Enum):
     WINDOW_BACKGROUND = 'window_background'
     NEMU_IPC = 'nemu_ipc'
 
+
 class ControlMethod(str, Enum):
     ADB = 'adb'
     UIAUTOMATOR2 = 'uiautomator2'
     MINITOUCH = 'minitouch'
     WINDOW_MESSAGE = 'window_message'
+
+
+class EmulatorWindow(str, Enum):
+    default = '默认'
+    min = '最小化'
+    front = '前台显示'
+    background = '隐藏'
+
 
 class EmulatorInfoType(str, Enum):
     # module.device.platform2.emulator_base.EmulatorBase
@@ -48,6 +60,7 @@ class EmulatorInfoType(str, Enum):
     MuMuPlayer12 = 'MuMuPlayer12'
     MEmuPlayer = 'MEmuPlayer'
 
+
 class Device(BaseModel):
     serial: str = Field(default="auto",
                         description='serial_help')
@@ -63,13 +76,14 @@ class Device(BaseModel):
     adb_restart: bool = Field(default=False,
                               description='adb_restart_help')
     emulatorinfo_type: Union[EmulatorInfoType, str] = Field(default=EmulatorInfoType.AUTO,
-                                                description='emulatorinfo_type_help')
+                                                            description='emulatorinfo_type_help')
     emulatorinfo_name: str = Field(default='',
                                    description='emulatorinfo_name_help')
     emulatorinfo_path: str = Field(default='',
                                    description='emulatorinfo_path_help')
-    # 举例, E:\ProgramFiles\MuMuPlayer-12.0\shell\MuMuPlayer.exe
 
+    emulator_window: EmulatorWindow = Field(default=EmulatorWindow.default,
+                                            description='模拟器静默启动后窗口如何显示')
 
 
 if __name__ == '__main__':
