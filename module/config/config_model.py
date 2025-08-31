@@ -68,6 +68,7 @@ from tasks.GoryouRealm.config import GoryouRealm
 from tasks.Hyakkiyakou.config import Hyakkiyakou
 from tasks.HeroTest.config import HeroTest
 from tasks.MemoryScrolls.config import MemoryScrolls
+from tasks.SmallAccount.config import SmallAccount
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -130,6 +131,8 @@ class ConfigModel(ConfigBase):
     kitty_shop: KittyShop = Field(default_factory=KittyShop)
     nian_true: NianTrue = Field(default_factory=NianTrue)
     main_story: MainStory = Field(default_factory=MainStory)
+    small_account: SmallAccount = Field(default_factory=SmallAccount)
+
 
     # 这些是肝帝专属
     bondling_fairyland: BondlingFairyland = Field(default_factory=BondlingFairyland)

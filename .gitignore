@@ -277,3 +277,4 @@ console.bat
 /tasks/AbyssShadows/__pycache__
 /backup
 /config/config.7z
+/config/SmallAccount/accounts.json

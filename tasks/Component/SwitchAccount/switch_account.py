@@ -56,8 +56,14 @@ class SwitchAccount(LoginAccount, ExitGame, GameUi, SwitchAccountAssets):
 
 
 if __name__ == '__main__':
-    config = Config('test')
-    device=Device(config)
-    toAccount=AccountInfo(account="sui94044@163.com", account_alias="sui94044", apple_or_android=True, character="阿岁啊", svr="樱之华")
-    sa=SwitchAccount(config,device,toAccount)
+    config = Config('账号切换')
+    device = Device(config)
+    toAccount = AccountInfo(account="187****4867", account_alias="187****4867", apple_or_android=True, character="三千菟", svr="樱之华")
+    sa = SwitchAccount(config, device, toAccount)
+    sa.switchAccount()
+    toAccount = AccountInfo(account="150****7970", account_alias="150****7970", apple_or_android=True, character="落地反弹", svr="樱之华")
+    sa = SwitchAccount(config, device, toAccount)
+    sa.switchAccount()
+    toAccount = AccountInfo(account="sui94044@163.com", account_alias="sui94044", apple_or_android=True, character="阿岁啊", svr="樱之华")
+    sa = SwitchAccount(config, device, toAccount)
     sa.switchAccount()

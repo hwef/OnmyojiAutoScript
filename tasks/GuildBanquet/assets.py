@@ -22,7 +22,7 @@ class GuildBanquetAssets:
 	# description 
 	I_SECRET_HC_FLAG = RuleImage(roi_front=(1145,207,26,51), roi_back=(1145,207,26,51), threshold=0.8, method="Template matching", file="./tasks/GuildBanquet/res/secret_hc_flag.png")
 	# 秘闻挑战 
-	I_SE_FIRE = RuleImage(roi_front=(1015,503,182,188,), roi_back=(1015,503,182,188,), threshold=0.7, method="Template matching", file="./tasks/GuildBanquet/res/se_se_fire.png")
+	I_SE_FIRE = RuleImage(roi_front=(1015,503,182,188), roi_back=(1015,503,182,188), threshold=0.7, method="Template matching", file="./tasks/GuildBanquet/res/se_se_fire.png")
 
 
 	# Swipe Rule Assets
