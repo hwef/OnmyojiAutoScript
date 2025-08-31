@@ -178,8 +178,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
 
             # 如果出现失败 就点击，返回False
             if self.appear(self.I_FALSE, threshold=0.8):
-                self.save_image()
-                self.push_notify(content='❌ 战斗失败')
+                self.save_image(wait_time=0, content='❌ 战斗失败', push_flag=True)
                 logger.info("Battle result is false")
                 win = False
                 break
@@ -510,7 +509,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
     # time.sleep(3)
