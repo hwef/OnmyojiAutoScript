@@ -81,12 +81,14 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 if not isinstance(remaining_time, timedelta):
                     logger.warning('Ocr remaining time error')
                 logger.info(f'Utilize remaining time: {remaining_time}')
-                # 已经蹭上卡了，设置下次蹭卡时间
+                # 已经蹭上卡了，设置下次蹭卡时间  # 减少30秒
+                remaining_time = remaining_time - timedelta(seconds=30)
                 next_time = datetime.now() + remaining_time
                 self.set_next_run(task='KekkaiUtilize', target=next_time)
                 return
             if not self.grown_goto_utilize():
                 logger.info('Utilize failed, exit')
+            # 开始执行寄养
             if self.run_utilize(con.select_friend_list, con.shikigami_class, con.shikigami_order):
                 # 退出寮结界
                 self.back_guild()
@@ -140,6 +142,28 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         #         return False
         # else:
         #     return False
+        if ap_enable or assets_enable:
+            self.ui_click(self.I_GUILD_EXPAND, self.I_GUILD_COLLAPSE)
+            # 尝试移动寻找体力或资金
+            try_find_ap = 0
+            while try_find_ap < 1:
+                self.screenshot()
+                try_find_ap += 1
+                if self.appear(self.I_GUILD_AP) or self.appear(self.I_GUILD_ASSETS):
+                    logger.info('Find ap or assets')
+                    break
+                else:
+                    logger.info('Try find ap or assets')
+                    time.sleep(1)
+                    self.swipe(self.S_GUILD_FIND_AP, duration=1)
+                    self.swipe(self.S_GUILD_FIND_AP, duration=1)
+
+            # 如果未找到则返回False
+            if not self.appear(self.I_GUILD_AP) and not self.appear(self.I_GUILD_ASSETS):
+                logger.info('No ap or assets to collect')
+                return False
+        else:
+            return False
 
         # 如果有就收取
         timer_check = Timer(2)
@@ -427,10 +451,10 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         else:
             self.switch_friend_list(friend)
 
-        # 调用结界卡选择逻辑，根据返回值判断是否继续后续流程
+        # --------------- 结界卡选择 ---------------
         if not self._select_optimal_resource_card():
             return False
-        
+
         # 找到卡,重置次数
         self.utilize_add_count = 0
         logger.info('开始执行进入结界蹭卡流程')
@@ -457,7 +481,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 logger.info('Appear enter friend realm button')
                 break
             if wait_timer.reached():
-                self.save_image(wait_time=0, push_flag=False, content='进入好友结界超时',image_type='png')
+                self.save_image(wait_time=0, push_flag=False, content='进入好友结界超时', image_type='png')
                 logger.warning('Appear friend realm timeout')
                 return
             if self.appear_then_click(self.I_CHECK_FRIEND_REALM_2, interval=1.5):
@@ -608,7 +632,6 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
                 # 解析结界卡类型和数值
                 card_type, card_value = self.check_card_num()
-                logger.info(f'🔍 识别卡片: {card_type} | 当前值: {card_value}')
 
                 # 跳过无效结界卡（类型未知或数值异常）
                 if card_type == 'unknown' or card_value <= 0 or card_type not in RESOURCE_CONFIG:
@@ -619,6 +642,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 current_max = RESOURCE_CONFIG[card_type]['max']
                 record_attr = RESOURCE_CONFIG[card_type]['record_attr']
                 current_record = getattr(self, record_attr, 0)
+                logger.info(f'🔍 识别卡片: {card_type} | 当前值: {card_value}, 最优值: {current_record}')
 
                 # 更新最佳记录
                 if card_value > current_record:
@@ -648,7 +672,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
     def perform_swipe_action(self):
         """统一滑动操作"""
-        self.swipe(self.S_U_UP)
+        self.swipe(self.S_U_UP, duration=1)
         self.device.click_record_clear()
         time.sleep(2)
 
@@ -722,7 +746,7 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas2')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
     t.run()
