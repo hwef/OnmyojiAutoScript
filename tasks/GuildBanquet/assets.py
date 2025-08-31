@@ -13,5 +13,20 @@ class GuildBanquetAssets:
 	# Image Rule Assets
 	# description 
 	I_FLAG = RuleImage(roi_front=(1035,12,33,60), roi_back=(1035,12,33,60), threshold=0.8, method="Template matching", file="./tasks/GuildBanquet/res/res_flag.png")
+	# description 
+	I_SECRET_9_LAYER = RuleImage(roi_front=(188,354,39,25), roi_back=(188,354,39,25), threshold=0.8, method="Template matching", file="./tasks/GuildBanquet/res/secret_9_layer.png")
+	# description 
+	I_SECRET_9_LAYER_FLAG = RuleImage(roi_front=(694,159,60,45), roi_back=(694,159,60,45), threshold=0.8, method="Template matching", file="./tasks/GuildBanquet/res/secret_9_layer_flag.png")
+	# description 
+	I_SECRET_HC = RuleImage(roi_front=(309,281,53,30), roi_back=(309,281,53,30), threshold=0.8, method="Template matching", file="./tasks/GuildBanquet/res/secret_hc.png")
+	# description 
+	I_SECRET_HC_FLAG = RuleImage(roi_front=(1145,207,26,51), roi_back=(1145,207,26,51), threshold=0.8, method="Template matching", file="./tasks/GuildBanquet/res/secret_hc_flag.png")
+	# 秘闻挑战 
+	I_SE_FIRE = RuleImage(roi_front=(1015,503,182,188,), roi_back=(1015,503,182,188,), threshold=0.7, method="Template matching", file="./tasks/GuildBanquet/res/se_se_fire.png")
+
+
+	# Swipe Rule Assets
+	# 向下滑动 
+	S_U_UP = RuleSwipe(roi_front=(247,520,43,20), roi_back=(247,180,43,20), mode="default", name="u_up")
 
 

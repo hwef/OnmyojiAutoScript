@@ -25,6 +25,7 @@ class GuildBanquetTime(BaseModel):
     run_time_1: Time = Field(default=Time(hour=19, minute=0, second=0))
     day_2: Weekday = Field(default=Weekday.Saturday, description="每周第2次运行时间设置")
     run_time_2: Time = Field(default=Time(hour=19, minute=0, second=0), description="每周第2次运行时间设置")
+    enable: bool = Field(default=False, description="是否启用荒川9层三只石距战斗")
 
 
 

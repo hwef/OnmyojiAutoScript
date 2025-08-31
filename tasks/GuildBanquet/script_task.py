@@ -10,8 +10,12 @@ from module.logger import logger
 from module.base.timer import Timer
 
 from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_guild, page_main
+from tasks.GameUi.page import page_guild, page_main, page_secret_zones
 from tasks.GuildBanquet.assets import GuildBanquetAssets
+from tasks.Secret.assets import SecretAssets
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.GameUi.page import page_main, page_secret_zones, page_shikigami_records
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 
 WEEKDAYDICT = {
     0: '星期一',
@@ -32,37 +36,35 @@ class Weekday(str,Enum):
     Saturday: str = "星期六"
     Sunday: str = "星期日"
     
-class ScriptTask(GameUi, GuildBanquetAssets):
+class ScriptTask(GameUi, GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAssets):
 
     def run(self):
         self.run_time = self.config.guild_banquet.guild_banquet_time
         # 第一天宴会日期及时间
         self.banquet_day_1 = self.get_key_from_value(WEEKDAYDICT, self.run_time.day_1.value)
         self.banquet_day_1_start_time = self.run_time.run_time_1
-        
+
         # 第二天宴会日期及时间
         self.banquet_day_2 = self.get_key_from_value(WEEKDAYDICT, self.run_time.day_2.value)
         self.banquet_day_2_start_time = self.run_time.run_time_2
-        
+
         self.ui_get_current_page()
         self.ui_goto(page_guild)
-        
-        if self.appear(self.I_FLAG):
-            wait_count = 0
-            wait_timer = Timer(230)
-            wait_timer.start()
-            logger.info("Start guild banquet!")
-            self.device.stuck_record_add('BATTLE_STATUS_S')
-        else:
-            self.save_image(content="未检测到宴会开启",push_flag=True,image_type=True,wait_time=0)
-            # 如果没有找到FLAG，并且没超过晚上10点，可能是宴会时间没开始，5分钟后尝试再次查找，超过10点则直接退出
-            if self.check_runtime():
-                time_now = datetime.now()
-                time_later = time_now + timedelta(minutes=5)
-                self.set_next_run(task='GuildBanquet', finish=True, target=time_later)
-            self.ui_get_current_page()
-            self.ui_goto(page_main)
-            raise TaskEnd
+
+        wait_timer = Timer(230)
+        wait_timer.start()
+        wait_count = 0
+        self.device.stuck_record_add('BATTLE_STATUS_S')
+        logger.info("开始宴会任务")
+        while 1:
+            self.screenshot()
+            if wait_timer.reached():
+                self.save_image(content="未检测到宴会开启,结束任务",push_flag=True,image_type=True,wait_time=0)
+                self.plan_next_run()
+                raise TaskEnd
+            if self.appear(self.I_FLAG):
+                logger.info("检测到宴会开启")
+                break
 
         last_check_time = 0  # 记录上次实际检测时间
         last_log_time = 0  # 记录上次日志输出时间
@@ -78,13 +80,13 @@ class ScriptTask(GameUi, GuildBanquetAssets):
                 last_flag_status = actual_status
                 last_check_time = current_time
                 logger.debug(f"Actual detection at {current_time}, status: {actual_status}")
-                
+
                 # 重置日志计时器
                 last_log_time = current_time
             else:
                 # 未达间隔时沿用上次结果
                 logger.debug(f"Using cached status: {last_flag_status}")
-                
+
             # 条件2: 状态判断逻辑
             if last_flag_status:
                 if current_time - last_log_time >= 10:
@@ -106,14 +108,52 @@ class ScriptTask(GameUi, GuildBanquetAssets):
                 self.device.stuck_record_clear()
                 self.device.stuck_record_add('BATTLE_STATUS_S')
 
-        # self.device.stuck_record_clear()
-        # self.set_config()
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        if self.run_time.enable:
+            # 荒川9层三只石距战斗
+            self.goto_sercet_hc()
 
         self.plan_next_run()
         raise TaskEnd
-    
+
+    def goto_sercet_hc(self):
+        secret = self.config.secret
+        if secret.switch_soul.enable:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul(secret.switch_soul.switch_group_team)
+        if secret.switch_soul.enable_switch_by_name:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul_by_name(secret.switch_soul.group_name, secret.switch_soul.team_name)
+        self.ui_get_current_page()
+        self.ui_goto(page_secret_zones)
+
+        while 1:
+            self.screenshot()
+            if self.appear(self.I_SECRET_HC):
+                break
+            self.swipe(self.S_U_UP, interval=1)
+            time.sleep(2)
+        self.ui_click(self.I_SECRET_HC, self.I_SECRET_HC_FLAG)
+        self.ui_click(self.I_SE_ENTER, self.I_SE_FIRE)
+        while 1:
+            self.screenshot()
+            if self.appear(self.I_SECRET_9_LAYER):
+                break
+            self.swipe(self.S_U_UP, interval=1)
+            time.sleep(2)
+        self.ui_click(self.I_SECRET_9_LAYER, self.I_SECRET_9_LAYER_FLAG)
+        self.limit_count = 3
+        while 1:
+            self.screenshot()
+            if self.current_count >= self.limit_count:
+                break
+            if self.appear(self.I_PREPARE_HIGHLIGHT):
+                self.run_general_battle()
+            if self.appear_then_click(self.I_SE_FIRE, interval=1):
+                continue
+        self.back_main()
+
     def check_runtime(self) -> bool:
         """
         检查时间, 一般寮不会晚上10点再开吧。。。。。
@@ -192,8 +232,8 @@ class ScriptTask(GameUi, GuildBanquetAssets):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
-    t.run()
+    t.goto_sercet_hc()
 

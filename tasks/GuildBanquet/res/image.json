@@ -7,5 +7,50 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"
+  },
+  {
+    "itemName": "secret_9_layer",
+    "imageName": "secret_9_layer.png",
+    "roiFront": "188,354,39,25",
+    "roiBack": "188,354,39,25",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "description"
+  },
+  {
+    "itemName": "secret_9_layer_flag",
+    "imageName": "secret_9_layer_flag.png",
+    "roiFront": "694,159,60,45",
+    "roiBack": "694,159,60,45",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "description"
+  },
+  {
+    "itemName": "secret_hc",
+    "imageName": "secret_hc.png",
+    "roiFront": "309,281,53,30",
+    "roiBack": "309,281,53,30",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "description"
+  },
+  {
+    "itemName": "secret_hc_flag",
+    "imageName": "secret_hc_flag.png",
+    "roiFront": "1145,207,26,51",
+    "roiBack": "1145,207,26,51",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "description"
+  },
+  {
+    "itemName": "se_fire",
+    "imageName": "se_se_fire.png",
+    "roiFront": "1015,503,182,188",
+    "roiBack": "1015,503,182,188",
+    "method": "Template matching",
+    "threshold": 0.7,
+    "description": "秘闻挑战"
   }
 ]
