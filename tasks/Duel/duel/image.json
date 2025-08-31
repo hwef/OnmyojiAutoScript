@@ -162,6 +162,15 @@
     "description": "练"
   },
   {
+    "itemName": "battle_with_train2",
+    "imageName": "duel_battle_with_train2.png",
+    "roiFront": "1161,588,78,81",
+    "roiBack": "1114,547,163,172",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "练2"
+  },
+  {
     "itemName": "battle_type_common",
     "imageName": "duel_battle_type_common.png",
     "roiFront": "439,278,90,88",
@@ -180,30 +189,30 @@
     "description": "活动的战斗按钮"
   },
   {
-    "itemName": "green_mark",
-    "imageName": "green_mark.png",
-    "roiFront": "124,207,1012,182",
-    "roiBack": "124,207,1012,182",
-    "method": "Template matching",
-    "threshold": 0.6,
-    "description": "区域找绿标1"
-  },
-  {
-    "itemName": "green_mark_1",
-    "imageName": "green_mark_1.png",
-    "roiFront": "124,207,1012,182",
-    "roiBack": "124,207,1012,182",
-    "method": "Template matching",
-    "threshold": 0.6,
-    "description": "区域找绿标2"
-  },
-  {
-    "itemName": "green_mark_img",
-    "imageName": "green_mark_img.png",
-    "roiFront": "114,238,1022,188",
-    "roiBack": "114,238,1022,188",
+    "itemName": "ban",
+    "imageName": "duel_ban.png",
+    "roiFront": "1112,537,100,100",
+    "roiBack": "1112,537,100,100",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "区域点击式神"
+    "description": "禁用"
+  },
+  {
+    "itemName": "ban_flag",
+    "imageName": "duel_ban_flag.png",
+    "roiFront": "100,16,61,59",
+    "roiBack": "100,16,61,59",
+    "method": "Template matching",
+    "threshold": 0.7,
+    "description": "式神被办第五个上的式神跟原先不同，来判断是否被办"
+  },
+  {
+    "itemName": "duel_exit",
+    "imageName": "gb_exit.png",
+    "roiFront": "14,12,43,41",
+    "roiBack": "14,12,43,41",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "左上角的退出"
   }
 ]

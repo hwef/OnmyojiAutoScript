@@ -22,5 +22,11 @@
     "roiFront": "0,0,0,0",
     "roiBack": "0,0,0,0",
     "description": "补充点击位置"
+  },
+  {
+    "itemName": "duel_click_5",
+    "roiFront": "105,23,52,47",
+    "roiBack": "105,23,52,47",
+    "description": "点击第五手上式神位置，获得式神名称"
   }
 ]

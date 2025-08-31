@@ -19,7 +19,6 @@ class Onmyoji(str, Enum):
     Bbbqn = '八百比丘尼'
 
 
-
 class DuelConfig(ConfigBase):
     # 是否切换阴阳师
     switch_enabled: bool = Field(default=True, description='是否切换阴阳师')
@@ -39,8 +38,15 @@ class DuelConfig(ConfigBase):
     green_mark: GreenMarkType = Field(default=GreenMarkType.GREEN_LEFT1, description='green_mark_help')
 
 
+class DuelCelebConfig(ConfigBase):
+    # 是否开启名仕战斗
+    celeb_battle: bool = Field(default=False, description='是否开启名仕战斗')
+    # 填写第五手式神名称，如果阵容式神被办，第五手就会换式神，退出斗技
+    ban_name: str = Field(default='', description='填写第五手式神名称')
+
+
 class Duel(ConfigBase):
     scheduler: Scheduler = Field(default_factory=Scheduler)
     duel_config: DuelConfig = Field(default_factory=DuelConfig)
+    duel_celeb_config: DuelCelebConfig = Field(default_factory=DuelCelebConfig)
     switch_soul: SwitchSoulConfig = Field(default_factory=SwitchSoulConfig)
-
