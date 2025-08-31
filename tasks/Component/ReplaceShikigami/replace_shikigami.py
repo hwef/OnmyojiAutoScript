@@ -87,15 +87,14 @@ class ReplaceShikigami(BaseTask, ReplaceShikigamiAssets):
                         6: self.C_SHIKIGAMI_LEFT_6,
                         7: self.C_SHIKIGAMI_LEFT_7}
         click_match = _click_match[shikigami_order]
-        timer = Timer(20)
+        timer = Timer(30)
         timer.start()
         while 1:
             self.screenshot()
             # 点击式神超时
             if timer.reached():
                 logger.warning(f"寄养式神超时,退出")
-                self.save_image()
-                self.push_notify(content=f"寄养式神超时,请查看截图")
+                self.save_image(wait_time=0, push_flag=True, content=f"寄养式神超时")
                 break
 
             if not self.appear(stop_image):
