@@ -4,7 +4,7 @@
     "imageName": "harvest_harvest_jade.png",
     "roiFront": "732,489,34,33",
     "roiBack": "177,451,973,141",
-    "method": "Template matching",
+    "method": "Template matching mask",
     "threshold": 0.8,
     "description": "点击勾玉"
   },
