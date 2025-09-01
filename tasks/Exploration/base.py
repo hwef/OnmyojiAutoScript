@@ -359,8 +359,8 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             if datetime.now() - self.start_time >= self.limit_time:
                 logger.info('探索时间限制已到, 结束探索任务')
                 return True
-
-        self.activate_realm_raid(self._config.scrolls, self._config.exploration_config)
+        else:
+            self.activate_realm_raid(self._config.scrolls, self._config.exploration_config)
         return False
 
     def quit_explore(self):

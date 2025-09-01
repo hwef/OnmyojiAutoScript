@@ -20,8 +20,8 @@
   {
     "itemName": "e_auto_rotate_on",
     "imageName": "res_e_auto_rotate_on.png",
-    "roiFront": "104,649,153,44",
-    "roiBack": "104,649,153,44",
+    "roiFront": "119,658,23,24",
+    "roiBack": "119,658,23,24",
     "method": "Template matching",
     "threshold": 0.9,
     "description": "自动轮换开着"
@@ -29,11 +29,29 @@
   {
     "itemName": "e_auto_rotate_off",
     "imageName": "res_e_auto_rotate_off.png",
-    "roiFront": "108,650,150,46",
-    "roiBack": "108,650,150,46",
+    "roiFront": "119,658,23,24",
+    "roiBack": "119,658,23,24",
     "method": "Template matching",
     "threshold": 0.85,
     "description": "自动轮换关闭"
+  },
+  {
+    "itemName": "lock_off",
+    "imageName": "lock_off.png",
+    "roiFront": "888,648,37,36",
+    "roiBack": "888,648,37,36",
+    "method": "Template matching",
+    "threshold": 0.85,
+    "description": "锁定阵容关闭"
+  },
+  {
+    "itemName": "lock_on",
+    "imageName": "lock_on.png",
+    "roiFront": "888,648,37,36",
+    "roiBack": "888,648,37,36",
+    "method": "Template matching",
+    "threshold": 0.85,
+    "description": "锁定阵容开启"
   },
   {
     "itemName": "e_open_settings",
