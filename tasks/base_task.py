@@ -730,6 +730,10 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         """
         # 如果未提供图像，则使用设备捕获的图像
         # logger.info(f"target [{target}], image [{image}]")
+        if not self.appear(target):
+            logger.warning(f"[{target.name}]未匹配到")
+            return False
+
         if image is None:
             image = self.device.image
 
@@ -751,10 +755,10 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         # 比较目标图像和目标区域的颜色差异
         for i in range(3):
             if abs(average_color[i] - color[i]) > difference:
-                logger.warning(f"颜色匹配失败: [{target.name}]")
+                logger.warning(f" [{target.name}] 颜色匹配失败")
                 return False
 
-        logger.info(f"颜色匹配成功: [{target.name}]")
+        logger.info(f"[{target.name}] 颜色匹配成功")
         return True
 
     def push_notify(self, content=''):
@@ -778,17 +782,20 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oa')
+    c = Config('switch')
     d = Device(c)
     t = BaseTask(c, d)
+    t.screenshot()
+    I_E_AUTO_ROTATE_OFF = RuleImage(roi_front=(108,650,150,46), roi_back=(108,650,150,46), threshold=0.85, method="Template matching", file="./tasks/Exploration/res/res_e_auto_rotate_off.png")
+    t.appear_rgb(I_E_AUTO_ROTATE_OFF)
 
     # self.config.notifier.send_mail(title=task_name, head=head, image_path=image_path)
 
     # t.push_notify()
     # t.save_image(content='成功找到最优挂卡', push_flag=True)
-    card_type = '斗鱼'
-    card_value = '118'
-    t.save_image(push_flag=True, wait_time=0, content=f'🎉 确认蹭卡 ({card_type}: {card_value})')
+    # card_type = '斗鱼'
+    # card_value = '118'
+    # t.save_image(push_flag=True, wait_time=0, content=f'🎉 确认蹭卡 ({card_type}: {card_value})')
     # logger.hr('INVITE FRIEND')
     # logger.hr('INVITE FRIEND', 0)
     # logger.hr('INVITE FRIEND', 1)
