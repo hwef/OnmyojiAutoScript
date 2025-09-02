@@ -599,8 +599,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
                 item_score = float(f"{bounty / p_num:.2f}")
                 dokan_info = (f"道馆: {dokan_name},资金: {bounty},人数: {p_num},系数: {item_score}")
-                if dokan_info not in self.find_dokan_list:  # 检查是否已存在
-                    self.find_dokan_list.append(dokan_info)
+                self.find_dokan_list.append(dokan_info)
                 logger.info(f"========== {dokan_info} ==========")
 
                 if item_score < min_score:
@@ -652,13 +651,15 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     # 恢复初始位置信息,防止下次使用出错
                     restore_roi()
                     return True
-                # 滑动道馆列表
-                self.swipe(self.S_DOKAN_LIST_UP)
+                # 滑动道馆列表 最后一次不需要滑动直接刷新
+                if i < 2:
+                    self.swipe(self.S_DOKAN_LIST_UP)
 
             # 恢复初始位置信息,防止下次使用出错
             restore_roi()
             num_fresh += 1
             logger.hr(f"第{num_fresh}次刷新列表", 2)
+            self.find_dokan_list.append(f"─────────第{num_fresh}次刷新列表─────────")
             self.ui_click(self.C_DOKAN_REFRESH, self.I_REFRESH_ENSURE, interval=1)
             self.ui_click_until_disappear(self.I_REFRESH_ENSURE, interval=1)
             sleep(1)
@@ -695,6 +696,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         logger.info(f"所有查找到的道馆列表数量为: {len(self.find_dokan_list)}")
         for i, item in enumerate(self.find_dokan_list):
             logger.info(f"Item {i+1}: {item}")
+        self.find_dokan_list = []
 
     def goto_main(self):
         while 1:
@@ -815,7 +817,7 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('du')
+    config = Config('switch')
     device = Device(config)
     t = ScriptTask(config, device)
     # t.save_image()
