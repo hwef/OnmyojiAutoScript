@@ -619,8 +619,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 if not self.appear(self.I_CENTER_GUANZHU_XIUXI):
                     logger.warning(f"馆主不是修习等级的,不符合要求")
                     continue
-                logger.info(f"已找到符合要求的道馆")
-                self.push_notify(f"准备开启道馆: 名称:{dokan_name},资金:{bounty},人数:{p_num},系数:{item_score}")
+                self.save_image(image_type=True, wait_time=0, push_flag=True, content=f"已找到符合要求的道馆: {dokan_name},资金: {bounty},人数: {p_num},系数: {item_score}")
                 return True
             # 在所有列表中都没有符合的,且忽略系数限制,那么就选择最低分数的那个,点击显示挑战按钮
             if ignore_score:
@@ -639,10 +638,10 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             for i in range(3):
                 sleep(3)
                 if find_challengeable():
-                    logger.info("已找到合适的道馆")
                     while 1:
                         self.screenshot()
                         if self.appear(self.I_RYOU_DOKAN_CHECK, interval=1):
+                            self.save_image(image_type=True, wait_time=0, push_flag=True, content=f"已开启道馆: {dokan_name}")
                             break
                         if self.appear_then_click(self.I_CHALLENGE_ENSURE, interval=1):
                             continue
