@@ -555,8 +555,8 @@ class Minitouch(Connection):
             builder.move(*point).commit().wait(wait_time_per_point)
         self.minitouch_send()
 
-        # 释放
-        builder.up().commit()
+        # 等待1秒后再释放
+        builder.wait(1000).up().commit()  # 添加1秒（1000毫秒）的等待时间
         self.minitouch_send()
 
 
