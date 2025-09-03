@@ -2,6 +2,7 @@ from tkinter import filedialog
 
 import customtkinter as ctk
 import cv2
+import json
 import numpy as np
 import os
 import subprocess
@@ -282,8 +283,52 @@ class DevTool(ctk.CTk):
                 cropped_image = self.np_image[y1 - 4 : y2 - 4, x1 - 4 : x2 - 4]
                 cv2.imencode(".png", cropped_image)[1].tofile(path)
                 self.log_print(f"{save_name}.png 保存成功")
+                # 新增：保存图片信息到 image.json
+                self.save_image_info(save_name, path, x1, y1, x2, y2)
             except Exception as e:
                 self.log_print(f"保存图像时出错: {e}")
+
+    def save_image_info(self, save_name, path, x1, y1, x2, y2):
+        """保存图片信息到 image.json"""
+        json_file_path = os.path.join(self.folder_path_entry.get(), "image.json")
+        image_data = {
+            "itemName": save_name,
+            "imageName": f"{save_name}.png",
+            "roiFront": f"{x1-4},{y1-4},{x2-x1},{y2-y1}",
+            "roiBack":  f"{x1-4},{y1-4},{x2-x1},{y2-y1}",
+            "method": "Template matching",
+            "threshold": 0.8,
+            "description": save_name
+        }
+
+        # 检查文件是否存在
+        if os.path.exists(json_file_path):
+            # 读取现有内容
+            with open(json_file_path, 'r', encoding='utf-8') as file:
+                try:
+                    data = json.load(file)
+                except json.JSONDecodeError:
+                    data = []
+        else:
+            data = []
+
+        # 检查是否已存在相同的 itemName
+        item_exists = False
+        for item in data:
+            if item["itemName"] == save_name:
+                # 更新现有条目
+                item.update(image_data)
+                item_exists = True
+                break
+
+        # 如果不存在，则追加新数据
+        if not item_exists:
+            data.append(image_data)
+
+        # 写回文件
+        with open(json_file_path, 'w', encoding='utf-8') as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)
+            self.log_print(f"图片信息已保存到 {json_file_path}")
 
     def format_img(self, fmt_type):
         x1, y1, x2, y2 = self.coordinates
