@@ -244,7 +244,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                     break
 
             # 如果没有进入房间那就不需要后面的邀请
-            if not self.is_in_room():
+            if not self.is_in_room(is_screenshot=False):
                 if self.is_room_dead():
                     logger.warning('Orochi task failed')
                     success = False
