@@ -32,13 +32,18 @@ class Guild(Buy, GameUi, RichManAssets):
                 continue
         logger.info('Enter guild store success')
         time.sleep(0.5)
-        # 功勋礼包
-        self._guild_libao()
-        # 风铃
-        self._guild_fl()
-        # 经验手札
-        self._guild_exp()
+
+        if con.guild_libao:
+            # 功勋礼包
+            self._guild_libao()
+        if con.guild_fl:
+            # 风铃
+            self._guild_fl()
+        if con.guild_fl:
+            # 经验手札
+            self._guild_exp()
         self.save_image()
+
         while 1:
             self.screenshot()
             # 功勋商店 购买皮肤券 现在问题是皮肤券作为下滑判断标志,下滑过程中roi_front[1]发生了变化,
@@ -60,9 +65,11 @@ class Guild(Buy, GameUi, RichManAssets):
         if con.skin_ticket:
             # 皮肤券
             self._guild_skin_ticket(con.skin_ticket)
-        # 御魂
-        self._guild_yuhun()
+        if con.guild_yuhun:
+            # 御魂
+            self._guild_yuhun()
         self.save_image()
+
         # 回去
         while 1:
             self.screenshot()
