@@ -45,6 +45,15 @@
     "description": "邮件小图标"
   },
   {
+    "itemName": "harvest_mail_top_right",
+    "imageName": "harvest_mail_top_right.png",
+    "roiFront": "1137,33,34,26",
+    "roiBack": "1137,33,34,26",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "邮件右上角图标"
+  },
+  {
     "itemName": "harvest_mail_all",
     "imageName": "harvest_harvest_mail_all.png",
     "roiFront": "80,622,75,64",

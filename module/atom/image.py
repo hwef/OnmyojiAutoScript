@@ -200,7 +200,6 @@ class RuleImage:
 
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
         # logger.attr(self.name, max_val)
-        print(f"[{self.name}]", max_val)
         if not np.isfinite(max_val):
             # logger.warning(f"匹配结果无效 {self.name}: {max_val}")
             # 处理无效值情况
@@ -210,7 +209,6 @@ class RuleImage:
             # 更新ROI坐标
             self.roi_front[0] = max_loc[0] + self.roi_back[0]
             self.roi_front[1] = max_loc[1] + self.roi_back[1]
-            print(f'{self.name} 匹配成功, 坐标为: {self.roi_front}')
             return True
         else:
             return False
