@@ -540,12 +540,12 @@ class Script:
                         logger.warning(f'[协同] 任务不在协同任务列表')
 
                     # ------------------------- 跳过首次重启任务 -------------------------
-                    # if is_first_task and task == 'Restart':
-                    #     logger.info('[任务] 跳过启动时的重启任务')
-                    #     self.config.task_delay(task='Restart', success=True, server=True)
-                    #     del_cached_property(self, 'config')
-                    #     is_first_task = False
-                    #     continue
+                    if is_first_task and task == 'Restart':
+                        logger.info('[任务] 跳过启动时的重启任务')
+                        self.config.task_delay(task='Restart', success=True, server=True)
+                        del_cached_property(self, 'config')
+                        is_first_task = False
+                        continue
 
                     # ------------------------- 设备重连逻辑 -------------------------
                     if not (self.device_status and self.device):
