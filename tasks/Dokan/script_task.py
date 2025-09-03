@@ -437,6 +437,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             raise TaskEnd
         elif '集结中' in dokan_status_str:
             # 寮成员进入道馆
+            self.dokan_quit = True
             self.goto_dokan_click()
         else:
             if '2次' in dokan_status_str:
@@ -619,7 +620,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 if not self.appear(self.I_CENTER_GUANZHU_XIUXI):
                     logger.warning(f"馆主不是修习等级的,不符合要求")
                     continue
-                self.save_image(image_type=True, wait_time=0, push_flag=True, content=f"已找到符合要求的道馆: {dokan_name},资金: {bounty},人数: {p_num},系数: {item_score}")
+                self.save_image(image_type=True, wait_time=0, push_flag=True, content=f"开启道馆: {dokan_name},资金: {bounty},人数: {p_num},系数: {item_score}")
                 return True
             # 在所有列表中都没有符合的,且忽略系数限制,那么就选择最低分数的那个,点击显示挑战按钮
             if ignore_score:
@@ -641,7 +642,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     while 1:
                         self.screenshot()
                         if self.appear(self.I_RYOU_DOKAN_CHECK, interval=1):
-                            self.save_image(image_type=True, wait_time=0, push_flag=True, content=f"已开启道馆: {dokan_name}")
+                            self.save_image(image_type=True, wait_time=0, push_flag=True, content=f"已开启道馆")
                             break
                         if self.appear_then_click(self.I_CHALLENGE_ENSURE, interval=1):
                             continue
