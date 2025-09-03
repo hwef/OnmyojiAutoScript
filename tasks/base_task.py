@@ -653,69 +653,6 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             return None
         return img
 
-    def save_image(self, task_name=None, content=None, wait_time=2, image_type=False, push_flag=False):
-        try:
-            if task_name is None:
-                task_name = "task_name"
-                if self.config and self.config.task:
-                    task_name = self.config.task.command
-
-            # 设置保存图像的文件夹
-            WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
-            if task_name in WeeklyTask:
-                folder_name = f'{week_path}/{I18n.trans_zh_cn(task_name)}'
-            else:
-                folder_name = f'{log_path}/{I18n.trans_zh_cn(task_name)}'
-            folder_path = Path(folder_name)
-            folder_path.mkdir(parents=True, exist_ok=True)
-
-            # 截图等待时间
-            if wait_time > 0:
-                sleep(wait_time)
-                self.screenshot()
-            # 使用getattr同时检查属性和值，避免冗长的条件判断
-            if getattr(self.device, 'image', None) is None:
-                self.screenshot()
-            image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
-            
-            filename = get_filename(self.config.config_name.upper())
-            image_path = folder_path / filename  # 使用pathlib路径对象
-
-            if image_type:
-                # 保存图像正常大小
-                image_path = image_path.with_suffix('.png')
-                params = []
-            else:
-                # 修改图像为.webp格式, 调整图像分辨率原来的一半
-                image_path = image_path.with_suffix('.webp')
-                # 调整图像分辨率
-                scale_percent = 50  # 缩放到原来的一半
-                width = int(image.shape[1] * scale_percent / 100)
-                height = int(image.shape[0] * scale_percent / 100)
-                dim = (width, height)
-                image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
-                # 调整图像质量并保存为WebP格式
-                params = [int(cv2.IMWRITE_WEBP_QUALITY), 50]
-
-            # 使用cv2.imencode+文件流保存（解决中文路径问题）
-            ext = image_path.suffix
-            ret, buf = cv2.imencode(ext, image, params)
-            if ret:
-                with open(image_path, 'wb') as f:
-                    f.write(buf.tobytes())
-                logger.info(f"截图已保存至：{image_path}")
-                if push_flag:
-                    self.push_notify(content=content if content else f"截图已保存至：{image_path}")
-                else:
-                    if content:
-                        logger.info(content)
-            else:
-                self.push_notify(content=f"保存{image_path}, 图像编码失败")
-                raise Exception("图像编码失败")
-        except Exception as e:
-            self.push_notify(content=f"保存截图异常，{e}")
-            logger.error(f"保存{task_name}截图异常，{e}")
-
     def appear_rgb(self, target, image=None, difference: int = 10):
         """
         判断目标的平均颜色是否与图像中的颜色匹配。
@@ -761,7 +698,82 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         logger.info(f"[{target.name}] 颜色匹配成功")
         return True
 
+    def save_image(self, task_name=None, content=None, wait_time=2, image_type=False, push_flag=False):
+        try:
+            if task_name is None:
+                task_name = "task_name"
+                if self.config and self.config.task:
+                    task_name = self.config.task.command
+
+            # 设置保存图像的文件夹
+            WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
+            if task_name in WeeklyTask:
+                folder_name = f'{week_path}/{I18n.trans_zh_cn(task_name)}'
+            else:
+                folder_name = f'{log_path}/{I18n.trans_zh_cn(task_name)}'
+            if self.config.small_account.scheduler.enable:
+                folder_name = folder_name.replace("\log", "\log\小号截图")
+            folder_path = Path(folder_name)
+            folder_path.mkdir(parents=True, exist_ok=True)
+
+            # 截图等待时间
+            if wait_time > 0:
+                sleep(wait_time)
+                self.screenshot()
+            # 使用getattr同时检查属性和值，避免冗长的条件判断
+            if getattr(self.device, 'image', None) is None:
+                self.screenshot()
+            image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
+
+            if self.config.small_account.scheduler.enable:
+                filename = get_filename(self.config.small_account.small_account_name.name)
+            else:
+                filename = get_filename(self.config.config_name.upper())
+
+            image_path = folder_path / filename  # 使用pathlib路径对象
+
+            if image_type:
+                # 保存图像正常大小
+                image_path = image_path.with_suffix('.png')
+                params = []
+            else:
+                # 修改图像为.webp格式, 调整图像分辨率原来的一半
+                image_path = image_path.with_suffix('.webp')
+                # 调整图像分辨率
+                scale_percent = 50  # 缩放到原来的一半
+                width = int(image.shape[1] * scale_percent / 100)
+                height = int(image.shape[0] * scale_percent / 100)
+                dim = (width, height)
+                image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
+                # 调整图像质量并保存为WebP格式
+                params = [int(cv2.IMWRITE_WEBP_QUALITY), 50]
+
+            # 使用cv2.imencode+文件流保存（解决中文路径问题）
+            ext = image_path.suffix
+            ret, buf = cv2.imencode(ext, image, params)
+            if ret:
+                with open(image_path, 'wb') as f:
+                    f.write(buf.tobytes())
+                logger.info(f"截图已保存至：{image_path}")
+                if push_flag:
+                    self.push_notify(content=content if content else f"截图已保存至：{image_path}")
+                else:
+                    if content:
+                        logger.info(content)
+            else:
+                self.push_notify(content=f"保存{image_path}, 图像编码失败")
+                raise Exception("图像编码失败")
+        except Exception as e:
+            self.push_notify(content=f"保存截图异常，{e}")
+            logger.error(f"保存{task_name}截图异常，{e}")
+
     def push_notify(self, content=''):
+        if content != '':
+            logger.info(content)
+        if self.config.small_account.scheduler.enable:
+            logger.warning(f'小号任务不进行通知')
+            return
+
         # 处理title的逻辑优化
         title = 'task_name'
         if self.config and self.config.task:
@@ -771,8 +783,6 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         if getattr(self.device, 'image', None) is None:
             self.screenshot()
         image = self.device.image
-        if content != '':
-            logger.info(content)
 
         # 发送邮件
         self.config.notifier.send_push(title=title, content=content, image=image)
@@ -786,8 +796,9 @@ if __name__ == '__main__':
     d = Device(c)
     t = BaseTask(c, d)
     t.screenshot()
-    I_E_AUTO_ROTATE_OFF = RuleImage(roi_front=(108,650,150,46), roi_back=(108,650,150,46), threshold=0.85, method="Template matching", file="./tasks/Exploration/res/res_e_auto_rotate_off.png")
-    t.appear_rgb(I_E_AUTO_ROTATE_OFF)
+    t.save_image(push_flag=True, content='成功保存截图')
+    # I_E_AUTO_ROTATE_OFF = RuleImage(roi_front=(108,650,150,46), roi_back=(108,650,150,46), threshold=0.85, method="Template matching", file="./tasks/Exploration/res/res_e_auto_rotate_off.png")
+    # t.appear_rgb(I_E_AUTO_ROTATE_OFF)
 
     # self.config.notifier.send_mail(title=task_name, head=head, image_path=image_path)
 

@@ -29,6 +29,8 @@ class ScriptTask(GameUi):
                 logger.info(f"账号 [{account_data.get('character')}], 今天任务已完成, 跳过")
                 if index == len(all_accounts) - 1:
                     logger.info('所有账号任务已完成')
+                    con.small_account_name.name = "未知账号"
+                    self.config.save()
                     for task in self.config.waiting_task:
                         self.set_next_run(task=task.command, target=datetime.now() + timedelta(days=7))
                     self.set_next_run(task='SmallAccount', success=True, finish=True)
@@ -48,6 +50,8 @@ class ScriptTask(GameUi):
             )
             sa = SwitchAccount(self.config, self.device, toAccount)
             sa.switchAccount()
+            con.small_account_name.name = account_data.get("character")
+            self.config.save()
             logger.info(f"账号 {account_data.get('character')} 切换完成")
 
             logger.info(f"账号 {account_data.get('character')} 分配任务")
