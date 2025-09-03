@@ -693,7 +693,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
         self.find_dokan(self.config.dokan.dokan_config.find_dokan_score)
         self.save_image(image_type=True, wait_time=0, push_flag=True, content=f"已开启道馆")
-        logger.info(f"所有查找到的道馆列表数量为: {len(self.find_dokan_list)}")
         for i, item in enumerate(self.find_dokan_list):
             logger.info(f"Item {i+1}: {item}")
         self.find_dokan_list = []
