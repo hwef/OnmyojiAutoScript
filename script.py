@@ -539,14 +539,6 @@ class Script:
                     else:
                         logger.warning(f'[协同] 任务不在协同任务列表')
 
-                    # ------------------------- 跳过首次重启任务 -------------------------
-                    if is_first_task and task == 'Restart':
-                        logger.info('[任务] 跳过启动时的重启任务')
-                        self.config.task_delay(task='Restart', success=True, server=True)
-                        del_cached_property(self, 'config')
-                        is_first_task = False
-                        continue
-
                     # ------------------------- 设备重连逻辑 -------------------------
                     if not (self.device_status and self.device):
                         logger.warning('[设备] 检测到设备断开，尝试重新连接')
@@ -563,6 +555,15 @@ class Script:
                     if task != 'Restart' and not self.device.app_is_running():
                         logger.warning(f'[任务] 检测到游戏未启动，设置重启任务')
                         self.config.task_call('Restart')
+                        is_first_task = False
+                        continue
+
+                    # ------------------------- 跳过首次重启任务 -------------------------
+                    if is_first_task and task == 'Restart':
+                        logger.info('[任务] 跳过第一次启动时的重启任务')
+                        self.config.task_delay(task='Restart', success=True, server=True)
+                        del_cached_property(self, 'config')
+                        is_first_task = False
                         continue
 
                     # ------------------------- 任务执行 -------------------------
