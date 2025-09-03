@@ -249,7 +249,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         """
         current, remain, total = self.O_D_HONOR.ocr(self.device.image)
         logger.info(f'当前荣誉: {current} / {total} 剩余: {remain}')
-        if current == total and remain == 0:
+        if current == total and remain == 0 and current != 0:
             return True
         return False
 
