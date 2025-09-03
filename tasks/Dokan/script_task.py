@@ -530,8 +530,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             find_bounty_count = 0
             while find_bounty_count < 3:
                 self.screenshot()
-                bounty_list = self.find_all_element(self.I_RIGHTPAD_POINT_BOUNTY, (0, 0, 0, 50))
-                logger.info(f'find elements list:{bounty_list}')
+                # bounty_list = self.find_all_element(self.I_RIGHTPAD_POINT_BOUNTY, (0, 0, 0, 50))
+                # logger.info(f'find elements list:{bounty_list}')
                 # 获取所有匹配结果并直接转换为所需格式
                 raw_matches = self.I_RIGHTPAD_POINT_BOUNTY.match_all_any(image=self.device.image, roi=[1095,33,82,569])
                 # 直接从匹配结果中提取坐标信息并按y坐标排序
@@ -540,8 +540,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     key=lambda item: item[1]  # 按y坐标排序
                 )
                 logger.info(f'find elements list:{bounty_list}')
-                if len(bounty_list) < 3:
-                    self.save_image(task_name='搜索到的道馆少于3个', image_type=True, wait_time=0, push_flag=True, content='搜索到的道馆少于4个')
+                if len(bounty_list) < 4:
+                    self.save_image(task_name='搜索到的道馆少于4个', image_type=True, wait_time=0, push_flag=True, content='搜索到的道馆少于4个')
                     find_bounty_count += 1
                 else:
                     break
@@ -581,7 +581,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 dokan_name = self.O_DOKAN_RIGHTPAD_NAME.ocr(self.device.image)
                 welfare_name_list = ["叶落苑", "九亿少女梦", "我独自升级", "雾云川", "清梦", "三丫小窝", "锦鲤一一", "茸茸神社", "雾云川", "镜姬岛", "江南雨", "帐中妖"]
                 if dokan_name in welfare_name_list or "鑫鑫子" in dokan_name:
-                    self.push_notify(f"✅ 开启福利道馆: 名称:{dokan_name},资金:{bounty}")
+                    self.save_image(image_type=True, wait_time=0, push_flag=True, content=f"✅ 开启福利道馆: 名称:{dokan_name},资金:{bounty}")
                     self.dokan_quit = True
                     return True
 
@@ -630,7 +630,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     sleep(0.5)
                     self.screenshot()
                     if self.appear(self.I_CENTER_CHALLENGE):
-                        self.push_notify(f"选择当前列表中系数最低的{min_score}")
+                        self.save_image(image_type=True, wait_time=0, push_flag=True, content=f"选择当前列表中系数最低的{min_score}")
                         return True
             return False
 
@@ -642,7 +642,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     while 1:
                         self.screenshot()
                         if self.appear(self.I_RYOU_DOKAN_CHECK, interval=1):
-                            self.save_image(image_type=True, wait_time=0, push_flag=True, content=f"已开启道馆")
                             break
                         if self.appear_then_click(self.I_CHALLENGE_ENSURE, interval=1):
                             continue
@@ -693,6 +692,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 continue
 
         self.find_dokan(self.config.dokan.dokan_config.find_dokan_score)
+        self.save_image(image_type=True, wait_time=0, push_flag=True, content=f"已开启道馆")
         logger.info(f"所有查找到的道馆列表数量为: {len(self.find_dokan_list)}")
         for i, item in enumerate(self.find_dokan_list):
             logger.info(f"Item {i+1}: {item}")
