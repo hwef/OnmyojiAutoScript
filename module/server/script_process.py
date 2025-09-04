@@ -27,12 +27,9 @@ class ScriptProcess(ScriptWSManager):
         self.state: ScriptState = ScriptState.INACTIVE
         self._process = None
 
-
-
-
     async def start(self):
         self.state = ScriptState.RUNNING
-        logger.info(f'[启动] 启动脚本 {self.config_name}')
+        # logger.info(f'[启动] 启动脚本 {self.config_name}')
         await self.broadcast_state({"state": self.state})
         if self._process:
             logger.warning(f'Script {self.config_name} is initialized')
@@ -44,13 +41,12 @@ class ScriptProcess(ScriptWSManager):
                                                 name=self.config_name,
                                                 daemon=True)
         self._process.start()
-        logger.info(f"进程已启动，PID: {self._process.pid}")
-        logger.info(f"进程是否存活: {self._process.is_alive()}")
-
+        # logger.info(f"进程已启动，PID: {self._process.pid}")
+        # logger.info(f"进程是否存活: {self._process.is_alive()}")
 
     async def stop(self):
         self.state = ScriptState.INACTIVE
-        logger.info(f'[停止] 停止脚本 {self.config_name}')
+        # logger.info(f'[停止] 停止脚本 {self.config_name}')
         await self.broadcast_state({"state": self.state})
         if self._process is None:
             logger.warning(f'Script {self.config_name} process is removed')
