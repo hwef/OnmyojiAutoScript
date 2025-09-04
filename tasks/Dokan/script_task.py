@@ -579,8 +579,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
                 self.O_DOKAN_RIGHTPAD_NAME.roi = self.position_offset(item, (-37, 29, 127, 0))
                 dokan_name = self.O_DOKAN_RIGHTPAD_NAME.ocr(self.device.image)
-                welfare_name_list = ["叶落苑", "九亿少女梦", "我独自升级", "雾云川", "清梦", "三丫小窝", "锦鲤一一", "茸茸神社", "雾云川", "镜姬岛", "江南雨", "帐中妖"]
+                welfare_name_list = ["堡家军", "渔渔子", "哈哈啊哈", "我独自升级", "棱镜","雾云川", "锦鲤一一", "叶落苑", "镜姬岛", "三丫小窝","橘势", "江南雨", "帐中妖", "喵喵教", "人前显圣"]
                 if dokan_name in welfare_name_list or "鑫鑫子" in dokan_name:
+                    self.find_dokan_list.append(f"道馆: 名称:{dokan_name},资金:{bounty}")
                     self.save_image(image_type=True, wait_time=0, push_flag=True, content=f"✅ 开启福利道馆: 名称:{dokan_name},资金:{bounty}")
                     self.dokan_quit = True
                     return True
@@ -635,7 +636,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             return False
 
         logger.hr("开始寻找合适的道馆", 2)
-        while num_fresh < 5:
+        while num_fresh < self.config.dokan.dokan_config.fresh_num:
             for i in range(3):
                 sleep(3)
                 if find_challengeable():
@@ -693,8 +694,20 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
         self.find_dokan(self.config.dokan.dokan_config.find_dokan_score)
         self.save_image(image_type=True, wait_time=0, push_flag=True, content=f"已开启道馆")
-        for i, item in enumerate(self.find_dokan_list):
-            logger.info(f"Item {i+1}: {item}")
+
+        # 道馆数量
+        filtered_list = [item for item in self.find_dokan_list if "刷新列表" not in item]
+        logger.info(f"总共查看道馆数量: {len(filtered_list)}")
+
+        # 打印道馆列表
+        i = 1
+        for item in self.find_dokan_list:
+            if "刷新列表" in item:
+                i = 1
+                logger.info(f"{item}")
+                continue
+            logger.info(f"Item {i}: {item}")
+            i += 1
         self.find_dokan_list = []
 
     def goto_main(self):
@@ -816,7 +829,7 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('switch')
+    config = Config('test')
     device = Device(config)
     t = ScriptTask(config, device)
     # t.save_image()
