@@ -11,36 +11,38 @@ from module.exception import TaskEnd
 from tasks.GameUi.game_ui import GameUi
 
 """ 小号切换 """
+
+
 class ScriptTask(GameUi):
     def run(self):
         con = self.config.small_account
 
-        logger.info('开始任务, 读取配置文件')
+        logger.info('开始读取配置文件')
         # 假设配置文件路径为 config/accounts.json
         with open('config/SmallAccount/accounts.json', 'r', encoding='utf-8') as file:
-            all_accounts = json.load(file)
+            all_accounts_info = json.load(file)
 
-        for index, account_data in enumerate(all_accounts):
-
+        for index, account_data in enumerate(all_accounts_info):
             completeTime = account_data.get("completeTime")
 
             # 判断是否是今天的日期
             if completeTime == str(datetime.now().date()):
-                logger.info(f"账号 [{account_data.get('character')}], 今天任务已完成, 跳过")
-                if index == len(all_accounts) - 1:
-                    logger.info('所有账号任务已完成')
-                    con.small_account_name.name = "未知账号"
+                logger.info(f"角色 [{account_data.get('character')}], 今天任务已完成, 跳过")
+                if index == len(all_accounts_info) - 1:
+                    logger.info('所有角色任务已完成')
+                    con.small_account_name.name = "未知角色"
                     self.config.save()
+                    target_time = datetime(2099, 1, 1)
                     for task in self.config.waiting_task:
-                        self.set_next_run(task=task.command, target=datetime.now() + timedelta(days=7))
+                        self.set_next_run(task=task.command, target=target_time)
                     self.set_next_run(task='SmallAccount', success=True, finish=True)
                     raise TaskEnd('SmallAccount')
                 continue
             else:
-                logger.info(f"账号 {account_data.get('character')} 上次任务完成时间: {completeTime}")
+                logger.info(f"角色 {account_data.get('character')} 上次任务完成时间: {completeTime}")
                 account_data["completeTime"] = datetime.now().strftime("%Y-%m-%d")
 
-            logger.info(f"账号 {account_data.get('character')} 切换中...")
+            logger.info(f"角色 {account_data.get('character')} 开始切换...")
             toAccount = AccountInfo(
                 account=account_data.get("account"),
                 account_alias=account_data.get("accountAlias"),
@@ -52,19 +54,19 @@ class ScriptTask(GameUi):
             sa.switchAccount()
             con.small_account_name.name = account_data.get("character")
             self.config.save()
-            logger.info(f"账号 {account_data.get('character')} 切换完成")
+            logger.info(f"角色 {account_data.get('character')} 切换完成")
 
-            logger.info(f"账号 {account_data.get('character')} 分配任务")
+            logger.info(f"角色 {account_data.get('character')} 开始调起任务")
+            target_time = datetime(2000, 1, 1)
             for task in self.config.waiting_task:
-                print(task.command)
                 if task.command == 'Restart':
                     continue
-                self.set_next_run(task=task.command, target=datetime.now())
+                self.set_next_run(task=task.command, target=target_time)
 
             # 保存更新后的配置文件
-            logger.info(f"账号 {account_data.get('character')} 更新完成时间: {datetime.now().strftime('%Y-%m-%d')}")
+            logger.info(f"角色 {account_data.get('character')} 更新完成时间: {datetime.now().strftime('%Y-%m-%d')}")
             with open('config/SmallAccount/accounts.json', 'w', encoding='utf-8') as file:
-                json.dump(all_accounts, file, ensure_ascii=False, indent=4)
+                json.dump(all_accounts_info, file, ensure_ascii=False, indent=4)
 
             self.set_next_run(task='SmallAccount', target=datetime.now() + timedelta(minutes=1))
             raise TaskEnd('SmallAccount')
@@ -73,8 +75,8 @@ class ScriptTask(GameUi):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('账号切换')
+
+    c = Config('switch')
     d = Device(c)
     t = ScriptTask(c, d)
     t.run()
-

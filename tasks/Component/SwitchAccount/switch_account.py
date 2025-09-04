@@ -33,7 +33,7 @@ class SwitchAccount(LoginAccount, ExitGame, GameUi, SwitchAccountAssets):
         self.from_account_info = frm
 
     def switchAccount(self):
-        logger.info("start switchAccount %s-%s", self.to_account_info.character, self.to_account_info.svr)
+        logger.info("开始 切换角色 %s-%s", self.to_account_info.character, self.to_account_info.svr)
         # 判断所处界面
         curPage = self.ui_get_current_page()
 
@@ -46,7 +46,7 @@ class SwitchAccount(LoginAccount, ExitGame, GameUi, SwitchAccountAssets):
         # 处于登录界面
         if not self.login(self.to_account_info):
             return False
-        logger.info("%s login suc", self.to_account_info.character)
+        logger.info("角色 %s 登陆成功", self.to_account_info.character)
         # 处理位于登录界面各种奇葩弹窗
         login_handler = LoginHandler(config=self.config, device=self.device)
         login_handler.set_specific_usr(self.to_account_info.svr)
@@ -56,7 +56,7 @@ class SwitchAccount(LoginAccount, ExitGame, GameUi, SwitchAccountAssets):
 
 
 if __name__ == '__main__':
-    config = Config('账号切换')
+    config = Config('switch')
     device = Device(config)
     toAccount = AccountInfo(account="187****4867", account_alias="187****4867", apple_or_android=True, character="三千菟", svr="樱之华")
     sa = SwitchAccount(config, device, toAccount)

@@ -128,7 +128,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                 tmpClick.roi_front[1] -= 30
                 self.ui_click_until_disappear(tmpClick, stop=self.I_SA_CHECK_SELECT_SVR_2,
                                               interval=3)
-                logger.info("character %s found,and clicked svr icon", characterName)
+                logger.info("角色 %s found,and clicked svr icon", characterName)
                 return True
             if lastCharacterNameList == characterNameList:
                 break
@@ -306,17 +306,17 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
         # 切换角色失败 /未找到该角色
         # 尝试使用 选择服务器方式
         if isAccountLogon and not isCharacterSelected and accountInfo.svr is not None and accountInfo.svr != "":
-            logger.info("try to find character with svrName %s", accountInfo.svr)
+            logger.info("try to find 角色 with svrName %s", accountInfo.svr)
             isCharacterSelected = self.switch_svr(accountInfo.svr)
         if isAccountLogon and isCharacterSelected:
             # 成功登录账号 找到角色
             # self.ui_click_until_disappear(self.C_SA_LOGIN_FORM_ENTER_GAME_BTN, stop=self.I_CHECK_LOGIN_FORM)
-            logger.info("character %s-%s account:%s %s login Success", accountInfo.character, accountInfo.svr,
+            logger.info("角色 %s-%s account:%s %s", accountInfo.character, accountInfo.svr,
                         accountInfo.account,
                         'Android' if accountInfo.apple_or_android else 'Apple')
             return True
 
-        logger.error("character %s-%s account:%s %s login Failed", accountInfo.character, accountInfo.svr,
+        logger.error("角色 %s-%s account:%s %s login Failed", accountInfo.character, accountInfo.svr,
                      accountInfo.account,
                      'Android' if accountInfo.apple_or_android else 'Apple')
         return False
