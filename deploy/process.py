@@ -3,7 +3,7 @@
 from deploy.config import DeployConfig
 from deploy.logger import logger
 from deploy.utils import *
-
+import subprocess
 
 class ProcessManager(DeployConfig):
     @cached_property
@@ -92,12 +92,67 @@ class ProcessManager(DeployConfig):
                 except Exception as e:
                     logger.info(f'Error checking process {process_id}: {e}')
 
+    def kill_by_port(self, port):
+        """
+        结束占用指定端口的进程
+        Args:
+            port (int): 要结束的端口号
+        """
+        try:
+            # 使用 subprocess 直接执行 netstat 命令
+            result = subprocess.run(
+                f'netstat -aon | findstr :{port}',
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            ).stdout.strip()
+
+            # 检查返回值是否为空
+            if not result or 'LISTENING' not in result.upper():
+                logger.info(f'No process found listening on port {port}')
+                return
+
+            # 解析每一行
+            lines = result.splitlines()
+            for line in lines:
+                parts = line.split()
+                if len(parts) < 5:  # 确保分割后至少有 5 列
+                    logger.warning(f'Invalid line format: {line}')
+                    continue
+
+                # 提取协议、本地地址、状态、远程地址和 PID
+                local_address = parts[1]
+                state = parts[3].upper()  # 转为大写
+                pid = parts[-1].strip()
+
+                # 检查是否为监听状态且端口匹配
+                if state == 'LISTENING' and f':{port}' in local_address:
+                    if pid.isdigit():
+                        logger.info(f'Found process with PID {pid} listening on port {port}')
+                        # 杀死进程
+                        kill_result = self.execute(f'taskkill /PID {pid} /F', allow_failure=True, output=False)
+                        if kill_result:
+                            logger.info(f'Successfully killed process with PID {pid}')
+                        else:
+                            logger.warning(f'Failed to kill process with PID {pid}')
+                    else:
+                        logger.warning(f'Invalid PID found: {pid}')
+        except Exception as e:
+            logger.error(f'Error killing process on port {port}: {e}')
+
     def process_kill(self):
         logger.hr(f'Kill  OAS  Server', 0)
         self.kill_oas_server()
         # self.kill_by_name("pythonw.exe")
 
+    def process_kill_by_port(self, port):
+        logger.hr(f'Kill  port {port}', 0)
+        self.kill_by_port(port)
+
 
 if __name__ == '__main__':
+    pass
     # ProcessManager().kill_by_name('pythonw')
-    ProcessManager().process_kill()
+    # ProcessManager().process_kill()
+    # ProcessManager().process_kill_by_port()
