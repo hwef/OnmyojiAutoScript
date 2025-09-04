@@ -32,7 +32,7 @@ async def home_menu():
 async def notify_test(setting: str, title: str, content: str):
     from module.notify.notify import Notifier
     try:
-        notifier = Notifier(setting, True)
+        notifier = Notifier(setting, setting, True, False)
         if notifier.push(title=title, content=content):
             del notifier
             return True
