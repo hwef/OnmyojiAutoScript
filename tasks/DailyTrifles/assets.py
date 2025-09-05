@@ -13,6 +13,8 @@ class DailyTriflesAssets:
 	# Image Rule Assets
 	# description 
 	I_L_FRIENDS = RuleImage(roi_front=(67,625,70,72), roi_back=(67,625,70,72), threshold=0.9, method="Template matching", file="./tasks/DailyTrifles/love/love_l_friends.png")
+	# l_friends_select 
+	I_L_FRIENDS_SELECT = RuleImage(roi_front=(165,100,52,30), roi_back=(141,86,103,56), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/love/l_friends_select.png")
 	# description 
 	I_L_LOVE = RuleImage(roi_front=(123,625,67,72), roi_back=(123,625,67,72), threshold=0.9, method="Template matching", file="./tasks/DailyTrifles/love/love_l_love.png")
 	# 一键收取 

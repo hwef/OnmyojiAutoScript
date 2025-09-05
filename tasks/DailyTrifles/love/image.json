@@ -9,6 +9,15 @@
     "description": "description"
   },
   {
+    "itemName": "l_friends_select",
+    "imageName": "l_friends_select.png",
+    "roiFront": "165,100,52,30",
+    "roiBack": "141,86,103,56",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "l_friends_select"
+  },
+  {
     "itemName": "l_love",
     "imageName": "love_l_love.png",
     "roiFront": "123,625,67,72",
