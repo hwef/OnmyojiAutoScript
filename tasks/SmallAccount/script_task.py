@@ -14,6 +14,9 @@ from tasks.GameUi.game_ui import GameUi
 
 
 class ScriptTask(GameUi):
+    skip_task = ['Restart', 'BackUp']
+    week_task = ['RichMan', 'WeeklyTrifles']
+
     def run(self):
         con = self.config.small_account
 
@@ -58,9 +61,15 @@ class ScriptTask(GameUi):
 
             logger.info(f"角色 {account_data.get('character')} 开始调起任务")
             target_time = datetime(2000, 1, 1)
+            # 判断今天是否是周一
+            week_task_flag = is_monday()
             for task in self.config.waiting_task:
-                if task.command == 'Restart':
+                if task.command in self.skip_task:
                     continue
+                # 今天不是周一跳过一周一次的周任务
+                if not week_task_flag:
+                    if task.command in self.week_task:
+                        continue
                 self.set_next_run(task=task.command, target=target_time)
 
             # 保存更新后的配置文件
@@ -71,6 +80,11 @@ class ScriptTask(GameUi):
             self.set_next_run(task='SmallAccount', target=datetime.now() + timedelta(minutes=1))
             raise TaskEnd('SmallAccount')
 
+
+def is_monday():
+    today = datetime.today()
+    current_weekday = today.weekday()  # 周一为0，周日为6
+    return current_weekday == 0
 
 if __name__ == '__main__':
     from module.config.config import Config
