@@ -408,19 +408,17 @@ class DevTool(ctk.CTk):
     def show_rectangle_from_entry(self, event=None):
         """从坐标输入框获取坐标并在画布上显示矩形框"""
         coord_text = self.rect_info.get().strip()
+        # 去掉所有空格，并将中文逗号替换为英文逗号
+        coord_text = coord_text.replace(" ", "").replace("，", ",")
         if not coord_text:
-            # 如果输入框为空，清除画布上的矩形框
-            self.screen_canvas.delete("rect")
-            return
-
-        # 只有当输入的坐标看起来是完整的时候才尝试绘制
-        if coord_text.count(',') != 3:
-            # 如果不是完整的4个坐标值，暂时不处理
             return
 
         try:
             # 解析坐标格式 x,y,w,h
             coords = [int(x.strip()) for x in coord_text.split(',')]
+            if len(coords) == 2:
+                coords.append(10)
+                coords.append(10)
             if len(coords) != 4:
                 return  # 不完整的坐标不处理
 
