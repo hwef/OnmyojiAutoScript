@@ -21,10 +21,10 @@ class ScriptTask(LoginHandler):
         :return:
         """
         # 每日第一次启动游戏，运行日志备份
-        if self.config.back_up.back_up_config.backup_date != str(datetime.now().date()):
+        if self.config.back_up.scheduler.enable and self.config.back_up.back_up_config.backup_date != str(datetime.now().date()) :
             self.set_next_run(task='BackUp', target=datetime.now())
         # 每日第一次启动游戏，运行集体任务
-        if self.config.collective_missions.missions_config.task_date != str(datetime.now().date()):
+        if self.config.collective_missions.missions_config.enable and self.config.collective_missions.missions_config.task_date != str(datetime.now().date()):
             self.set_next_run(task='CollectiveMissions', target=datetime.now())
         if not self.delay_pending_tasks():
             self.app_restart()
@@ -98,6 +98,7 @@ if __name__ == '__main__':
     config = Config('switch')
     device = Device(config)
     s = ScriptTask(config, device)
+    s.run()
     s.app_start()
     # task.config.update_scheduler()
     # task.delay_pending_tasks()
