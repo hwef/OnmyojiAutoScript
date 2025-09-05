@@ -196,5 +196,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"
+  },
+  {
+    "itemName": "mail_red_dots",
+    "imageName": "mail_red_dots.png",
+    "roiFront": "1153,14,36,26",
+    "roiBack": "1141,5,54,51",
+    "method": "Template matching mask",
+    "threshold": 0.8,
+    "description": "mail_red_dots"
   }
 ]

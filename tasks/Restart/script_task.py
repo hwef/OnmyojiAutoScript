@@ -98,7 +98,7 @@ if __name__ == '__main__':
     config = Config('switch')
     device = Device(config)
     s = ScriptTask(config, device)
-    s.run()
+    # s.run()
     s.app_start()
     # task.config.update_scheduler()
     # task.delay_pending_tasks()
