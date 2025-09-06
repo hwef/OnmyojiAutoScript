@@ -9,7 +9,8 @@ from tasks.Component.config_base import ConfigBase
 
 
 class SmallAccountName(BaseModel):
-    name: str = Field(default='未知账号', description='name')
+    enable_notify: bool = Field(default=False, description='是否启用消息通知')
+    account_name: str = Field(default='未知账号', description='name')
 
 
 class SmallAccount(ConfigBase):

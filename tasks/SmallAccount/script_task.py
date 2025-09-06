@@ -52,14 +52,14 @@ class ScriptTask(GameUi):
             self.run_task(con, all_accounts_data, TaskType.limitTask)
 
             # 周任务
-            logger.info('设置周任务', 1)
+            logger.hr('设置周任务', 1)
             self.task_type = "周任务"
             self.run_task(con, all_accounts_data, TaskType.weekTask)
 
             # 所有角色任务已完成
             self.all_account_complete_task(con)
         else:
-            con.small_account_name.name = "未知角色"
+            con.small_account_name.account_name = "未知角色"
             self.config.save()
             logger.info(f'等待 {limit_task_run_time}:00, 运行限时任务')
             self.set_next_run(task='SmallAccount', target=datetime.now().replace(hour=limit_task_run_time, minute=0, second=0, microsecond=0))
@@ -96,7 +96,7 @@ class ScriptTask(GameUi):
         )
         sa = SwitchAccount(self.config, self.device, toAccount)
         sa.switchAccount()
-        con.small_account_name.name = current_account_data.get("character")
+        con.small_account_name.account_name = current_account_data.get("character")
         self.config.save()
         logger.info(f"角色 [{current_account_data.get('character')}] 切换完成")
     
@@ -138,7 +138,7 @@ class ScriptTask(GameUi):
 
     def all_account_complete_task(self, con):
         logger.info('所有角色任务已完成')
-        con.small_account_name.name = "未知角色"
+        con.small_account_name.account_name = "未知角色"
         self.config.save()
         target_time = datetime(2099, 1, 1)
         for task in self.config.waiting_task:

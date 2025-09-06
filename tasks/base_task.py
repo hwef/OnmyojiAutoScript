@@ -725,7 +725,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
 
             if self.config.small_account.scheduler.enable:
-                filename = get_filename(self.config.small_account.small_account_name.name)
+                filename = get_filename(self.config.small_account.small_account_name.account_name)
             else:
                 filename = get_filename(self.config.config_name.upper())
 
@@ -769,14 +769,21 @@ class BaseTask(GlobalGameAssets, CostumeBase):
     def push_notify(self, content=''):
         if content != '':
             logger.info(content)
+
         if self.config.small_account.scheduler.enable:
-            logger.warning(f'小号任务不进行通知')
-            return
+            if not self.config.small_account.small_account_name.enable_notify:
+                logger.warning("已开启小号任务，但未启用小号通知，通知将被忽略")
+                return
 
         # 处理title的逻辑优化
         title = 'task_name'
         if self.config and self.config.task:
             title = self.config.task.command
+
+        if self.config.small_account.scheduler.enable:
+            if self.config.small_account.small_account_name.enable_notify:
+                logger.info("已开启小号任务，并启用了小号通知，拼接title，准备发送通知")
+                title = f"{self.config.small_account.small_account_name.account_name}-{I18n.trans_zh_cn(title)}"
 
         # 使用getattr同时检查属性和值，避免冗长的条件判断
         if getattr(self.device, 'image', None) is None:

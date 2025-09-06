@@ -119,6 +119,10 @@ class Script:
             with open(error_log_path, 'w', encoding='utf-8') as f:
                 f.writelines(lines)
             # asyncio.run(self.config.pushtg.telegram_send(title, error_path_image, error_path_log))
+            if self.config.small_account.scheduler.enable:
+                if self.config.small_account.small_account_name.enable_notify:
+                    logger.info("已开启小号任务，并启用了小号通知，拼接title，准备发送通知")
+                    task = f"{self.config.small_account.small_account_name.account_name}-{I18n.trans_zh_cn(task)}"
             self.config.notifier.send_push(task, error_type, self.device.image, error_log_path)
 
     def init_server(self, port: int) -> int:
