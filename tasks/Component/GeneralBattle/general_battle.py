@@ -211,7 +211,7 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
                 action_click = random.choice([self.C_WIN_1, self.C_WIN_2, self.C_WIN_3])
                 if self.appear_then_click(self.I_WIN, action=action_click, interval=0.5):
                     continue
-                if not self.appear(self.I_WIN):
+                if self.appear(self.I_REWARD) or self.appear(self.I_REWARD_GOLD) or self.appear(self.I_GREED_GHOST) or self.appear(self.I_REWARD_STATISTICS):
                     break
             else:
                 # 如果失败且 点击失败后
@@ -219,25 +219,24 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
                     continue
                 if not self.appear(self.I_FALSE, threshold=0.6):
                     return False
-        # 最后保证能点击 获得奖励
-        if not self.wait_until_appear(self.I_REWARD):
-            # 有些的战斗没有下面的奖励，所以直接返回
-            logger.info("There is no reward, Exit battle")
-            return win
+
         logger.info("Get reward")
         while 1:
             self.screenshot()
             # 如果出现领奖励
             action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
-            if self.appear_then_click(self.I_REWARD, action=action_click, interval=1.5) or \
-                    self.appear_then_click(self.I_REWARD_GOLD, action=action_click, interval=1.5):
+            if self.appear_then_click(self.I_REWARD, action=action_click, interval=1):
+                continue
+            if self.appear_then_click(self.I_REWARD_GOLD, action=action_click, interval=1):
+                continue
+            if self.appear_then_click(self.I_REWARD_STATISTICS, action=action_click, interval=1):
                 continue
             if self.appear(self.I_SOUL_FULL_ENSURE):
                 self.push_notify("御魂溢出")
                 self.appear_then_click(self.I_SOUL_FULL_ENSURE)
                 self.set_next_run(task='SoulsTidy', target=datetime.now())
                 continue
-            if not self.appear(self.I_REWARD) and not self.appear(self.I_REWARD_GOLD) and not self.appear(self.I_GREED_GHOST):
+            if not (self.appear(self.I_REWARD) or self.appear(self.I_REWARD_GOLD) or self.appear(self.I_GREED_GHOST) or self.appear(self.I_REWARD_STATISTICS)):
                 break
 
         return win
