@@ -37,6 +37,7 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
     def run(self):
         if not self.check_time():
             logger.warning('Time is not right')
+            self.set_next_run(task='DemonEncounter', success=True, finish=False)
             raise TaskEnd('DemonEncounter')
 
         # 切换通用御魂

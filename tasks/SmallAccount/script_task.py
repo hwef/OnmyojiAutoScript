@@ -17,12 +17,17 @@ from tasks.GameUi.game_ui import GameUi
 class TaskType(str, Enum):
     dailyTask = 'dailyTaskCompleteTime'
     limitTask = 'limitTaskCompleteTime'
+    weekTask  = 'weekTaskCompleteTime'
 
 
 class ScriptTask(GameUi):
+    # 跳过的任务
     skip_task = ['Restart', 'BackUp']
+    # 周任务只在周一 运行
     week_task = ['RichMan', 'WeeklyTrifles']
-    limit_task = ['DemonEncounter']
+    # 限时任务 晚上7点后运行
+    limit_task = ['Hunt', 'DemonEncounter', 'CollectiveMissions']
+    task_type = ''
     
     def run(self):
         con = self.config.small_account
@@ -32,41 +37,56 @@ class ScriptTask(GameUi):
             all_accounts_data = json.load(file)
 
         # 日常任务
+        logger.hr('设置日常任务', 1)
+        self.task_type = "日常任务"
         self.run_task(con, all_accounts_data, TaskType.dailyTask)
 
-        self.set_next_run(task='SmallAccount', target=datetime.now().remove(hour=19, minute=0, second=0, microsecond=0))
         # 获取当前时间
         now = datetime.now()
         # 判断当前时间是否超过19点
-        if now.hour > 19 or (now.hour == 19 and now.minute >= 0):
+        limit_task_run_time = 19
+        if now.hour > limit_task_run_time or (now.hour == limit_task_run_time and now.minute >= 0):
             # 限时任务
+            logger.hr('设置限时任务', 1)
+            self.task_type = "限时任务"
             self.run_task(con, all_accounts_data, TaskType.limitTask)
+
+            # 周任务
+            logger.info('设置周任务', 1)
+            self.task_type = "周任务"
+            self.run_task(con, all_accounts_data, TaskType.weekTask)
+
             # 所有角色任务已完成
             self.all_account_complete_task(con)
+        else:
+            con.small_account_name.name = "未知角色"
+            self.config.save()
+            logger.info(f'等待 {limit_task_run_time}:00, 运行限时任务')
+            self.set_next_run(task='SmallAccount', target=datetime.now().replace(hour=limit_task_run_time, minute=0, second=0, microsecond=0))
 
         raise TaskEnd('SmallAccount')
 
-    def run_task(self, con, all_accounts_data, task_complete_time):
+    def run_task(self, con, all_accounts_data, task_type):
         for index, current_account_data in enumerate(all_accounts_data):
-            taskCompleteTime = current_account_data.get(f"{task_complete_time}")
+            taskCompleteTime = current_account_data.get(f"{task_type}")
 
             # 判断是否是今天的日期
             if taskCompleteTime == str(datetime.now().date()):
-                logger.info(f"角色 [{current_account_data.get('character')}], 今天{taskCompleteTime}任务已完成, 跳过")
+                logger.info(f"角色 [{current_account_data.get('character')}], [{self.task_type}]已完成, 跳过")
                 continue
             else:
-                logger.info(f"角色 {current_account_data.get('character')} 上次任务完成时间: {taskCompleteTime}")
+                logger.info(f"角色 [{current_account_data.get('character')}] 上次任务完成时间: {taskCompleteTime}")
 
             # 切换角色
             self.switch_account(con, current_account_data)
-            # 设置角色今天任务
-            self.set_today_task(current_account_data, all_accounts_data, task_complete_time)
+            # 设置角色任务
+            self.set_task(current_account_data, all_accounts_data, task_type, taskCompleteTime)
 
             self.set_next_run(task='SmallAccount', target=datetime.now() + timedelta(minutes=1))
             raise TaskEnd('SmallAccount')
 
     def switch_account(self, con, current_account_data):
-        logger.info(f"角色 {current_account_data.get('character')} 开始切换...")
+        logger.info(f"角色 [{current_account_data.get('character')}] 开始切换...")
         toAccount = AccountInfo(
             account=current_account_data.get("account"),
             account_alias=current_account_data.get("accountAlias"),
@@ -78,37 +98,41 @@ class ScriptTask(GameUi):
         sa.switchAccount()
         con.small_account_name.name = current_account_data.get("character")
         self.config.save()
-        logger.info(f"角色 {current_account_data.get('character')} 切换完成")
+        logger.info(f"角色 [{current_account_data.get('character')}] 切换完成")
     
-    def set_today_task(self, current_account_data, all_accounts_data, task_complete_time):
-        logger.info(f"角色 {current_account_data.get('character')} 开始调起任务")
+    def set_task(self, current_account_data, all_accounts_data, task_type, taskCompleteTime):
+        logger.info(f"角色 [{current_account_data.get('character')}] 开始调起任务")
         target_time = datetime(2000, 1, 1)
-        # 判断是否是限时任务
-        if task_complete_time == TaskType.limitTask:
-            for task in self.limit_task:
-                self.set_next_run(task=task, target=target_time)
-        elif task_complete_time == TaskType.dailyTask:
-            # 判断今天是否是周一
-            today = datetime.today()
-            current_weekday = today.weekday()  # 周一为0，周日为6
-            for task in self.config.waiting_task:
-                if task.command in self.skip_task:
-                    continue
-                # 今天不是周一,跳过一周一次的周任务
-                if current_weekday != 0:
-                    if task.command in self.week_task:
+        match task_type:
+            # 日常任务
+            case TaskType.dailyTask:
+                for task in self.config.waiting_task:
+                    if task.command in set(self.skip_task) | set(self.week_task) | set(self.limit_task):
                         continue
-                if task.command in self.limit_task:
-                    continue
-                self.set_next_run(task=task.command, target=target_time)
-        else:
-            logger.error("传入任务类型异常")
-            raise TaskEnd('SmallAccount')
+                    self.set_next_run(task=task.command, target=target_time)
+            # 限时任务
+            case TaskType.limitTask:
+                for task in self.limit_task:
+                    self.set_next_run(task=task, target=target_time)
+                # 单独设置蹭卡任务
+                self.set_next_run(task="KekkaiUtilize", target=target_time)
+            case TaskType.weekTask:
+                now = datetime.now()
+                start_of_week = now - timedelta(days=now.weekday())  # 计算当前周的起始日期（周一）
+                end_of_week = start_of_week + timedelta(days=6)      # 计算当前周的结束日期（周日）
+                taskCompleteTime_dt = datetime.strptime(taskCompleteTime, "%Y-%m-%d")  # 将 taskCompleteTime 转换为 datetime 对象
+                # 判断目标日期是否在当前周范围内
+                if start_of_week <= taskCompleteTime_dt <= end_of_week:
+                    for task in self.week_task:
+                        self.set_next_run(task=task, target=target_time)
+                else:
+                    logger.info(f"角色 [{current_account_data.get('character')}] 本周任务完成时间: {taskCompleteTime}")
+                    return
 
         # 更新日常任务完成时间，保存更新后的配置文件
         datetoday = datetime.now().strftime("%Y-%m-%d")
-        logger.info(f"角色 {current_account_data.get('character')} 更新{task_complete_time}任务,完成时间: {datetoday}")
-        current_account_data[f"{task_complete_time}"] = datetoday
+        logger.info(f"角色 [{current_account_data.get('character')}] 更新 {task_type}: {datetoday}")
+        current_account_data[f"{task_type}"] = datetoday
         with open('config/SmallAccount/accounts.json', 'w', encoding='utf-8') as file:
             json.dump(all_accounts_data, file, ensure_ascii=False, indent=4)
 
