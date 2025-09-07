@@ -155,6 +155,9 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
                 logger.info("Battle result is false")
                 self.ui_click_until_disappear(self.I_FALSE)
                 return False
+            if self.appear_then_click(self.I_PREPARE_HIGHLIGHT, interval=2):
+                self.device.stuck_record_add('BATTLE_STATUS_S')
+                continue
             # 如果三分钟还没打完，再延长五分钟
             if stuck_timer and stuck_timer.reached():
                 stuck_timer.reset()
