@@ -53,6 +53,7 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
             self.ui_goto(page_shikigami_records)
             self.checkout_soul()
 
+        self.ui_get_current_page()
         self.ui_goto(page_demon_encounter)
         self.execute_lantern()
         if self.config.demon_encounter.switch_soul.enable_boss:
