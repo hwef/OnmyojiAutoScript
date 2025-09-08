@@ -1,9 +1,11 @@
 # This Python file uses the following encoding: utf-8
 # copy from alas https://github.com/LmeSzinc/AzurLaneAutoScript
+import subprocess
 from deploy.config import DeployConfig
 from deploy.logger import logger
 from deploy.utils import *
-import subprocess
+from module.server.setting import State
+
 
 class ProcessManager(DeployConfig):
     @cached_property
@@ -50,17 +52,7 @@ class ProcessManager(DeployConfig):
             logger.info(str(e))
             return False
 
-    def kill_by_name(self, name):
-        """
-        Args:
-            name (str): Process name
-        """
-        logger.hr(f'Kill {name}', 1)
-        for row in self.iter_process_by_name(name):
-            logger.info(' '.join(map(str, row)))
-            self.execute(f'taskkill /f /pid {row[2]}', allow_failure=True, output=False)
-
-    def kill_oas_server(self):
+    def kill_oas_server(self, server_name):
         """
         更精确地杀死OAS服务器进程，避免影响其他Python程序
         """
@@ -78,19 +70,13 @@ class ProcessManager(DeployConfig):
                     processes = wmi.ExecQuery(f'Select * from Win32_Process where ProcessId = {process_id}')
                     for p in processes:
                         cmdline = p.CommandLine
-                        if cmdline and 'server.py' in cmdline.lower() and process_id not in killed_pids:
+                        if cmdline and server_name in cmdline.lower() and process_id not in killed_pids:
                             logger.info(f'Killing OAS server tree: {cmdline}')
-                            # 使用 /t 参数杀死进程树（包括子进程）
-                            # 允许失败，因为进程可能已经结束
-                            result = self.execute(f'taskkill /f /t /pid {process_id}', allow_failure=True, output=False)
-                            if result:
-                                logger.info(f'Successfully killed process {process_id}')
-                            else:
-                                # 检查进程是否还存在
-                                logger.info(f'Failed to kill process {process_id}')
+                            # 杀死指定PID的进程树（包括子进程）
+                            self._kill_process_tree(process_id)
                             killed_pids.append(process_id)
                 except Exception as e:
-                    logger.info(f'Error checking process {process_id}: {e}')
+                    logger.info(f'Error checking process : {e}')
 
     def kill_by_port(self, port):
         """
@@ -124,35 +110,62 @@ class ProcessManager(DeployConfig):
                 # 提取协议、本地地址、状态、远程地址和 PID
                 local_address = parts[1]
                 state = parts[3].upper()  # 转为大写
-                pid = parts[-1].strip()
+                process_id = parts[-1].strip()
 
                 # 检查是否为监听状态且端口匹配
                 if state == 'LISTENING' and f':{port}' in local_address:
-                    if pid.isdigit():
-                        logger.info(f'Found process with PID {pid} listening on port {port}')
-                        # 杀死进程
-                        kill_result = self.execute(f'taskkill /PID {pid} /F', allow_failure=True, output=False)
-                        if kill_result:
-                            logger.info(f'Successfully killed process with PID {pid}')
-                        else:
-                            logger.warning(f'Failed to kill process with PID {pid}')
+                    if process_id.isdigit():
+                        logger.info(f'Found process with PID {process_id} listening on port {port}')
+                        # 杀死指定PID的进程树（包括子进程）
+                        self._kill_process_tree(int(process_id))
                     else:
-                        logger.warning(f'Invalid PID found: {pid}')
+                        logger.warning(f'Invalid PID found: {process_id}')
         except Exception as e:
             logger.error(f'Error killing process on port {port}: {e}')
 
-    def process_kill(self):
-        logger.hr(f'Kill  OAS  Server', 0)
-        self.kill_oas_server()
-        # self.kill_by_name("pythonw.exe")
+    def kill_by_name(self, name):
+        """
+        Args:
+            name (str): Process name
+        """
+        logger.hr(f'Kill {name}', 1)
+        for row in self.iter_process_by_name(name):
+            logger.info(' '.join(map(str, row)))
+            self.execute(f'taskkill /f /pid {row[2]}', allow_failure=True, output=False)
 
-    def process_kill_by_port(self, port):
-        logger.hr(f'Kill  port {port}', 0)
+    def _kill_process_tree(self, pid):
+        """
+        杀死指定PID的进程树（包括子进程）
+        Args:
+            pid (int): 要结束的进程ID
+        """
+        logger.info(f'Killing process tree with PID {pid}')
+        kill_result = self.execute(f'taskkill /PID {pid} /F /T', allow_failure=True, output=False)
+        if kill_result:
+            logger.info(f'Successfully killed process tree with PID {pid}')
+        else:
+            logger.warning(f'Failed to kill process tree with PID {pid}')
+
+    def process_kill_by_serverName(self, server_name=None):
+        if not server_name:
+            server_name = 'server.py'
+        logger.hr(f'Kill  OAS  Server', 0)
+        self.kill_oas_server(server_name)
+
+    def process_kill_by_port(self, port=None):
+        if not port:
+            port = int(State.deploy_config.WebuiPort) or 22270
+        logger.hr(f'Kill  Port  {port}', 0)
         self.kill_by_port(port)
+
+    def process_kill(self):
+        self.process_kill_by_port()
+        # self.process_kill_by_serverName()
+        # self.kill_by_name("pythonw.exe")
 
 
 if __name__ == '__main__':
     pass
     # ProcessManager().kill_by_name('pythonw')
-    # ProcessManager().process_kill()
+    # ProcessManager().process_kill_by_serverName()
     # ProcessManager().process_kill_by_port()
