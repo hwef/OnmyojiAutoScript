@@ -151,7 +151,7 @@ class RuleImage:
 
         if not self.is_template_match:
             if self.is_template_match_mask:
-                return self.match_mask(image)
+                return self.match_mask(image, threshold)
             elif self.is_sift_flann:
                 return self.sift_match(image)
             else:
@@ -225,7 +225,7 @@ class RuleImage:
 
         if not self.is_template_match:
             if self.is_template_match_mask:
-                return self.match_mask_test(image)
+                return self.match_mask_test(image, threshold)
             elif self.is_sift_flann:
                 return self.sift_match(image)
             else:

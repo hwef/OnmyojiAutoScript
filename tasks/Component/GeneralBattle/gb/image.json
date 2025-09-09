@@ -201,9 +201,9 @@
     "itemName": "reward_statistics",
     "imageName": "gb_reward_statistics.png",
     "roiFront": "51,629,54,59",
-    "roiBack": "26,607,104,103",
+    "roiBack": "17,305,643,389",
     "method": "Template matching mask",
-    "threshold": 0.8,
+    "threshold": 0.7,
     "description": "结算时左下角统计图标"
   }
 ]

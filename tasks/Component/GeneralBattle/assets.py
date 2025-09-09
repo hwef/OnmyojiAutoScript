@@ -110,7 +110,7 @@ class GeneralBattleAssets:
 	# 御魂溢出确认 
 	I_SOUL_FULL_ENSURE = RuleImage(roi_front=(573,388,35,63), roi_back=(573,388,35,63), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_exit_ensure.png")
 	# 结算时左下角统计图标 
-	I_REWARD_STATISTICS = RuleImage(roi_front=(51,629,54,59), roi_back=(26,607,104,103), threshold=0.8, method="Template matching mask", file="./tasks/Component/GeneralBattle/gb/gb_reward_statistics.png")
+	I_REWARD_STATISTICS = RuleImage(roi_front=(51,629,54,59), roi_back=(17,305,643,389), threshold=0.7, method="Template matching mask", file="./tasks/Component/GeneralBattle/gb/gb_reward_statistics.png")
 
 
 	# Image Rule Assets
