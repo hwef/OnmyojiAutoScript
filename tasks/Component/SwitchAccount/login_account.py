@@ -25,61 +25,71 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
         @param svrName:
         @type svrName:
         """
-        self.O_SA_LOGIN_FORM_SVR_NAME.keyword = svrName
-        if self.ocr_appear(self.O_SA_LOGIN_FORM_SVR_NAME):
-            return True
-        self.ui_click(self.C_SA_LOGIN_FORM_SWITCH_SVR_BTN, self.I_SA_CHECK_SELECT_SVR_1, 1.5)
-        # 展开底部角色列表,显示角色所属服务器
-        self.screenshot()
-        if self.appear(self.I_SA_CHECK_SELECT_SVR_1) and (not self.appear(self.I_SA_CHECK_SELECT_SVR_2)):
-            self.click(self.O_SA_SELECT_SVR_CHARACTER_LIST)
-
-        self.O_SA_SELECT_SVR_SVR_LIST.keyword = svrName
-        found = False
-        lastSvrList: tuple = ()
         while 1:
             self.screenshot()
-            # 灰度图
-            self.device.image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2GRAY)
-            # ret, self.device.image = cv2.threshold(self.device.image, 200, 255, cv2.THRESH_OTSU)
-            ret, self.device.image = cv2.threshold(self.device.image, 100, 255, cv2.THRESH_BINARY)
-            # self.device.image = cv2.adaptiveThreshold(self.device.image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 25, 10)
-            self.device.image = abs(255 - self.device.image)
-
-            # RGB图
-            self.device.image = cv2.cvtColor(self.device.image, cv2.COLOR_GRAY2RGB)
-
-            ocrRes = self.O_SA_SELECT_SVR_SVR_LIST.detect_and_ocr(self.device.image)
-            # 受限于图像识别文字准确率,此处对识别结果与实际服务器名字 进行检查 字重合度大于阈值 就认为查找成功
+            self.O_SA_LOGIN_FORM_SVR_NAME.keyword = svrName
+            ocrSvrName = self.O_SA_LOGIN_FORM_SVR_NAME.detect_and_ocr(self.device.image)
+            logger.info("OCR 识别服务器结果: %s", [res.ocr_text for res in ocrSvrName])
+            # 边界检查：确保 OCR 结果不为空
+            if not ocrSvrName or len(ocrSvrName) == 0:
+                logger.warning("OCR 未识别到任何结果，重试...")
+                continue
+            tmp = set(svrName).intersection(set(ocrSvrName[0].ocr_text))
             thresh = 0.5
-            ocrSvrList = [res.ocr_text for res in ocrRes]
-            for index, ocrSvrName in enumerate(ocrSvrList):
-                if len(ocrSvrName) < 3:
+            if len(tmp) > max(len(svrName), len(ocrSvrName)) * thresh:
+                logger.info("found svr %s which is similar with %s", ocrSvrName, svrName)
+                return True
+            self.ui_click(self.C_SA_LOGIN_FORM_SWITCH_SVR_BTN, self.I_SA_CHECK_SELECT_SVR_1, 1.5)
+            # 展开底部角色列表,显示角色所属服务器
+            self.screenshot()
+            if self.appear(self.I_SA_CHECK_SELECT_SVR_1) and (not self.appear(self.I_SA_CHECK_SELECT_SVR_2)):
+                self.click(self.O_SA_SELECT_SVR_CHARACTER_LIST)
+
+            self.O_SA_SELECT_SVR_SVR_LIST.keyword = svrName
+            found = False
+            lastSvrList: tuple = ()
+            while 1:
+                self.screenshot()
+                # 灰度图
+                self.device.image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2GRAY)
+                # ret, self.device.image = cv2.threshold(self.device.image, 200, 255, cv2.THRESH_OTSU)
+                ret, self.device.image = cv2.threshold(self.device.image, 100, 255, cv2.THRESH_BINARY)
+                # self.device.image = cv2.adaptiveThreshold(self.device.image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 25, 10)
+                self.device.image = abs(255 - self.device.image)
+
+                # RGB图
+                self.device.image = cv2.cvtColor(self.device.image, cv2.COLOR_GRAY2RGB)
+
+                ocrRes = self.O_SA_SELECT_SVR_SVR_LIST.detect_and_ocr(self.device.image)
+                # 受限于图像识别文字准确率,此处对识别结果与实际服务器名字 进行检查 字重合度大于阈值 就认为查找成功
+                thresh = 0.5
+                ocrSvrList = [res.ocr_text for res in ocrRes]
+                for index, ocrSvrName in enumerate(ocrSvrList):
+                    if len(ocrSvrName) < 3:
+                        break
+                    tmp = set(svrName).intersection(set(ocrSvrName))
+                    if len(tmp) > max(len(svrName), len(ocrSvrName)) * thresh:
+                        logger.info("found svr %s which is similar with %s", ocrSvrName, svrName)
+                        found = True
+                        # 确定点击位置
+                        box = ocrRes[index].box
+                        self.O_SA_SELECT_SVR_SVR_LIST.area = [self.O_SA_SELECT_SVR_SVR_LIST.roi[0] + box[0][0],
+                                                              self.O_SA_SELECT_SVR_SVR_LIST.roi[1] + box[0][1],
+                                                              box[1][0] - box[0][0],
+                                                              box[2][1] - box[1][1]]
+                        # 跳出此层for循环
+                        break
+                # 两次OCR结果相等表示滑动到最右侧
+                if found or lastSvrList == ocrSvrList:
                     break
-                tmp = set(svrName).intersection(set(ocrSvrName))
-                if len(tmp) > max(len(svrName), len(ocrSvrName)) * thresh:
-                    logger.info("found svr %s which is similar with %s", ocrSvrName, svrName)
-                    found = True
-                    # 确定点击位置
-                    box = ocrRes[index].box
-                    self.O_SA_SELECT_SVR_SVR_LIST.area = [self.O_SA_SELECT_SVR_SVR_LIST.roi[0] + box[0][0],
-                                                          self.O_SA_SELECT_SVR_SVR_LIST.roi[1] + box[0][1],
-                                                          box[1][0] - box[0][0],
-                                                          box[2][1] - box[1][1]]
-                    # 跳出此层for循环
-                    break
-            # 两次OCR结果相等表示滑动到最右侧
-            if found or lastSvrList == ocrSvrList:
-                break
-            lastSvrList = ocrSvrList
-            self.swipe(self.S_SA_SVR_SWIPE_LEFT)
-            time.sleep(4.5)
-        if found:
-            self.click(self.O_SA_SELECT_SVR_SVR_LIST, interval=1.5)
-            return True
-        # 没找到 点击空白区域关闭选择服务器界面
-        self.click(self.C_SA_LOGIN_FORM_CANCEL_SVR_SELECT)
-        return False
+                lastSvrList = ocrSvrList
+                self.swipe(self.S_SA_SVR_SWIPE_LEFT)
+                time.sleep(4.5)
+            if found:
+                self.click(self.O_SA_SELECT_SVR_SVR_LIST, interval=1.5)
+                continue
+            # 没找到 点击空白区域关闭选择服务器界面
+            self.click(self.C_SA_LOGIN_FORM_CANCEL_SVR_SELECT)
 
     def switch_character(self, characterName: str):
         """
@@ -128,7 +138,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                 tmpClick.roi_front[1] -= 30
                 self.ui_click_until_disappear(tmpClick, stop=self.I_SA_CHECK_SELECT_SVR_2,
                                               interval=3)
-                logger.info("角色 %s found,and clicked svr icon", characterName)
+                logger.info("[角色] %s found,and clicked svr icon", characterName)
                 return True
             if lastCharacterNameList == characterNameList:
                 break
@@ -306,17 +316,17 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
         # 切换角色失败 /未找到该角色
         # 尝试使用 选择服务器方式
         if isAccountLogon and not isCharacterSelected and accountInfo.svr is not None and accountInfo.svr != "":
-            logger.info("try to find 角色 with svrName %s", accountInfo.svr)
+            logger.info("try to find account with svrName %s", accountInfo.svr)
             isCharacterSelected = self.switch_svr(accountInfo.svr)
         if isAccountLogon and isCharacterSelected:
             # 成功登录账号 找到角色
             # self.ui_click_until_disappear(self.C_SA_LOGIN_FORM_ENTER_GAME_BTN, stop=self.I_CHECK_LOGIN_FORM)
-            logger.info("角色 %s-%s account:%s %s", accountInfo.character, accountInfo.svr,
+            logger.info("[角色] %s-%s account:%s %s", accountInfo.character, accountInfo.svr,
                         accountInfo.account,
                         'Android' if accountInfo.apple_or_android else 'Apple')
             return True
 
-        logger.error("角色 %s-%s account:%s %s login Failed", accountInfo.character, accountInfo.svr,
+        logger.error("[角色] %s-%s account:%s %s login Failed", accountInfo.character, accountInfo.svr,
                      accountInfo.account,
                      'Android' if accountInfo.apple_or_android else 'Apple')
         return False

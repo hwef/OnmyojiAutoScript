@@ -1,8 +1,8 @@
 [
   {
     "itemName": "sa_login_form_svr_name",
-    "roiFront": "545,510,140,40",
-    "roiBack": "545,510,140,40",
+    "roiFront": "475,507,201,37",
+    "roiBack": "475,507,201,37",
     "mode": "SINGLE",
     "method": "Default",
     "keyword": "",
