@@ -296,10 +296,10 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                     self.click(self.C_SA_LOGIN_FORM_USER_CENTER)
                     continue
 
-                # 已登录 查找对应角色
-                if not isCharacterSelected and self.switch_character(accountInfo.character):
-                    isCharacterSelected = True
-                    continue
+                # 已登录 查找对应角色(因为有重名角色所以用下面的区服查找)
+                # if not isCharacterSelected and self.switch_character(accountInfo.character):
+                #     isCharacterSelected = True
+                #     continue
                 break
             continue
 
