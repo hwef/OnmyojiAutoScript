@@ -33,6 +33,7 @@ class ScriptTask(GameUi):
     # 总是运行的任务
     always_run_task = ['KekkaiUtilize', 'TalismanPass']
     task_type = ''
+    account_info = ''
     
     def run(self):
         con = self.config.small_account
@@ -67,27 +68,29 @@ class ScriptTask(GameUi):
             taskCompleteTime = current_account_data.get(f"{task_type}")
             now = datetime.now()
 
+            self.account_info = f"{current_account_data.get('svr')}-{current_account_data.get('character')}"
+
             # 判断是否只做协站50任务
             if bool(current_account_data.get('isOnlyAssist50')):
                 if task_type == TaskType.assist50:
                     if taskCompleteTime == str(now.date()):
-                        logger.info(f"角色 [{current_account_data.get('character')}], [{self.task_type}] 已完成, 跳过")
+                        logger.info(f"[角色] {self.account_info} 已完成[{self.task_type}], 跳过")
                         continue
                 else:
                     # 只做协战50，但当前不是协战50任务 → 跳过
-                    logger.info(f"角色 [{current_account_data.get('character')}], 只完成协站任务, [{self.task_type}] 跳过")
+                    logger.info(f"[角色] {self.account_info} 只完成协站任务, [{self.task_type}], 跳过")
                     continue
             else:
                 if task_type == TaskType.assist50:
                     # 不做协战50，但当前是协战50任务 → 跳过
-                    logger.info(f"角色 [{current_account_data.get('character')}], 不做 [{self.task_type}] 跳过")
+                    logger.info(f"[角色] {self.account_info} 不做 [{self.task_type}], 跳过")
                     continue
 
             match task_type:
                 # 日常任务，判断是否今天已完成
                 case TaskType.dailyTask:
                     if taskCompleteTime == str(now.date()):
-                        logger.info(f"角色 [{current_account_data.get('character')}], [{self.task_type}] 已完成, 跳过")
+                        logger.info(f"[角色] {self.account_info} 已完成[{self.task_type}], 跳过")
                         continue
                 # 周任务，判断是否本周已完成
                 case TaskType.weekTask:
@@ -96,12 +99,12 @@ class ScriptTask(GameUi):
                     taskCompleteTime_dt = datetime.strptime(taskCompleteTime, "%Y-%m-%d").date()  # 将 taskCompleteTime 转换为 datetime 对象
                     # 判断目标日期是否在当前周范围内 如果在说明本周运行过
                     if start_of_week <= taskCompleteTime_dt <= end_of_week:
-                        logger.info(f"角色 [{current_account_data.get('character')}], [{self.task_type}] 已完成, 跳过")
+                        logger.info(f"[角色] {self.account_info} 已完成[{self.task_type}], 跳过")
                         continue
                 # 限时任务，判断是否今天已完成
                 case TaskType.limitTask:
                     if taskCompleteTime == str(now.date()):
-                        logger.info(f"角色 [{current_account_data.get('character')}], [{self.task_type}] 已完成, 跳过")
+                        logger.info(f"[角色] {self.account_info} 已完成 [{self.task_type}], 跳过")
                         continue
                     else:
                         # ===== 判断是否已到限时任务执行时间（19:00）=====
@@ -116,7 +119,7 @@ class ScriptTask(GameUi):
                             raise TaskEnd('SmallAccount')
 
             # 上次完成时间
-            logger.info(f"角色 [{current_account_data.get('character')}], 上次 [{self.task_type}] 完成时间: {taskCompleteTime}")
+            logger.info(f"[角色] {self.account_info}, 上次 [{self.task_type}] 完成时间: {taskCompleteTime}")
             # 切换角色
             self.switch_account(con, current_account_data)
             # 设置角色任务
@@ -126,7 +129,7 @@ class ScriptTask(GameUi):
             raise TaskEnd('SmallAccount')
 
     def switch_account(self, con, current_account_data):
-        logger.info(f"角色 [{current_account_data.get('character')}], 开始切换...")
+        logger.info(f"[角色] {self.account_info}, 开始切换...")
         toAccount = AccountInfo(
             account=current_account_data.get("account"),
             account_alias=current_account_data.get("accountAlias"),
@@ -138,10 +141,10 @@ class ScriptTask(GameUi):
         sa.switchAccount()
         con.small_account_name.account_name = current_account_data.get("character")
         self.config.save()
-        logger.info(f"角色 [{current_account_data.get('character')}], 切换完成")
+        logger.info(f"[角色] {self.account_info}, 切换完成")
     
     def set_task(self, current_account_data, all_accounts_data, task_type):
-        logger.info(f"角色 [{current_account_data.get('character')}], 开始调起任务")
+        logger.info(f"[角色] {self.account_info}, 开始调起任务")
         target_time = datetime(2000, 1, 1)
         match task_type:
             # 日常任务
@@ -169,10 +172,12 @@ class ScriptTask(GameUi):
 
         # 更新日常任务完成时间，保存更新后的配置文件
         datetoday = datetime.now().strftime("%Y-%m-%d")
-        logger.info(f"角色 [{current_account_data.get('character')}], 更新 {task_type}: {datetoday}")
+        logger.info(f"[角色] {self.account_info}, 更新 {task_type}: {datetoday}")
         current_account_data[f"{task_type}"] = datetoday
         with open('config/SmallAccount/accounts.json', 'w', encoding='utf-8') as file:
             json.dump(all_accounts_data, file, ensure_ascii=False, indent=4)
+
+        self.push_notify(content=f"✅ [角色] {self.account_info}, {task_type} 已分配")
 
     def all_account_complete_task(self, con):
         logger.hr("任务结束", 1)
