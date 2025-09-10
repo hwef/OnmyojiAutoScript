@@ -97,5 +97,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "溢出确认"
+  },
+  {
+    "itemName": "tp_task",
+    "imageName": "tp_task.png",
+    "roiFront": "1200,343,35,57",
+    "roiBack": "1188,305,59,115",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "tp_task"
   }
 ]

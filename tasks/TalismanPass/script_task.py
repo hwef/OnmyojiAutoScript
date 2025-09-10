@@ -32,7 +32,6 @@ class ScriptTask(GameUi, TalismanPassAssets):
         self.set_next_run(task='TalismanPass', success=True, finish=True)
         raise TaskEnd('TalismanPass')
 
-
     def get_all(self):
         """
         一键收取所有的
@@ -90,11 +89,38 @@ class ScriptTask(GameUi, TalismanPassAssets):
         判断是否在任务的界面
         :return:
         """
-        self.screenshot()
-        if self.appear(self.I_TP_GOTO) or self.appear(self.I_TP_EXP):
-            return True
-        return False
+        timer = Timer(5)
+        timer.start()
+        while 1:
+            self.screenshot()
+            if timer.reached():
+                logger.warning('No appear task button')
+                return False
+            if self.appear(self.I_TP_GOTO) or self.appear(self.I_TP_EXP):
+                return True
+            if self.appear_then_click(self.I_TP_TASK, interval=1):
+                continue
 
+    def main_goto_daily(self):
+        """
+        无法直接一步到花合战，需要先到主页，然后再到花合战
+        :return:
+        """
+        while 1:
+            self.screenshot()
+            if self.appear(self.I_CHECK_DAILY):
+                break
+            if self.appear_then_click(self.I_MAIN_GOTO_DAILY, interval=1):
+                continue
+            if self.ocr_appear(self.O_CLICK_CLOSE_1, interval=1):
+                self.click(self.C_CLICK_AREA)
+                continue
+            if self.ocr_appear(self.O_CLICK_CLOSE_2, interval=1):
+                self.click(self.C_CLICK_AREA)
+                continue
+        logger.info('Page arrive: Daily')
+        time.sleep(1)
+        return
 
 
 if __name__ == '__main__':

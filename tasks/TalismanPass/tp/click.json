@@ -1,0 +1,8 @@
+[
+  {
+    "itemName": "click_area",
+    "roiFront": "409,572,32,30",
+    "roiBack": "404,569,41,35",
+    "description": "花合战需要点击的空白区域"
+  }
+]
