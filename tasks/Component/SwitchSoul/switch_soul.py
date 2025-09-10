@@ -110,6 +110,13 @@ class SwitchSoul(BaseTask, SwitchSoulAssets):
             raise ValueError('Switch soul_one team must be in [1-4]')
         # 这一步是选择组
         target_click, target_check = get_group_assets(group)
+
+        x, y, w, h = target_click.roi_front
+        new_x = x + w // 2 - (w // 2 // 2)       # 中心x - 新宽度//2
+        new_y = y + h // 2 - (h // 5 // 2)       # 中心y - 新高度//2
+        target_click.roi_front = (new_x, new_y, w // 2, h // 5)
+        logger.info(f'Click group {group} in new area {target_click.roi_front}')
+
         # while 1:
         #     self.screenshot()
         #     if self.click(target_click, interval=1):
@@ -117,7 +124,7 @@ class SwitchSoul(BaseTask, SwitchSoulAssets):
         #     if self.appear(target_check):
         #         break
         # 2023.8.5 修改为无反馈的点击切换
-        for i in range(2):
+        for i in range(3):
             self.click(target_click)
             sleep(0.5)
         # 点击队伍
