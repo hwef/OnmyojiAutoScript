@@ -155,7 +155,7 @@ class LoginHandler(LoginBase, BaseTask, RestartAssets):
         :return: 如果没有发现任何奖励后退出
         """
         logger.hr('Harvest')
-        timer_harvest = Timer(5)  # 如果连续5秒没有发现任何奖励，退出
+        timer_harvest = Timer(3)  # 如果连续3秒没有发现任何奖励，退出
         while 1:
             self.screenshot()
 
@@ -259,7 +259,7 @@ class LoginHandler(LoginBase, BaseTask, RestartAssets):
                     timer_harvest.reset()
                     continue
 
-            # 5秒内没有发现任何奖励，退出
+            # 3秒内没有发现任何奖励，退出
             if not timer_harvest.started():
                 timer_harvest.start()
             else:
