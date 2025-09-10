@@ -36,8 +36,7 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
             else:
                 if con.netherworld_group_team != '-1,-1':
                     self.run_switch_soul(con.netherworld_group_team)
-        self.ui_goto(page_main)
-        self.ui_click(self.I_MAIN_GOTO_TOWN, self.I_CHECK_TOWN)
+
         self.ui_get_current_page()
         self.ui_goto(page_hunt)
 
@@ -45,7 +44,7 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
             self.kirin()
         else:
             self.netherworld()
-        sleep(1)
+
         self.ui_get_current_page()
         self.ui_goto(page_main)
 
@@ -84,24 +83,17 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
         while 1:
             self.screenshot()
 
+            self.check_and_invite()
+
             if self.appear(self.I_KIRIN_END):
                 # 你的阴阳寮已经打过的麒麟了
                 logger.warning('Your guild have already challenged the Kirin')
-                self.set_next_run(task='Hunt', success=True, finish=True)
-                raise TaskEnd('Hunt')
-            if self.appear(self.I_KIRIN_CHALLAGE, interval=1):
-                break
-            if self.click(self.C_HUNT_ENTER, interval=3):
+                return
+            if self.appear_then_click(self.I_KIRIN_CHALLAGE, interval=1):
                 continue
+            if self.appear(self.I_PREPARE_HIGHLIGHT):
+                break
         logger.info('Arrive the Kirin')
-        self.ui_click(self.I_KIRIN_CHALLAGE, self.I_KIRIN_GATHER)
-
-        self.screenshot()
-        if self.appear(self.I_KIRIN_CHALLAGE) and self.appear_rgb(self.I_KIRIN_CHALLAGE):
-            self.ui_click_until_disappear(self.I_KIRIN_CHALLAGE)
-
-        self.device.stuck_record_add('BATTLE_STATUS_S')
-        self.wait_until_disappear(self.I_KIRIN_GATHER)
         self.run_general_battle()
 
     def netherworld(self):
@@ -173,7 +165,7 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('du')
+    c = Config('mi')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()
