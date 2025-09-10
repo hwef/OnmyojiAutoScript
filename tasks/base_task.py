@@ -652,6 +652,29 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             return None
         return img
 
+    def get_rgb_from_target(self, target: tuple):
+        """
+        从传入的目标区域提取平均RGB值
+
+        参数:
+        - target: 目标区域 (x, y, width, height)
+
+        返回:
+        - 平均RGB值 (R, G, B)
+        """
+        x, y, w, h = target.roi_front
+        # 截图并获取设备当前图像
+        image = self.device.image
+
+        # 提取目标区域的图像
+        region = image[y:y + h, x:x + w]
+
+        # 计算平均RGB值
+        average_color = cv2.mean(region)[:3]  # 只取前三个值 (B, G, R)
+
+        logger.info(f"目标区域 [{target.roi_front}] 的RGB值为: {average_color}")
+        return average_color
+
     def appear_rgb(self, target, image=None, difference: int = 10):
         """
         判断目标的平均颜色是否与图像中的颜色匹配。
