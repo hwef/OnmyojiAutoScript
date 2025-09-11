@@ -111,6 +111,9 @@ class ScriptTask(GameUi):
                         now = datetime.now()
                         limit_hour = 19
                         if not (now.hour > limit_hour or (now.hour == limit_hour and now.minute >= 0)):
+                            target_time = datetime(2099, 1, 1)
+                            for task in self.config.waiting_task:
+                                self.set_next_run(task=task.command, target=target_time)
                             # ===== 未到19点，等待并设置19点运行 =====
                             con.small_account_name.account_name = "未知角色"
                             self.config.save()
