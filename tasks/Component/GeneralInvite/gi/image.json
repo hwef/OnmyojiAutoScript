@@ -2,8 +2,8 @@
   {
     "itemName": "add_1",
     "imageName": "gi_add_1.png",
-    "roiFront": "617,228,57,55",
-    "roiBack": "519,146,248,220",
+    "roiFront": "593,266,103,39",
+    "roiBack": "593,266,103,39",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "中间的邀请图片"
