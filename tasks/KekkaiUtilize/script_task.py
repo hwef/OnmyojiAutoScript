@@ -143,7 +143,9 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             if click_ap and not self.appear(self.I_GUILD_AP):
                 return True
 
-            self.ui_click_until_disappear(self.I_GUILD_EXPAND)
+            # 关闭展开的寮活动横幅
+            if self.appear_then_click(self.I_GUILD_EXPAND):
+                timer_check.reset()
 
             # 获得奖励
             if self.ui_reward_appear_click():

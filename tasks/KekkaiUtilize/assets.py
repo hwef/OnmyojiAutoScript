@@ -26,9 +26,9 @@ class KekkaiUtilizeAssets:
 	# 领取寮资金 
 	I_GUILD_ASSETS_RECEIVE = RuleImage(roi_front=(565,426,144,63), roi_back=(565,426,144,63), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_assets_receive.png")
 	# 收起的寮活动横幅 
-	I_GUILD_COLLAPSE = RuleImage(roi_front=(28,159,19,22), roi_back=(28,159,19,22), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_collapse.png")
+	I_GUILD_COLLAPSE = RuleImage(roi_front=(28,159,19,22), roi_back=(12,125,88,101), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_collapse.png")
 	# 展开的寮活动横幅 
-	I_GUILD_EXPAND = RuleImage(roi_front=(264,162,16,18), roi_back=(264,162,16,18), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_expand.png")
+	I_GUILD_EXPAND = RuleImage(roi_front=(264,162,16,18), roi_back=(212,102,110,124), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_expand.png")
 
 
 	# Swipe Rule Assets
