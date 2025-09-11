@@ -335,6 +335,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         if not task:
             task = self.task.command
         old_task = task
+        # 驼峰形式的字符串转换为下划线形式的字符串
         task = convert_to_underscore(task)
         task_object = getattr(self.model, task, None)
         if not task_object:
@@ -360,17 +361,16 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             if isinstance(interval, str):
                 interval = timedelta(interval)
 
+            # 如果间隔时间大于1天, 则将下次运行时间设置为固定时间加间隔天数
             if interval.days > 1:
                 days_num = interval.days
                 next_days_time = datetime.now() + timedelta(days=interval.days)
                 run.append(datetime.combine(next_days_time, scheduler.server_update))
             else:
+                # 如果间隔时间小于等于1天, 则将下次运行时间设置为当前时间加间隔时间
                 days_num = 1
                 run.append(start_time + interval)
-        # if server is not None:
-        #     if server:
-        #         server = scheduler.server_update
-        #         run.append(get_server_next_update(server))
+
         if target is not None:
             target = [target] if not isinstance(target, list) else target
             target = nearest_future(target)
@@ -387,17 +387,13 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         next_run = run
 
         if server and hasattr(scheduler, 'server_update'):
-            # 加入随机浮动时间
-            # float_seconds = (scheduler.float_time.hour * 3600 +
-            #                  scheduler.float_time.minute * 60 +
-            #                  scheduler.float_time.second)
-            # random_float = random.randint(-float_seconds, float_seconds)
-            # 如果有强制运行时间
-
+            # 如果有强制运行时间 并且运行成功 并且间隔时间小于等于一天
             if target is None and success and days_num == 1:
+                # 如果固定时间是9点 则将下次运行时间设置为当前时间加间隔时间
                 if scheduler.server_update == time(hour=9):
                     next_run = next_run
                 else:
+                    # 如果固定时间是不是9点 则将下次运行时间设置为明天的固定时间
                     next_run = parse_tomorrow_server(scheduler.server_update)
 
         # 将这些连接起来，方便日志输出
@@ -409,6 +405,10 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             },
             allow_none=False,
         )
+        # 总结
+        # 如果间隔时间大于1天, 则将下次运行时间设置为固定时间加间隔天数
+        # 如果间隔时间小于等于1天,并且固定时间是9点 则将下次运行时间设置为当前时间加间隔时间
+        # 如果间隔时间小于等于1天,并且固定时间是不是9点 则将下次运行时间设置为明天的固定时间
 
         # 保证线程安全的
         self.lock_config.acquire()
