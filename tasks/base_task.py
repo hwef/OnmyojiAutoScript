@@ -815,6 +815,34 @@ class BaseTask(GlobalGameAssets, CostumeBase):
 
         # 发送邮件
         self.config.notifier.send_push(title=title, content=content, image=image)
+        
+    def ocr_text_threshold(self, target, threshold=0.5, interval: float = None):
+        if interval:
+            if target.name in self.interval_timer:
+                # 如果传入的限制时间不一样，则替换限制新的传入的时间
+                if self.interval_timer[target.name].limit != interval:
+                    self.interval_timer[target.name] = Timer(interval)
+            else:
+                # 如果没有限制时间，则创建限制时间
+                self.interval_timer[target.name] = Timer(interval)
+                # 如果时间还没到达，则不执行
+            if not self.interval_timer[target.name].reached():
+                return None
+
+        appear = False
+
+        ocrResult = target.detect_and_ocr(self.device.image)
+        logger.info("OCR 识别结果: %s", [res.ocr_text for res in ocrResult])
+        # 边界检查：确保 OCR 结果不为空
+        if not ocrResult or len(ocrResult) == 0:
+            return False
+        tmp = set(target.keyword).intersection(set(ocrResult[0].ocr_text))
+        if len(tmp) > max(len(target.keyword), len(ocrResult)) * threshold:
+            logger.info(f"[{ocrResult[0].ocr_text}] 与 [{target.keyword}], 相似度超过[{threshold}]")
+            appear = True
+        if interval and appear:
+            self.interval_timer[target.name].reset()
+        return appear
 
 
 if __name__ == '__main__':

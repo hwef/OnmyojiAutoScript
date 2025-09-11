@@ -12,7 +12,7 @@ class TalismanPassAssets:
 
 	# Click Rule Assets
 	# 花合战需要点击的空白区域 
-	C_CLICK_AREA = RuleClick(roi_front=(409,572,32,30), roi_back=(404,569,41,35), name="click_area")
+	C_CLICK_AREA = RuleClick(roi_front=(1197,565,43,44), roi_back=(1197,565,43,44), name="click_area")
 
 
 	# Ocr Rule Assets
@@ -47,5 +47,7 @@ class TalismanPassAssets:
 	I_OVERFLOW_CONFIRME = RuleImage(roi_front=(585,410,116,44), roi_back=(585,410,116,44), threshold=0.8, method="Template matching", file="./tasks/TalismanPass/tp/tp_overflow_confirme.png")
 	# tp_task 
 	I_TP_TASK = RuleImage(roi_front=(1200,343,35,57), roi_back=(1188,305,59,115), threshold=0.8, method="Template matching", file="./tasks/TalismanPass/tp/tp_task.png")
+	# 跳过 
+	I_TP_SKIP = RuleImage(roi_front=(1089,119,72,41), roi_back=(988,7,284,205), threshold=0.7, method="Template matching", file="./tasks/TalismanPass/tp/tp_tp_skip.png")
 
 
