@@ -36,31 +36,33 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
     first_catch = True  # 用于记录是否是第一次捕捉
     current_ball_index = 5
     def run(self):
-
-        logger.hr('第一步, 检查契忆数量', 2)
-        self.ui_get_current_page()
-        self.ui_goto(page_mall, confirm_wait=2.5)
-        self.ui_click(self.I_MALL_SCCALES, self.I_MALL_SCCALES_CHECK)
-        self.ui_click(self.I_MALL_BONDLINGS_SURE, self.I_MALL_BONDLINGS_ON)
-
-        MAX_COUNT = 2000
-        next_run_week = 2
-        cu, re, total = self.O_BL_CHECK_MONEY.ocr(self.device.image)
-
-        if cu >= MAX_COUNT:
-            message = f'契忆数量: {cu} 大于 {MAX_COUNT}'
-            self.save_image(content=message, push_flag=True)
-            self.ui_get_current_page()
-            self.ui_goto(page_main)
-            self.next_run_week(next_run_week)
-            raise TaskEnd
-
-        message = f'契忆数量: {cu} 小于 {MAX_COUNT}, 继续任务'
-        self.push_notify(content=message)
-        logger.hr('第二步, 切换御魂', 2)
         # 引用配置
         cong = self.config.bondling_fairyland
 
+        if cong.bondling_check.check_enable:
+            logger.hr('第一步, 检查契忆数量', 2)
+            self.ui_get_current_page()
+            self.ui_goto(page_mall, confirm_wait=2.5)
+            self.ui_click(self.I_MALL_SCCALES, self.I_MALL_SCCALES_CHECK)
+            self.ui_click(self.I_MALL_BONDLINGS_SURE, self.I_MALL_BONDLINGS_ON)
+
+            MAX_COUNT = cong.bondling_check.limit_num
+            next_run_week = 2
+            cu, re, total = self.O_BL_CHECK_MONEY.ocr(self.device.image)
+
+            if cu >= MAX_COUNT:
+                message = f'契忆数量: {cu} 大于 {MAX_COUNT}'
+                self.save_image(content=message, push_flag=True)
+                self.ui_get_current_page()
+                self.ui_goto(page_main)
+                self.next_run_week(next_run_week)
+                raise TaskEnd
+
+            message = f'契忆数量: {cu} 小于 {MAX_COUNT}, 继续任务'
+            self.push_notify(content=message)
+
+
+        logger.hr('第二步, 切换御魂', 2)
         # 御魂切换方式一
         if cong.switch_soul_config.enable:
             self.ui_get_current_page()
