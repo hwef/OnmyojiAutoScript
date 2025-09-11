@@ -11,28 +11,28 @@ from module.notify.notify import Notifier
 
 
 class MainQQBotManager():
-    def __init__(self):
-        # 使用全局日志记录器 'oas'
-        self.logger = logging.getLogger('oas')  # 使用全局日志记录器
-        self.logger.setLevel(logging.INFO)  # 设置日志级别
-
-        # 如果需要独立日志文件，可以保留以下代码
-        log_dir = "log"  # 日志文件夹
-        os.makedirs(log_dir, exist_ok=True)
-        log_file = os.path.join(log_dir, "main_qqbot.log")  # 定义日志文件路径
-
-        file_handler = TimedRotatingFileHandler(
-            log_file,
-            when="midnight",
-            interval=1,
-            backupCount=7,
-            encoding="utf-8"
-        )
-        file_handler.setLevel(logging.INFO)
-        file_handler.setFormatter(file_formatter)
-
-        # 将独立日志处理器添加到日志记录器
-        self.logger.addHandler(file_handler)
+    # def __init__(self):
+    #     # 使用全局日志记录器 'oas'
+    #     self.logger = logging.getLogger('oas')  # 使用全局日志记录器
+    #     self.logger.setLevel(logging.INFO)  # 设置日志级别
+    #
+    #     # 如果需要独立日志文件，可以保留以下代码
+    #     log_dir = "log"  # 日志文件夹
+    #     os.makedirs(log_dir, exist_ok=True)
+    #     log_file = os.path.join(log_dir, "main_qqbot.log")  # 定义日志文件路径
+    #
+    #     file_handler = TimedRotatingFileHandler(
+    #         log_file,
+    #         when="midnight",
+    #         interval=1,
+    #         backupCount=7,
+    #         encoding="utf-8"
+    #     )
+    #     file_handler.setLevel(logging.INFO)
+    #     file_handler.setFormatter(file_formatter)
+    #
+    #     # 将独立日志处理器添加到日志记录器
+    #     self.logger.addHandler(file_handler)
 
     async def received(self, data):
         try:
