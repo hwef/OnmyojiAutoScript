@@ -137,8 +137,12 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         """
         timer_check = Timer(2)
         timer_check.start()
+        click_ap = False
         while 1:
             self.screenshot()
+            if click_ap and not self.appear(self.I_GUILD_AP):
+                return True
+
             self.ui_click_until_disappear(self.I_GUILD_EXPAND)
 
             # 获得奖励
@@ -146,19 +150,20 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 timer_check.reset()
 
             # 资金收取确认
-            if self.appear_then_click(self.I_GUILD_ASSETS_RECEIVE, interval=0.5):
+            if self.appear_then_click(self.I_GUILD_ASSETS_RECEIVE, interval=1):
+                time.sleep(1)
                 timer_check.reset()
                 continue
 
             # 收体力
-            if self.appear_then_click(self.I_GUILD_AP, interval=1.5):
+            if self.appear_then_click(self.I_GUILD_AP, interval=1):
                 # 等待1秒，看到获得奖励
                 time.sleep(1)
                 logger.info('appear_click guild_ap success')
                 if self.ui_reward_appear_click(True):
                     logger.info('appear_click reward success')
+                    click_ap = True
                     timer_check.reset()
-                    return True
                 continue
             # 收资金
             if self.appear_then_click(self.I_GUILD_ASSETS, interval=1.5, threshold=0.6):
@@ -167,6 +172,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
             if timer_check.reached():
                 break
+
         return False
 
     def goto_realm(self):
