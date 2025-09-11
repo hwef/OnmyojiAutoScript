@@ -79,15 +79,15 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
             return True
 
     def kirin(self):
-        logger.hr('kirin', 2)
+        logger.hr('麒麟', 2)
         while 1:
             self.screenshot()
 
             self.check_and_invite()
 
             if self.appear(self.I_KIRIN_END):
-                # 你的阴阳寮已经打过的麒麟了
-                logger.warning('Your guild have already challenged the Kirin')
+                # 麒麟已挑战
+                logger.warning('麒麟已挑战')
                 return
             if self.appear_then_click(self.I_KIRIN_CHALLAGE, interval=1):
                 continue
@@ -97,7 +97,7 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
         self.run_general_battle()
 
     def netherworld(self):
-        logger.hr('netherworld', 2)
+        logger.hr('阴界之门', 2)
         while 1:
             self.screenshot()
             if self.is_in_room(False):
@@ -115,7 +115,7 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
                 continue
             if self.appear(self.I_NW_DONE):
                 # 今日已挑战
-                logger.warning('Today have already challenged the Netherworld')
+                logger.warning('今日已挑战')
                 self.ui_click_until_disappear(self.I_UI_BACK_RED)
                 return
         logger.info('Start battle')
