@@ -1,21 +1,21 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
+
 import time
 
 import os
 import random
-
+from datetime import datetime, timedelta
+from datetime import time
 from module.atom.image import RuleImage
 from module.exception import TaskEnd
 from module.logger import logger
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_shikigami_records
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Restart.assets import RestartAssets
-from datetime import datetime, timedelta
-import time
 
 """ 活动通用 """
 
@@ -43,7 +43,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
         self.ui_goto(page_main)
 
         # 进入活动 开始战斗
-        self.start_activity()
+        battle_result = self.start_activity()
 
         # 回到庭院
         self.ui_get_current_page()
@@ -57,6 +57,10 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
             self.set_next_run(task='ActivityCommon', success=False, finish=False, target=datetime.now())
         else:
             self.set_next_run(task='ActivityCommon', success=True, finish=True)
+
+        if battle_result:
+            next_run = datetime.combine(datetime.now().date() + timedelta(days=1), time(9, 5))
+            self.set_next_run(task='ActivityCommon', target=next_run)
         raise TaskEnd
 
     def start_activity(self):
@@ -125,7 +129,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                     self.screenshot()
                     if self.appear(image_template):
                         if over_task:
-                            return
+                            return True
                         if enable:
                             if datetime.now() - self.start_time > self.limit_time:
                                 self.push_notify("时间限制已到，结束任务")
