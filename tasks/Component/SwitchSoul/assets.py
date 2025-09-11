@@ -27,6 +27,8 @@ class SwitchSoulAssets:
 	C_SOU_GROUP_7 = RuleClick(roi_front=(1090,505,156,62), roi_back=(1090,505,156,62), name="sou_group_7")
 	# description 
 	C_SOU_GROUP_8 = RuleClick(roi_front=(1088,569,156,62), roi_back=(1088,569,156,62), name="sou_group_8")
+	# 切换御魂分组临时点击位置暂存区域 
+	C_SOU_GROUP_CLICK_AREA = RuleClick(roi_front=(0,0,0,0), roi_back=(0,0,0,0), name="sou_group_click_area")
 	# 阵容选择按钮位置 
 	C_SOU_TEAM_SELECT = RuleClick(roi_front=(977,157,21,21), roi_back=(977,157,21,21), name="sou_team_select")
 

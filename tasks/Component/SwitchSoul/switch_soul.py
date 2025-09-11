@@ -125,8 +125,8 @@ class SwitchSoul(BaseTask, SwitchSoulAssets):
         new_y = center_y - new_height // 2
 
         # 更新目标点击区域
-        target_click.roi_front = (new_x, new_y, new_width, new_height)
-        logger.info(f'Click group {group} in new area {target_click.roi_front}')
+        self.C_SOU_GROUP_CLICK_AREA.roi_front = (new_x, new_y, new_width, new_height)
+        logger.info(f'Click group {group} in new area {self.C_SOU_GROUP_CLICK_AREA.roi_front}')
 
         # while 1:
         #     self.screenshot()
@@ -136,7 +136,7 @@ class SwitchSoul(BaseTask, SwitchSoulAssets):
         #         break
         # 2023.8.5 修改为无反馈的点击切换
         for i in range(3):
-            self.click(target_click)
+            self.click(self.C_SOU_GROUP_CLICK_AREA)
             sleep(0.5)
         # 点击队伍
         target_team = get_team_asset(team)
