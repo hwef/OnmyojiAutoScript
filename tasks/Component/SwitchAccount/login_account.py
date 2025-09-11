@@ -33,6 +33,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
             # 边界检查：确保 OCR 结果不为空
             if not ocrSvrName or len(ocrSvrName) == 0:
                 logger.warning("OCR 未识别到任何结果，重试...")
+                self.click(self.C_SA_LOGIN_FORM_CANCEL_SVR_SELECT)
                 continue
             tmp = set(svrName).intersection(set(ocrSvrName[0].ocr_text))
             thresh = 0.5
