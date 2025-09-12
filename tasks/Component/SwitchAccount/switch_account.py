@@ -46,7 +46,7 @@ class SwitchAccount(LoginAccount, ExitGame, GameUi, SwitchAccountAssets):
         # 处于登录界面
         if not self.login(self.to_account_info):
             return False
-        logger.info("角色 %s 登陆成功", self.to_account_info.character)
+        logger.info("[角色] %s 登陆成功", self.to_account_info.character)
         # 处理位于登录界面各种奇葩弹窗
         login_handler = LoginHandler(config=self.config, device=self.device)
         login_handler.set_specific_usr(self.to_account_info.svr)
