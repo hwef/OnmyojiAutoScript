@@ -314,6 +314,12 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         else:
             cu, res, total = self.O_REALM_RAID_NUMBER.ocr(self.device.image)
         # 判断突破票数量
+
+        # 添加校验：只有当总值等于30时才认为是突破券数量
+        if total != 30:
+            logger.warning(f"识别到的总值{total}不是30，可能不是突破券，跳过此次识别")
+            return  
+    
         if cu < con_scrolls.scrolls_threshold:
             return
         logger.info(f"突破票数量:{cu}, 结束探索任务")
@@ -348,7 +354,7 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         raise TaskEnd
 
     #
-    def check_exit(self) -> bool:
+    def check_exit(self, check_flag: bool = True) -> bool:
 
         # 判断是否开启绘卷模式
         if not self._config.scrolls.scrolls_enable:
@@ -360,7 +366,8 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
                 logger.info('探索时间限制已到, 结束探索任务')
                 return True
         else:
-            self.activate_realm_raid(self._config.scrolls, self._config.exploration_config)
+            if check_flag:
+                self.activate_realm_raid(self._config.scrolls, self._config.exploration_config)
         return False
 
     def quit_explore(self):

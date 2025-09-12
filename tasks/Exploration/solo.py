@@ -35,7 +35,7 @@ class SoloExploration(BaseExploration):
         while 1:
             self.screenshot()
 
-            if self.check_exit():
+            if self.check_exit(False):
                 self.quit_explore()
                 break
 
