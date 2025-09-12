@@ -306,12 +306,13 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 logger.info(f'Wait_animate_stable({rule}) timeout')
                 break
 
-    def swipe(self, swipe: RuleSwipe, interval: float = None, duration: float = 0.1) -> None:
+    def swipe(self, swipe: RuleSwipe, interval: float = None, duration: float = 0.1, wait_up_time=0) -> None:
         """
 
         :param interval:
         :param swipe:
         :param  duration
+        :param  wait_up_time
         :return:
         """
         if not isinstance(swipe, RuleSwipe):
@@ -330,7 +331,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 return
 
         x1, y1, x2, y2 = swipe.coord()
-        self.device.swipe(p1=(x1, y1), p2=(x2, y2), control_name=swipe.name, duration=(duration, duration + 0.1))
+        self.device.swipe(p1=(x1, y1), p2=(x2, y2), control_name=swipe.name, duration=(duration, duration + 0.1), wait_up_time=wait_up_time)
 
         # 执行后，如果有限制时间，则重置限制时间
         if interval:

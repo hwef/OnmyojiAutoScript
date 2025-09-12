@@ -653,7 +653,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     return True
                 # 滑动道馆列表 最后一次不需要滑动直接刷新
                 if i < 2:
-                    self.swipe(self.S_DOKAN_LIST_UP)
+                    self.swipe(self.S_DOKAN_LIST_UP, duration=1, wait_up_time=1)
 
             # 恢复初始位置信息,防止下次使用出错
             restore_roi()

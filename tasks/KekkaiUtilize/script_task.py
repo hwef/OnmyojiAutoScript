@@ -650,7 +650,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
     def perform_swipe_action(self):
         """统一滑动操作"""
-        self.swipe(self.S_U_UP, duration=1)
+        self.swipe(self.S_U_UP, duration=1, wait_up_time=1)
         self.device.click_record_clear()
         time.sleep(2)
 

@@ -149,7 +149,7 @@ class Control(Minitouch, Adb, Scrcpy, Window):
             self.long_click_adb)
         method(x, y, duration)
 
-    def swipe(self, p1, p2, duration=(0.1, 0.2), control_name='SWIPE', distance_check=True, end_wait_duration=None):
+    def swipe(self, p1, p2, duration=(0.1, 0.2), control_name='SWIPE', distance_check=True, wait_up_time=0):
         self.handle_control_check(control_name)
         p1, p2 = ensure_int(p1, p2)
         duration = ensure_time(duration)
@@ -184,7 +184,7 @@ class Control(Minitouch, Adb, Scrcpy, Window):
                 return
 
         if method == 'minitouch':
-            self.swipe_minitouch(p1, p2, duration=duration)
+            self.swipe_minitouch(p1, p2, duration=duration, wait_up_time=wait_up_time)
         elif method == 'window_message':
             self.swipe_window_message(p1, p2)
         elif method == 'uiautomator2':
