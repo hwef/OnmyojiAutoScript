@@ -29,6 +29,19 @@ class ScriptProcess(ScriptWSManager):
 
     async def start(self):
         self.state = ScriptState.RUNNING
+
+        # 清空前检查并打印管道中存在的日志
+        try:
+            log_count = 0
+            while self.log_pipe_out.poll():
+                log = self.log_pipe_out.recv()
+                logger.debug(f"[启动前] 管道中存在未处理日志: {log}")
+                log_count += 1
+            if log_count > 0:
+                logger.debug(f"[启动前] 共清理 {log_count} 条管道日志")
+        except Exception as e:
+            logger.warning(f"[启动前] 检查管道日志时出错: {e}")
+
         # logger.info(f'[启动] 启动脚本 {self.config_name}')
         await self.broadcast_state({"state": self.state})
         if self._process:
