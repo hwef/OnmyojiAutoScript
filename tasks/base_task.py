@@ -805,8 +805,9 @@ class BaseTask(GlobalGameAssets, CostumeBase):
 
         if self.config.small_account.scheduler.enable:
             if self.config.small_account.small_account_name.enable_notify:
-                logger.info("已开启小号任务，并启用了小号通知，拼接title，准备发送通知")
-                title = f"{self.config.small_account.small_account_name.account_name}-{I18n.trans_zh_cn(title)}"
+                name = self.config.small_account.small_account_name.account_name
+                logger.info(f"已开启小号任务，并启用了小号通知，拼接[{name}]，准备发送通知")
+                title = f"{name}▪{I18n.trans_zh_cn(title)}"
 
         # 使用getattr同时检查属性和值，避免冗长的条件判断
         if getattr(self.device, 'image', None) is None:

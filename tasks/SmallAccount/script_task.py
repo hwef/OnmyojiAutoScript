@@ -115,9 +115,9 @@ class ScriptTask(GameUi):
                             for task in self.config.waiting_task:
                                 self.set_next_run(task=task.command, target=target_time)
                             # ===== 未到19点，等待并设置19点运行 =====
-                            con.small_account_name.account_name = "未知角色"
+                            self.config.small_account.small_account_name.account_name = "未知角色"
                             self.config.save()
-                            logger.info(f'[{self.task_type}]等待 {limit_hour}:00 运行')
+                            self.push_notify(content=f'[{self.task_type}]等待 {limit_hour}:00 运行')
                             self.set_next_run(task='SmallAccount', target=datetime.now().replace(hour=limit_hour, minute=0, second=0, microsecond=0))
                             raise TaskEnd('SmallAccount')
 
