@@ -263,8 +263,8 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             self.screenshot()
             if self.appear(self.I_D_CELEB_STAR) or self.appear(self.I_D_CELEB_HONOR):
                 current_score, score = self.O_D_CELEB_STAR.ocr(self.device.image, return_score=True)
-                if score < 0.7:
-                    continue
+                # if score < 0.7:
+                #     continue
                 logger.info(f"当前分数: 名仕({current_score}星)")
                 current_score = 3000 + current_score * 100
             else:
