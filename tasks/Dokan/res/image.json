@@ -273,7 +273,7 @@
     "itemName": "ryou_dokan_in_field",
     "imageName": "res_ryou_dokan_in_field.png",
     "roiFront": "1128,536,100,100",
-    "roiBack": "1128,536,100,100",
+    "roiBack": "1032,492,239,210",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "状态：进入战斗，待开始，右下角图标。TODO 欠截图。"
