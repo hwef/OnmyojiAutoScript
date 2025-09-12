@@ -12,10 +12,19 @@
     "itemName": "secret_9_layer",
     "imageName": "secret_9_layer.png",
     "roiFront": "188,354,39,25",
-    "roiBack": "188,354,39,25",
+    "roiBack": "91,253,484,410",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"
+  },
+  {
+    "itemName": "secret_9_layer_bz",
+    "imageName": "secret_9_layer_bz.png",
+    "roiFront": "210,377,50,27",
+    "roiBack": "91,253,484,410",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "百战九层"
   },
   {
     "itemName": "secret_9_layer_flag",
@@ -30,7 +39,7 @@
     "itemName": "secret_hc",
     "imageName": "secret_hc.png",
     "roiFront": "309,281,53,30",
-    "roiBack": "309,281,53,30",
+    "roiBack": "123,132,695,497",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"
@@ -38,8 +47,8 @@
   {
     "itemName": "secret_hc_flag",
     "imageName": "secret_hc_flag.png",
-    "roiFront": "1145,207,26,51",
-    "roiBack": "1145,207,26,51",
+    "roiFront": "1010,243,43,56",
+    "roiBack": "864,147,347,316",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"
@@ -48,9 +57,18 @@
     "itemName": "se_fire",
     "imageName": "se_se_fire.png",
     "roiFront": "1015,503,182,188",
-    "roiBack": "1015,503,182,188",
+    "roiBack": "1015,502,254,201",
     "method": "Template matching",
     "threshold": 0.7,
     "description": "秘闻挑战"
+  },
+  {
+    "itemName": "se_fire_bz",
+    "imageName": "se_se_fire_bz.png",
+    "roiFront": "1108,551,100,100",
+    "roiBack": "1100,541,120,120",
+    "method": "Template matching",
+    "threshold": 0.7,
+    "description": "百战秘闻挑战"
   }
 ]

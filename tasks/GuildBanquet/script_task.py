@@ -117,14 +117,14 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAs
 
     def goto_sercet_hc(self):
         con = self.config.guild_banquet
-        if con.switch_soul.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
-            self.run_switch_soul(con.switch_soul.switch_group_team)
-        if con.switch_soul.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
-            self.run_switch_soul_by_name(con.switch_soul.group_name, con.switch_soul.team_name)
+        # if con.switch_soul.enable:
+        #     self.ui_get_current_page()
+        #     self.ui_goto(page_shikigami_records)
+        #     self.run_switch_soul(con.switch_soul.switch_group_team)
+        # if con.switch_soul.enable_switch_by_name:
+        #     self.ui_get_current_page()
+        #     self.ui_goto(page_shikigami_records)
+        #     self.run_switch_soul_by_name(con.switch_soul.group_name, con.switch_soul.team_name)
         self.ui_get_current_page()
         self.ui_goto(page_secret_zones)
 
@@ -136,16 +136,29 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAs
             time.sleep(2)
 
         self.ui_click(self.I_SECRET_HC, self.I_SECRET_HC_FLAG)
-        self.ui_click(self.I_SE_ENTER, self.I_SE_FIRE)
+
+        while 1:
+            self.screenshot()
+            if self.appear_then_click(self.I_SE_ENTER):
+                break
+            if self.appear(self.I_SE_FIRE_BZ) or self.appear(self.I_SE_FIRE):
+                break
 
         while 1:
             self.screenshot()
             if self.appear(self.I_SECRET_9_LAYER):
+                self.ui_click(self.I_SECRET_9_LAYER, self.I_SECRET_9_LAYER_FLAG)
+                break
+            if self.appear(self.I_SECRET_9_LAYER_BZ):
+                while 1:
+                    self.screenshot()
+                    if self.appear_rgb(self.I_SECRET_9_LAYER_BZ):
+                        break
+                    if self.appear_then_click(self.I_SECRET_9_LAYER_BZ):
+                        continue
                 break
             self.swipe(self.S_U_UP, interval=1)
             time.sleep(2)
-
-        self.ui_click(self.I_SECRET_9_LAYER, self.I_SECRET_9_LAYER_FLAG)
 
         self.limit_count = 3
         while 1:
@@ -155,6 +168,8 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAs
             if self.appear(self.I_PREPARE_HIGHLIGHT):
                 self.run_general_battle()
             if self.appear_then_click(self.I_SE_FIRE, interval=1):
+                continue
+            if self.appear_then_click(self.I_SE_FIRE_BZ, interval=1):
                 continue
         # 回到庭院
         self.back_main()
