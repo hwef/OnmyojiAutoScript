@@ -3,7 +3,7 @@
 # github https://github.com/runhey
 
 from time import sleep
-
+from fuzzywuzzy import fuzz
 import cv2
 from datetime import datetime, timedelta
 from numpy import uint8, fromfile
@@ -831,18 +831,25 @@ class BaseTask(GlobalGameAssets, CostumeBase):
 
         appear = False
 
-        ocrResult = target.detect_and_ocr(self.device.image)
-        logger.info("OCR 识别结果: %s", [res.ocr_text for res in ocrResult])
+        ocrResult = target.ocr(self.device.image)
         # 边界检查：确保 OCR 结果不为空
         if not ocrResult or len(ocrResult) == 0:
             return False
-        tmp = set(target.keyword).intersection(set(ocrResult[0].ocr_text))
-        if len(tmp) > max(len(target.keyword), len(ocrResult)) * threshold:
-            logger.info(f"[{ocrResult[0].ocr_text}] 与 [{target.keyword}], 相似度超过[{threshold}]")
+        if self.assess_text_threshold(target.keyword, ocrResult):
             appear = True
         if interval and appear:
             self.interval_timer[target.name].reset()
         return appear
+
+    def assess_text_threshold(self, old_str, new_str, threshold=0.7):
+        threshold_pct = threshold * 100
+        similarity_score = fuzz.ratio(old_str, new_str)
+        if similarity_score >= threshold_pct:
+            logger.info(f"✅ [{old_str}] vs [{new_str}], 相似度 {similarity_score}% ≥ {threshold_pct}%, 匹配成功")
+            return True
+        else:
+            logger.info(f"❌ [{old_str}] vs [{new_str}], 相似度 {similarity_score}% < {threshold_pct}%, 匹配失败")
+            return False
 
 
 if __name__ == '__main__':

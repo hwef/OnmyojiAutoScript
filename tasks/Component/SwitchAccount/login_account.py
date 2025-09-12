@@ -29,7 +29,6 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
             self.screenshot()
             self.O_SA_LOGIN_FORM_SVR_NAME.keyword = svrName
             ocrSvrName = self.O_SA_LOGIN_FORM_SVR_NAME.ocr(self.device.image)
-            logger.info(f"OCR 识别服务器结果: {ocrSvrName}")
             # 边界检查：确保 OCR 结果不为空
             if not ocrSvrName or len(ocrSvrName) == 0:
                 logger.warning("OCR 未识别到任何结果，点击空白区域...")
