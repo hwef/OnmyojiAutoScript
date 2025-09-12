@@ -28,17 +28,14 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
         while 1:
             self.screenshot()
             self.O_SA_LOGIN_FORM_SVR_NAME.keyword = svrName
-            ocrSvrName = self.O_SA_LOGIN_FORM_SVR_NAME.detect_and_ocr(self.device.image)
-            logger.info("OCR 识别服务器结果: %s", [res.ocr_text for res in ocrSvrName])
+            ocrSvrName = self.O_SA_LOGIN_FORM_SVR_NAME.ocr(self.device.image)
+            logger.info(f"OCR 识别服务器结果: {ocrSvrName}")
             # 边界检查：确保 OCR 结果不为空
             if not ocrSvrName or len(ocrSvrName) == 0:
-                logger.warning("OCR 未识别到任何结果，重试...")
+                logger.warning("OCR 未识别到任何结果，点击空白区域...")
                 self.click(self.C_SA_LOGIN_FORM_CANCEL_SVR_SELECT)
                 continue
-            tmp = set(svrName).intersection(set(ocrSvrName[0].ocr_text))
-            thresh = 0.5
-            if len(tmp) > max(len(svrName), len(ocrSvrName)) * thresh:
-                logger.info("found svr %s which is similar with %s", ocrSvrName, svrName)
+            if self.assess_text_threshold(svrName, ocrSvrName):
                 return True
             self.ui_click(self.C_SA_LOGIN_FORM_SWITCH_SVR_BTN, self.I_SA_CHECK_SELECT_SVR_1, 1.5)
             # 展开底部角色列表,显示角色所属服务器
@@ -63,14 +60,12 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
 
                 ocrRes = self.O_SA_SELECT_SVR_SVR_LIST.detect_and_ocr(self.device.image)
                 # 受限于图像识别文字准确率,此处对识别结果与实际服务器名字 进行检查 字重合度大于阈值 就认为查找成功
-                thresh = 0.5
                 ocrSvrList = [res.ocr_text for res in ocrRes]
                 for index, ocrSvrName in enumerate(ocrSvrList):
                     if len(ocrSvrName) < 3:
                         break
-                    tmp = set(svrName).intersection(set(ocrSvrName))
-                    if len(tmp) > max(len(svrName), len(ocrSvrName)) * thresh:
-                        logger.info("found svr %s which is similar with %s", ocrSvrName, svrName)
+
+                    if self.assess_text_threshold(svrName, ocrSvrName):
                         found = True
                         # 确定点击位置
                         box = ocrRes[index].box

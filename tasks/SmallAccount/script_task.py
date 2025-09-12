@@ -202,12 +202,11 @@ if __name__ == '__main__':
     c = Config('switch')
     d = Device(c)
     t = ScriptTask(c, d)
-    t.run()
+    # t.run()
 
     # 批量修改任务时间
-    # c.get_next()
-    # target_time = datetime(2099, 1, 1)
-    # for task in c.pending_task:
-    #     c.task_delay(task=task.command, target=target_time)
-
-
+    c.get_next()
+    target_time = datetime(2099, 1, 1)
+    for task in c.pending_task:
+        c.task_delay(task=task.command, target=target_time)
+    c.task_delay(task="SmallAccount", target=datetime.now())
