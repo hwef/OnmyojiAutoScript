@@ -101,3 +101,4 @@ shiboken6~=6.4.3
 websocket-client~=1.8.0
 pytest
 memory-profiler
+fuzzywuzzy==0.18.0
