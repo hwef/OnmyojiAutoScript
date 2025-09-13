@@ -132,10 +132,10 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                             return True
                         if enable:
                             if datetime.now() - self.start_time > self.limit_time:
-                                self.push_notify("时间限制已到，结束任务")
+                                self.push_notify(f"{self.limit_time} 时间限制已到，结束任务")
                                 return
                             if self.current_count >= self.limit_count:
-                                self.push_notify("次数限制已到，结束任务")
+                                self.push_notify(f"{self.limit_count} 次数限制已到，结束任务")
                                 return
 
                 if self.appear_then_click(image_template, interval=1):
