@@ -354,6 +354,8 @@ class ConfigModel(ConfigBase):
                 item["default"] = value["default"]
                 item["value"] = jsons[key] if key in jsons else value["default"]
                 item["type"] = value["type"] if "type" in value else "enum"
+                if "headline" in value:
+                    item["headline"] = value["headline"]
                 if 'allOf' in value:
                     # list
                     enum_key = re.search(r"/([^/]+)$", value['allOf'][0]['$ref']).group(1)
