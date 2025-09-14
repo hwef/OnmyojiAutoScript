@@ -415,7 +415,7 @@ class DevTool(ctk.CTk):
 
         try:
             # 解析坐标格式 x,y,w,h
-            coords = [int(x.strip()) for x in coord_text.split(',')]
+            coords = [float(x.strip()) for x in coord_text.split(',')]
             if len(coords) == 2:
                 coords.append(10)
                 coords.append(10)
@@ -424,10 +424,10 @@ class DevTool(ctk.CTk):
 
             x, y, w, h = coords
             # 转换为画布坐标 (加上偏移量4)
-            x1 = x + 4
-            y1 = y + 4
-            x2 = x1 + w
-            y2 = y1 + h
+            x1 = int(x) + 4
+            y1 = int(y) + 4
+            x2 = x1 + int(w)
+            y2 = y1 + int(h)
 
             # 检查坐标是否在图像范围内
             if self.np_image is not None:
