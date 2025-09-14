@@ -46,19 +46,23 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         # 收体力盒子或者是经验盒子
         self.check_box_ap_or_exp(con.box_ap_enable, con.box_exp_enable, con.box_exp_waste)
 
+        # 收取寮资金和体力
+        self.recive_guild_ap_or_assets()
+
+        raise TaskEnd
+
+    def recive_guild_ap_or_assets(self):
         for i in range(1, 5):
             self.ui_get_current_page()
             self.ui_goto(page_guild)
             # 在寮的主界面 检查是否有收取体力或者是收取寮资金
-            if self.check_guild_ap_or_assets(ap_enable=con.guild_ap_enable, assets_enable=con.guild_assets_enable):
+            if self.check_guild_ap_or_assets():
                 logger.warning(f'第[{i}]次检查寮收获,成功')
                 self.ui_goto(page_main)
                 break
             else:
                 logger.warning(f'第[{i}]次检查寮收获寮收获,失败')
             self.ui_goto(page_main)
-
-        raise TaskEnd
 
     def check_utilize_add(self):
         con = self.config.kekkai_utilize.utilize_config
@@ -140,20 +144,31 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         click_ap = False
         while 1:
             self.screenshot()
-            if click_ap and not self.appear(self.I_GUILD_AP):
+
+            # 获得奖励
+            if self.ui_reward_appear_click():
+                timer_check.reset()
+                continue
+
+            if timer_check.reached():
+                return False
+
+            if click_ap and not self.appear(self.I_GUILD_AP) and not self.appear(self.I_UI_REWARD):
                 return True
 
             # 关闭展开的寮活动横幅
             if self.appear_then_click(self.I_GUILD_EXPAND):
                 timer_check.reset()
-
-            # 获得奖励
-            if self.ui_reward_appear_click():
-                timer_check.reset()
+                continue
 
             # 资金收取确认
             if self.appear_then_click(self.I_GUILD_ASSETS_RECEIVE, interval=1):
                 time.sleep(1)
+                timer_check.reset()
+                continue
+
+            # 收资金
+            if self.appear_then_click(self.I_GUILD_ASSETS, interval=1.5, threshold=0.6):
                 timer_check.reset()
                 continue
 
@@ -167,15 +182,6 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                     click_ap = True
                     timer_check.reset()
                 continue
-            # 收资金
-            if self.appear_then_click(self.I_GUILD_ASSETS, interval=1.5, threshold=0.6):
-                timer_check.reset()
-                continue
-
-            if timer_check.reached():
-                break
-
-        return False
 
     def goto_realm(self):
         """
@@ -724,10 +730,10 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('du')
+    c = Config('switch')
     d = Device(c)
     t = ScriptTask(c, d)
-    t.run()
+    t.recive_guild_ap_or_assets()
     # t.check_utilize_add()
     # t.check_card_num('勾玉', 67)
     # t.screenshot()
