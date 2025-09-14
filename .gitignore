@@ -278,3 +278,4 @@ console.bat
 /backup
 /config/config.7z
 /config/SmallAccount/accounts.json
+/assets_extract.py
