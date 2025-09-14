@@ -34,7 +34,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                 logger.warning("OCR 未识别到任何结果，点击空白区域...")
                 self.click(self.C_SA_LOGIN_FORM_CANCEL_SVR_SELECT)
                 continue
-            if self.assess_text_threshold(svrName, ocrSvrName):
+            if self.assess_text_threshold(svrName, ocrSvrName, 0.8):
                 return True
             self.ui_click(self.C_SA_LOGIN_FORM_SWITCH_SVR_BTN, self.I_SA_CHECK_SELECT_SVR_1, 1.5)
             # 展开底部角色列表,显示角色所属服务器
@@ -60,11 +60,12 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                 ocrRes = self.O_SA_SELECT_SVR_SVR_LIST.detect_and_ocr(self.device.image)
                 # 受限于图像识别文字准确率,此处对识别结果与实际服务器名字 进行检查 字重合度大于阈值 就认为查找成功
                 ocrSvrList = [res.ocr_text for res in ocrRes]
+                logger.info(f"识别到的区服列表为：{ocrSvrList}")
                 for index, ocrSvrName in enumerate(ocrSvrList):
                     if len(ocrSvrName) < 3:
                         break
 
-                    if self.assess_text_threshold(svrName, ocrSvrName):
+                    if self.assess_text_threshold(svrName, ocrSvrName, 0.6):
                         found = True
                         # 确定点击位置
                         box = ocrRes[index].box
@@ -196,7 +197,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                         ocrResBoxList[index][2][1] - ocrResBoxList[index][1][1]]
                     time.sleep(1)
                     self.click(self.O_SA_ACCOUNT_ACCOUNT_LIST)
-                    logger.info("account [ %s ] found", accountInfo.account)
+                    logger.info("已找到账号: [ %s ]", accountInfo.account)
                     return True
 
                 # 未找到该账号
@@ -204,7 +205,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                     break
                 self.swipe(self.S_SA_ACCOUNT_LIST_UP, 1.5)
                 time.sleep(0.5)
-        logger.info("account [ %s ] not found ", accountInfo.account)
+        self.push_notify(f"未已找到账号: [{accountInfo.account}-{accountInfo.character}]")
         return False
 
     # def loginSubmit(self, appleOrAndroid: bool):
@@ -265,7 +266,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
             # 处于选择账号界面
             if self.appear(self.I_SA_NETEASE_GAME_LOGO) and not self.appear(self.I_SA_LOGIN_FORM_APPLE):
                 if not accountInfo.account:
-                    logger.error("param account is None,cannot switch account")
+                    logger.error("账号参数为空，无法切换账户")
                     return False
                 # 当前选择账号不是account
                 if not self.ocr_appear(self.O_SA_ACCOUNT_ACCOUNT_SELECTED):
@@ -276,6 +277,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                         return False
                     # selectAccount 后更新图片
                     self.screenshot()
+                # logger.info("[账号] 当前账号正是期望账号: [ %s ]", accountInfo.account)
                 self.ui_click(self.I_SA_ACCOUNT_LOGIN_BTN, stop=self.I_SA_LOGIN_FORM_APPLE, interval=1)
                 continue
             # 在用户中心界面
@@ -284,7 +286,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                 ocrRes = self.O_SA_LOGIN_FORM_USER_CENTER_ACCOUNT.ocr_single(self.device.image)
                 # NOTE 由于邮箱账号@符号极易被误识别为其他,故对账号信息做预处理 便于比对
                 if (accountInfo.account is None) or accountInfo.account == "" or accountInfo.is_account_alias(ocrRes):
-                    logger.info("current is the account we want:ocr result %s", ocrRes)
+                    logger.info("[账号] 当前账号正是期望账号: [ %s ]", ocrRes)
                     isAccountLogon = True
                     self.ui_click_until_disappear(self.C_SA_LOGIN_FORM_USER_CENTER_CLOSE_BTN, interval=1,
                                                   stop=self.I_SA_SWITCH_ACCOUNT_BTN)
@@ -311,17 +313,17 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
         # 切换角色失败 /未找到该角色
         # 尝试使用 选择服务器方式
         if isAccountLogon and not isCharacterSelected and accountInfo.svr is not None and accountInfo.svr != "":
-            logger.info("try to find account with svrName %s", accountInfo.svr)
+            logger.info("[登录] 尝试使用 选择服务器方式登录：[ %s ]", accountInfo.svr)
             isCharacterSelected = self.switch_svr(accountInfo.svr)
         if isAccountLogon and isCharacterSelected:
             # 成功登录账号 找到角色
             # self.ui_click_until_disappear(self.C_SA_LOGIN_FORM_ENTER_GAME_BTN, stop=self.I_CHECK_LOGIN_FORM)
-            logger.info("[角色] %s-%s account:%s %s", accountInfo.character, accountInfo.svr,
+            logger.info("[角色] %s-%s %s %s", accountInfo.svr, accountInfo.character,
                         accountInfo.account,
                         'Android' if accountInfo.apple_or_android else 'Apple')
             return True
 
-        logger.error("[角色] %s-%s account:%s %s login Failed", accountInfo.character, accountInfo.svr,
+        logger.error("[角色] %s-%s %s %s login Failed", accountInfo.svr, accountInfo.character,
                      accountInfo.account,
                      'Android' if accountInfo.apple_or_android else 'Apple')
         return False

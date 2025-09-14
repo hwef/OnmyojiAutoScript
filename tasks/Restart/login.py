@@ -102,8 +102,8 @@ class LoginHandler(LoginBase, BaseTask, RestartAssets):
                 logger.info("click onmyoji genie")
                 continue
             # 点击屏幕进入游戏
-            if self.appear(self.I_LOGIN_SPECIFIC_SERVE, interval=0.6) \
-                    and self.ocr_appear_click(self.O_LOGIN_SPECIFIC_SERVE, interval=0.6):
+            if self.appear(self.I_LOGIN_SPECIFIC_SERVE, interval=0.6) and self.ocr_appear_click(self.O_LOGIN_SPECIFIC_SERVE, interval=0.6):
+                logger.info(f'多角色区服选择成功: {self.O_LOGIN_SPECIFIC_SERVE.keyword}')
                 while True:
                     self.screenshot()
                     if self.appear(self.I_LOGIN_SPECIFIC_SERVE):
