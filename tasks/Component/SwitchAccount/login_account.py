@@ -205,7 +205,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                     break
                 self.swipe(self.S_SA_ACCOUNT_LIST_UP, 1.5)
                 time.sleep(0.5)
-        self.push_notify(f"未已找到账号: [{accountInfo.account}-{accountInfo.character}]")
+        logger.error(f"未已找到账号: [{accountInfo.account}-{accountInfo.character}]")
         return False
 
     # def loginSubmit(self, appleOrAndroid: bool):

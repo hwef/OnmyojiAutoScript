@@ -124,14 +124,14 @@ class ScriptTask(GameUi):
             # 上次完成时间
             logger.info(f"[角色] {self.account_info}, 上次 [{self.task_type}] 完成时间: {taskCompleteTime}")
             # 切换角色
-            self.switch_account(con, current_account_data)
+            self.switch_account(con, current_account_data, all_accounts_data, task_type)
             # 设置角色任务
             self.set_task(current_account_data, all_accounts_data, task_type)
 
             self.set_next_run(task='SmallAccount', target=datetime.now() + timedelta(minutes=1))
             raise TaskEnd('SmallAccount')
 
-    def switch_account(self, con, current_account_data):
+    def switch_account(self, con, current_account_data, all_accounts_data, task_type):
         logger.info(f"[角色] {self.account_info}, 开始切换...")
         toAccount = AccountInfo(
             account=current_account_data.get("account"),
@@ -141,11 +141,21 @@ class ScriptTask(GameUi):
             svr=current_account_data.get("svr"),
         )
         sa = SwitchAccount(self.config, self.device, toAccount)
-        sa.switchAccount()
-        con.small_account_name.account_name = self.account_info
-        self.config.save()
-        logger.info(f"[角色] {self.account_info}, 切换完成")
-    
+        login = sa.switchAccount()
+        if login:
+            con.small_account_name.account_name = self.account_info
+            self.config.save()
+            logger.info(f"[角色] {self.account_info}, 切换完成")
+        else:
+            self.push_notify(f"[角色] {self.account_info}, 切换失败, 默认已完成")
+            # 更新日常任务完成时间，保存更新后的配置文件
+            datetoday = datetime.now().strftime("%Y-%m-%d")
+            logger.info(f"[角色] {self.account_info}, 更新 {task_type}: {datetoday}")
+            current_account_data[f"{task_type}"] = datetoday
+            with open('config/SmallAccount/accounts.json', 'w', encoding='utf-8') as file:
+                json.dump(all_accounts_data, file, ensure_ascii=False, indent=4)
+            raise TaskEnd('SmallAccount')
+
     def set_task(self, current_account_data, all_accounts_data, task_type):
         logger.info(f"[角色] {self.account_info}, 开始调起任务")
         target_time = datetime(2000, 1, 1)
