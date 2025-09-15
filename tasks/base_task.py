@@ -749,7 +749,11 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
 
             if self.config.small_account.scheduler.enable:
-                filename = get_filename(self.config.small_account.small_account_name.account_name)
+                if self.config.small_account.small_account_name.enable_save_img:
+                    filename = get_filename(self.config.small_account.small_account_name.account_name)
+                else:
+                    logger.warning(f"开启了小号任务, 未开启截图保存, 退出")
+                    return
             else:
                 filename = get_filename(self.config.config_name.upper())
 
