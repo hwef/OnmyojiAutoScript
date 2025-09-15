@@ -307,6 +307,14 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
                 break
             if self.appear_then_click(self.I_PRESET, threshold=0.8, interval=1):
                 continue
+            if self.appear_then_click(self.I_PRESET_WIT_NUMBER, threshold=0.8, interval=1):
+                continue
+            if self.ocr_appear(self.O_PRESET):
+                self.click(self.O_PRESET, interval=1)
+                continue
+            if self.ocr_appear(self.O_PRESET_FULL):
+                self.click(self.O_PRESET_FULL, interval=1)
+                continue
         logger.info("Click preset button")
 
         # 选择预设组
