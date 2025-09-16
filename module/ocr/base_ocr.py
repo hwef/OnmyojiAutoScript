@@ -328,7 +328,33 @@ class BaseCor:
                     text=f'[{results}]')
         return results
 
+    @staticmethod
+    def save_crop_image(image, function_name="unknown"):
+        """
+        保存OCR裁剪后的图像用于调试
+        :param image: 要保存的图像
+        :param function_name: 调用此方法的函数名
+        """
+        import os
+        from datetime import datetime
+        import cv2
 
+        # 创建保存目录
+        save_dir = "./log/ocr_debug"
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+
+        # 生成文件名
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+        filename = f"{function_name}_{timestamp}.png"
+        filepath = os.path.join(save_dir, filename)
+
+        # 保存图像
+        try:
+            cv2.imwrite(filepath, image)
+            logger.info(f"OCR截图已保存: {filepath}")
+        except Exception as e:
+            logger.warning(f"保存OCR截图失败: {e}")
 # def test():
 #     # strings = ["探", "索"]
 #     # keyword = "探索"
