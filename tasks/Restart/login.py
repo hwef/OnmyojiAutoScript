@@ -8,9 +8,10 @@ from module.logger import logger
 from tasks.Restart.assets import RestartAssets
 from tasks.base_task import BaseTask
 from tasks.Component.LoginHarvest.login_base import LoginBase
+from tasks.Component.GeneralBuff.general_buff import GeneralBuff
 
 
-class LoginHandler(LoginBase, BaseTask, RestartAssets):
+class LoginHandler(LoginBase, RestartAssets, GeneralBuff):
     character: str
 
     def __init__(self, *wargs, **kwargs):
@@ -194,6 +195,8 @@ class LoginHandler(LoginBase, BaseTask, RestartAssets):
                     logger.info('Close zidu')
                 timer_harvest.reset()
                 continue
+            # 各种邀请框
+            self.reject_invite()
 
             # 勾玉
             if self.appear_then_click(self.I_HARVEST_JADE, interval=1.5):

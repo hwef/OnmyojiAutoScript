@@ -59,7 +59,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
             self.set_next_run(task='ActivityCommon', success=True, finish=True)
 
         if battle_result:
-            next_run = datetime.combine(datetime.now().date() + timedelta(days=1), time(9, 5))
+            next_run = datetime.combine(datetime.now().date() + timedelta(days=1), time(5, 5))
             self.set_next_run(task='ActivityCommon', target=next_run)
         raise TaskEnd
 

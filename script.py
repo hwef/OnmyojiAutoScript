@@ -541,8 +541,6 @@ class Script:
                             self.send_team_task("Restart")
                             self.start_websocket(script_name, 'start')
                         self.send_team_task(task)
-                    else:
-                        logger.warning(f'[协同] 任务不在协同任务列表')
 
                     # ------------------------- 设备重连逻辑 -------------------------
                     if not (self.device_status and self.device):
