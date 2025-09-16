@@ -25,6 +25,16 @@ class BoxedResult(object):
 
 
 class ONNXPaddleOcr(onnxocr.ONNXPaddleOcr):
+    # use_gpu=False：是否使用GPU进行计算，False表示使用CPU
+    # gpu_mem=500：分配给GPU的内存大小（MB）
+    # gpu_id=0：使用的GPU设备ID（当有多个GPU时）
+    # use_tensorrt=False：是否使用NVIDIA TensorRT优化推理
+    # precision="fp32"：计算精度，可选"fp32"(单精度)、"fp16"(半精度)等
+    # drop_score=0.5：OCR识别结果的置信度阈值，低于此值的结果会被过滤掉
+    # use_angle_cls=True：是否使用文字方向分类器（处理竖排文字等）
+    # cpu_threads=10：CPU推理时使用的线程数
+    # benchmark=False：是否启用性能基准测试模式
+    # use_onnx=True：是否使用ONNX格式的模型文件
     def __init__(self,
                  use_gpu=False,
                  gpu_mem=500,
@@ -32,10 +42,10 @@ class ONNXPaddleOcr(onnxocr.ONNXPaddleOcr):
                  use_tensorrt=False,
                  precision="fp32",
                  drop_score=0.5,
-                 use_angle_cls=False,
+                 use_angle_cls=True,
                  cpu_threads=10,
                  benchmark=False,
-                 use_onnx=False
+                 use_onnx=True
                  ):
         # 基于当前文件位置构建绝对路径
         # 获取项目根目录
@@ -97,6 +107,7 @@ class ONNXPaddleOcr(onnxocr.ONNXPaddleOcr):
 
         rec_res = self.text_recognizer(tmp_img_list)
         return rec_res
+
     def ocr_single_line(self, img):
         res = self.ocr_lines([img])
         if res:
