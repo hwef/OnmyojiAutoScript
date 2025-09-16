@@ -60,20 +60,36 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
         elif 4 <= day_of_week <= 6:
             self.kirin_day = False
 
-        now = datetime.now()
-        # 如果时间在00:00-19:00 之间则设定时间为当天的19:00，返回False
-        if now.time() < time(19, 0):
-            next_run = datetime.combine(now.date(), time(19, 0))
-            self.set_next_run(task='Hunt', success=False, finish=True, target=next_run)
-            raise TaskEnd('Hunt')
-        # 如果是在21:00-23:59之间则设定时间为明天的19:00，返回False
-        elif now.time() > time(21, 0):
-            next_run = datetime.combine(now.date() + timedelta(days=1), time(19, 0))
-            self.set_next_run(task='Hunt', success=False, finish=True, target=next_run)
-            raise TaskEnd('Hunt')
-        # 如果是在19:00-21:00之间则返回True
+        # 根据kirin_day的值判断有效时间范围
+        if self.kirin_day:
+            # kirin_day为True时，有效时间为6:00-23:00
+            if time(6, 0) <= now.time() <= time(23, 0):
+                return True
+            else:
+                logger.warning(f'麒麟时间不符合6:00-23:00，当前时间: {now.time()}')
+                # 设定时间为当天或明天的19:00
+                if now.time() < time(6, 0):
+                    # 当天06:00之前，设定为当天19:00
+                    next_run = datetime.combine(now.date(), time(19, 0))
+                else:
+                    # 当天23:00之后，设定为明天19:00
+                    next_run = datetime.combine(now.date() + timedelta(days=1), time(19, 0))
         else:
-            return True
+            # kirin_day为False时，有效时间为19:00-21:00
+            if time(19, 0) <= now.time() <= time(21, 0):
+                return True
+            else:
+                logger.warning(f'阴界之门时间不符合19:00-21:00，当前时间: {now.time()}')
+                # 设定时间为当天或明天的19:00
+                if now.time() < time(19, 0):
+                    # 当天19:00之前，设定为当天19:00
+                    next_run = datetime.combine(now.date(), time(19, 0))
+                else:
+                    # 当天21:00之后，设定为明天19:00
+                    next_run = datetime.combine(now.date() + timedelta(days=1), time(19, 0))
+        
+        self.set_next_run(task='Hunt', success=False, finish=True, target=next_run)
+        raise TaskEnd('Hunt')
 
     def kirin(self):
         logger.hr('麒麟', 2)
@@ -166,7 +182,7 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('mi')
+    c = Config('switch')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()
