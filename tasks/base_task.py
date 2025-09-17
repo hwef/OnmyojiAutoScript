@@ -30,6 +30,7 @@ from tasks.Component.Costume.costume_base import CostumeBase
 from tasks.Component.config_base import Time
 from tasks.GlobalGame.assets import GlobalGameAssets
 from tasks.GlobalGame.config_emergency import FriendInvitation
+from tasks.Component.config_switch_week import Week
 
 
 class BaseTask(GlobalGameAssets, CostumeBase):
@@ -515,6 +516,29 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         参数:
         target_day (int): 目标运行的日，取值1到7代表周一到周日，默认为1（周一）。
         """
+        def convert_week_to_number(week_day: Week) -> int:
+            """
+            将 Week 枚举转换为对应的数字
+            周一对应 1，周二对应 2，... 周日对应 7
+
+            :param week_day: Week 枚举值
+            :return: 对应的数字 (1-7)
+            """
+            week_map = {
+                Week.mon: 1,
+                Week.tue: 2,
+                Week.wed: 3,
+                Week.thu: 4,
+                Week.fri: 5,
+                Week.sat: 6,
+                Week.sun: 7
+            }
+
+            return week_map.get(week_day, 0)  # 如果找不到返回0
+
+        if isinstance(target_day, Week):
+            target_day = convert_week_to_number(target_day)
+
         today = datetime.today()
         current_weekday = today.weekday()  # 周一为0，周日为6
         target = target_day - 1    # 将输入1-7转换为0-6
@@ -865,8 +889,11 @@ if __name__ == '__main__':
     c = Config('switch')
     d = Device(c)
     t = BaseTask(c, d)
-    t.screenshot()
-    t.save_image(push_flag=True, content='成功保存截图')
+    # t.next_run_week(2)
+    t.next_run_week(c.duel.switch_week.next_week_day)
+
+    # t.screenshot()
+    # t.save_image(push_flag=True, content='成功保存截图')
     # I_E_AUTO_ROTATE_OFF = RuleImage(roi_front=(108,650,150,46), roi_back=(108,650,150,46), threshold=0.85, method="Template matching", file="./tasks/Exploration/res/res_e_auto_rotate_off.png")
     # t.appear_rgb(I_E_AUTO_ROTATE_OFF)
 

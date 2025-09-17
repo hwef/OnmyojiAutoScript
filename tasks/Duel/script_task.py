@@ -140,7 +140,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_TOWN)
 
         if duel_week_over:
-            self.next_run_week(2)
+            self.next_run_week(self.config.duel.switch_week.next_week_day)
         else:
             self.set_next_run(task='Duel', success=True, finish=False)
 
