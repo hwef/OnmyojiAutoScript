@@ -106,10 +106,6 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                     current_score = "名仕"
                     duel_week_over = True
                     break
-            # 练习
-            if self.appear(self.I_BATTLE_WITH_TRAIN) or self.appear(self.I_BATTLE_WITH_TRAIN2):
-                logger.info('不在斗技时间')
-                break
 
             # if con.honor_full_exit and self.check_honor():
             #     # 荣誉满了，退出
@@ -130,6 +126,11 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                         break
                 else:
                     break
+
+            # 练习
+            if self.appear(self.I_BATTLE_WITH_TRAIN) or self.appear(self.I_BATTLE_WITH_TRAIN2):
+                logger.info('不在斗技时间')
+                break
 
             # 进行一次斗技
             self.duel_one(current_score, con.green_enable, con.green_mark, celeb_con.ban_name)
