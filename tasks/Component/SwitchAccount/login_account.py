@@ -20,7 +20,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
         return ocrRes
 
     def check_svr(self, svrName: str):
-        logger.info(f"[区服] 检查区服是否正确: {svrName}")
+        logger.info(f"[区服] 要登录的区服: [{svrName}]")
         time.sleep(1)
         while 1:
             self.screenshot()
@@ -100,7 +100,8 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
             # 根据权重随机选择
             selected_item = random.choices(click_list, weights=weights)[0]
             logger.info(f"[区服] 未识别, 随机点击区服区域 {selected_item.name}")
-            self.click(selected_item, interval=1)
+            self.click(selected_item)
+            time.sleep(1)
         # 没找到 点击空白区域关闭选择服务器界面
         self.click(self.C_SA_LOGIN_FORM_CANCEL_SVR_SELECT)
 
@@ -283,6 +284,8 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                 btn = self.I_SA_LOGIN_FORM_ANDROID if accountInfo.apple_or_android else self.I_SA_LOGIN_FORM_APPLE
                 self.ui_click_until_disappear(btn)
                 isAccountLogon = True
+                if self.check_svr(accountInfo.svr):
+                    break
                 continue
             # 处于选择账号界面
             if self.appear(self.I_SA_NETEASE_GAME_LOGO) and not self.appear(self.I_SA_LOGIN_FORM_APPLE):
@@ -293,8 +296,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                 if not self.ocr_appear(self.O_SA_ACCOUNT_ACCOUNT_SELECTED):
                     # 没有找到account
                     if not self.selectAccount(accountInfo):
-                        self.ui_click_until_disappear(self.C_SA_LOGIN_FORM_ACCOUNT_CLOSE_BTN,
-                                                      stop=self.I_SA_NETEASE_GAME_LOGO)
+                        self.ui_click_until_disappear(self.C_SA_LOGIN_FORM_ACCOUNT_CLOSE_BTN, stop=self.I_SA_NETEASE_GAME_LOGO)
                         return False
                     # selectAccount 后更新图片
                     self.screenshot()
@@ -309,8 +311,9 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                 if (accountInfo.account is None) or accountInfo.account == "" or accountInfo.is_account_alias(ocrRes):
                     logger.info("[账号] 当前账号正是期望账号: [ %s ]", ocrRes)
                     isAccountLogon = True
-                    self.ui_click_until_disappear(self.C_SA_LOGIN_FORM_USER_CENTER_CLOSE_BTN, interval=1,
-                                                  stop=self.I_SA_SWITCH_ACCOUNT_BTN)
+                    self.ui_click_until_disappear(self.C_SA_LOGIN_FORM_USER_CENTER_CLOSE_BTN, stop=self.I_SA_SWITCH_ACCOUNT_BTN, interval=1)
+                    if self.check_svr(accountInfo.svr):
+                        break
                     continue
                 #
                 if self.ui_click(self.I_SA_SWITCH_ACCOUNT_BTN, self.I_SA_NETEASE_GAME_LOGO):
