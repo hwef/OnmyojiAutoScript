@@ -37,7 +37,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         # 进入寮结界
         self.goto_realm()
         # 育成界面去蹭卡
-        self.check_utilize_add()
+        if con.utilize_enable:
+            self.check_utilize_add()
 
         # 查看育成满级
         self.check_max_lv(con.shikigami_class)
@@ -48,7 +49,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
         # 收取寮资金和体力
         self.recive_guild_ap_or_assets()
-
+        if not con.utilize_enable:
+            self.set_next_run(task='KekkaiUtilize', finish=True, success=True)
         raise TaskEnd
 
     def recive_guild_ap_or_assets(self):
