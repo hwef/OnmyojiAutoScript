@@ -29,7 +29,7 @@ class ScriptTask(GameUi):
     # 限时任务 晚上7点后运行
     limit_task = ['Hunt', 'DemonEncounter', 'CollectiveMissions']
     # 协站50运行的任务
-    assist50_run_task = ['EvoZone']
+    assist50_run_task = ['DailyTrifles','EvoZone']
     # 总是运行的任务
     always_run_task = ['KekkaiUtilize', 'TalismanPass']
     task_type = ''
@@ -158,6 +158,11 @@ class ScriptTask(GameUi):
 
     def set_task(self, current_account_data, all_accounts_data, task_type):
         logger.info(f"[角色] {self.account_info}, 开始调起任务")
+
+        # 开启蹭卡
+        self.config.kekkai_utilize.utilize_config.utilize_enable = True
+        self.config.save()
+
         target_time = datetime(2000, 1, 1)
         match task_type:
             # 日常任务
@@ -178,11 +183,12 @@ class ScriptTask(GameUi):
             case TaskType.assist50:
                 for task in self.assist50_run_task:
                     self.set_next_run(task=task, target=target_time)
+                # 只做协站关闭蹭卡
+                self.config.kekkai_utilize.utilize_config.utilize_enable = False
+                self.config.save()
 
-        # 除了 assist50，其他任务类型都运行 always_run_task
-        if task_type != TaskType.assist50:
-            for task in self.always_run_task:
-                self.set_next_run(task=task, target=target_time)
+        for task in self.always_run_task:
+            self.set_next_run(task=task, target=target_time)
 
         # 更新日常任务完成时间，保存更新后的配置文件
         datetoday = datetime.now().strftime("%Y-%m-%d")
