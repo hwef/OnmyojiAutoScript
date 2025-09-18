@@ -226,7 +226,7 @@ class BaseCor:
                 
             image = self.pre_process(image)
             image = enlarge_canvas(image)
-
+            # self.save_crop_image(image)
             # OCR识别
             boxed_results: list[BoxedResult] = self.model.detect_and_ocr(image)
             if not boxed_results:
