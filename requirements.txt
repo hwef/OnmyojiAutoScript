@@ -102,3 +102,4 @@ websocket-client~=1.8.0
 pytest
 memory-profiler
 fuzzywuzzy==0.18.0
+PyQt5
