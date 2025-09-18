@@ -221,6 +221,7 @@ class BaseCor:
         try:
             # 预处理
             image = self.crop(image, self.roi)
+            # image = self.pad_image(image, pad_width=10, pad_color=(0, 0, 0))
             if image.size == 0:
                 raise ValueError("裁剪后的图像为空")
                 
@@ -243,7 +244,7 @@ class BaseCor:
 
             logger.attr(
                 name=f'{self.name} {float2str(time.time() - start_time)}s',
-                text=f'检测到{len(results)}个文本区域'
+                text=f'检测到 {len(results)}个文本区域'
             )
             return results
         except Exception as e:
@@ -355,6 +356,41 @@ class BaseCor:
             logger.info(f"OCR截图已保存: {filepath}")
         except Exception as e:
             logger.warning(f"保存OCR截图失败: {e}")
+
+    def pad_image(self, image, pad_width=10, pad_color=(255, 255, 255)):
+        """
+        给图片外围添加边框填充
+
+        Args:
+            image: 输入图像
+            pad_width: 填充宽度，默认10像素
+            pad_color: 填充颜色，默认白色 (255, 255, 255)
+
+        Returns:
+            padded_image: 添加边框后的图像
+        """
+        import cv2
+        import numpy as np
+
+        # 获取原始图像尺寸
+        height, width = image.shape[:2]
+
+        # 创建新的图像尺寸（增加2倍填充宽度）
+        new_height = height + 2 * pad_width
+        new_width = width + 2 * pad_width
+
+        # 创建填充后的图像
+        if len(image.shape) == 3:  # 彩色图像
+            padded_image = np.full((new_height, new_width, 3), pad_color, dtype=image.dtype)
+        else:  # 灰度图像
+            padded_image = np.full((new_height, new_width), pad_color[0], dtype=image.dtype)
+
+        # 将原始图像放置在新图像中心
+        padded_image[pad_width:pad_width+height, pad_width:pad_width+width] = image
+
+        return padded_image
+
+
 # def test():
 #     # strings = ["探", "索"]
 #     # keyword = "探索"
