@@ -22,7 +22,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
 
     def run(self) -> None:
 
-        config = self.config.activity_common
+        config = self.config.activity_common_2
         # 切换御魂
         if config.switch_soul_config.enable:
             self.ui_get_current_page()
@@ -61,7 +61,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
         raise TaskEnd
 
     def start_activity(self):
-        config = self.config.activity_common.activity_common_config
+        config = self.config.activity_common_2.activity_common_config
         limit_time = config.limit_time
         enable = config.enable
         if enable:
@@ -79,7 +79,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
             roi_back=(1100, 540, 170, 170),
             threshold=0.8,
             method="Template matching",
-            file="./tasks/ActivityCommon/gotoActivity/挑战.png"
+            file="./tasks/ActivityCommon2/gotoActivity/挑战.png"
         )
         battle_templates.append(challenge)
 
@@ -173,7 +173,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
 
     def _load_image_template(self, image_folder=None):
         image_templates = []
-        image_folder = f"./tasks/ActivityCommon/{image_folder}/"
+        image_folder = f"./tasks/ActivityCommon2/{image_folder}/"
         supported_formats = ('.png', '.jpg', '.jpeg')
 
         # 遍历图片文件夹
