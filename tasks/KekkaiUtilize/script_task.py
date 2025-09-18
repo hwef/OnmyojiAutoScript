@@ -18,6 +18,8 @@ from tasks.KekkaiUtilize.config import UtilizeRule, SelectFriendList
 from tasks.KekkaiUtilize.utils import CardClass, target_to_card_class
 from tasks.Component.ReplaceShikigami.replace_shikigami import ReplaceShikigami
 from tasks.GameUi.page import page_main, page_guild
+from module.base.utils import point2str
+import random
 
 """ 结界蹭卡 """
 
@@ -658,6 +660,14 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
     def perform_swipe_action(self):
         """统一滑动操作"""
+        # duration = 2
+        # safe_pos_x = random.randint(340, 600)
+        # safe_pos_y = random.randint(500, 565)
+        # p1 = (safe_pos_x, safe_pos_y)
+        # p2 = (safe_pos_x, safe_pos_y - 416)
+        # logger.info('Swipe %s -> %s, %sS ' % (point2str(*p1), point2str(*p2), duration))
+        # self.device.swipe_adb(p1, p2, duration=duration)
+
         self.swipe(self.S_U_UP, duration=1, wait_up_time=1)
         self.device.click_record_clear()
         time.sleep(2)
@@ -735,6 +745,8 @@ if __name__ == "__main__":
     c = Config('switch')
     d = Device(c)
     t = ScriptTask(c, d)
+    for i in range(10):
+        t.perform_swipe_action()
     t.recive_guild_ap_or_assets()
     # t.check_utilize_add()
     # t.check_card_num('勾玉', 67)
