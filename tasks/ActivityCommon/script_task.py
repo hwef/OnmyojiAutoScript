@@ -20,9 +20,31 @@ from tasks.Restart.assets import RestartAssets
 class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
     SoulsFUll = False
 
-    def run(self) -> None:
-
+    def run(self):
         config = self.config.activity_common
+        # 加载所有图片
+        goto_challenge_folder = "ActivityCommon/gotoActivity"
+        battle_folder = "ActivityCommon/战斗"
+        self.run_config(config, goto_challenge_folder, battle_folder)
+
+    def run_config(self, config, goto_challenge_folder, battle_folder):
+
+        goto_activity_templates = self._load_image_template(goto_challenge_folder)
+
+        battle_templates = self._load_image_template(battle_folder)
+        challenge = RuleImage(
+            roi_front=(1100, 540, 170, 170),
+            roi_back=(1100, 540, 170, 170),
+            threshold=0.8,
+            method="Template matching",
+            file=f"./tasks/{goto_challenge_folder}/挑战.png"
+        )
+        battle_templates.append(challenge)
+
+        self.run_activity(config, goto_activity_templates, battle_templates, challenge)
+
+    def run_activity(self, config, goto_challenge_templates, battle_templates, challenge) -> None:
+
         # 切换御魂
         if config.switch_soul_config.enable:
             self.ui_get_current_page()
@@ -39,8 +61,11 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
         self.ui_get_current_page()
         self.ui_goto(page_main)
 
-        # 进入活动 开始战斗
-        battle_result = self.start_activity()
+        # 进入挑战页面
+        self.goto_challenge(goto_challenge_templates)
+
+        # 开始战斗
+        battle_result = self.start_battle(config.activity_common_config, battle_templates,challenge)
 
         # 回到庭院
         self.ui_get_current_page()
@@ -60,29 +85,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
             self.set_next_run(task=self.config.task.command, target=next_run)
         raise TaskEnd
 
-    def start_activity(self):
-        config = self.config.activity_common.activity_common_config
-        limit_time = config.limit_time
-        enable = config.enable
-        if enable:
-            # 限制次数
-            self.limit_count = config.limit_count
-            # 限制时间
-            self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute, seconds=limit_time.second)
-
-        # 加载所有图片
-        goto_activity_templates = self._load_image_template("gotoActivity")
-        battle_templates = self._load_image_template("战斗")
-
-        challenge = RuleImage(
-            roi_front=(1100, 540, 170, 170),
-            roi_back=(1100, 540, 170, 170),
-            threshold=0.8,
-            method="Template matching",
-            file="./tasks/ActivityCommon/gotoActivity/挑战.png"
-        )
-        battle_templates.append(challenge)
-
+    def goto_challenge(self, goto_challenge_templates):
         # 进入挑战界面
         goto_activity = False
         while not goto_activity:
@@ -93,7 +96,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
             # 误点聊天频道会自动关闭
             if self.appear_then_click(RestartAssets.I_HARVEST_CHAT_CLOSE):
                 continue
-            for goto_template in goto_activity_templates:
+            for goto_template in goto_challenge_templates:
                 if os.path.basename(goto_template.file) == '挑战.png':
                     self.screenshot()
                     if self.appear(goto_template):
@@ -103,14 +106,35 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                     if self.appear_then_click(goto_template, interval=1):
                         break
 
+    def start_battle(self, config, battle_templates, challenge):
+
+        limit_time = config.limit_time
+        enable = config.enable
+        if enable:
+            # 限制次数
+            self.limit_count = config.limit_count
+            # 限制时间
+            self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute, seconds=limit_time.second)
+
         # 开始战斗
         logger.hr("已在挑战界面", 1)
         click_count = 0
-        click_count_max = 8
+        click_count_max = 6
         last_clicked_file = None  # 记录上一次点击的文件名
         over_task = False
+        challenge_clicked = False
         while 1:
             self.screenshot()
+
+            if challenge_clicked and not self.appear(challenge):
+                self.current_count += 1
+                logger.hr("General battle Start", 2)
+                logger.info(f"Current count: {self.current_count} / {self.limit_count}")
+                task_run_time = datetime.now() - self.start_time
+                task_run_time_seconds = timedelta(seconds=int(task_run_time.total_seconds()))
+                logger.info(f"Current times: {task_run_time_seconds} / {self.limit_time}")
+                challenge_clicked = False
+
             # 获得奖励
             if self.ui_reward_appear_click():
                 continue
@@ -124,7 +148,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
 
                 if current_file == '挑战.png':
                     self.screenshot()
-                    if self.appear(image_template):
+                    if self.appear(challenge):
                         if over_task:
                             return True
                         if enable:
@@ -142,21 +166,12 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                         self.SoulsFUll = True
                         self.set_next_run(task='SoulsTidy', success=False, finish=False, target=datetime.now())
 
-                    if current_file == '挑战.png' and current_file != last_clicked_file:
-                        self.current_count += 1
-                        logger.hr("General battle Start", 2)
-                        logger.info(f"Current count: {self.current_count} / {self.limit_count}")
-                        task_run_time = datetime.now() - self.start_time
-                        task_run_time_seconds = timedelta(seconds=int(task_run_time.total_seconds()))
-                        logger.info(f"Current times: {task_run_time_seconds} / {self.limit_time}")
+                    if current_file == '挑战.png':
+                        challenge_clicked = True
 
-                    if current_file == '赢（鼓）.png':
-                        while 1:
-                            action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
-                            self.click(action_click, interval=1)
-                            self.screenshot()
-                            if self.appear(challenge):
-                                break
+                    if current_file == '赢（鼓）.png' or current_file == '御魂勾玉.png':
+                        action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
+                        self.click(action_click, interval=1)
 
                     # 判断是否连续点击同一图片
                     if current_file == last_clicked_file:
@@ -173,7 +188,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
 
     def _load_image_template(self, image_folder=None):
         image_templates = []
-        image_folder = f"./tasks/ActivityCommon/{image_folder}/"
+        image_folder = f"./tasks/{image_folder}/"
         supported_formats = ('.png', '.jpg', '.jpeg')
 
         # 遍历图片文件夹
