@@ -124,7 +124,7 @@ class Script:
                     name = self.config.small_account.small_account_name.account_name
                     logger.info(f"已开启小号任务，并启用了小号通知，拼接[{name}]，准备发送通知")
                     task = f"{name}▪{I18n.trans_zh_cn(task)}"
-            self.config.notifier.send_push(task, error_type, self.device.image, error_log_path)
+            self.config.notifier.send_push(f"❌ {I18n.trans_zh_cn(task)}", error_type, self.device.image, error_log_path)
 
     def init_server(self, port: int) -> int:
         """
@@ -605,7 +605,7 @@ class Script:
                             # scheduler.enable = False
                             # self.config.save()
 
-                            self.config.notifier.push(title=task_chinese_name, content=f"任务连续失败{failed}次, 按照任务成功处理")
+                            self.config.notifier.push(title=f"❌ {task_chinese_name}", content=f"任务连续失败{failed}次, 按照任务成功处理")
                             # 任务连续失败, 按照执行成功处理
                             self.config.task_delay(task, success=True, server=True)
 
@@ -616,7 +616,7 @@ class Script:
                 except Exception as e:
                     error_type = type(e).__name__  # 获取异常类型名称
                     logger.error(f'[异常] 循环运行崩溃: {error_type} | {str(e)}', exc_info=True)
-                    self.config.notifier.push(title="循环崩溃", content=str(e))
+                    self.config.notifier.push(title="❌ 循环崩溃", content=str(e))
                     stop_requested = True
                 finally:
                     if stop_requested:
@@ -662,12 +662,14 @@ class Script:
 
         # 达到最大启动次数后的处理
         logger.error('[终止] 达到最大启动次数，系统退出')
-        self.config.notifier.push(title='系统退出',content=f"[终止] 达到最大启动次数，系统退出")
+        self.config.notifier.push(title='❌ 系统退出',content=f"[终止] 达到最大启动次数，系统退出")
         time.sleep(5)
         exit(1)
 
 
 if __name__ == "__main__":
+    # logger.info(f'✅ {res_type}卡确认成功，重置状态')
+    # logger.warning(f'❌ {res_type}卡确认失败，重置状态')
     script = Script("MI")
     script.start_loop()
     # while 1:
