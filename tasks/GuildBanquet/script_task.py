@@ -117,14 +117,14 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAs
 
     def goto_sercet_hc(self):
         con = self.config.guild_banquet
-        # if con.switch_soul.enable:
-        #     self.ui_get_current_page()
-        #     self.ui_goto(page_shikigami_records)
-        #     self.run_switch_soul(con.switch_soul.switch_group_team)
-        # if con.switch_soul.enable_switch_by_name:
-        #     self.ui_get_current_page()
-        #     self.ui_goto(page_shikigami_records)
-        #     self.run_switch_soul_by_name(con.switch_soul.group_name, con.switch_soul.team_name)
+        if con.switch_soul.enable:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul(con.switch_soul.switch_group_team)
+        if con.switch_soul.enable_switch_by_name:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul_by_name(con.switch_soul.group_name, con.switch_soul.team_name)
         self.ui_get_current_page()
         self.ui_goto(page_secret_zones)
 
