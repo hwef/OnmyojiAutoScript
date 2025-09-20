@@ -383,11 +383,13 @@ class DevTool(ctk.CTk):
         if self.mouse_is_in_canvas:
             self.rect["x2"] = event.x
             self.rect["y2"] = event.y
-            self.draw_rectangle()
-            # 修改这里：改变日志中坐标的显示格式
-            x1, y1, x2, y2 = self.coordinates
-            self.log_print(f"矩形框坐标：{x1-4},{y1-4},{x2-x1},{y2-y1}")
-            self.dyn_creat_info()
+            # 检查是否实际拉出了矩形框（即起点和终点不同）
+            if self.rect["x1"] != self.rect["x2"] and self.rect["y1"] != self.rect["y2"]:
+                self.draw_rectangle()
+                # 修改这里：改变日志中坐标的显示格式
+                x1, y1, x2, y2 = self.coordinates
+                self.log_print(f"矩形框坐标：{x1-4},{y1-4},{x2-x1},{y2-y1}")
+                self.dyn_creat_info()
 
     def dyn_creat_info(self, *args, **kwargs):
         # 修改这里：改变矩形框坐标显示框中的格式
