@@ -285,3 +285,6 @@ test_template_match.py
 todo.md
 提示词.md
 setup_env.ps1
+enhanced_template_match/*
+test_match/
+test_multiscale_ocr/
