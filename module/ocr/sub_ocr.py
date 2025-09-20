@@ -90,7 +90,7 @@ class Single(BaseCor):
     def after_process(self, result):
         return result
 
-    def ocr_single(self, image) -> str:
+    def ocr_single(self, image, return_score=False) -> str:
         """
         单行OCR识别(支持横向和纵向文本)
         参数:
@@ -107,24 +107,32 @@ class Single(BaseCor):
 
         try:
             # 首先尝试横向识别
-            result = self.ocr_single_line(image)
-            if result:
+            ocr_result = self.ocr_single_line(image)
+            if isinstance(ocr_result, tuple):
+                result, score = ocr_result
+            else:
+                result = ocr_result
+                score = 1.0  # 默认置信度
+                
+            if return_score:
+                return result, score
+            else:
                 return result
 
-            # 横向识别失败,尝试纵向识别
-            logger.info(f"{self.name} 尝试纵向文本识别")
-            boxed_results = self.detect_and_ocr(image)
-            if not boxed_results:
-                logger.info(f"{self.name} ROI区域内未检测到文本")
-                return ""
-
-            # 返回置信度最高的结果
-            best_result = max(boxed_results, key=lambda x: x.score)
-            if best_result.score > self.score:
-                return best_result.ocr_text
-
-            logger.info(f"{self.name} 文本置信度过低: {best_result.score:.2f}")
-            return ""
+            # # 横向识别失败,尝试纵向识别
+            # logger.info(f"{self.name} 尝试纵向文本识别")
+            # boxed_results = self.detect_and_ocr(image)
+            # if not boxed_results:
+            #     logger.info(f"{self.name} ROI区域内未检测到文本")
+            #     return ""
+            #
+            # # 返回置信度最高的结果
+            # best_result = max(boxed_results, key=lambda x: x.score)
+            # if best_result.score > self.score:
+            #     return best_result.ocr_text
+            #
+            # logger.info(f"{self.name} 文本置信度过低: {best_result.score:.2f}")
+            # return ""
         except Exception as e:
             logger.error(f"{self.name} 单行OCR识别失败: {str(e)}")
             raise
@@ -171,7 +179,7 @@ class Digit(Single):
 
         return result_int
 
-    def ocr_digit(self, image) -> int:
+    def ocr_digit(self, image, return_score=False) -> int:
         """
         数字OCR识别
         参数:
@@ -182,8 +190,14 @@ class Digit(Single):
             ValueError: 当输入图像无效时抛出
         """
         try:
-            result = self.ocr_single(image)
-            return self.after_process(result)
+            if return_score:
+                result, score = self.ocr_single(image, return_score)
+                processed_result = self.after_process(result)
+                return processed_result, score
+            else:
+                result = self.ocr_single(image)
+                processed_result = self.after_process(result)
+                return processed_result
         except Exception as e:
             logger.error(f"{self.name} 数字OCR识别失败: {str(e)}")
             return 0

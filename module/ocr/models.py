@@ -1,3 +1,10 @@
+import sys
+import os
+# 添加项目根目录到Python路径
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from module.base.decorator import cached_property
 from module.ocr.ppocr import TextSystem
 from module.ocr.onnxocr.onnx_paddleocr import ONNXPaddleOcr
@@ -61,8 +68,17 @@ if __name__ == "__main__":
     model = OCR_MODEL.ch
     import cv2
     import time
-    from memory_profiler import profile
-    image = cv2.imread(r"E:\Project\OnmyojiAutoScript-assets\jade.png")
+    
+    # 尝试导入memory_profiler，如果失败则使用普通函数
+    try:
+        from memory_profiler import profile
+        memory_profiling = True
+    except ImportError:
+        memory_profiling = False
+        def profile(func):
+            return func
+    
+    image = cv2.imread(r"H:\game\yys\OnmyojiAutoScript-easy-install\OnmyojiAutoScript-easy-install\module\ocr\1234.png")
 
     # 引入ocr会导致非常巨大的内存开销
     @profile

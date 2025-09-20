@@ -7,7 +7,7 @@ from .utils import infer_args as init_args
 from .utils import str2bool, draw_ocr
 import argparse
 import sys
-
+from typing import List
 
 class ONNXPaddleOcr(TextSystem):
     def __init__(self, **kwargs):
@@ -142,29 +142,22 @@ class ONNXPaddleOcr(TextSystem):
             logger.error(f"检测和识别失败: {str(e)}")
             return []
 
-    def ocr_single_line(self, image) -> tuple[str, float]:
-        """
-        单行文本识别
-        参数:
-            image: 输入图像(numpy数组)
-        返回:
-            元组(识别文本, 置信度)
-        """
-        try:
-            if not isinstance(image, np.ndarray):
-                raise ValueError("输入图像必须为numpy数组")
-                
-            ocr_output = self.ocr(image, det=False, rec=True, cls=False)
-            if not ocr_output or not ocr_output[0]:
-                return "", 0.0
-                
-            # 返回第一个识别结果
-            text, score = ocr_output[0][0]
-            return text, score
-        except Exception as e:
-            logger.error(f"单行识别失败: {str(e)}")
-            return "", 0.0
+   
+    def ocr_lines(self, img_list: List[np.ndarray]):
+        tmp_img_list = []
+        for img in img_list:
+            img_height, img_width = img.shape[0:2]
+            if img_height * 1.0 / img_width >= 1.5:
+                img = np.rot90(img)
+            tmp_img_list.append(img)
 
+        rec_res = self.text_recognizer(tmp_img_list)
+        return rec_res
+    def ocr_single_line(self, img):
+        res = self.ocr_lines([img])
+        if res:
+            return res[0]
+        return None
 
 def sav2Img(org_img, result, name="draw_ocr.jpg"):
     # 显示结果
