@@ -70,20 +70,46 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
             self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute, seconds=limit_time.second)
 
         # 加载所有图片
-        image_templates = self._load_image_template()
+        goto_activity_templates = self._load_image_template("gotoActivity")
+        battle_templates = self._load_image_template("战斗")
+
         challenge = RuleImage(
             roi_front=(1100, 540, 170, 170),
             roi_back=(1100, 540, 170, 170),
             threshold=0.8,
             method="Template matching",
-            file="./tasks/ActivityCommon/auto/挑战.png"
+            file="./tasks/ActivityCommon/gotoActivity/挑战.png"
         )
+        battle_templates.append(challenge)
 
+        # 进入挑战界面
+        goto_activity = False
+        while not goto_activity:
+            self.screenshot()
+            # 获得奖励
+            if self.ui_reward_appear_click():
+                continue
+            # 误点聊天频道会自动关闭
+            if self.appear_then_click(RestartAssets.I_HARVEST_CHAT_CLOSE):
+                continue
+            for goto_template in goto_activity_templates:
+                if os.path.basename(goto_template.file) == '挑战.png':
+                    self.screenshot()
+                    if self.appear(goto_template):
+                        goto_activity = True
+                        break
+                else:
+                    if self.appear_then_click(goto_template, interval=1):
+                        break
+
+        # 开始战斗
+        logger.hr("已在挑战界面", 1)
         click_count = 0
         click_count_max = 8
         last_clicked_file = None  # 记录上一次点击的文件名
         over_task = False
         while 1:
+            time.sleep(random.uniform(1, 2))
             self.screenshot()
             # 获得奖励
             if self.ui_reward_appear_click():
@@ -93,7 +119,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                 continue
 
             # 开始战斗循环识图
-            for image_template in image_templates:
+            for image_template in battle_templates:
                 current_file = os.path.basename(image_template.file)
 
                 if current_file == '挑战.png':
@@ -146,9 +172,9 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                     if current_file == '挑战.png' or current_file == '准备.png':
                         self.device.stuck_record_add('BATTLE_STATUS_S')
 
-    def _load_image_template(self):
+    def _load_image_template(self, image_folder=None):
         image_templates = []
-        image_folder = "./tasks/ActivityCommon/auto/"
+        image_folder = f"./tasks/ActivityCommon/{image_folder}/"
         supported_formats = ('.png', '.jpg', '.jpeg')
 
         # 遍历图片文件夹
@@ -177,7 +203,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('test')
+    c = Config('switch')
     d = Device(c)
     t = ScriptTask(c, d)
 
