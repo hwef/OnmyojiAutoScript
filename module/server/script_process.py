@@ -3,6 +3,7 @@
 # 脚本进程
 # github https://github.com/runhey
 import multiprocessing
+import os
 from asyncio import QueueEmpty, CancelledError, sleep
 from enum import Enum
 
@@ -31,6 +32,7 @@ class ScriptProcess(ScriptWSManager):
 
     async def start(self):
         self.state = ScriptState.RUNNING
+        logger.info(f'[启动] 启动脚本 {self.config_name}')
         await self.broadcast_state({"state": self.state})
         if self._process:
             logger.warning(f'Script {self.config_name} is initialized')
@@ -42,10 +44,13 @@ class ScriptProcess(ScriptWSManager):
                                                 name=self.config_name,
                                                 daemon=True)
         self._process.start()
+        logger.info(f"进程已启动，PID: {self._process.pid}")
+        logger.info(f"进程是否存活: {self._process.is_alive()}")
 
 
     async def stop(self):
         self.state = ScriptState.INACTIVE
+        logger.info(f'[停止] 停止脚本 {self.config_name}')
         await self.broadcast_state({"state": self.state})
         if self._process is None:
             logger.warning(f'Script {self.config_name} process is removed')
@@ -114,7 +119,10 @@ class ScriptProcess(ScriptWSManager):
 
 
 def func(config: str, state_queue: multiprocessing.Queue, log_pipe_in) -> None:
-
+    # 添加最开始的调试信息
+    logger.info(f"[DEBUG] 子进程启动，配置: {config}")
+    logger.info(f"[DEBUG] state_queue: {state_queue}")
+    logger.info(f"[DEBUG] PID: {os.getpid()}")
     def start_log() -> None:
         try:
             from module.logger import set_file_logger, set_func_logger
@@ -134,6 +142,7 @@ def func(config: str, state_queue: multiprocessing.Queue, log_pipe_in) -> None:
         from script import Script
         script = Script(config_name=config)
         script.state_queue = state_queue
+        logger.info(f'Script {config} is running')
         script.start_loop()
     except SystemExit as e:
         logger.info(f'Script {config} process exit')
