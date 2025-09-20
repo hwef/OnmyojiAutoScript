@@ -65,7 +65,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
         self.goto_challenge(goto_challenge_templates)
 
         # 开始战斗
-        battle_result = self.start_battle(config.activity_common_config, battle_templates,challenge)
+        battle_result = self.start_battle(config.activity_common_config, battle_templates, challenge)
 
         # 回到庭院
         self.ui_get_current_page()
@@ -74,15 +74,11 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
         if config.activity_common_config.active_souls_clean:
             self.set_next_run(task='SoulsTidy', success=False, finish=False, target=datetime.now())
 
-        if self.SoulsFUll:
-            self.push_notify("御魂溢出，结束任务,重新执行任务")
-            self.set_next_run(task=self.config.task.command, success=False, finish=False, target=datetime.now())
-        else:
-            self.set_next_run(task=self.config.task.command, success=True, finish=True)
-
         if battle_result:
             next_run = datetime.combine(datetime.now().date() + timedelta(days=1), time(5, 5))
             self.set_next_run(task=self.config.task.command, target=next_run)
+        else:
+            self.set_next_run(task=self.config.task.command, finish=True, success=True)
         raise TaskEnd
 
     def goto_challenge(self, goto_challenge_templates):
@@ -140,6 +136,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                 continue
             # 误点聊天频道会自动关闭
             if self.appear_then_click(RestartAssets.I_HARVEST_CHAT_CLOSE):
+                self.device.stuck_record_add('BATTLE_STATUS_S')
                 continue
 
             # 开始战斗循环识图
@@ -161,10 +158,10 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
 
                 if self.appear_then_click(image_template, interval=1):
                     if current_file == '御魂溢出确认.png':
-                        self.push_notify("御魂溢出，结束任务")
-                        over_task = True
-                        self.SoulsFUll = True
-                        self.set_next_run(task='SoulsTidy', success=False, finish=False, target=datetime.now())
+                        if not self.SoulsFUll:
+                            self.push_notify("御魂溢出")
+                            self.SoulsFUll = True
+                            self.set_next_run(task='SoulsTidy', success=False, finish=False, target=datetime.now())
 
                     if current_file == '挑战.png':
                         challenge_clicked = True
