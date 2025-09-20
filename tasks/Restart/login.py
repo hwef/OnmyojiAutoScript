@@ -100,7 +100,7 @@ class LoginHandler(LoginBase, RestartAssets, GeneralBuff):
                     continue
             # 关闭阴阳师精灵提示
             if self.appear_then_click(self.I_LOGIN_LOGIN_ONMYOJI_GENIE):
-                logger.info("click onmyoji genie")
+                logger.info("关闭阴阳师精灵提示")
                 continue
             # 点击屏幕进入游戏
             if self.appear(self.I_LOGIN_SPECIFIC_SERVE, interval=0.6) and self.ocr_appear_click(self.O_LOGIN_SPECIFIC_SERVE, interval=0.6):

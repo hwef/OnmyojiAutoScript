@@ -20,7 +20,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
         return ocrRes
 
     def check_svr(self, svrName: str):
-        logger.info(f"[区服] 要登录的区服: [{svrName}]")
+        logger.info(f"[区服] 需要登录的区服: [{svrName}]")
         time.sleep(1)
         while 1:
             self.screenshot()
@@ -32,10 +32,12 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                 logger.warning("OCR 未识别到任何结果，点击空白区域...")
                 self.click(self.C_SA_LOGIN_FORM_CANCEL_SVR_SELECT)
                 continue
-            if self.assess_text_threshold(svrName, ocrSvrName, 0.8):
-                return True
             else:
-                return False
+                logger.info(f"[区服] 当前登录的区服: [{ocrSvrName}]")
+                if self.assess_text_threshold(svrName, ocrSvrName, 0.8):
+                    return True
+                else:
+                    return False
 
     def switch_svr(self, svrName: str):
         """
@@ -69,7 +71,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
             ocrRes = self.O_SA_SELECT_SVR_SVR_LIST.detect_and_ocr(self.device.image)
             # 受限于图像识别文字准确率,此处对识别结果与实际服务器名字 进行检查 字重合度大于阈值 就认为查找成功
             ocrSvrList = [res.ocr_text for res in ocrRes]
-            logger.info(f"识别到的区服列表为：{ocrSvrList}")
+            logger.info(f"识别到的区服列表：{ocrSvrList}")
             for index, ocrSvrName in enumerate(ocrSvrList):
                 if len(ocrSvrName) < 3:
                     break
@@ -89,17 +91,17 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                 break
             lastSvrList = ocrSvrList
             self.swipe(self.S_SA_SVR_SWIPE_LEFT)
-            time.sleep(4.5)
+            time.sleep(3)
         if found:
             self.click(self.O_SA_SELECT_SVR_SVR_LIST, interval=1.5)
             return True
         else:
             click_list = [self.C_SA_SELECT_SVR_1, self.C_SA_SELECT_SVR_2, self.C_SA_SELECT_SVR_3, self.C_SA_SELECT_SVR_4]
-            # 定义权重，越靠前权重越大
-            weights = [4, 3, 2, 1]  # 第一个元素权重为4，第二个为3，以此类推
+            # 定义权重，数字越大选中概率越大
+            weights = [3, 2, 1, 1]
             # 根据权重随机选择
             selected_item = random.choices(click_list, weights=weights)[0]
-            logger.info(f"[区服] 未识别, 随机点击区服区域 {selected_item.name}")
+            logger.info(f"[区服] '{svrName}' 未识别到, 将随机点击区服区域 [{selected_item.name}]")
             self.click(selected_item)
             time.sleep(1)
         # 没找到 点击空白区域关闭选择服务器界面
@@ -112,7 +114,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
         @return:
         @rtype:
         """
-        logger.info(f"[角色] 开始寻找角色: {characterName}")
+        logger.info(f"[角色] 开始寻找角色: [{characterName}]")
         self.ui_click(self.C_SA_LOGIN_FORM_SWITCH_SVR_BTN, self.I_SA_CHECK_SELECT_SVR_1)
         # 展开底部角色列表,显示角色所属服务器
         self.screenshot()
@@ -130,9 +132,9 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
             ocrRes = self.O_SA_SELECT_SVR_CHARACTER_LIST.detect_and_ocr(self.device.image)
             # 去除角色等级数字
             characterNameList = [ocrResItem.ocr_text.lstrip('1234567890 ([<>])【】（）《》') for ocrResItem in ocrRes]
-            logger.info(characterNameList)
-            if len(characterNameList) != len(set(characterNameList)):
-                logger.warning("[寻找] 角色名有重复，使用区服查找")
+            logger.info(f"识别到的角色列表：{characterNameList}")
+            if characterNameList.count(characterName) > 1:
+                logger.warning(f"[角色] '{characterName}' 存在多个,将使用区服查找")
                 self.click(self.C_SA_LOGIN_FORM_CANCEL_SVR_SELECT, 1.5)
                 return False
             ocrResBoxList = [ocrResItem.box for ocrResItem in ocrRes]
