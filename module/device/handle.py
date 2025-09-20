@@ -1,6 +1,8 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
+from functools import lru_cache
+
 import re
 
 from enum import Enum
@@ -201,11 +203,13 @@ class Handle:
         # 获取句柄树
         self.root_node = WindowNode(name=self.root_handle_title, num=self.root_handle_num)
         Handle.handle_tree(self.root_handle_num, self.root_node)
-        logger.info('Emulator handle structure:')
-        for pre, fill, node in RenderTree(self.root_node):
-            logger.info("%s%s" % (pre, node.name))
-        for pre, fill, node in RenderTree(self.root_node):
-            logger.info("%s%s" % (pre, node.num))
+        logger.info('模拟器句柄结构: ')
+        logger.info(f"根节点句柄的名称和编号: {self.root_node.name} ({self.root_node.num})")
+        logger.info(f"截图句柄的编号: {self.screenshot_handle_num}")
+        # for pre, fill, node in RenderTree(self.root_node):
+        #     logger.info("%s%s" % (pre, node.name))
+        # for pre, fill, node in RenderTree(self.root_node):
+        #     logger.info("%s%s" % (pre, node.num))
 
         # 判断是哪一个模拟器 通过句柄树结构
         logger.info(f'Emulator family: {self.emulator_family}')
@@ -216,6 +220,15 @@ class Handle:
         logger.info(f'Screenshot handle num: {self.screenshot_handle_num}')
         logger.info(f'Emulator screenshot size: {self.screenshot_size}')
 
+    @staticmethod
+    @lru_cache(maxsize=32)  # 添加这行装饰器
+    def handle_title2num(title: str) -> int:
+        """
+        从标题到句柄号（带缓存功能）
+        :param title:
+        :return:  如果没有找到就是返回零
+        """
+        return FindWindow(None, title)
     @staticmethod
     def all_windows() -> list:
         """

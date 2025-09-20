@@ -1,7 +1,10 @@
+import time
+
 import ctypes
 import re
 import subprocess
 import psutil
+from sympy import false
 from adbutils import AdbDevice, AdbClient
 
 from deploy.utils import DataProcessInfo
@@ -11,10 +14,91 @@ from module.device.handle import Handle
 from module.device.platform2.platform_base import PlatformBase
 from module.device.platform2.emulator_windows import Emulator, EmulatorInstance, EmulatorManager
 from module.logger import logger
-
+from tasks.Script.config_device import EmulatorWindow
+import ctypes
+from ctypes import wintypes
+from module.base.decorator import del_cached_property
+from module.exception import (GameNotRunningError,
+                              GameStuckError,
+                              GameWaitTooLongError,
+                              GameTooManyClickError,
+                              RequestHumanTakeover,
+                              EmulatorNotRunningError)
 
 class EmulatorUnknown(Exception):
     pass
+
+
+def minimize_by_name(window_name, convert_hidden=True):
+    """
+    按名称处理窗口状态
+    Args:
+        window_name (str): 窗口名称（支持部分匹配）
+        convert_hidden (bool): 是否将隐藏窗口改为最小化
+    """
+
+    def callback(hwnd, lParam):
+        title = get_window_title(hwnd)
+
+        if window_name.lower() == title.lower():
+            # 检查窗口当前状态
+            is_visible = ctypes.windll.user32.IsWindowVisible(hwnd)
+            if is_visible:
+                # 可见窗口 → 最小化
+                ctypes.windll.user32.ShowWindow(hwnd, 6)
+            elif convert_hidden:
+                # 隐藏窗口 → 改为最小化不激活
+                ctypes.windll.user32.ShowWindow(hwnd, 6)  # SW_SHOWMINNOACTIVE
+        return True
+
+    WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, wintypes.HWND, ctypes.POINTER(ctypes.c_int))
+    ctypes.windll.user32.EnumWindows(WNDENUMPROC(callback), None)
+
+
+def find_hwnd_by_name(window_name):
+    """
+    枚举所有窗口，返回第一个匹配名称的 hwnd
+    """
+    target = None
+
+    def callback(hwnd, lParam):
+        title = get_window_title(hwnd)
+        if window_name.lower() == title.lower():
+            nonlocal target
+            target = hwnd
+            return False  # 停止枚举
+        return True
+
+    WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, wintypes.HWND, ctypes.POINTER(ctypes.c_int))
+    ctypes.windll.user32.EnumWindows(WNDENUMPROC(callback), None)
+    return target
+
+
+def show_window_by_name(window_name):
+    """
+    显示指定名称的窗口
+    Args:
+        window_name (str): 窗口名称（支持部分匹配）
+    """
+    hwnd = find_hwnd_by_name(window_name)
+    if hwnd:
+        ctypes.windll.user32.ShowWindow(hwnd, 5)  # SW_SHOW
+        set_focus_window(hwnd)
+    else:
+        logger.info(f'没有找到窗口: {window_name}')
+
+
+def show_hide_by_name(window_name):
+    """
+    显示指定名称的窗口
+    Args:
+        window_name (str): 窗口名称（支持部分匹配）
+    """
+    hwnd = find_hwnd_by_name(window_name)
+    if hwnd:
+        ctypes.windll.user32.ShowWindow(hwnd, 0)  # SW_SHOW
+    else:
+        logger.info(f'没有找到窗口: {window_name}')
 
 
 def get_focused_window():
@@ -55,9 +139,10 @@ class AdbDeviceWithStatus(AdbDevice):
     def __bool__(self):
         return True
 
+
 class PlatformWindows(PlatformBase, EmulatorManager):
     @classmethod
-    def execute(cls, command):
+    def execute(cls, command, show_window=True):
         """
         Args:
             command (str):
@@ -65,9 +150,29 @@ class PlatformWindows(PlatformBase, EmulatorManager):
         Returns:
             subprocess.Popen:
         """
-        command = command.replace(r"\\", "/").replace("\\", "/").replace('"', '"')
+
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+        if not show_window:
+            startupinfo.wShowWindow = 0  # SW_MINIMIZE - 不显示窗口
+        else:
+            startupinfo.wShowWindow = 1  # SW_SHOWNORMAL - 正常显示
+
+        # 添加CREATE_NO_WINDOW标志以防止创建新窗口
+        creationflags = subprocess.CREATE_NO_WINDOW
+
+        command = command.replace(r"\\", "/").replace("\\", "/").replace('"', '"').replace('MuMuNxMain', 'MuMuManager')
         logger.info(f'Execute: {command}')
-        return subprocess.Popen(command, close_fds=True)  # only work on Windows
+        return subprocess.Popen(
+            command,
+            close_fds=True,
+            startupinfo=startupinfo,
+            creationflags=creationflags,
+            # 重定向标准输出和标准错误以防止弹窗
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
 
     @classmethod
     def kill_process_by_regex(cls, regex: str) -> int:
@@ -91,44 +196,109 @@ class PlatformWindows(PlatformBase, EmulatorManager):
 
         return count
 
-    def _emulator_start(self, instance: EmulatorInstance):
+    def _emulator_start(self, instance: EmulatorInstance = None):
         """
         Start a emulator without error handling
         """
+        # show_window = not self.config.script.device.emulator_window_minimize and not self.config.script.device.run_background_only
+        show_window = False
+        
+        # 如果instance为None，使用emulator_info中的信息
+        if instance is None:
+            exe = self.emulator_info.path
+            if not exe:
+                logger.error("未找到模拟器路径，请检查配置")
+                return False
+            
+            # 根据emulator_info中的类型确定启动方式
+            emulator_type = self.emulator_info.emulator
+            logger.info(f"使用emulator_info启动模拟器: {emulator_type}, 路径: {exe}")
+            
+            if emulator_type == Emulator.MuMuPlayer:
+                self.execute(exe, show_window=show_window)
+            elif emulator_type == Emulator.MuMuPlayerX:
+                # 对于MuMuPlayerX，需要实例名称，使用默认名称
+                instance_name = "nemu-12.0-x64-default"
+                self.execute(f'"{exe}" -m {instance_name}', show_window=show_window)
+            elif emulator_type == Emulator.MuMuPlayer12:
+                # 对于MuMu12，使用默认实例ID 0
+                instance_id = 0
+                self.execute(f'"{exe}" control -v {instance_id} launch', show_window=show_window)
+            elif emulator_type in Emulator.LDPlayerFamily:
+                # 对于LDPlayer，使用默认实例ID 0
+                instance_id = 0
+                self.execute(f'"{Emulator.single_to_console(exe)}" launch --index {instance_id}',
+                             show_window=show_window)
+            elif emulator_type in Emulator.NoxPlayerFamily:
+                # 对于NoxPlayer，使用默认实例名称
+                instance_name = "Nox"
+                self.execute(f'"{exe}" -clone:{instance_name}', show_window=show_window)
+            elif emulator_type == Emulator.BlueStacks5:
+                # 对于BlueStacks5，使用默认实例名称
+                instance_name = "Pie64"
+                self.execute(f'"{exe}" --instance {instance_name}', show_window=show_window)
+            elif emulator_type == Emulator.BlueStacks4:
+                # 对于BlueStacks4，使用默认实例名称
+                instance_name = "Android"
+                self.execute(f'"{exe}" -vmname {instance_name}', show_window=show_window)
+            elif emulator_type == Emulator.MEmuPlayer:
+                # 对于MEmuPlayer，使用默认实例名称
+                instance_name = "MEmu_0"
+                self.execute(f'"{exe}" {instance_name}', show_window=show_window)
+            else:
+                # 未知类型，直接执行
+                logger.warning(f"未知模拟器类型: {emulator_type}，直接执行")
+                self.execute(exe, show_window=show_window)
+            return True
+        
+        # 原有逻辑：使用instance启动
         exe: str = instance.emulator.path
+        if exe is None:
+            exe = self.emulator_info.path
+        logger.info(f"使用instance启动模拟器: {instance}")
+
         if instance == Emulator.MuMuPlayer:
             # NemuPlayer.exe
-            self.execute(exe)
+            self.execute(exe, show_window=show_window)
         elif instance == Emulator.MuMuPlayerX:
             # NemuPlayer.exe -m nemu-12.0-x64-default
-            self.execute(f'"{exe}" -m {instance.name}')
+            self.execute(f'"{exe}" -m {instance.name}', show_window=show_window)
         elif instance == Emulator.MuMuPlayer12:
             # MuMuPlayer.exe -v 0
+            # MuMuManager.exe control -v 2 launch
             if instance.MuMuPlayer12_id is None:
                 logger.warning(f'Cannot get MuMu instance index from name {instance.name}')
-            self.execute(f'"{exe}" -v {instance.MuMuPlayer12_id}')
+            self.execute(f'"{exe}" control -v {instance.MuMuPlayer12_id} launch', show_window=show_window)
         elif instance == Emulator.LDPlayerFamily:
             # ldconsole.exe launch --index 0
-            self.execute(f'"{Emulator.single_to_console(exe)}" launch --index {instance.LDPlayer_id}')
+            self.execute(f'"{Emulator.single_to_console(exe)}" launch --index {instance.LDPlayer_id}',
+                         show_window=show_window)
         elif instance == Emulator.NoxPlayerFamily:
             # Nox.exe -clone:Nox_1
-            self.execute(f'"{exe}" -clone:{instance.name}')
+            self.execute(f'"{exe}" -clone:{instance.name}', show_window=show_window)
         elif instance == Emulator.BlueStacks5:
             # HD-Player.exe --instance Pie64
-            self.execute(f'"{exe}" --instance {instance.name}')
+            self.execute(f'"{exe}" --instance {instance.name}', show_window=show_window)
         elif instance == Emulator.BlueStacks4:
             # Bluestacks.exe -vmname Android_1
-            self.execute(f'"{exe}" -vmname {instance.name}')
+            self.execute(f'"{exe}" -vmname {instance.name}', show_window=show_window)
         elif instance == Emulator.MEmuPlayer:
             # MEmu.exe MEmu_0
-            self.execute(f'"{exe}" {instance.name}')
+            self.execute(f'"{exe}" {instance.name}', show_window=show_window)
         else:
             raise EmulatorUnknown(f'Cannot start an unknown emulator instance: {instance}')
-
+        return True
     def _emulator_stop(self, instance: EmulatorInstance):
         """
         Stop a emulator without error handling
         """
+        # 增加空值检查
+        if instance is None:
+            logger.error("无效的模拟器实例")
+            return True
+        if not hasattr(instance, 'emulator'):
+            logger.error(f"无效的模拟器实例: {instance}")
+            return True
         exe: str = instance.emulator.path
         if instance == Emulator.MuMuPlayer:
             # MuMu6 does not have multi instance, kill one means kill all
@@ -186,7 +356,7 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             self.execute(f'"{Emulator.single_to_console(exe)}" stop -n {instance.name}')
         else:
             raise EmulatorUnknown(f'Cannot stop an unknown emulator instance: {instance}')
-
+        return True
     def _emulator_function_wrapper(self, func: callable):
         """
         Args:
@@ -195,6 +365,7 @@ class PlatformWindows(PlatformBase, EmulatorManager):
         Returns:
             bool: If success
         """
+        logger.info(f"执行模拟器操作: {func.__name__}, 当前实例: {self.emulator_instance}")
         try:
             func(self.emulator_instance)
             return True
@@ -217,7 +388,7 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             bool: True if startup completed
                 False if timeout
         """
-        logger.warning('Emulator start')
+        logger.hr('Emulator start', level=2)
         current_window = get_focused_window()
         serial = self.emulator_instance.serial
         logger.info(f'Current window: {current_window}')
@@ -248,25 +419,31 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             logger.info(f'Found azurlane packages: {m}')
 
         interval = Timer(1).start()
-        timeout = Timer(15).start()
-        struct_window = Timer(10)
+        timeout = Timer(30).start()
+        # struct_window = Timer(10)
         new_window = 0
         while 1:
             interval.wait()
             interval.reset()
             if timeout.reached():
-                logger.warning(f'Emulator start timeout')
+                logger.warning(f'模拟器启动超时')
                 return False
+
+            if "MuMuPlayer" not in self.emulator_instance.path:
+                logger.info(f'正在启动模拟器: {self.emulator_instance.path}')
+                if find_hwnd_by_name(self.config.script.device.handle):
+                    logger.info(f'{self.config.script.device.handle} 模拟器已启动')
+                    break
 
             # Check emulator window showing up
             # logger.info([get_focused_window(), get_window_title(get_focused_window())])
-            if current_window != 0 and new_window == 0:
-                new_window = get_focused_window()
-                if current_window != new_window:
-                    logger.info(f'New window showing up: {new_window}, focus back')
-                    set_focus_window(current_window)
-                else:
-                    new_window = 0
+            # if current_window != 0 and new_window == 0:
+            #     new_window = get_focused_window()
+            #     if current_window != new_window and not self.config.script.device.emulator_window_minimize and not self.config.script.device.run_background_only:
+            #         logger.info(f'New window showing up: {new_window}, focus back')
+            #         set_focus_window(current_window)
+            #     else:
+            #         new_window = 0
 
             # Check device connection
             devices = self.list_device().select(serial=serial)
@@ -303,47 +480,71 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             show_package(packages)
 
             # Check Window structure
-            if not struct_window.started():
-                struct_window.start()
-            elif struct_window.reached():
-                break
-            if new_window == 0:
-                continue
+            # if not struct_window.started():
+            #     struct_window.start()
+            # elif struct_window.reached():
+            #     break
+            # if new_window == 0:
+            #     continue
             if not Handle.handle_has_children(hwnd=new_window):
                 continue
 
             # All check passed
             break
 
-        # if new_window != 0 and new_window != current_window:
-        #     logger.info(f'Minimize new window: {new_window}')
-        #     # 如果新窗口存在且不等于当前窗口，则最小化新窗口。
-        #     # minimize_window(new_window)
-        # if current_window:
-        #     logger.info(f'De-flash current window: {current_window}')
-        #     # 如果当前窗口存在，则取消当前窗口的闪烁
-        #     flash_window(current_window, flash=False)
-        # if new_window:
-        #     logger.info(f'Flash new window: {new_window}')
-        #     # 如果新窗口存在，则使新窗口开始闪烁
-        #     flash_window(new_window, flash=True)
         logger.info('Emulator start completed')
+
+        emulator_window = self.config.script.device.emulator_window
+        target_window_name = self.config.script.device.handle
+        if emulator_window == EmulatorWindow.front:
+            show_window_by_name(target_window_name)
+            logger.info(f'前台显示窗口: {target_window_name}')
+        elif emulator_window == EmulatorWindow.min:
+            minimize_by_name(target_window_name)
+            logger.info(f'最小化窗口: {target_window_name}')
+        elif emulator_window == EmulatorWindow.background:
+            show_hide_by_name(target_window_name)
+            logger.info(f'隐藏窗口: {target_window_name}')
+        else:
+            logger.info(f'默认窗口: {target_window_name}')
+
         return True
 
     def emulator_start(self):
-        logger.warning('Emulator start')
+        logger.hr('Emulator start', level=1)
+        
+        # 检查是否有有效的emulator_instance
+        if self.emulator_instance is None:
+            logger.warning("未找到emulator_instance，将使用emulator_info启动模拟器")
+            # 直接使用emulator_info启动，不执行停止操作
+            for _ in range(3):
+                if self._emulator_start():
+                    # 启动后等待模拟器实例初始化
+                    time.sleep(5)
+                    # 重新获取emulator_instance
+                    del_cached_property(self, 'emulator_instance')
+                    if self.emulator_instance is not None:
+                        return self.emulator_start_watch()
+                    else:
+                        logger.warning("模拟器启动后仍未找到emulator_instance，继续重试")
+                        continue
+                else:
+                    return False
+            logger.error('使用emulator_info启动模拟器失败3次')
+            return False
+        
+        # 原有逻辑：有emulator_instance的情况
         for _ in range(3):
             # Stop
-            if not self._emulator_function_wrapper(self._emulator_stop):
+            if not self._emulator_stop(self.emulator_instance):
                 return False
             # Start
-            if self._emulator_function_wrapper(self._emulator_start):
+            if self._emulator_start(self.emulator_instance):
                 # Success
-                self.emulator_start_watch()
-                return True
+                return self.emulator_start_watch()
             else:
                 # Failed to start, stop and start again
-                if self._emulator_function_wrapper(self._emulator_stop):
+                if self._emulator_stop(self.emulator_instance):
                     continue
                 else:
                     return False
@@ -352,7 +553,7 @@ class PlatformWindows(PlatformBase, EmulatorManager):
         return False
 
     def emulator_stop(self):
-        logger.warning('Emulator stop')
+        logger.hr('Emulator stop', level=1)
         for _ in range(3):
             # Stop
             if self._emulator_function_wrapper(self._emulator_stop):
