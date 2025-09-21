@@ -8,7 +8,7 @@ from module.logger import logger
 from datetime import datetime, timedelta
 from tasks.Component.SwitchAccount.switch_account import SwitchAccount
 from tasks.Component.SwitchAccount.switch_account_config import AccountInfo
-from module.exception import TaskEnd
+from module.exception import TaskEnd, SwitchAccountError
 from tasks.GameUi.game_ui import GameUi
 
 """ 小号切换 """
@@ -154,7 +154,7 @@ class ScriptTask(GameUi):
             current_account_data[f"{task_type}"] = datetoday
             with open('config/SmallAccount/accounts.json', 'w', encoding='utf-8') as file:
                 json.dump(all_accounts_data, file, ensure_ascii=False, indent=4)
-            raise TaskEnd('SmallAccount')
+            raise SwitchAccountError(f"[角色] {self.account_info}, 切换失败")
 
     def set_task(self, current_account_data, all_accounts_data, task_type):
         logger.info(f"[角色] {self.account_info}, 开始调起任务")

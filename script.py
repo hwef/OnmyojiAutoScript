@@ -493,6 +493,9 @@ class Script:
                 logger.error(e)
                 logger.critical(e)
                 result = 'exit'
+            elif isinstance(e, SwitchAccountError):
+                error_type = str(e)
+                logger.warning(error_type)
             else:
                 logger.exception(e)
             self.save_error_log(task=command, error_type=error_type)
