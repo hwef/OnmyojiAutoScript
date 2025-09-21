@@ -109,6 +109,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         # 接受邀请后立即执行悬赏任务
         if click_button == self.I_G_ACCEPT:
             logger.warning('已接受悬赏邀请')
+            self.push_notify("已接到悬赏邀请,记得去做呢")
             self.set_next_run(task='WantedQuests', target=datetime.now().replace(microsecond=0))
         else:
             logger.warning(f"已忽略悬赏邀请")
