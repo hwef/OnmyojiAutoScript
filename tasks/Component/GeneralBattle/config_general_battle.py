@@ -21,9 +21,9 @@ class GeneralBattleConfig(BaseModel):
     # 是否启动 预设队伍
     preset_enable: bool = Field(default=False, description='preset_enable_help')
     # 选哪一个预设组
-    preset_group: int = Field(default=1, description='preset_group_help', ge=1, le=7)
+    preset_group: int = Field(default=-1, description='preset_group_help')
     # 选哪一个队伍
-    preset_team: int = Field(default=1, description='preset_team_help', ge=1, le=5)
+    preset_team: int = Field(default=-1, description='preset_team_help')
     # 是否启动开启buff
     # buff_enable: bool = Field(default=False, description='buff_enable_help')
     # 是否点击觉醒Buff

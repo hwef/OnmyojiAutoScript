@@ -111,6 +111,8 @@ class GeneralBattleAssets:
 	I_SOUL_FULL_ENSURE = RuleImage(roi_front=(573,388,35,63), roi_back=(573,388,35,63), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_exit_ensure.png")
 	# 结算时左下角统计图标 
 	I_REWARD_STATISTICS = RuleImage(roi_front=(51,629,54,59), roi_back=(17,305,643,389), threshold=0.7, method="Template matching mask", file="./tasks/Component/GeneralBattle/gb/gb_reward_statistics.png")
+	# 新版本的预设图案带数字 
+	I_PRESET_WIT_NUMBER = RuleImage(roi_front=(40,655,37,37), roi_back=(9,636,100,74), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_preset_wit_number.png")
 
 
 	# Image Rule Assets

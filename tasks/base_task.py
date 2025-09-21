@@ -881,6 +881,18 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             logger.info(f"❌ [{old_str}] vs [{new_str}], 相似度 {similarity_score}% < {threshold_pct}%, 匹配失败")
             return False
 
+    def split_group_team(self, target):
+        if isinstance(target, str):
+            try:
+                parts = target.split(',')
+                if len(parts) != 2:
+                    raise ValueError('Switch_str must be 2 parts')
+                return int(parts[0]), int(parts[1])
+            except ValueError:
+                logger.error(f'Invalid switch_group_team format: {target}')
+                return -1, -1
+        return -1, -1
+
 
 if __name__ == '__main__':
     from module.config.config import Config

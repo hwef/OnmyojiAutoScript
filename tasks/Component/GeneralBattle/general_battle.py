@@ -335,7 +335,8 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
             case 7:
                 x, y = self.C_PRESET_GROUP_7.coord()
             case _:
-                x, y = self.C_PRESET_GROUP_1.coord()
+                logger.info("Preset group is out of range")
+                return
         self.device.click(x, y)
         logger.info("Select preset group")
 
@@ -351,7 +352,8 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
             case 4:
                 x, y = self.C_PRESET_TEAM_4.coord()
             case _:
-                x, y = self.C_PRESET_TEAM_1.coord()
+                logger.info("Preset team is out of range")
+                return
         self.device.click(x, y)
         logger.info("Select preset team")
 
@@ -517,8 +519,9 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('du')
+    c = Config('SWITCH')
     d = Device(c)
     t = GeneralBattle(c, d)
 
-    t.check_buff([BuffClass.EXP_50, BuffClass.GOLD_50])
+    # t.check_buff([BuffClass.EXP_50, BuffClass.GOLD_50])
+    t.switch_preset_team(True, 1,3)
