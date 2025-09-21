@@ -382,7 +382,7 @@ class RuleImage:
 
     def match_all_any(self, image: np.array, threshold: float = None, roi: list = None, nms_threshold: float = 0.3) -> list[tuple]:
         """
-        区别于match，这个是返回所有的匹配结果
+        区别于match，这个是返回所有的匹配结果，去除冗余匹配项（例如：多个框选区域重叠的情况）时使用。
         :param roi:
         :param image:
         :param threshold:
@@ -413,6 +413,7 @@ class RuleImage:
             filtered_matches = [matches[i] for i in indices]
             return filtered_matches
         return matches
+
     def coord(self) -> tuple:
         """
         获取roi_front的随机的点击的坐标
