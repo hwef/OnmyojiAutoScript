@@ -195,6 +195,10 @@ class LoginHandler(LoginBase, RestartAssets, GeneralBuff):
                     logger.info('Close zidu')
                 timer_harvest.reset()
                 continue
+            if self.appear_then_click(self.I_LIAO_MESSAGE, interval=1):
+                timer_harvest.reset()
+                logger.info('click 寮消息通知')
+                continue
             # 各种邀请框
             self.reject_invite()
 

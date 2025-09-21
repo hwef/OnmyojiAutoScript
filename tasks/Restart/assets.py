@@ -55,8 +55,10 @@ class RestartAssets:
 	I_HARVEST_ZIDU = RuleImage(roi_front=(785,475,135,135), roi_back=(785,475,135,135), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_zidu.png")
 	# description 
 	I_HARVEST_MAIL_COPY = RuleImage(roi_front=(257,509,29,21), roi_back=(192,472,790,100), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_mail_copy.png")
-	# mail_red_dots 
+	# 邮件未读红点 
 	I_MAIL_RED_DOTS = RuleImage(roi_front=(1153,14,36,26), roi_back=(1141,5,54,51), threshold=0.8, method="Template matching mask", file="./tasks/Restart/harvest/mail_red_dots.png")
+	# 寮消息通知 
+	I_LIAO_MESSAGE = RuleImage(roi_front=(189,138,35,34), roi_back=(35,50,358,248), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/liao_message.png")
 
 
 	# Click Rule Assets

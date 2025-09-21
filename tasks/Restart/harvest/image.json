@@ -204,6 +204,15 @@
     "roiBack": "1141,5,54,51",
     "method": "Template matching mask",
     "threshold": 0.8,
-    "description": "mail_red_dots"
+    "description": "邮件未读红点"
+  },
+  {
+    "itemName": "liao_message",
+    "imageName": "liao_message.png",
+    "roiFront": "189,138,35,34",
+    "roiBack": "35,50,358,248",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "寮消息通知"
   }
 ]
