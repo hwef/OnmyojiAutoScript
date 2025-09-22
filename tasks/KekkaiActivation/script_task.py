@@ -283,7 +283,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
             self.screenshot()
             results = self.O_CHECK_CARD_NUMBER.detect_and_ocr(self.device.image)
             ocr_count += 1
-            # 第一步：筛选出包含 "体力" 的结果
+            # 第一步：筛选出包含 "体力或者勾玉" 的结果
             filtered_results = [result for result in results if check_card in result.ocr_text]
             logger.info(f"识别到的结界卡：{filtered_results}")
             # 第二步：提取数字并按数字排序
@@ -300,18 +300,8 @@ class ScriptTask(KU, KekkaiActivationAssets):
                 # 按数字大到小排序
                 sorted_results = [result for _, result in sorted(numeric_results, key=lambda x: x[0], reverse=True)]
                 max_result = sorted_results[0]  # 获取数字最大的结果对象
-                box = max_result.box  # 获取边界框坐标
-
-                x_min = self.O_CHECK_CARD_NUMBER.roi[0] + box[0][0]
-                y_min = self.O_CHECK_CARD_NUMBER.roi[1] + box[0][1]
-                width = box[1][0] - box[0][0]
-                height = box[2][1] - box[1][1]
-
-                # 输出矩形框
-                rectangle_box = [x_min, y_min, width, height]
-
-                target = RuleClick(roi_front=rectangle_box, roi_back=rectangle_box, name="tmpclick")
-                logger.info(f"最大值的具体位置（矩形框）：{rectangle_box}")
+                target = RuleClick(roi_front=max_result.after_box, roi_back=max_result.after_box, name="tmpclick")
+                logger.info(f"最大值的具体位置（矩形框）：{max_result.after_box}")
                 return target
             else:
                 if ocr_count > 3:
@@ -327,7 +317,6 @@ class ScriptTask(KU, KekkaiActivationAssets):
                 self.device.swipe_adb(p1, p2, duration=duration)
                 time.sleep(1)
                 continue
-
 
     def _card_not_found(self):
         # 获取配置引用

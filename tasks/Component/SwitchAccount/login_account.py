@@ -79,11 +79,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                 if self.assess_text_threshold(svrName, ocrSvrName, 0.6):
                     found = True
                     # 确定点击位置
-                    box = ocrRes[index].box
-                    self.O_SA_SELECT_SVR_SVR_LIST.area = [self.O_SA_SELECT_SVR_SVR_LIST.roi[0] + box[0][0],
-                                                          self.O_SA_SELECT_SVR_SVR_LIST.roi[1] + box[0][1],
-                                                          box[1][0] - box[0][0],
-                                                          box[2][1] - box[1][1]]
+                    self.O_SA_SELECT_SVR_SVR_LIST.area = ocrRes[index].after_box
                     # 跳出此层for循环
                     break
             # 两次OCR结果相等表示滑动到最右侧
@@ -137,27 +133,14 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                 logger.warning(f"[角色] '{characterName}' 存在多个,将使用区服查找")
                 self.click(self.C_SA_LOGIN_FORM_CANCEL_SVR_SELECT, 1.5)
                 return False
-            ocrResBoxList = [ocrResItem.box for ocrResItem in ocrRes]
             for index, item in enumerate(characterNameList):
                 if item != characterName:
                     continue
-                tmp = self.O_SA_SELECT_SVR_CHARACTER_LIST
-                from copy import deepcopy
-                tmpClick = RuleClick(
-                    roi_back=deepcopy(tmp.roi),
-                    roi_front=[
-                        tmp.roi[0] + ocrResBoxList[index][0][0],
-                        tmp.roi[1] + ocrResBoxList[index][0][1],
-                        ocrResBoxList[index][1][0] - ocrResBoxList[index][0][0],
-                        ocrResBoxList[index][2][1] - ocrResBoxList[index][1][1]],
-                    name="tmpClick"
-                )
-
                 # 此时 tmp 内存储的时角色名位置,而点击角色名没有反应
                 # 所以需要获取到对应的服务器图标位置
-                tmpClick.roi_front[1] -= 30
-                self.ui_click_until_disappear(tmpClick, stop=self.I_SA_CHECK_SELECT_SVR_2,
-                                              interval=3)
+                ocrRes[index].after_box[1] -= 30
+                tmpClick = RuleClick(roi_front=ocrRes[index].after_box, roi_back=ocrRes[index].after_box, name="tmpClick")
+                self.ui_click_until_disappear(tmpClick, stop=self.I_SA_CHECK_SELECT_SVR_2, interval=3)
                 logger.info("[角色] %s 已经找到", characterName)
                 return True
             if lastCharacterNameList == characterNameList:
@@ -198,27 +181,16 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
                 if self.appear(self.I_SA_ACCOUNT_DROP_DOWN_CLOSED):
                     if self.ocr_appear(self.O_SA_ACCOUNT_ACCOUNT_SELECTED):
                         return True
-                    self.ui_click_until_disappear(self.I_SA_ACCOUNT_DROP_DOWN_CLOSED,
-                                                  interval=1.5)
+                    self.ui_click_until_disappear(self.I_SA_ACCOUNT_DROP_DOWN_CLOSED, interval=1.5)
                     continue
 
                 # 账号列表已打开状态
                 ocrRes = self.O_SA_ACCOUNT_ACCOUNT_LIST.detect_and_ocr(self.device.image)
-
                 # 找到该账号
                 for index, ocr_account in enumerate([ocrResItem.ocr_text for ocrResItem in ocrRes]):
                     if not accountInfo.is_account_alias(ocr_account):
                         continue
-                    # if accountInfo.account in [ocrResItem.ocr_text for ocrResItem in ocrRes]:
-                    #     index = [ocrResItem.ocr_text for ocrResItem in ocrRes].index(accountInfo.account)
-                    ocrResBoxList = [ocrResItem.box for ocrResItem in ocrRes]
-                    self.O_SA_ACCOUNT_ACCOUNT_LIST.area = [
-                        self.O_SA_ACCOUNT_ACCOUNT_LIST.roi[0] + ocrResBoxList[index][0][
-                            0],
-                        self.O_SA_ACCOUNT_ACCOUNT_LIST.roi[1] + ocrResBoxList[index][0][
-                            1],
-                        ocrResBoxList[index][1][0] - ocrResBoxList[index][0][0],
-                        ocrResBoxList[index][2][1] - ocrResBoxList[index][1][1]]
+                    self.O_SA_ACCOUNT_ACCOUNT_LIST.area = ocrRes[index].after_box
                     time.sleep(1)
                     self.click(self.O_SA_ACCOUNT_ACCOUNT_LIST)
                     logger.info("已找到账号: [ %s ]", accountInfo.account)
