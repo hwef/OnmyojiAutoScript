@@ -143,8 +143,8 @@ class GameUiAssets:
 	I_CHECK_RECORDS = RuleImage(roi_front=(269,71,55,50), roi_back=(269,71,55,50), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_records.png")
 	# description 
 	I_CHECK_ONMYODO = RuleImage(roi_front=(1166,117,84,547), roi_back=(1166,117,84,547), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_onmyodo.png")
-	# description 
-	I_CHECK_FRIENDS = RuleImage(roi_front=(1011,592,133,60), roi_back=(1011,592,133,60), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_friends.png")
+	# page_check_friends 
+	I_CHECK_FRIENDS = RuleImage(roi_front=(594,50,146,31), roi_back=(519,10,290,120), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_friends.png")
 	# description 
 	I_CHECK_DAILY = RuleImage(roi_front=(38,515,45,62), roi_back=(1,489,155,127), threshold=0.7, method="Template matching", file="./tasks/GameUi/page/page_check_daily.png")
 	# description 
