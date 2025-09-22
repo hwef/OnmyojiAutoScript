@@ -240,6 +240,14 @@ class BaseCor:
                 if result.score < self.score:
                     continue
                 result.ocr_text = self.after_process(result.ocr_text)
+
+                box = result.box  # 获取边界框坐标
+                x_min = self.roi[0] + box[0][0]
+                y_min = self.roi[1] + box[0][1]
+                width = box[1][0] - box[0][0]
+                height = box[2][1] - box[1][1]
+                result.after_box = (x_min, y_min, width, height)
+
                 results.append(result)
 
             logger.attr(
