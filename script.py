@@ -484,8 +484,10 @@ class Script:
             if isinstance(e, (GameWaitTooLongError, GameTooManyClickError, GamePageUnknownError, GameStuckError, GameBugError, FileNotFoundError)):
                 logger.error(e)
                 logger.warning(f'{error_type}, Game will be restarted in 10 seconds')
+                self.save_error_log(task=command, error_type=error_type)
                 self.device.sleep(10)
                 self.config.task_call('Restart')
+                return result
             elif isinstance(e, ScriptError):
                 logger.critical(e)
             elif isinstance(e, RequestHumanTakeover):
