@@ -777,7 +777,9 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 if self.config.small_account.small_account_name.enable_save_img:
                     filename = get_filename(self.config.small_account.small_account_name.account_name)
                 else:
-                    logger.warning(f"开启了小号任务, 未开启截图保存, 退出")
+                    logger.warning(f"开启了小号任务, 未开启截图保存，保存截图将被忽略")
+                    if push_flag:
+                        self.push_notify(content=content)
                     return
             else:
                 filename = get_filename(self.config.config_name.upper())
