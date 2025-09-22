@@ -847,7 +847,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         # 发送邮件
         self.config.notifier.send_push(title=title, content=content, image=image)
         
-    def ocr_text_threshold(self, target, threshold=0.5, interval: float = None):
+    def ocr_text_threshold(self, target, threshold=0.7, interval: float = None):
         if interval:
             if target.name in self.interval_timer:
                 # 如果传入的限制时间不一样，则替换限制新的传入的时间
@@ -866,7 +866,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         # 边界检查：确保 OCR 结果不为空
         if not ocrResult or len(ocrResult) == 0:
             return False
-        if self.assess_text_threshold(target.keyword, ocrResult):
+        if self.assess_text_threshold(target.keyword, ocrResult, threshold):
             appear = True
         if interval and appear:
             self.interval_timer[target.name].reset()

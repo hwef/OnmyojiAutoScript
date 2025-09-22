@@ -79,7 +79,6 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
                 logger.info('Arrive the Kirin')
                 return True
 
-
     def netherworld(self):
         logger.hr('阴界之门', 2)
         self.ui_get_current_page()
@@ -105,7 +104,6 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
                 logger.warning('今日已挑战')
                 self.ui_click_until_disappear(self.I_UI_BACK_RED)
                 return False
-
 
     def battle_wait(self, random_click_swipt_enable: bool) -> bool:
         """
