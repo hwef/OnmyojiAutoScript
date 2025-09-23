@@ -98,10 +98,6 @@ class LoginHandler(LoginBase, RestartAssets, GeneralBuff):
                     logger.info("reject invites")
                     self.invite_handled = True  # 标记为已处理
                     continue
-            # 关闭阴阳师精灵提示
-            if self.appear_then_click(self.I_LOGIN_LOGIN_ONMYOJI_GENIE):
-                logger.info("关闭阴阳师精灵提示")
-                continue
             # 点击屏幕进入游戏
             if self.appear(self.I_LOGIN_SPECIFIC_SERVE, interval=0.6) and self.ocr_appear_click(self.O_LOGIN_SPECIFIC_SERVE, interval=0.6):
                 logger.info(f'多角色区服选择成功: {self.O_LOGIN_SPECIFIC_SERVE.keyword}')
@@ -197,7 +193,11 @@ class LoginHandler(LoginBase, RestartAssets, GeneralBuff):
                 continue
             if self.appear_then_click(self.I_LIAO_MESSAGE, interval=1):
                 timer_harvest.reset()
-                logger.info('click 寮消息通知')
+                logger.info('关闭寮消息通知')
+                continue
+            # 关闭阴阳师精灵提示
+            if self.appear_then_click(self.I_LOGIN_LOGIN_ONMYOJI_GENIE):
+                logger.info("关闭阴阳师精灵提示")
                 continue
             # 各种邀请框
             self.reject_invite()
