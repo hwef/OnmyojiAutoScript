@@ -358,9 +358,13 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
             self.screenshot()
             if self.appear(self.I_BLUE_PIAO):
                 if self.click(self.I_JADE_50):
-                    logger.info('Buy a mystery amulet for 50 jade')
+                    logger.info('50 勾玉购买蓝票')
                     continue
-            if not self.appear(self.I_BLUE_PIAO):
+            if self.appear(self.I_SUSHI_100):
+                if self.click(self.I_JADE_50):
+                    logger.info('50 勾玉购买体力')
+                    continue
+            if not self.appear(self.I_BLUE_PIAO) and not self.appear(self.I_SUSHI_100):
                 if self.appear_then_click(self.I_DE_FIND, interval=2.5):
                     break
 
