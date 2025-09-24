@@ -753,17 +753,6 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 if self.config and self.config.task:
                     task_name = self.config.task.command
 
-            # 设置保存图像的文件夹
-            WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
-            if task_name in WeeklyTask:
-                folder_name = f'{week_path}/{I18n.trans_zh_cn(task_name)}'
-            else:
-                folder_name = f'{log_path}/{I18n.trans_zh_cn(task_name)}'
-            if self.config.small_account.scheduler.enable:
-                folder_name = folder_name.replace("\log", "\log\小号截图")
-            folder_path = Path(folder_name)
-            folder_path.mkdir(parents=True, exist_ok=True)
-
             # 截图等待时间
             if wait_time > 0:
                 sleep(wait_time)
@@ -783,6 +772,17 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                     return
             else:
                 filename = get_filename(self.config.config_name.upper())
+
+            # 设置保存图像的文件夹
+            WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
+            if task_name in WeeklyTask:
+                folder_name = f'{week_path}/{I18n.trans_zh_cn(task_name)}'
+            else:
+                folder_name = f'{log_path}/{I18n.trans_zh_cn(task_name)}'
+            if self.config.small_account.scheduler.enable:
+                folder_name = folder_name.replace("\log", "\log\小号截图")
+            folder_path = Path(folder_name)
+            folder_path.mkdir(parents=True, exist_ok=True)
 
             image_path = folder_path / filename  # 使用pathlib路径对象
 
