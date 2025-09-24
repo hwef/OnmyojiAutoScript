@@ -41,6 +41,8 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
         # 商店签到 or 购买寿司
         if con.store_sign or con.buy_sushi_count > 0:
             self.run_store()
+        if con.recruit_members:
+            self.run_recruit_members()
         self.set_next_run('DailyTrifles', success=True, finish=False)
         raise TaskEnd('DailyTrifles')
 
@@ -301,13 +303,44 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
                 continue
         return
 
+    def run_recruit_members(self):
+        self.ui_get_current_page()
+        self.ui_goto(page_guild)
+        flush_count = 0
+        timer = Timer(5)
+        timer.start()
+        while flush_count < 5:
+            self.screenshot()
+            if timer.reached():
+                self.push_notify(content="招募寮成员超时，或没有管理权限")
+                return
+            if self.appear_then_click(self.I_MEMBER_FLUSH, interval=1):
+                flush_count += 1
+                timer.reset()
+                continue
+            if self.appear_then_click(self.I_MEMBER_ADD, interval=0.5):
+                timer.reset()
+                continue
+            if self.appear_then_click(self.I_RECRUIT_MEMBERS, interval=1):
+                timer.reset()
+                continue
+            if self.appear_then_click(self.I_GUILD_MANAGEMENT_1, interval=1):
+                timer.reset()
+                continue
+            if self.appear_then_click(self.I_GUILD_MANAGEMENT, interval=1):
+                continue
+            if self.appear_then_click(self.I_GUILD_INFO, interval=1):
+                timer.reset()
+                continue
+        logger.info('Enter recruit members')
+
 
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oa')
+    c = Config('switch')
     d = Device(c)
     t = ScriptTask(c, d)
 
-    t.run_one_summon()
+    t.run_recruit_members()

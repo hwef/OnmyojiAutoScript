@@ -11,6 +11,21 @@ class DailyTriflesAssets:
 
 
 	# Image Rule Assets
+	# guild_info 
+	I_GUILD_INFO = RuleImage(roi_front=(1181,625,50,45), roi_back=(1181,625,50,45), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/guild/guild_info.png")
+	# guild_management 
+	I_GUILD_MANAGEMENT = RuleImage(roi_front=(260,84,66,45), roi_back=(260,84,66,45), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/guild/guild_management.png")
+	# guild_management_1 
+	I_GUILD_MANAGEMENT_1 = RuleImage(roi_front=(352,612,75,37), roi_back=(352,612,75,37), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/guild/guild_management_1.png")
+	# recruit_members 
+	I_RECRUIT_MEMBERS = RuleImage(roi_front=(339,372,120,30), roi_back=(291,346,213,233), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/guild/recruit_members.png")
+	# member_add 
+	I_MEMBER_ADD = RuleImage(roi_front=(1100,155,39,38), roi_back=(1075,137,86,400), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/guild/member_add.png")
+	# member_flush 
+	I_MEMBER_FLUSH = RuleImage(roi_front=(1004,615,92,32), roi_back=(1004,615,92,32), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/guild/member_flush.png")
+
+
+	# Image Rule Assets
 	# description 
 	I_L_FRIENDS = RuleImage(roi_front=(67,625,70,72), roi_back=(67,625,70,72), threshold=0.9, method="Template matching", file="./tasks/DailyTrifles/love/love_l_friends.png")
 	# l_friends_select 

@@ -1,0 +1,56 @@
+[
+  {
+    "itemName": "guild_info",
+    "imageName": "guild_info.png",
+    "roiFront": "1181,625,50,45",
+    "roiBack": "1181,625,50,45",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "guild_info"
+  },
+  {
+    "itemName": "guild_management",
+    "imageName": "guild_management.png",
+    "roiFront": "260,84,66,45",
+    "roiBack": "260,84,66,45",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "guild_management"
+  },
+  {
+    "itemName": "guild_management_1",
+    "imageName": "guild_management_1.png",
+    "roiFront": "352,612,75,37",
+    "roiBack": "352,612,75,37",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "guild_management_1"
+  },
+  {
+    "itemName": "recruit_members",
+    "imageName": "recruit_members.png",
+    "roiFront": "339,372,120,30",
+    "roiBack": "291,346,213,233",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "recruit_members"
+  },
+  {
+    "itemName": "member_add",
+    "imageName": "member_add.png",
+    "roiFront": "1100,155,39,38",
+    "roiBack": "1075,137,86,400",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "member_add"
+  },
+  {
+    "itemName": "member_flush",
+    "imageName": "member_flush.png",
+    "roiFront": "1004,615,92,32",
+    "roiBack": "1004,615,92,32",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "member_flush"
+  }
+]
