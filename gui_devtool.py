@@ -50,10 +50,6 @@ class DevTool(ctk.CTk):
         self.screen_canvas.bind("<B1-Motion>", self.on_move)
         self.screen_canvas.bind("<ButtonRelease-1>", self.on_release)
         self.mouse_is_in_canvas = False
-        self.dragging = False  # 新增拖动状态变量
-        self.drag_offset_x = 0  # 鼠标相对于矩形框左上角的x偏移量
-        self.drag_offset_y = 0  # 鼠标相对于矩形框左上角的y偏移量
-        self.rect_item = None  # 持久的矩形对象
         # 画布
         self.screen_canvas.grid(row=0, column=0, padx=10, pady=10)
         # 左框架
@@ -374,68 +370,23 @@ class DevTool(ctk.CTk):
 
     def on_click(self, event):
         if self.mouse_is_in_canvas:
-            x1, y1, x2, y2 = self.rect.values()
-            if x1 <= event.x <= x2 and y1 <= event.y <= y2:  # 检查鼠标是否在矩形框内
-                self.dragging = True
-                self.drag_offset_x = event.x - x1
-                self.drag_offset_y = event.y - y1
-            else:
-                # 如果点击的是画布上其他地方，重置矩形框并开始新的绘制
-                self.reset_rectangle()
-                self.rect["x1"] = event.x
-                self.rect["y1"] = event.y
-                self.dragging = False
-
-    def reset_rectangle(self):
-        """重置矩形框"""
-        if self.rect_item is not None:
-            self.screen_canvas.delete(self.rect_item)
-            self.rect_item = None
-        self.rect = {"x1": 0, "y1": 0, "x2": 0, "y2": 0}
-        self.rect_info.delete(0, "end")  # 清空坐标显示框
+            self.rect["x1"] = event.x
+            self.rect["y1"] = event.y
 
     def on_move(self, event):
         if self.mouse_is_in_canvas:
-            if self.dragging:
-                new_x1 = event.x - self.drag_offset_x
-                new_y1 = event.y - self.drag_offset_y
-                new_x2 = new_x1 + (self.rect["x2"] - self.rect["x1"])
-                new_y2 = new_y1 + (self.rect["y2"] - self.rect["y1"])
-
-                # 限制矩形框不能超出画布边界
-                canvas_width = int(self.screen_canvas['width'])
-                canvas_height = int(self.screen_canvas['height'])
-
-                if new_x1 < 0:
-                    new_x1 = 0
-                    new_x2 = self.rect["x2"] - self.rect["x1"]
-                if new_y1 < 0:
-                    new_y1 = 0
-                    new_y2 = self.rect["y2"] - self.rect["y1"]
-                if new_x2 > canvas_width:
-                    new_x2 = canvas_width
-                    new_x1 = canvas_width - (self.rect["x2"] - self.rect["x1"])
-                if new_y2 > canvas_height:
-                    new_y2 = canvas_height
-                    new_y1 = canvas_height - (self.rect["y2"] - self.rect["y1"])
-
-                # 更新矩形框坐标
-                self.rect["x1"] = new_x1
-                self.rect["y1"] = new_y1
-                self.rect["x2"] = new_x2
-                self.rect["y2"] = new_y2
-
-                self.draw_rectangle()
-            else:
-                # 如果不在拖动状态，更新矩形框的右下角
-                self.rect["x2"] = event.x
-                self.rect["y2"] = event.y
-                self.draw_rectangle()
+            self.rect["x2"] = event.x
+            self.rect["y2"] = event.y
+            self.draw_rectangle()
 
     def on_release(self, event):
         if self.mouse_is_in_canvas:
-            self.dragging = False
-            if not (self.rect["x1"] == self.rect["x2"] or self.rect["y1"] == self.rect["y2"]):
+            self.rect["x2"] = event.x
+            self.rect["y2"] = event.y
+            # 检查是否实际拉出了矩形框（即起点和终点不同）
+            if self.rect["x1"] != self.rect["x2"] and self.rect["y1"] != self.rect["y2"]:
+                self.draw_rectangle()
+                # 修改这里：改变日志中坐标的显示格式
                 x1, y1, x2, y2 = self.coordinates
                 self.log_print(f"矩形框坐标：{x1-4},{y1-4},{x2-x1},{y2-y1}")
                 self.dyn_creat_info()
@@ -453,16 +404,8 @@ class DevTool(ctk.CTk):
         # self.click_info.insert(0, f"{self.format_img('coor')}")
 
     def draw_rectangle(self):
-        if self.rect_item is None:
-            self.rect_item = self.screen_canvas.create_rectangle(
-                self.rect["x1"], self.rect["y1"], self.rect["x2"], self.rect["y2"],
-                outline="red", tags="rect"
-            )
-        else:
-            self.screen_canvas.coords(
-                self.rect_item,
-                self.rect["x1"], self.rect["y1"], self.rect["x2"], self.rect["y2"]
-            )
+        self.screen_canvas.delete("rect")
+        self.screen_canvas.create_rectangle(self.rect["x1"], self.rect["y1"], self.rect["x2"], self.rect["y2"], outline="red", tags="rect")
 
     def show_rectangle_from_entry(self, event=None):
         """从坐标输入框获取坐标并在画布上显示矩形框"""
