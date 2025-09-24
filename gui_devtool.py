@@ -114,6 +114,15 @@ class DevTool(ctk.CTk):
         # 初始化保存路径输入框为默认保存路径
         self.folder_path_entry.insert(0, self.save_img_path)
 
+        # 用于矩形拖动功能的变量
+        self.is_dragging = False  # 是否正在拖动矩形
+        self.drag_start_offset_x = 0  # 拖动起始点与矩形左上角的偏移
+        self.drag_start_offset_y = 0  # 拖动起始点与矩形左上角的偏移
+        # 用于新矩形绘制的变量
+        self.is_drawing = False  # 是否正在绘制新矩形
+        self.new_rect_start_x = 0  # 新矩形的起始点x坐标
+        self.new_rect_start_y = 0  # 新矩形的起始点y坐标
+
     def log_print(self, text):
         self.log_box.insert("end", f"{text}\n")
         self.log_box.update()
@@ -370,26 +379,91 @@ class DevTool(ctk.CTk):
 
     def on_click(self, event):
         if self.mouse_is_in_canvas:
-            self.rect["x1"] = event.x
-            self.rect["y1"] = event.y
+            # 检查是否点击在现有矩形内
+            x1, y1, x2, y2 = self.rect["x1"], self.rect["y1"], self.rect["x2"], self.rect["y2"]
+            # 确保矩形有效（有面积）
+            if x1 != x2 and y1 != y2:
+                # 标准化矩形坐标（处理从右下到左上的绘制情况）
+                left = min(x1, x2)
+                right = max(x1, x2)
+                top = min(y1, y2)
+                bottom = max(y1, y2)
+                
+                # 判断点击是否在矩形内部
+                if left <= event.x <= right and top <= event.y <= bottom:
+                    self.is_dragging = True
+                    self.drag_start_offset_x = event.x - x1
+                    self.drag_start_offset_y = event.y - y1
+                    return
+            
+            # 如果不在矩形内，则准备开始新的绘制（但不立即开始）
+            self.is_dragging = False
+            self.is_drawing = False
+            # 注意：这里不立即改变矩形坐标，只记录点击位置用于后续可能的绘制
+            self.new_rect_start_x = event.x
+            self.new_rect_start_y = event.y
 
     def on_move(self, event):
         if self.mouse_is_in_canvas:
-            self.rect["x2"] = event.x
-            self.rect["y2"] = event.y
-            self.draw_rectangle()
+            if self.is_dragging:
+                # 拖动矩形 - 平移整个矩形
+                # 计算新位置
+                new_x1 = event.x - self.drag_start_offset_x
+                new_y1 = event.y - self.drag_start_offset_y
+                
+                # 保持矩形大小不变
+                width = self.rect["x2"] - self.rect["x1"]
+                height = self.rect["y2"] - self.rect["y1"]
+                
+                # 更新矩形坐标
+                self.rect["x1"] = new_x1
+                self.rect["y1"] = new_y1
+                self.rect["x2"] = new_x1 + width
+                self.rect["y2"] = new_y1 + height
+                
+                self.draw_rectangle()
+            else:
+                # 准备绘制新矩形或正在绘制新矩形
+                if not self.is_drawing:
+                    # 开始绘制新矩形
+                    self.is_drawing = True
+                    # 设置矩形的起始点和结束点
+                    self.rect["x1"] = self.new_rect_start_x
+                    self.rect["y1"] = self.new_rect_start_y
+                    self.rect["x2"] = event.x
+                    self.rect["y2"] = event.y
+                else:
+                    # 更新矩形的结束点
+                    self.rect["x2"] = event.x
+                    self.rect["y2"] = event.y
+                self.draw_rectangle()
 
     def on_release(self, event):
         if self.mouse_is_in_canvas:
-            self.rect["x2"] = event.x
-            self.rect["y2"] = event.y
-            # 检查是否实际拉出了矩形框（即起点和终点不同）
-            if self.rect["x1"] != self.rect["x2"] and self.rect["y1"] != self.rect["y2"]:
-                self.draw_rectangle()
-                # 修改这里：改变日志中坐标的显示格式
+            if self.is_dragging:
+                # 完成拖动
+                self.is_dragging = False
+                # 更新坐标显示
                 x1, y1, x2, y2 = self.coordinates
                 self.log_print(f"矩形框坐标：{x1-4},{y1-4},{x2-x1},{y2-y1}")
                 self.dyn_creat_info()
+            else:
+                # 处理新矩形绘制
+                if self.is_drawing:
+                    # 完成新矩形绘制
+                    self.rect["x2"] = event.x
+                    self.rect["y2"] = event.y
+                    # 检查是否实际拉出了矩形框（即起点和终点不同）
+                    if self.rect["x1"] != self.rect["x2"] and self.rect["y1"] != self.rect["y2"]:
+                        self.draw_rectangle()
+                        # 修改这里：改变日志中坐标的显示格式
+                        x1, y1, x2, y2 = self.coordinates
+                        self.log_print(f"矩形框坐标：{x1-4},{y1-4},{x2-x1},{y2-y1}")
+                        self.dyn_creat_info()
+                # 重置绘制状态
+                self.is_drawing = False
+                self.new_rect_start_x = 0
+                self.new_rect_start_y = 0
 
     def dyn_creat_info(self, *args, **kwargs):
         # 修改这里：改变矩形框坐标显示框中的格式
