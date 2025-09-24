@@ -2,21 +2,23 @@
 # @author runhey
 # github https://github.com/runhey
 import time
+
 import cv2
 import numpy as np
-
-from module.ocr.onnx_paddle_ocr import BoxedResult
 from enum import Enum
-
-
 from module.base.decorator import cached_property
-from module.base.utils import area_pad, crop, float2str
-from module.ocr.ppocr import TextSystem
-from module.ocr.models import OCR_MODEL
-from module.exception import ScriptError
+from module.base.utils import float2str
 from module.logger import logger
+from module.ocr.models import OCR_MODEL
+from module.ocr.onnx_paddle_ocr import BoxedResult
+from module.server.setting import State
 
-
+if State.deploy_config.UseOcrServer:
+    from module.ocr.rpc import ModelProxyFactory
+    OCR_MODEL = ModelProxyFactory()
+else:
+    from module.ocr.models import OcrModel
+    OCR_MODEL = OcrModel()
 
 def enlarge_canvas(image):
     """
@@ -204,7 +206,7 @@ class BaseCor:
             logger.error(f'{self.name} OCR识别失败: {str(e)}')
             raise
 
-    def detect_and_ocr(self, image) -> list[BoxedResult]:
+    def detect_and_ocr(self, image, drop_score=None) -> list[BoxedResult]:
         """
         多行OCR识别(支持检测和识别)
         参数:
@@ -229,7 +231,7 @@ class BaseCor:
             image = enlarge_canvas(image)
             # self.save_crop_image(image)
             # OCR识别
-            boxed_results: list[BoxedResult] = self.model.detect_and_ocr(image)
+            boxed_results: list[BoxedResult] = self.model.detect_and_ocr(image, drop_score)
             if not boxed_results:
                 logger.info(f"{self.name} 未检测到任何文本")
                 return []
@@ -318,11 +320,11 @@ class BaseCor:
         # else:
         #     return None
 
-    def detect_text(self, image) -> str:
+    def detect_text(self, image, drop_score=None) -> str:
         """
         识别图片中的文字， 会按照顺序拼接起来
         :param image:
-        :return:
+        :param drop_score
         """
         # pre process
         start_time = time.time()
@@ -330,7 +332,7 @@ class BaseCor:
         image = self.pre_process(image)
         image = enlarge_canvas(image)
         # ocr
-        boxed_results: list[BoxedResult] = self.model.detect_and_ocr(image)
+        boxed_results: list[BoxedResult] = self.model.detect_and_ocr(image, drop_score)
         results = ''
         # after proces
         for result in boxed_results:
@@ -383,7 +385,6 @@ class BaseCor:
         Returns:
             padded_image: 添加边框后的图像
         """
-        import cv2
         import numpy as np
 
         # 获取原始图像尺寸

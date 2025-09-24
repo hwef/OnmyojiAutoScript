@@ -5,6 +5,7 @@ import threading
 from module.logger import logger
 from module.server.setting import State
 
+
 def fun(ev: threading.Event):
     import argparse
     import asyncio
@@ -54,6 +55,7 @@ def fun(ev: threading.Event):
     logger.attr("Port", port)
     logger.attr("Reload", ev is not None)
 
+
     uvicorn.run("module.server.app:fastapi_app",
                 host=host,
                 port=port,
@@ -63,4 +65,3 @@ def fun(ev: threading.Event):
 
 if __name__ == "__main__":
     fun(None)
-

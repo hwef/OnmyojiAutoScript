@@ -1,16 +1,16 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from contextlib import asynccontextmanager
-
 import argparse
-from fastapi import FastAPI, Request
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
-
 from module.logger import logger
-
+from module.ocr.rpc import start_ocr_server_process
 from module.server.home_router import home_app
 from module.server.script_router import script_app
+from module.server.setting import State
 from starlette import status
 from starlette.responses import JSONResponse
 
@@ -38,6 +38,10 @@ app.add_middleware(
 app.include_router(home_app)
 app.include_router(script_app)
 
+# ocrServer
+if State.deploy_config.UseOcrServer:
+    port = State.deploy_config.OcrServerPort
+    start_ocr_server_process(port=port)
 
 async def on_startup():
     logger.info('OAS web service startup done')
@@ -45,6 +49,7 @@ async def on_startup():
 
 async def on_shutdown():
     logger.info('OAS web service shutdown done')
+
 
 
 @app.exception_handler(Exception)
