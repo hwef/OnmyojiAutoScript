@@ -193,10 +193,9 @@ class DevTool(ctk.CTk):
             self.img_name.delete(0, "end")
             self.img_name.insert(0, img_name)
 
-            # 设置默认保存名称为加载图片名_1（仅在保存名称为空时）
-            if not self.save_name_entry.get().strip():
-                self.save_name_entry.delete(0, "end")
-                self.save_name_entry.insert(0, f"{img_name}_1")
+            # 设置默认保存名称为加载图片名_1
+            self.save_name_entry.delete(0, "end")
+            self.save_name_entry.insert(0, f"{img_name}_1")
 
             # 自动填充文件夹路径为默认保存路径
             self.folder_path_entry.delete(0, "end")
