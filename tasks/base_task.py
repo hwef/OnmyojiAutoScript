@@ -109,7 +109,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         # 接受邀请后立即执行悬赏任务
         if click_button == self.I_G_ACCEPT:
             logger.warning('已接受悬赏邀请')
-            self.push_notify("已接到悬赏邀请,记得去做呢")
+            self.push_notify("已接到悬赏邀请,记得去做呢", "接到悬赏")
             self.set_next_run(task='WantedQuests', target=datetime.now().replace(microsecond=0))
         else:
             logger.warning(f"已忽略悬赏邀请")
@@ -821,7 +821,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             self.push_notify(content=f"保存截图异常，{e}")
             logger.error(f"保存{task_name}截图异常，{e}")
 
-    def push_notify(self, content=''):
+    def push_notify(self, content='', title=None):
         if content != '':
             logger.info(content)
 
@@ -831,9 +831,11 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 return
 
         # 处理title的逻辑优化
-        title = 'task_name'
-        if self.config and self.config.task:
-            title = self.config.task.command
+        if not title:
+            if self.config and self.config.task:
+                title = self.config.task.command
+            else:
+                title = 'task_name'
 
         if self.config.small_account.scheduler.enable:
             if self.config.small_account.small_account_name.enable_notify:
@@ -901,11 +903,12 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('switch')
+    c = Config('du')
     d = Device(c)
     t = BaseTask(c, d)
     # t.next_run_week(2)
-    t.next_run_week(c.duel.switch_week.next_week_day)
+    t.push_notify("123456", "123456")
+    # t.next_run_week(c.duel.switch_week.next_week_day)
 
     # t.screenshot()
     # t.save_image(push_flag=True, content='成功保存截图')
