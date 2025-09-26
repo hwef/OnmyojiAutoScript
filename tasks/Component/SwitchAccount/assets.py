@@ -82,6 +82,8 @@ class SwitchAccountAssets:
 	I_LOGIN_IN = RuleImage(roi_front=(575,367,124,36), roi_back=(481,314,307,155), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/qd4399/login_in.png")
 	# change_account 
 	I_CHANGE_ACCOUNT = RuleImage(roi_front=(182,427,49,52), roi_back=(107,345,301,222), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/qd4399/change_account.png")
+	# 接受协议 
+	I_ACCEPT_AGREEMENT = RuleImage(roi_front=(751,603,76,31), roi_back=(673,581,237,73), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/qd4399/accept_agreement.png")
 
 
 	# Image Rule Assets

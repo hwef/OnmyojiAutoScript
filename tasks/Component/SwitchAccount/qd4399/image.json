@@ -70,5 +70,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "change_account"
+  },
+  {
+    "itemName": "accept_agreement",
+    "imageName": "accept_agreement.png",
+    "roiFront": "751,603,76,31",
+    "roiBack": "673,581,237,73",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "接受协议"
   }
 ]

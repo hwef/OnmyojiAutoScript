@@ -243,16 +243,31 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
 
         #
         isAccountLogon = False
+        isCharacterSelected = True
         if accountInfo.enable_wy:
             isCharacterSelected = True
         else:
-            isCharacterSelected = False
-            self.ui_click(self.C_SA_LOGIN_FORM_SWITCH_SVR_BTN, self.I_QD_READ_AND_AGREED, interval=1)
+            while 1:
+                self.screenshot()
+                if self.appear(self.I_QD_READ_AND_AGREED):
+                    isAccountLogon = False
+                    isCharacterSelected = False
+                    break
+                if self.appear(self.I_SA_CHECK_SELECT_SVR_1):
+                    isAccountLogon = True
+                    isCharacterSelected = True
+                    break
+                if self.click(self.C_SA_LOGIN_FORM_SWITCH_SVR_BTN, interval=1.5):
+                    continue
 
         self.O_SA_ACCOUNT_ACCOUNT_SELECTED.keyword = accountInfo.account
         self.O_SA_LOGIN_FORM_USER_CENTER_ACCOUNT.keyword = accountInfo.account
         while 1:
             self.screenshot()
+
+            if self.appear_then_click(self.I_ACCEPT_AGREEMENT):
+                continue
+
             # 处于 选择服务器界面 直接点击空白区域退出该界面 进入切换账号流程
             if self.appear(self.I_SA_CHECK_SELECT_SVR_1) or self.appear(self.I_SA_CHECK_SELECT_SVR_2):
                 self.click(self.C_SA_LOGIN_FORM_CANCEL_SVR_SELECT)
@@ -345,86 +360,94 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
         @param account: 账号字符串
         @param password: 密码字符串
         """
-        self.screenshot()
-        O_login_input = RuleOcr(roi=(9,74,245,295), area=(9,74,245,295), mode="Single", method="Default", keyword="账号", name="sa_select_svr_svr_list")
-        ocrRes = O_login_input.detect_and_ocr(self.device.image)
+        while 1:
+            self.screenshot()
+            O_login_input = RuleOcr(roi=(9,74,245,295), area=(9,74,245,295), mode="Single", method="Default", keyword="", name="sa_select_svr_svr_list")
+            ocrRes = O_login_input.detect_and_ocr(self.device.image)
 
-        # 直接查找并获取 "账号" 的 OCR 结果
-        account_ocr = next((res for res in ocrRes if res.ocr_text == "账号"), None)
-        if not account_ocr:
-            logger.error("未找到账号输入框")
-            return False
-        password_ocr = next((res for res in ocrRes if res.ocr_text == "密码"), None)
-        if not password_ocr:
-            logger.error("未找到密码输入框")
-            return False
+            # 直接查找并获取 "账号" 的 OCR 结果
+            account_ocr = next((res for res in ocrRes if res.ocr_text == "账号"), None)
+            if not account_ocr:
+                logger.error("未找到账号输入框")
+                return False
+            password_ocr = next((res for res in ocrRes if res.ocr_text == "密码"), None)
+            if not password_ocr:
+                logger.error("未找到密码输入框")
+                return False
 
-        # ocrList = [res for res in ocrRes if res.ocr_text in loginList]
-        # print(account_ocr.after_box)  # 43.0, 108.0, 52.0, 32.0
-        # print(password_ocr.after_box)  # 43.0, 191.0, 52.0, 32.0
+            # ocrList = [res for res in ocrRes if res.ocr_text in loginList]
+            # print(account_ocr.after_box)  # 43.0, 108.0, 52.0, 32.0
+            # print(password_ocr.after_box)  # 43.0, 191.0, 52.0, 32.0
 
-        click_account_roi = account_ocr.after_box[0] + 100,account_ocr.after_box[1],account_ocr.after_box[2],account_ocr.after_box[3]
-        click_password_roi = password_ocr.after_box[0] + 100,password_ocr.after_box[1],password_ocr.after_box[2],password_ocr.after_box[3]
-        click_account = RuleClick(roi_front=click_account_roi, roi_back=click_account_roi, name="click_account")
-        click_password = RuleClick(roi_front=click_password_roi, roi_back=click_password_roi, name="click_password")
+            click_account_roi = account_ocr.after_box[0] + 100,account_ocr.after_box[1],account_ocr.after_box[2],account_ocr.after_box[3]
+            click_password_roi = password_ocr.after_box[0] + 100,password_ocr.after_box[1],password_ocr.after_box[2],password_ocr.after_box[3]
+            click_account = RuleClick(roi_front=click_account_roi, roi_back=click_account_roi, name="click_account")
+            click_password = RuleClick(roi_front=click_password_roi, roi_back=click_password_roi, name="click_password")
 
-        clear_account_roi = 1107,account_ocr.after_box[1],157,account_ocr.after_box[3]
-        clear_password_roi = 1107,password_ocr.after_box[1],157,password_ocr.after_box[3]
-        self.I_QD_CLEAR_ACCOUNT_INPUT.roi_front = list(clear_account_roi)
-        self.I_QD_CLEAR_ACCOUNT_INPUT.roi_back = list(clear_account_roi)
-        self.I_QD_CLEAR_PASSWORD_INPUT.roi_front = list(clear_password_roi)
-        self.I_QD_CLEAR_PASSWORD_INPUT.roi_back = list(clear_password_roi)
-        self.I_QD_SHOW_PASSWORD.roi_front = list(clear_password_roi)
-        self.I_QD_SHOW_PASSWORD.roi_back = list(clear_password_roi)
+            clear_account_roi = 1150, account_ocr.after_box[1], 60, account_ocr.after_box[3]
+            clear_password_roi = 1150, password_ocr.after_box[1], 120, password_ocr.after_box[3]
+            self.I_QD_CLEAR_ACCOUNT_INPUT.roi_front = list(clear_account_roi)
+            self.I_QD_CLEAR_ACCOUNT_INPUT.roi_back = list(clear_account_roi)
+            logger.info(f"[坐标] clear_account_roi： {clear_account_roi}")
+            self.I_QD_CLEAR_PASSWORD_INPUT.roi_front = list(clear_password_roi)
+            self.I_QD_CLEAR_PASSWORD_INPUT.roi_back = list(clear_password_roi)
+            self.I_QD_SHOW_PASSWORD.roi_front = list(clear_password_roi)
+            self.I_QD_SHOW_PASSWORD.roi_back = list(clear_password_roi)
+            logger.info(f"[坐标] clear_password_roi： {clear_password_roi}")
 
+            o_account_roi = account_ocr.after_box[0] + 70, account_ocr.after_box[1], account_ocr.after_box[2] + 50, account_ocr.after_box[3]
+            o_password_roi = password_ocr.after_box[0] + 70, password_ocr.after_box[1], password_ocr.after_box[2] + 50, password_ocr.after_box[3]
+            o_account = RuleOcr(roi=o_account_roi, area=o_account_roi, mode="Single", method="Default", keyword="账号", name="sa_select_svr_svr_list")
+            o_password = RuleOcr(roi=o_password_roi, area=o_password_roi, mode="Single", method="Default", keyword="账号", name="sa_select_svr_svr_list")
 
-        # clear_account = RuleImage(roi_front=clear_account_roi, roi_back=clear_account_roi, threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/res/clear_act.png")
-        # clear_password = RuleImage(roi_front=clear_password_roi, roi_back=clear_password_roi, threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/res/clear_act.png")
+            logger.info(f"开始输入账号: {account}, 密码: {password}")
 
-        o_account_roi = account_ocr.after_box[0] + 70, account_ocr.after_box[1], account_ocr.after_box[2] + 50, account_ocr.after_box[3]
-        o_password_roi = password_ocr.after_box[0] + 70, password_ocr.after_box[1], password_ocr.after_box[2] + 50, password_ocr.after_box[3]
-        o_account = RuleOcr(roi=o_account_roi, area=o_account_roi, mode="Single", method="Default", keyword="账号", name="sa_select_svr_svr_list")
-        o_password = RuleOcr(roi=o_password_roi, area=o_password_roi, mode="Single", method="Default", keyword="账号", name="sa_select_svr_svr_list")
+            # 定位账号输入框并点击激活
+            self.click(click_account)
+            time.sleep(1)
 
-        k_passwoed = RuleImage(roi_front=(1107,password_ocr.after_box[1],157,32.0), roi_back=( 1107,128,157,32.0), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/res/k_passwoed.png")
+            # 清空账号输入框内容
+            self.ui_click_until_disappear(self.I_QD_CLEAR_ACCOUNT_INPUT)
 
-        logger.info(f"开始输入账号: {account}, 密码: {password}")
+            self.screenshot()
+            if o_account.ocr(self.device.image) != '请输入439':
+                logger.info("账号输入框没清空")
+                continue
 
-        # 1. 定位账号输入框并点击激活
-        self.click(click_account)
-        time.sleep(1)
+            # 输入账号
+            self.device.adb.shell(f"input text {account}")
+            time.sleep(1)
 
-        # 2. 清空账号输入框内容
-        self.ui_click_until_disappear(self.I_QD_CLEAR_ACCOUNT_INPUT)
+            self.screenshot()
+            if o_account.ocr(self.device.image) != '请输入439':
+                logger.info(f"账号输入成功")
+            else:
+                logger.warning(f"账号输入失败")
+                continue
 
-        # 2. 输入账号
-        self.device.adb.shell(f"input text {account}")
-        time.sleep(1)
+            # 定位密码输入框并点击激活
+            self.click(click_password)
+            time.sleep(1)
 
-        self.screenshot()
-        if account == o_account.ocr(self.device.image):
-            logger.info(f"账号输入成功: {account}")
-        else:
-            logger.warning(f"账号输入失败: {account}")
+            # 清空密码输入框内容
+            self.ui_click_until_disappear(self.I_QD_CLEAR_PASSWORD_INPUT)
 
-        # 3. 定位密码输入框并点击激活
-        self.click(click_password)
-        time.sleep(1)
+            self.screenshot()
+            if o_password.ocr(self.device.image) != '请输入密':
+                logger.info("密码输入框没清空")
+                continue
 
-        # 2. 清空密码输入框内容
-        self.ui_click_until_disappear(self.I_QD_CLEAR_PASSWORD_INPUT)
+            # 输入密码
+            self.device.adb.shell(f"input text {password}")
+            time.sleep(1)
 
-        # 4. 输入密码
-        self.device.adb.shell(f"input text {password}")
-        time.sleep(1)
-
-        self.screenshot()
-        self.appear_then_click(self.I_QD_SHOW_PASSWORD)
-        self.screenshot()
-        if password == o_password.ocr(self.device.image):
-            logger.info(f"密码输入成功")
-        else:
-            logger.warning(f"密码输入失败")
+            self.screenshot()
+            if o_password.ocr(self.device.image) != '请输入密':
+                logger.info(f"密码输入成功")
+                break
+            else:
+                logger.warning(f"密码输入失败")
+                continue
 
         # 点击同意协议
         self.ui_click(self.I_QD_NO_AGREED, self.I_QD_AGREED, interval=1)
