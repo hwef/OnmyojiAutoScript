@@ -61,23 +61,18 @@ class SoloExploration(BaseExploration):
                 # 是否第一次进
                 if not explore_init:
                     if atuo_rotate_on:
+                        logger.info('先锁定阵容，再点击轮换')
+                        self.ui_click(self.I_LOCK_ON, stop=self.I_LOCK_OFF)
                         while 1:
                             self.screenshot()
-                            if not self.appear_rgb(self.I_E_AUTO_ROTATE_OFF):
+                            if self.appear(self.I_LOCK_ON):
                                 break
-                            if self.appear_then_click(self.I_E_AUTO_ROTATE_OFF, interval=1):
+                            if self.click(self.C_AUTO_TOTATE, interval=1):
                                 continue
                         logger.info('自动轮换已开启')
                         if self._config.exploration_config.auto_rotate == AutoRotate.yes:
                             self.enter_settings_and_do_operations()
                     else:
-                        while 1:
-                            self.screenshot()
-                            if self.appear_rgb(self.I_E_AUTO_ROTATE_OFF):
-                                break
-                            if self.appear_then_click(self.I_E_AUTO_ROTATE_OFF, interval=1):
-                                continue
-                        logger.info('自动轮换已关闭')
                         self.ui_click(self.I_LOCK_ON, stop=self.I_LOCK_OFF)
                         logger.info('阵容已锁定')
                     explore_init = True
@@ -478,7 +473,7 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('du')
+    config = Config('1')
     device = Device(config)
     t = ScriptTask(config, device)
     t.run()

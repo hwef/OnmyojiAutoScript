@@ -68,6 +68,8 @@ class ExplorationAssets:
 	C_CLICK_ROTATE_4 = RuleClick(roi_front=(921,590,21,21), roi_back=(921,590,21,21), name="click_rotate_4")
 	# 随机点 
 	C_SAFE_RANDOM = RuleClick(roi_front=(0,0,111,12), roi_back=(0,0,111,12), name="safe_random")
+	# 自动轮换按钮 
+	C_AUTO_TOTATE = RuleClick(roi_front=(121,661,17,20), roi_back=(121,661,17,20), name="auto_totate")
 
 
 	# Image Rule Assets
