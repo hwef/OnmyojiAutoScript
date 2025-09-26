@@ -12,32 +12,54 @@ from module.exception import TaskEnd, SwitchAccountError
 from tasks.GameUi.game_ui import GameUi
 from tasks.SmallAccount.channel4399 import ScriptTask as ScriptTask4399
 from tasks.SmallAccount.channelwy import ScriptTask as ScriptTaskWY
-from tasks.SmallAccount.base_channel_task import BaseChannelTask
+from tasks.SmallAccount.base_channel_task import BaseChannelTask, TaskType
 
-""" 小号切换 """
 
-class ScriptTask(GameUi):
+""" 账号切换 """
+
+
+class ScriptTask(BaseChannelTask):
+    def __init__(self, config, device):
+        super().__init__(config, device)
+        self.task_wy = ScriptTaskWY(self.config, self.device)
+        self.task_4399 = ScriptTask4399(self.config, self.device)
 
     def run(self):
         con = self.config.small_account
+
+        # ===== 日常任务 =====
+        self.run_start(con, TaskType.dailyTask)
+    
+        # ===== 协战任务 =====
+        self.run_start(con, TaskType.assist50)
+    
+        # ===== 周任务 =====
+        self.run_start(con, TaskType.weekTask)
+    
+        # ===== 限时任务 =====
+        self.run_start(con, TaskType.limitTask)
+
+        # 所有角色任务均已完成
+        self.all_account_complete_task(con)
+        
+    def run_start(self, con, task_type):
+
         accounts_file = con.small_account_config.accounts_file
 
-        logger.info('开始读取配置文件')
         # 加载所有账号数据
         with open(f'config/SmallAccount/{accounts_file}', 'r', encoding='utf-8') as file:
             all_accounts_data = json.load(file)
 
+        task_type_name = self.get_task_type_name(task_type)
+        logger.hr(task_type_name, 1)
+
         for index, current_account_data in enumerate(all_accounts_data):
             if current_account_data.get("enable_wy", True):
-                task_wy = ScriptTaskWY(self.config, self.device)
-                task_wy.run_wy(con, current_account_data, index)
+                # 网易渠道
+                self.task_wy.run_task(con, current_account_data, index, task_type)
             else:
-                task_4399 = ScriptTask4399(self.config, self.device)
-                task_4399.run_4399(con, current_account_data, index)
-
-        base_task = BaseChannelTask(self.config, self.device)
-        # 所有角色任务均已完成
-        base_task.all_account_complete_task(con)
+                # 4399渠道
+                self.task_4399.run_task(con, current_account_data, index, task_type)
 
 
 def run_task(config, device):
@@ -79,11 +101,11 @@ def switch_qd_account(config, device):
 
     account_list = [
         AccountInfo(account="xilili1", account_alias="xilili1", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨1", svr="樱之华"),
-        AccountInfo(account="xilili2s", account_alias="xilili2s", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨2", svr="樱之华"),
+        AccountInfo(account="xilili2s", account_alias="xilili2s", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨2、", svr="樱之华"),
         AccountInfo(account="xilili3", account_alias="xilili3", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨3", svr="樱之华"),
-        AccountInfo(account="xilili4", account_alias="xilili4", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨4", svr="樱之华"),
+        AccountInfo(account="xilili4", account_alias="xilili4", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨4、", svr="樱之华"),
         AccountInfo(account="xilili5", account_alias="xilili5", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨5", svr="樱之华"),
-        AccountInfo(account="xilili6", account_alias="xilili6", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨6", svr="樱之华"),
+        AccountInfo(account="xilili6", account_alias="xilili6", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨6、", svr="樱之华"),
         AccountInfo(account="xilili7s", account_alias="xilili7s", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨7", svr="樱之华"),
         AccountInfo(account="xilili8", account_alias="xilili8", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨8", svr="樱之华"),
         AccountInfo(account="xilili9", account_alias="xilili9", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨9", svr="樱之华"),
@@ -106,17 +128,5 @@ if __name__ == '__main__':
     # set_task_time(config)
     # 切换账号
     # switch_account(config, device)
+    # switch_qd_account(config, device)
 
-# if __name__ == '__main__':
-#     from module.config.config import Config
-#     from module.device.device import Device
-#
-#     config = Config('switch')
-#     device = Device(config)
-#     t = ScriptTask(config, device)
-#     # 运行任务
-#     t.run()
-#     # 设置时间
-#     # set_task_time(config)
-#     # 切换账号
-#     # switch_account(config, device)
