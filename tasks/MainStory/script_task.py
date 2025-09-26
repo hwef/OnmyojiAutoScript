@@ -1,6 +1,7 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
+import os
 from module.logger import logger
 import random
 from time import sleep
@@ -16,7 +17,17 @@ from tasks.Restart.assets import RestartAssets
 class ScriptTask(GeneralBattle, GameUi, MainStoryAssets):
 
     def run(self):
-        self.do_run()
+        image_templates = self._load_image_template("./tasks/MainStory/tmp")
+        while 1:
+            self.screenshot()
+            for template in image_templates:
+                if self.appear_then_click(template, interval=1):
+                    current_file = os.path.basename(template.file)
+                    if current_file == '挑战.png' or current_file == '准备.png':
+                        self.device.stuck_record_add('BATTLE_STATUS_S')
+                    break
+
+        # self.do_run()
 
     def do_run(self):
         self.ui_get_current_page()
