@@ -120,7 +120,7 @@ class Script:
                 f.writelines(lines)
             # asyncio.run(self.config.pushtg.telegram_send(title, error_path_image, error_path_log))
             if self.config.small_account.scheduler.enable:
-                name = self.config.small_account.small_account_name.account_name
+                name = self.config.small_account.small_account_config.account_name
                 logger.info(f"已开启小号任务，拼接[{name}]，发送通知")
                 task = f"{name}▪{I18n.trans_zh_cn(task)}"
             self.config.notifier.send_push(f"❌ {I18n.trans_zh_cn(task)}", error_type, self.device.image, error_log_path)

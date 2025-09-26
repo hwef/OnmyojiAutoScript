@@ -765,8 +765,8 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
 
             if self.config.small_account.scheduler.enable:
-                if self.config.small_account.small_account_name.enable_save_img:
-                    filename = get_filename(self.config.small_account.small_account_name.account_name)
+                if self.config.small_account.small_account_config.enable_save_img:
+                    filename = get_filename(self.config.small_account.small_account_config.account_name)
                 else:
                     logger.warning(f"开启了小号任务, 未开启截图保存，保存截图将被忽略")
                     if push_flag:
@@ -828,7 +828,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             logger.info(content)
 
         if self.config.small_account.scheduler.enable:
-            if not self.config.small_account.small_account_name.enable_notify:
+            if not self.config.small_account.small_account_config.enable_notify:
                 logger.warning("已开启小号任务，但未启用小号通知，通知将被忽略")
                 return
 
@@ -840,8 +840,8 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 title = 'task_name'
 
         if self.config.small_account.scheduler.enable:
-            if self.config.small_account.small_account_name.enable_notify:
-                name = self.config.small_account.small_account_name.account_name
+            if self.config.small_account.small_account_config.enable_notify:
+                name = self.config.small_account.small_account_config.account_name
                 logger.info(f"已开启小号任务，并启用了小号通知，拼接[{name}]，准备发送通知")
                 title = f"{name}▪{I18n.trans_zh_cn(title)}"
 
