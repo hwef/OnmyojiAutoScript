@@ -3,6 +3,8 @@
 # github https://github.com/runhey
 
 from time import sleep
+
+import os
 from fuzzywuzzy import fuzz
 import cv2
 from datetime import datetime, timedelta
@@ -897,6 +899,31 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 logger.error(f'Invalid switch_group_team format: {target}')
                 return -1, -1
         return -1, -1
+
+    def _load_image_template(self, image_folder, threshold=0.8):
+        image_templates = []
+        supported_formats = ('.png', '.jpg', '.jpeg')
+
+        # 遍历图片文件夹
+        for filename in os.listdir(image_folder):
+            if not filename.lower().endswith(supported_formats):
+                continue
+            # 构建完整路径
+            file_path = os.path.join(image_folder, filename)
+
+            # 创建RuleImage对象并添加到列表
+            image_rule = RuleImage(
+                roi_front=(0, 0, 1280, 720),  # 保持与原来相同的ROI参数
+                roi_back=(0, 0, 1280, 720),
+                threshold=threshold,
+                method="Template matching",
+                file=file_path
+            )
+            image_templates.append(image_rule)
+
+        logger.info(f"加载图片模板集合: {image_templates}")
+        logger.info(f"加载图片模板数量: {len(image_templates)}")
+        return image_templates
 
 
 if __name__ == '__main__':
