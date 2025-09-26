@@ -14,7 +14,9 @@ class AccountInfo(BaseModel):
     """
     character: str = Field(default="", description='character_help')
     svr: str = Field(default="", description="svr_help")
+    enable_wy: bool = Field(default=True, description="是否是网易渠道")
     account: str = Field(default="", description="account_help")
+    password: str = Field(default="", description="password_help")
     # 为防止ocr出错 暂定格式 字符串以#分割
     account_alias: str = Field(default="", description="account_alias_help")
     apple_or_android: bool = Field(default=True, description="apple_or_android_help")

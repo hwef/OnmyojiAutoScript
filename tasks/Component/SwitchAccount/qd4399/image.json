@@ -1,0 +1,74 @@
+[
+  {
+    "itemName": "qd_read_and_agreed",
+    "imageName": "qd_read_and_agreed.png",
+    "roiFront": "693,520,191,54",
+    "roiBack": "192,28,860,620",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "登录界面4399-已阅读并同意"
+  },
+  {
+    "itemName": "qd_clear_account_input",
+    "imageName": "qd_clear_input.png",
+    "roiFront": "0,0,0,0",
+    "roiBack": "0,0,0,0",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "账号登录4399-清除输入的内容"
+  },
+  {
+    "itemName": "qd_clear_password_input",
+    "imageName": "qd_clear_input.png",
+    "roiFront": "0,0,0,0",
+    "roiBack": "0,0,0,0",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "账号登录4399-清除输入的内容"
+  },
+  {
+    "itemName": "qd_show_password",
+    "imageName": "qd_show_password.png",
+    "roiFront": "0,0,0,0",
+    "roiBack": "0,0,0,0",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "账号登录4399-显示密码"
+  },
+  {
+    "itemName": "qd_no_agreed",
+    "imageName": "no_agreed.png",
+    "roiFront": "388,252,214,105",
+    "roiBack": "388,252,214,105",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "账号登录4399-未点击同意"
+  },
+  {
+    "itemName": "qd_agreed",
+    "imageName": "agreed.png",
+    "roiFront": "388,252,214,105",
+    "roiBack": "388,252,214,105",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "账号登录4399-同意"
+  },
+  {
+    "itemName": "login_in",
+    "imageName": "login_in.png",
+    "roiFront": "575,367,124,36",
+    "roiBack": "481,314,307,155",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "login_in"
+  },
+  {
+    "itemName": "change_account",
+    "imageName": "change_account.png",
+    "roiFront": "182,427,49,52",
+    "roiBack": "107,345,301,222",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "change_account"
+  }
+]

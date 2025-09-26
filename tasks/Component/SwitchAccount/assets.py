@@ -66,6 +66,25 @@ class SwitchAccountAssets:
 
 
 	# Image Rule Assets
+	# 登录界面4399-已阅读并同意 
+	I_QD_READ_AND_AGREED = RuleImage(roi_front=(693,520,191,54), roi_back=(192,28,860,620), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/qd4399/qd_read_and_agreed.png")
+	# 账号登录4399-清除输入的内容 
+	I_QD_CLEAR_ACCOUNT_INPUT = RuleImage(roi_front=(0,0,0,0), roi_back=(0,0,0,0), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/qd4399/qd_clear_input.png")
+	# 账号登录4399-清除输入的内容 
+	I_QD_CLEAR_PASSWORD_INPUT = RuleImage(roi_front=(0,0,0,0), roi_back=(0,0,0,0), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/qd4399/qd_clear_input.png")
+	# 账号登录4399-显示密码 
+	I_QD_SHOW_PASSWORD = RuleImage(roi_front=(0,0,0,0), roi_back=(0,0,0,0), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/qd4399/qd_show_password.png")
+	# 账号登录4399-未点击同意 
+	I_QD_NO_AGREED = RuleImage(roi_front=(388,252,214,105), roi_back=(388,252,214,105), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/qd4399/no_agreed.png")
+	# 账号登录4399-同意 
+	I_QD_AGREED = RuleImage(roi_front=(388,252,214,105), roi_back=(388,252,214,105), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/qd4399/agreed.png")
+	# login_in 
+	I_LOGIN_IN = RuleImage(roi_front=(575,367,124,36), roi_back=(481,314,307,155), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/qd4399/login_in.png")
+	# change_account 
+	I_CHANGE_ACCOUNT = RuleImage(roi_front=(182,427,49,52), roi_back=(107,345,301,222), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/qd4399/change_account.png")
+
+
+	# Image Rule Assets
 	# 用于判断是否在登录界面的 
 	I_CHECK_LOGIN_FORM = RuleImage(roi_front=(178,572,53,60), roi_back=(1,547,241,105), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchAccount/res/check_login_form.png")
 	# 游戏内-点击头像弹出的设置界面-左侧-用户中心按钮 
