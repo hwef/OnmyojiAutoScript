@@ -12,19 +12,29 @@ from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main
 from tasks.MainStory.assets import MainStoryAssets
 from tasks.Restart.assets import RestartAssets
+from module.base.timer import Timer
 
 
 class ScriptTask(GeneralBattle, GameUi, MainStoryAssets):
 
     def run(self):
         image_templates = self._load_image_template("./tasks/MainStory/tmp")
+        timeout = Timer(50)
+        timeout.start()
         while 1:
             self.screenshot()
+            if timeout.reached():
+                self.set_next_run(task='MainStory', success=True, finish=True)
+                raise TaskEnd
+
             for template in image_templates:
-                if self.appear_then_click(template, interval=1):
+                if self.appear_then_click(template, interval=2):
                     current_file = os.path.basename(template.file)
                     if current_file == '挑战.png' or current_file == '准备.png':
                         self.device.stuck_record_add('BATTLE_STATUS_S')
+                    if '对话' in current_file:
+                        self.device.click_record_clear()
+                    timeout.reset()
                     break
 
         # self.do_run()
