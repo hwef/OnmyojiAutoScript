@@ -290,3 +290,5 @@ test_match/
 test_multiscale_ocr/
 test_multiscale_images/
 multiscale_integration_test/
+# 个人优化代码
+module/atom/image.py

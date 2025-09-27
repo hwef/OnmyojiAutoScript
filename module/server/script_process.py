@@ -30,17 +30,19 @@ class ScriptProcess(ScriptWSManager):
     async def start(self):
         self.state = ScriptState.RUNNING
 
-        # 清空前检查并打印管道中存在的日志
         try:
-            log_count = 0
-            while self.log_pipe_out.poll():
-                log = self.log_pipe_out.recv()
-                logger.debug(f"[启动前] 管道中存在未处理日志: {log}")
-                log_count += 1
-            if log_count > 0:
-                logger.debug(f"[启动前] 共清理 {log_count} 条管道日志")
+            # 关闭旧的管道连接
+            if hasattr(self, 'log_pipe_out') and self.log_pipe_out:
+                self.log_pipe_out.close()
+            if hasattr(self, 'log_pipe_in') and self.log_pipe_in:
+                self.log_pipe_in.close()
+
+            # 创建新的管道
+            self.log_pipe_out, self.log_pipe_in = multiprocessing.Pipe(False)
+
+            logger.info("[启动前] 已重建管道，彻底清空残留数据")
         except Exception as e:
-            logger.warning(f"[启动前] 检查管道日志时出错: {e}")
+            logger.warning(f"[启动前] 重建管道出错: {e}")
 
         # logger.info(f'[启动] 启动脚本 {self.config_name}')
         await self.broadcast_state({"state": self.state})
@@ -103,20 +105,20 @@ class ScriptProcess(ScriptWSManager):
         try:
             while 1:
                 if self.state == ScriptState.INACTIVE:
-                    await sleep(1)
+                    await sleep(0.05)
                     continue
-                await sleep(0.05)
+                await sleep(0.01)
                 try:
                     if not self.log_pipe_out.poll():
-                        await sleep(0.3)
+                        await sleep(0.03)
                         continue
                     log = self.log_pipe_out.recv()
                     if not log:
-                        await sleep(0.5)
+                        await sleep(0.05)
                         continue
                     await self.broadcast_log(log)
                 except EOFError as e:
-                    await sleep(0.5)
+                    await sleep(0.05)
                     logger.warning(f'EOFError: {e}')
                     continue
                 except Exception as e:

@@ -65,3 +65,7 @@ class RequestHumanTakeover(Exception):
 
 class TaskEnd(Exception):
     pass
+
+
+class SwitchAccountError(Exception):
+    pass

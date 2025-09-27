@@ -52,6 +52,7 @@ from tasks.GuildBanquet.config import GuildBanquet
 from tasks.ActivityShikigami.config import ActivityShikigami
 from tasks.AutoCake.config import AutoCake
 from tasks.ActivityCommon.config import ActivityCommon
+from tasks.ActivityCommon2.config import ActivityCommon2
 from tasks.MetaDemon.config import MetaDemon
 from tasks.FrogBoss.config import FrogBoss
 from tasks.FloatParade.config import FloatParade
@@ -123,6 +124,7 @@ class ConfigModel(ConfigBase):
     # 这些是活动的
     activity_shikigami: ActivityShikigami = Field(default_factory=ActivityShikigami)
     activity_common: ActivityCommon = Field(default_factory=ActivityCommon)
+    activity_common_2: ActivityCommon2 = Field(default_factory=ActivityCommon2)
     auto_cake: AutoCake = Field(default_factory=AutoCake)
     meta_demon: MetaDemon = Field(default_factory=MetaDemon)
     frog_boss: FrogBoss = Field(default_factory=FrogBoss)
@@ -354,6 +356,8 @@ class ConfigModel(ConfigBase):
                 item["default"] = value["default"]
                 item["value"] = jsons[key] if key in jsons else value["default"]
                 item["type"] = value["type"] if "type" in value else "enum"
+                if "headline" in value:
+                    item["headline"] = value["headline"]
                 if 'allOf' in value:
                     # list
                     enum_key = re.search(r"/([^/]+)$", value['allOf'][0]['$ref']).group(1)
