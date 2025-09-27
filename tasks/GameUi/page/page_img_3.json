@@ -128,8 +128,8 @@
   {
     "itemName": "check_team",
     "imageName": "page_check_team.png",
-    "roiFront": "32,585,82,90",
-    "roiBack": "32,585,82,90",
+    "roiFront": "92,24,77,38",
+    "roiBack": "17,5,232,102",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"
