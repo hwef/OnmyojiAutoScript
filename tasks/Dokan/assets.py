@@ -41,7 +41,7 @@ class DokanAssets:
 	# 区域找绿标 
 	I_GREEN_MARK_1 = RuleImage(roi_front=(157,220,979,229), roi_back=(157,220,979,229), threshold=0.6, method="Template matching", file="./tasks/Dokan/res/green_mark_1.png")
 	# 道馆 
-	I_DAOGUAN = RuleImage(roi_front=(462,159,100,100), roi_back=(462,159,100,100), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/Screenshots_daoguan.png")
+	I_DAOGUAN = RuleImage(roi_front=(470,178,71,60), roi_back=(439,169,143,146), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/Screenshots_daoguan.png")
 	# 寮称号 
 	I_GUILD_NAME_TITLE = RuleImage(roi_front=(596,191,75,43), roi_back=(596,191,75,43), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/Screenshots_guild_name_title.png")
 	# 防守战报 

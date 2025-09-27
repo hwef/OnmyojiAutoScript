@@ -120,13 +120,13 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('s4399')
+    config = Config('4399')
     device = Device(config)
     # 运行任务
-    run_task(config, device)
+    # run_task(config, device)
     # 设置时间
     # set_task_time(config)
     # 切换账号
     # switch_account(config, device)
-    # switch_qd_account(config, device)
+    switch_qd_account(config, device)
 

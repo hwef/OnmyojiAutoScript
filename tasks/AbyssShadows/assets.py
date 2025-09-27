@@ -63,7 +63,7 @@ class AbyssShadowsAssets:
 	# 式神录 
 	I_ABYSS_SHIKI = RuleImage(roi_front=(1199,462,47,53), roi_back=(1199,462,47,53), threshold=0.8, method="Template matching", file="./tasks/AbyssShadows/res/res_abyss_shiki.png")
 	# 寮-狭间暗域 
-	I_ABYSS_SHADOWS = RuleImage(roi_front=(711,489,107,38), roi_back=(711,489,107,38), threshold=0.8, method="Template matching", file="./tasks/AbyssShadows/res/res_abyss_shadows.png")
+	I_ABYSS_SHADOWS = RuleImage(roi_front=(711,489,107,38), roi_back=(711,479,107,48), threshold=0.8, method="Template matching", file="./tasks/AbyssShadows/res/res_abyss_shadows.png")
 	# 狭间暗域主页面 
 	I_ABYSS_SHADOWS_SURE = RuleImage(roi_front=(95,19,136,41), roi_back=(95,19,136,41), threshold=0.8, method="Template matching", file="./tasks/AbyssShadows/res/res_abyss_shadows_sure.png")
 	# 战报页面 

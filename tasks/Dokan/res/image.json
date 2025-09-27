@@ -20,8 +20,8 @@
   {
     "itemName": "daoguan",
     "imageName": "Screenshots_daoguan.png",
-    "roiFront": "462,159,100,100",
-    "roiBack": "462,159,100,100",
+    "roiFront": "470,178,71,60",
+    "roiBack": "439,169,143,146",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "道馆"
