@@ -6,6 +6,9 @@ color FF
 title oas Updater
 
 
+@REM
+start "D:\Program Files\Netease\MuMu Player 12\shell\MuMuPlayer.exe"
+ 
 
 :: 检查管理员权限
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
