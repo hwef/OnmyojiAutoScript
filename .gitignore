@@ -288,3 +288,5 @@ setup_env.ps1
 enhanced_template_match/*
 test_match/
 test_multiscale_ocr/
+test_multiscale_images/
+multiscale_integration_test/
