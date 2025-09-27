@@ -21,7 +21,8 @@ class ConfigManual:
         > CollectiveMissions
         > Delegation > Hyakkiyakou
         > MysteryShop > Duel > MetaDemon > FrogBoss > FloatParade > Quiz > KittyShop > AutoCake
-        > TalismanPass
+        > TalismanPass > MainStory
+        > SmallAccount
         """
 
     DEVICE_OVER_HTTP = False

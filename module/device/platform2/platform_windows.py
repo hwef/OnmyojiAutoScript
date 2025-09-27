@@ -4,7 +4,6 @@ import ctypes
 import re
 import subprocess
 import psutil
-from sympy import false
 from adbutils import AdbDevice, AdbClient
 
 from deploy.utils import DataProcessInfo
@@ -17,13 +16,7 @@ from module.logger import logger
 from tasks.Script.config_device import EmulatorWindow
 import ctypes
 from ctypes import wintypes
-from module.base.decorator import del_cached_property
-from module.exception import (GameNotRunningError,
-                              GameStuckError,
-                              GameWaitTooLongError,
-                              GameTooManyClickError,
-                              RequestHumanTakeover,
-                              EmulatorNotRunningError)
+
 
 class EmulatorUnknown(Exception):
     pass
@@ -196,66 +189,14 @@ class PlatformWindows(PlatformBase, EmulatorManager):
 
         return count
 
-    def _emulator_start(self, instance: EmulatorInstance = None):
+    def _emulator_start(self, instance: EmulatorInstance):
         """
         Start a emulator without error handling
         """
         # show_window = not self.config.script.device.emulator_window_minimize and not self.config.script.device.run_background_only
         show_window = False
-        
-        # 如果instance为None，使用emulator_info中的信息
-        if instance is None:
-            exe = self.emulator_info.path
-            if not exe:
-                logger.error("未找到模拟器路径，请检查配置")
-                return False
-            
-            # 根据emulator_info中的类型确定启动方式
-            emulator_type = self.emulator_info.emulator
-            logger.info(f"使用emulator_info启动模拟器: {emulator_type}, 路径: {exe}")
-            
-            if emulator_type == Emulator.MuMuPlayer:
-                self.execute(exe, show_window=show_window)
-            elif emulator_type == Emulator.MuMuPlayerX:
-                # 对于MuMuPlayerX，需要实例名称，使用默认名称
-                instance_name = "nemu-12.0-x64-default"
-                self.execute(f'"{exe}" -m {instance_name}', show_window=show_window)
-            elif emulator_type == Emulator.MuMuPlayer12:
-                # 对于MuMu12，使用默认实例ID 0
-                instance_id = 0
-                self.execute(f'"{exe}" control -v {instance_id} launch', show_window=show_window)
-            elif emulator_type in Emulator.LDPlayerFamily:
-                # 对于LDPlayer，使用默认实例ID 0
-                instance_id = 0
-                self.execute(f'"{Emulator.single_to_console(exe)}" launch --index {instance_id}',
-                             show_window=show_window)
-            elif emulator_type in Emulator.NoxPlayerFamily:
-                # 对于NoxPlayer，使用默认实例名称
-                instance_name = "Nox"
-                self.execute(f'"{exe}" -clone:{instance_name}', show_window=show_window)
-            elif emulator_type == Emulator.BlueStacks5:
-                # 对于BlueStacks5，使用默认实例名称
-                instance_name = "Pie64"
-                self.execute(f'"{exe}" --instance {instance_name}', show_window=show_window)
-            elif emulator_type == Emulator.BlueStacks4:
-                # 对于BlueStacks4，使用默认实例名称
-                instance_name = "Android"
-                self.execute(f'"{exe}" -vmname {instance_name}', show_window=show_window)
-            elif emulator_type == Emulator.MEmuPlayer:
-                # 对于MEmuPlayer，使用默认实例名称
-                instance_name = "MEmu_0"
-                self.execute(f'"{exe}" {instance_name}', show_window=show_window)
-            else:
-                # 未知类型，直接执行
-                logger.warning(f"未知模拟器类型: {emulator_type}，直接执行")
-                self.execute(exe, show_window=show_window)
-            return True
-        
-        # 原有逻辑：使用instance启动
         exe: str = instance.emulator.path
-        if exe is None:
-            exe = self.emulator_info.path
-        logger.info(f"使用instance启动模拟器: {instance}")
+        logger.info(f"模拟器instance:{instance}")
 
         if instance == Emulator.MuMuPlayer:
             # NemuPlayer.exe
@@ -287,18 +228,18 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             self.execute(f'"{exe}" {instance.name}', show_window=show_window)
         else:
             raise EmulatorUnknown(f'Cannot start an unknown emulator instance: {instance}')
-        return True
+
     def _emulator_stop(self, instance: EmulatorInstance):
         """
         Stop a emulator without error handling
         """
         # 增加空值检查
         if instance is None:
-            logger.error("无效的模拟器实例")
-            return True
+            logger.error("无法停止模拟器: 实例未初始化")
+            return
         if not hasattr(instance, 'emulator'):
             logger.error(f"无效的模拟器实例: {instance}")
-            return True
+            return
         exe: str = instance.emulator.path
         if instance == Emulator.MuMuPlayer:
             # MuMu6 does not have multi instance, kill one means kill all
@@ -356,7 +297,7 @@ class PlatformWindows(PlatformBase, EmulatorManager):
             self.execute(f'"{Emulator.single_to_console(exe)}" stop -n {instance.name}')
         else:
             raise EmulatorUnknown(f'Cannot stop an unknown emulator instance: {instance}')
-        return True
+
     def _emulator_function_wrapper(self, func: callable):
         """
         Args:
@@ -512,39 +453,17 @@ class PlatformWindows(PlatformBase, EmulatorManager):
 
     def emulator_start(self):
         logger.hr('Emulator start', level=1)
-        
-        # 检查是否有有效的emulator_instance
-        if self.emulator_instance is None:
-            logger.warning("未找到emulator_instance，将使用emulator_info启动模拟器")
-            # 直接使用emulator_info启动，不执行停止操作
-            for _ in range(3):
-                if self._emulator_start():
-                    # 启动后等待模拟器实例初始化
-                    time.sleep(5)
-                    # 重新获取emulator_instance
-                    del_cached_property(self, 'emulator_instance')
-                    if self.emulator_instance is not None:
-                        return self.emulator_start_watch()
-                    else:
-                        logger.warning("模拟器启动后仍未找到emulator_instance，继续重试")
-                        continue
-                else:
-                    return False
-            logger.error('使用emulator_info启动模拟器失败3次')
-            return False
-        
-        # 原有逻辑：有emulator_instance的情况
         for _ in range(3):
             # Stop
-            if not self._emulator_stop(self.emulator_instance):
+            if not self._emulator_function_wrapper(self._emulator_stop):
                 return False
             # Start
-            if self._emulator_start(self.emulator_instance):
+            if self._emulator_function_wrapper(self._emulator_start):
                 # Success
                 return self.emulator_start_watch()
             else:
                 # Failed to start, stop and start again
-                if self._emulator_stop(self.emulator_instance):
+                if self._emulator_function_wrapper(self._emulator_stop):
                     continue
                 else:
                     return False

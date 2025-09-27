@@ -157,7 +157,7 @@ class SafeTimedRotatingFileHandler(TimedRotatingFileHandler):
 pyw_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
 # 定义常量
-log_names = {'assets_test', 'assets_extract', 'script', 'script_task', 'base_task', 'config', 'template', 'gui'}
+log_names = {'assets_test', 'assets_extract', 'script', 'script_task', 'base_task', 'config', 'template', 'gui', 'killOAS', 'installer'}
 
 
 def set_file_logger(name=pyw_name):

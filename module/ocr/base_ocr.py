@@ -24,8 +24,20 @@ def enlarge_canvas(image):
     Enlarge image into a square fill with black background. In the structure of PaddleOCR,
     image with w:h=1:1 is the best while 3:1 rectangles takes three times as long.
     Also enlarge into the integer multiple of 32 cause PaddleOCR will downscale images to 1/32.
+    
+    修改：对于小图像（尺寸<320*320），直接padding到320*320进行检测
     """
     height, width = image.shape[:2]
+    
+    # 对于小图像（尺寸<320*320），直接padding到320*320  
+    if width < 320 and height < 320:
+        target_size = 320
+        border = (0, target_size - height, 0, target_size - width)
+        if sum(border) > 0:
+            image = cv2.copyMakeBorder(image, *border, borderType=cv2.BORDER_CONSTANT, value=(0, 0, 0))
+        return image
+    
+    # 对于大图像，保持原有逻辑
     length = int(max(width, height) // 32 * 32 + 32)
     border = (0, length - height, 0, length - width)
     if sum(border) > 0:
@@ -125,8 +137,6 @@ class BaseCor:
         :return:
         """
         # 判断图像是不是opencv的 bgr格式的图像，如果是的话，需要转换成rgb格式的
-
-        
         if image.shape[-1] == 3 :
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image
@@ -230,12 +240,66 @@ class BaseCor:
                 raise ValueError("裁剪后的图像为空")
                 
             image = self.pre_process(image)
-            image = enlarge_canvas(image)
+            original_h, original_w = image.shape[:2]
+            
+            # 原始尺度检测
+            processed_image = enlarge_canvas(image)
             if(debug == True):
-                cv2.imshow('resize', image)
+                cv2.imshow('resize', processed_image)
                 cv2.waitKey()
             # OCR识别
-            boxed_results: list[BoxedResult] = self.model.detect_and_ocr(image)
+            boxed_results: list[BoxedResult] = self.model.detect_and_ocr(processed_image)
+            
+            # 判断是否需要多尺度检测
+            if not boxed_results or len(boxed_results) == 0 or max(r.score for r in boxed_results) < 0.7:
+                logger.info(f"{self.name} 首次检测结果不理想，尝试多尺度检测")
+                
+                # 定义要尝试的尺度
+                scales = [0.75, 1.25]
+                all_results = boxed_results.copy() if boxed_results else []
+                
+                # 对每个尺度进行检测
+                for scale in scales:
+                    # 计算缩放后的尺寸
+                    scaled_w = int(original_w * scale)
+                    scaled_h = int(original_h * scale)
+                    
+                    # 缩放图像
+                    scaled_image = cv2.resize(image, (scaled_w, scaled_h), interpolation=cv2.INTER_LINEAR)
+                    scaled_processed = enlarge_canvas(scaled_image)
+                    
+                    # 执行OCR识别
+                    scale_results = self.model.detect_and_ocr(scaled_processed)
+                    
+                    # 坐标转换：将缩放图像的坐标转换回原始图像
+                    scale_x = original_w / scaled_w
+                    scale_y = original_h / scaled_h
+                    
+                    import copy
+                    for result in scale_results:
+                        # 深拷贝结果以避免修改原始数据
+                        transformed_result = copy.deepcopy(result)
+                        
+                        # 转换坐标
+                        if hasattr(transformed_result, 'box'):
+                            # 确保box是numpy数组
+                            box_array = np.array(transformed_result.box, dtype=np.float32)
+                            # 应用缩放因子
+                            box_array[:, 0] *= scale_x
+                            box_array[:, 1] *= scale_y
+                            # 更新结果的box
+                            transformed_result.box = box_array
+                        
+                        all_results.append(transformed_result)
+                
+                # 结果合并与筛选
+                if all_results:
+                    # 按置信度排序
+                    all_results.sort(key=lambda x: x.score, reverse=True)
+                    # 不进行额外的NMS处理，直接使用所有尺度的检测结果
+                    # 由于每个尺度的检测结果在model.detect_and_ocr中已经过NMS处理
+                    boxed_results = all_results
+            
             if not boxed_results:
                 logger.info(f"{self.name} 未检测到任何文本")
                 return []

@@ -17,7 +17,7 @@ class ConfigMenu:
         self.menu["Overview"] = []
         self.menu['TaskList'] = []
         # 脚本设置
-        self.menu['Script'] = ['Script', 'Restart', 'GlobalGame']
+        self.menu['Script'] = ['Script', 'Restart', 'GlobalGame', 'SmallAccount']
         # 开发工具
         self.menu["Tools"] = ['Image Rule', 'Ocr Rule', 'Click Rule', 'Long Click Rule', 'Swipe Rule', 'List Rule']
 
@@ -44,7 +44,7 @@ class ConfigMenu:
                                       'NianTrue']
 
         self.menu["other"] = ['FallenSun', 'ExperienceYoukai', 'Nian', 'Delegation', 'Tako',  "EvoZone",   "Hyakkiyakou",
-                              "HeroTest",  'MysteryShop','BackUp',]
+                              "HeroTest",  'MysteryShop', 'MainStory', 'BackUp']
 
 
     @cached_property

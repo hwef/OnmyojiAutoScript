@@ -1,23 +1,29 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-import asyncio
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
-from fastapi import WebSocket, WebSocketDisconnect
-from datetime import datetime
-from module.config.config import Config
 import time
+
+import asyncio
 from collections import defaultdict
+from datetime import datetime
+from fastapi import APIRouter, HTTPException
+from fastapi import Request
+from fastapi import WebSocket, WebSocketDisconnect
+from fastapi.responses import StreamingResponse
 from module.logger import logger
 from module.server.main_manager import MainManager
+from module.server.main_qqbot import MainQQBotManager
 from module.server.script_process import ScriptProcess
-
 from tasks.Component.config_base import TimeDelta
-
 
 script_app = APIRouter()
 mm = MainManager()
+qqbaot = MainQQBotManager()
+@script_app.post('/qqbot')
+async def script_qqbot(request: Request):
+    data = await request.json()  # 获取事件数据
+    await qqbaot.received(data)
+    return 'qqbot'
 
 @script_app.get('/test')
 async def script_test():
@@ -177,7 +183,7 @@ async def websocket_endpoint(websocket: WebSocket, script_name: str):
         while True:
             # 初次进入，广播state schedule
             data = await websocket.receive_text()
-            logger.info(f'[{script_name}] websocket receive: {data}')
+            # logger.info(f'[{script_name}] websocket receive: {data}')
             if data == 'get_state':
                 await script_process.broadcast_state({"state": script_process.state})
             elif data == 'get_schedule':

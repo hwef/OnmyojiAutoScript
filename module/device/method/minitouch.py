@@ -535,7 +535,7 @@ class Minitouch(Connection):
         self.minitouch_send()
 
     @retry
-    def swipe_minitouch(self, p1, p2, duration):
+    def swipe_minitouch(self, p1, p2, duration, wait_up_time=0):
         points = insert_swipe(p0=p1, p3=p2)
         builder = self.minitouch_builder
 
@@ -555,8 +555,8 @@ class Minitouch(Connection):
             builder.move(*point).commit().wait(wait_time_per_point)
         self.minitouch_send()
 
-        # 释放
-        builder.up().commit()
+        # 等待1秒后再释放
+        builder.wait(wait_up_time * 1000).up().commit()  # 添加1秒（1000毫秒）的等待时间
         self.minitouch_send()
 
 

@@ -13,6 +13,8 @@ from module.base.utils import is_approx_rectangle
 # 带有金字塔加速的模板匹配
 from module.atom.template_match import match_template
 
+
+
 class RuleImage:
 
     def __init__(self, roi_front: tuple, roi_back: tuple, method: str, threshold: float, file: str) -> None:
@@ -100,6 +102,14 @@ class RuleImage:
         return self.method == "Template matching"
 
     @cached_property
+    def is_template_match_mask(self) -> bool:
+        """
+        是否是模板匹配
+        :return:
+        """
+        return self.method == "Template matching mask"
+
+    @cached_property
     def is_sift_flann(self) -> bool:
         return self.method == "Sift Flann"
 
@@ -143,20 +153,128 @@ class RuleImage:
             threshold = self.threshold
 
         if not self.is_template_match:
-            return self.sift_match(image)
-            # raise Exception(f"unknown method {self.method}")
+            if self.is_template_match_mask:
+                return self.match_mask(image, threshold)
+            elif self.is_sift_flann:
+                return self.sift_match(image)
+            else:
+                raise Exception(f"unknown method {self.method}")
 
         source = self.corp(image)
         mat = self.image
-        # res = cv2.matchTemplate(source, mat, cv2.TM_CCOEFF_NORMED)
-        # min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)  # 最小匹配度，最大匹配度，最小匹配度的坐标，最大匹配度的坐标
-        
-        max_val, max_loc, _ = match_template(source, mat, cv2.TM_CCOEFF_NORMED)
-        # logger.attr(self.name,f' max val:{max_val} max_loc: {max_loc}' ) 
-        tolerance = 0.02  # 容差
-        if max_val > threshold or abs(max_val - threshold) < tolerance:
+        # 使用优化的模板匹配函数
+        max_val, max_loc, _ = match_template(source, mat, cv2.TM_CCOEFF_NORMED, min_confidence=threshold)
+        if max_val > threshold:
             self.roi_front[0] = max_loc[0] + self.roi_back[0]
             self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            return True
+        else:
+            return False
+
+    def match_mask(self, image: np.array, threshold: float = 0.8, mask_path: str = None) -> bool:
+        """
+        使用蒙版进行图像匹配，只比较蒙版覆盖区域内的像素
+
+        :param image: 输入图像(numpy array)
+        :param threshold: 匹配阈值，默认为实例的阈值
+        :param mask_path: 蒙版文件路径，如果为None则不使用蒙版
+        :return: 匹配成功返回True，否则返回False
+        """
+        # 裁剪图像到指定区域
+        source = self.corp(image)
+        template = self.image
+        # 如果提供了蒙版路径，则加载蒙版
+        if not mask_path:
+            mask_path = self.file.replace(".png", "_mask.png")
+        try:
+            # 使用imdecode支持中文路径
+            mask = cv2.imdecode(fromfile(mask_path, dtype=uint8), cv2.IMREAD_GRAYSCALE)
+        except Exception as e:
+            logger.warning(f"无法加载蒙版 {mask_path}: {e}")
+            mask = None
+
+        # 使用优化的模板匹配函数（支持蒙版）
+        max_val, max_loc, _ = match_template(source, template, cv2.TM_CCOEFF_NORMED, min_confidence=threshold, mask=mask)
+        # logger.attr(self.name, max_val)
+        if not np.isfinite(max_val):
+            # logger.warning(f"匹配结果无效 {self.name}: {max_val}")
+            # 处理无效值情况
+            return False
+        # 根据阈值判断匹配结果
+        if max_val > threshold:
+            # 更新ROI坐标
+            self.roi_front[0] = max_loc[0] + self.roi_back[0]
+            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            # logger.attr(self.name, self.roi_front)
+            return True
+        else:
+            return False
+
+    def match_test(self, image: np.array, threshold: float = None) -> bool:
+        """
+        :param threshold:
+        :param image:
+        :return:
+        """
+        if threshold is None:
+            threshold = self.threshold
+
+        if not self.is_template_match:
+            if self.is_template_match_mask:
+                return self.match_mask_test(image, threshold)
+            elif self.is_sift_flann:
+                return self.sift_match(image)
+            else:
+                raise Exception(f"unknown method {self.method}")
+
+        source = self.corp(image)
+        mat = self.image
+        # 使用优化的模板匹配函数
+        max_val, max_loc, _ = match_template(source, mat, cv2.TM_CCOEFF_NORMED, min_confidence=threshold)
+        logger.attr(self.name, max_val)
+        if max_val > threshold:
+            self.roi_front[0] = max_loc[0] + self.roi_back[0]
+            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            logger.attr(self.name, self.roi_front)
+            return True
+        else:
+            return False
+
+    def match_mask_test(self, image: np.array, threshold: float = 0.8, mask_path: str = None) -> bool:
+        """
+        使用蒙版进行图像匹配，只比较蒙版覆盖区域内的像素
+
+        :param image: 输入图像(numpy array)
+        :param threshold: 匹配阈值，默认为实例的阈值
+        :param mask_path: 蒙版文件路径，如果为None则不使用蒙版
+        :return: 匹配成功返回True，否则返回False
+        """
+        # 裁剪图像到指定区域
+        source = self.corp(image)
+        template = self.image
+        # 如果提供了蒙版路径，则加载蒙版
+        if not mask_path:
+            mask_path = self.file.replace(".png", "_mask.png")
+        try:
+            # 使用imdecode支持中文路径
+            mask = cv2.imdecode(fromfile(mask_path, dtype=uint8), cv2.IMREAD_GRAYSCALE)
+        except Exception as e:
+            logger.warning(f"无法加载蒙版 {mask_path}: {e}")
+            mask = None
+
+        # 使用优化的模板匹配函数（支持蒙版）
+        max_val, max_loc, _ = match_template(source, template, cv2.TM_CCOEFF_NORMED, min_confidence=threshold, mask=mask)
+        logger.attr(self.name, max_val)
+        if not np.isfinite(max_val):
+            # logger.warning(f"匹配结果无效 {self.name}: {max_val}")
+            # 处理无效值情况
+            return False
+        # 根据阈值判断匹配结果
+        if max_val > threshold:
+            # 更新ROI坐标
+            self.roi_front[0] = max_loc[0] + self.roi_back[0]
+            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            logger.attr(self.name, self.roi_front)
             return True
         else:
             return False
@@ -164,8 +282,8 @@ class RuleImage:
     def match_first(self, image: np.array, threshold: float = None) -> bool:
         """
         自上而下找第一个匹配结果
-        :param threshold: 
-        :param image: 
+        :param threshold:
+        :param image:
         :return:
         """
         if threshold is None:
@@ -177,16 +295,18 @@ class RuleImage:
 
         source = self.corp(image)
         mat = self.image
-        # 使用优化的模板匹配函数
+        
+        # 使用优化的模板匹配函数获取所有匹配结果
         matches, _ = match_template(source, mat, cv2.TM_CCOEFF_NORMED, min_confidence=threshold, multi_target=True)
         
-        if not matches:  # 无匹配
+        if len(matches) == 0:  # 无匹配
             return False
 
         # 直接取 y 最小的点（即最顶部）
-        top_match = min(matches, key=lambda x: x[1][1])
-        top_loc = top_match[1]
-        # 更新 ROI
+        top_match = min(matches, key=lambda m: m[1][1])  # 按y坐标排序
+        score, top_loc = top_match
+        
+        # 更新 ROI（根据需求调整）
         self.roi_front[0] = top_loc[0] + self.roi_back[0]
         self.roi_front[1] = top_loc[1] + self.roi_back[1]
 
@@ -244,22 +364,24 @@ class RuleImage:
         mat = self.image
         # 使用优化的模板匹配函数
         matches, _ = match_template(source, mat, cv2.TM_CCOEFF_NORMED, min_confidence=threshold, multi_target=True)
-        
         result = []
         for score, loc in matches:
             # 得分, x, y, w, h
             x = self.roi_back[0] + loc[0]
             y = self.roi_back[1] + loc[1]
             result.append((score, x, y, mat.shape[1], mat.shape[0]))
+        
+        # 由于match_template已经进行了NMS处理，这里可以简化
         return result
 
     def match_all_any(self, image: np.array, threshold: float = None, roi: list = None, nms_threshold: float = 0.3) -> list[tuple]:
         """
-        区别于match，这个是返回所有的匹配结果
-        :param roi:
-        :param image:
-        :param threshold:
-        :return:
+        区别于match，这个是返回所有的匹配结果，使用非极大值抑制(NMS)过滤重叠的匹配结果
+        :param roi: 感兴趣区域
+        :param image: 源图像
+        :param threshold: 匹配阈值
+        :param nms_threshold: NMS阈值，控制重叠过滤的严格程度
+        :return: 匹配结果列表，每个元素为(score, x, y, width, height)
         """
         if roi is not None:
             self.roi_back = roi
@@ -267,8 +389,10 @@ class RuleImage:
             threshold = self.threshold
         if not self.is_template_match:
             raise Exception(f"unknown method {self.method}")
+        
         source = self.corp(image)
         mat = self.image
+        
         # 使用优化的模板匹配函数
         matches, _ = match_template(source, mat, cv2.TM_CCOEFF_NORMED, min_confidence=threshold, multi_target=True)
         
