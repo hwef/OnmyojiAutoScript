@@ -208,6 +208,10 @@ class ScriptTask(GameUi, GeneralBattle, WeeklyTriflesAssets):
         :param num:
         :return:
         """
+        if num <= 0:
+            logger.warning('No broken amulet')
+            return
+
         def click_confirm():
             self.wait_until_appear(self.I_BM_CONFIRM)
             while 1:
@@ -226,6 +230,7 @@ class ScriptTask(GameUi, GeneralBattle, WeeklyTriflesAssets):
         if number == 0:
             logger.warning('No broken amulet')
             return
+        num = min(number, num)
         logger.info(f'Broken amulet: {number}')
         count = 0
         self.wait_until_appear(self.I_BM_ENTER)
@@ -257,12 +262,6 @@ class ScriptTask(GameUi, GeneralBattle, WeeklyTriflesAssets):
                 self.device.click_record_clear()
                 count += 10
                 continue
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
