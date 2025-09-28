@@ -106,6 +106,8 @@ class DuelAssets:
 	I_BAN_FLAG = RuleImage(roi_front=(100,16,61,59), roi_back=(100,16,61,59), threshold=0.7, method="Template matching", file="./tasks/Duel/duel/duel_ban_flag.png")
 	# 左上角的退出 
 	I_DUEL_EXIT = RuleImage(roi_front=(14,12,43,41), roi_back=(14,12,43,41), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/gb_exit.png")
+	# 斗技排名展示取消 
+	I_DUEL_CANCEL = RuleImage(roi_front=(488,417,66,30), roi_back=(428,385,194,94), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/duel_cancel.png")
 
 
 	# Ocr Rule Assets

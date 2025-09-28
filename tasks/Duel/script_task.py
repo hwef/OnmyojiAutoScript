@@ -48,13 +48,12 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         con = self.config.duel.duel_config
         celeb_con = self.config.duel.duel_celeb_config
         limit_time = con.limit_time
-        self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute,
-                                               seconds=limit_time.second)
+        self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute, seconds=limit_time.second)
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
         # 切换阴阳师
         if con.switch_enabled:
+            self.ui_get_current_page()
+            self.ui_goto(page_main)
             # 清明
             if con.switch_onmyoji == Onmyoji.Qm:
                 self.switch_kagura(con, self.C_QM_ZHAN, self.I_QM_ZHAN)
@@ -83,8 +82,11 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             self.screenshot()
             if self.appear_then_click(self.I_REWARD, interval=0.6):
                 continue
+            if self.appear_then_click(self.I_DUEL_CANCEL):
+                continue
             if not self.duel_main():
                 continue
+
             # 检查分数
             current_score = self.check_score()
 
@@ -628,7 +630,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('mi')
+    c = Config('s4399')
     d = Device(c)
     t = ScriptTask(c, d)
 

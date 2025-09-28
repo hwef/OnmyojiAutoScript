@@ -214,5 +214,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "左上角的退出"
+  },
+  {
+    "itemName": "duel_cancel",
+    "imageName": "duel_cancel.png",
+    "roiFront": "488,417,66,30",
+    "roiBack": "428,385,194,94",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "斗技排名展示取消"
   }
 ]
