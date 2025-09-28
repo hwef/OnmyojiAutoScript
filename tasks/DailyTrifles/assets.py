@@ -11,6 +11,22 @@ class DailyTriflesAssets:
 
 
 	# Image Rule Assets
+	# 进入普通召唤 
+	I_BM_ENTER = RuleImage(roi_front=(435,601,62,68), roi_back=(435,601,62,68), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/broken_amulet/broken_amulet_bm_enter.png")
+	# 确定 
+	I_BM_CONFIRM = RuleImage(roi_front=(418,620,173,59), roi_back=(418,620,173,59), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/broken_amulet/broken_amulet_bm_confirm.png")
+	# 再次召唤 
+	I_BM_AGAIN = RuleImage(roi_front=(686,617,178,60), roi_back=(686,617,178,60), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/broken_amulet/broken_amulet_bm_again.png")
+
+
+	# Ocr Rule Assets
+	# 左上角的数量 
+	O_BA_AMOUNT_1 = RuleOcr(roi=(568,15,79,29), area=(568,15,79,29), mode="Digit", method="Default", keyword="", name="ba_amount_1")
+	# 召唤的时候的数量 
+	O_BA_AMOUNT_2 = RuleOcr(roi=(762,570,118,35), area=(762,570,118,35), mode="DigitCounter", method="Default", keyword="", name="ba_amount_2")
+
+
+	# Image Rule Assets
 	# guild_info 
 	I_GUILD_INFO = RuleImage(roi_front=(1181,625,50,45), roi_back=(1181,625,50,45), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/guild/guild_info.png")
 	# guild_management 

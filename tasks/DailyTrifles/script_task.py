@@ -30,6 +30,10 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
         # 每日召唤
         if con.one_summon:
             self.run_one_summon()
+
+        if con.broken_amulet:
+            self._broken_amulet(con.broken_amulet)
+
         if con.guild_wish:
             pass
         # 友情点
@@ -336,6 +340,67 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
                 timer.reset()
                 continue
         logger.info('Enter recruit members')
+
+    def _broken_amulet(self, num: int):
+        """
+
+        :param num:
+        :return:
+        """
+        if num <= 0:
+            logger.warning('No broken amulet')
+            return
+
+        def click_confirm():
+            self.wait_until_appear(self.I_BM_CONFIRM)
+            while 1:
+                self.screenshot()
+                if not self.appear(self.I_BM_CONFIRM):
+                    break
+                else:
+                    self.appear_then_click(self.I_BM_CONFIRM, interval=1)
+            logger.info('Exit broken amulet')
+
+        logger.hr('Broken amulet')
+        self.ui_get_current_page()
+        self.ui_goto(page_summon)
+        self.screenshot()
+        number = self.O_BA_AMOUNT_1.ocr(self.device.image)
+        if number == 0:
+            logger.warning('No broken amulet')
+            return
+        num = min(number, num)
+        logger.info(f'Broken amulet: {number}')
+        count = 0
+        self.wait_until_appear(self.I_BM_ENTER)
+        while 1:
+            self.screenshot()
+            if not self.appear(self.I_BM_ENTER):
+                break
+            if self.appear_then_click(self.I_BM_ENTER, interval=1):
+                continue
+        count += 10
+        logger.info('Enter broken amulet')
+        while 1:
+            self.screenshot()
+            sleep(0.5)
+
+            if not self.appear(self.I_BM_CONFIRM):
+                continue
+            if count >= num:
+                logger.info(f'Broken amulet finished: {count}')
+                click_confirm()
+                break
+            cu, re, total = self.O_BA_AMOUNT_2.ocr(self.device.image)
+            if cu <= 10 and total == 10:
+                logger.info(f'Broken amulet count: {count}. Current: {cu}. Total: {total}')
+                click_confirm()
+                break
+            if self.appear_then_click(self.I_BM_AGAIN, interval=1):
+                logger.info(f'Broken amulet count: {count}. Current: {cu}')
+                self.device.click_record_clear()
+                count += 10
+                continue
 
 
 if __name__ == '__main__':
