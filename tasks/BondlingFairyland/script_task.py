@@ -34,6 +34,7 @@ class BondlingNumberMax(Exception):
 class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, BondlingFairylandAssets, RichManAssets):
     ball_pos_list = [None, None, None, None, None]  # 用于记录每一个位置的球是否出现
     first_catch = True  # 用于记录是否是第一次捕捉
+
     def run(self):
         # 引用配置
         cong = self.config.bondling_fairyland
@@ -59,7 +60,6 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
 
             message = f'契忆数量: {cu} 小于 {MAX_COUNT}, 继续任务'
             self.push_notify(content=message)
-
 
         logger.hr('第二步, 切换御魂', 2)
         # 御魂切换方式一
@@ -451,9 +451,15 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
         while 1:
             self.screenshot()
 
+            if self.appear(self.I_CHECK_BONDLING_FAIRYLAND):
+                return True
+
             # 如果不在结契界面，就等待
             if not self.in_catch_ui():
                 continue
+
+            # 判断是否有更高优先级任务，去执行新任务
+            self._check_first_priority_task()
 
             # 检查是否有盘子
             if not check_plate_number():
@@ -473,8 +479,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             match cong.bondling_config.user_status:
                 case UserStatus.ALONE:
                     self.run_alone()
-                    if self.run_battle(battle_config, limit_count=self.limit_count):
-                        return success
+                    self.run_battle(battle_config, limit_count=self.limit_count)
                 case _:
                     if self.run_leader():
                         return success
@@ -636,7 +641,7 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
         click_count = 0
         while 1:
             self.screenshot()
-            if not self.appear(self.I_CLICK_CAPTION, threshold=0.7):
+            if not self.appear(self.I_BALL_FIRE, threshold=0.7):
                 break
             if self.appear_then_click(self.I_BALL_FIRE, interval=1):
                 click_count += 1
@@ -802,10 +807,11 @@ if __name__ == '__main__':
     config = Config('SWITCH')
     device = Device(config)
     t = ScriptTask(config, device)
+    t.run()
     # image = task.screenshot()
 
     # con = config.bondling_fairyland
     # task.lock_team()
     # t.switch_ball()
-    t.run_stone(True,BondlingClass.TOMB_GUARD)
+    # t.run_stone(True,BondlingClass.TOMB_GUARD)
     # task.run_invite(config=config.bondling_fairyland.invite_config, is_over=False, is_first=True)
