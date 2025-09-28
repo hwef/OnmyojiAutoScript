@@ -159,6 +159,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
         # --------------------------------------------------------------------------------------------------------------
         success = True
         while 1:
+            # 判断是否有更高优先级任务，去执行新任务
+            self._check_first_priority_task()
             if not self.has_ticket():
                 logger.info("我们没有进攻机会了，请一小时后再试。")
                 success = False

@@ -52,6 +52,8 @@ class SoloExploration(BaseExploration):
                 continue
             #
             elif scene == Scene.ENTRANCE:
+                # 判断是否有更高优先级任务，去执行新任务
+                self._check_first_priority_task()
                 if self.check_exit():
                     break
                 self.ui_click(self.I_E_EXPLORATION_CLICK, stop=self.I_E_SETTINGS_BUTTON)

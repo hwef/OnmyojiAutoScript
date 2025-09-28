@@ -87,6 +87,9 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             if not self.duel_main():
                 continue
 
+            # 判断是否有更高优先级任务，去执行新任务
+            self._check_first_priority_task()
+
             # 检查分数
             current_score = self.check_score()
 

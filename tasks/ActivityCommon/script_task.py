@@ -146,6 +146,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                 if current_file == '挑战.png':
                     self.screenshot()
                     if self.appear(challenge):
+                        # 判断是否有更高优先级任务，去执行新任务
                         self._check_first_priority_task()
                         if over_task:
                             return True

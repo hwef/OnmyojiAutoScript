@@ -89,6 +89,10 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, SougenbiAssets):
 
             if not self.appear(self.I_S_CHECK_SOUGENBI):
                 continue
+
+            # 判断是否有更高优先级任务，去执行新任务
+            self._check_first_priority_task()
+
             if self.current_count >= self.limit_count:
                 logger.info('Sougenbi count limit out')
                 break
