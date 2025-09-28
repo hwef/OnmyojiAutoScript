@@ -200,6 +200,8 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             pending_task = TaskScheduler.priority(pending_task)
             # logger.info(f'优先级排序 pending_task: {pending_task}')
 
+            self.first_priority_task = pending_task[0].command
+
             # pending_task = TaskScheduler.schedule(rule=self.model.script.optimization.schedule_rule,
             #                                       pending=pending_task)
             running_task = self.model.running_task
@@ -248,10 +250,10 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         self.update_scheduler()
 
         if self.pending_task:
-            logger.info(f"Pending tasks: {[f.command for f in self.pending_task]}")
+            # logger.info(f"Pending tasks: {[f.command for f in self.pending_task]}")
             task = self.pending_task[0]
             self.task = task
-            logger.attr("Task", task)
+            # logger.attr("Task", task)
             return task
 
         # 哪怕是没有任务，也要返回一个任务，这样才能保证调度器正常运行

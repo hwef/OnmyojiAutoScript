@@ -12,3 +12,5 @@ class ConfigState:
         self.pending_task: list["Function"] = []
         self.waiting_task: list["Function"] = []
         self.task: str = None  # 任务名大驼峰
+        self.first_priority_task: str = None  # 任务名大驼峰
+

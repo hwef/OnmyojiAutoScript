@@ -146,6 +146,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                 if current_file == '挑战.png':
                     self.screenshot()
                     if self.appear(challenge):
+                        self._check_first_priority_task()
                         if over_task:
                             return True
                         if enable:
@@ -214,7 +215,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('switch')
+    c = Config('mi')
     d = Device(c)
     t = ScriptTask(c, d)
 

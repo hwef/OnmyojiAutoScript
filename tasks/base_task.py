@@ -8,6 +8,7 @@ import os
 from fuzzywuzzy import fuzz
 import cv2
 from datetime import datetime, timedelta
+from module.config.config_model import ConfigModel
 from numpy import uint8, fromfile
 from pathlib import Path
 from typing import Union
@@ -33,6 +34,7 @@ from tasks.Component.config_base import Time
 from tasks.GlobalGame.assets import GlobalGameAssets
 from tasks.GlobalGame.config_emergency import FriendInvitation
 from tasks.Component.config_switch_week import Week
+from module.exception import TaskEnd
 
 
 class BaseTask(GlobalGameAssets, CostumeBase):
@@ -924,6 +926,22 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         logger.info(f"加载图片模板集合: {image_templates}")
         logger.info(f"加载图片模板数量: {len(image_templates)}")
         return image_templates
+
+    def _check_first_priority_task(self):
+        self.config.model = ConfigModel(config_name=self.config.config_name)
+        self.config.get_next()
+        first_priority_task = self.config.first_priority_task
+        current_task = self.config.task.command
+        if first_priority_task != current_task:
+            logger.info(f"结束当前任务: {I18n.trans_zh_cn(current_task)}")
+            logger.info(f"执行优先任务: {I18n.trans_zh_cn(first_priority_task)}")
+            self.save_image(task_name=current_task, content=f"执行优先任务: {I18n.trans_zh_cn(first_priority_task)}", push_flag=True , image_type=True, wait_time=0)
+            from tasks.GameUi.game_ui import GameUi
+            from tasks.GameUi.page import page_main
+            GameUi = GameUi(self.config, self.device)
+            GameUi.ui_get_current_page()
+            GameUi.ui_goto(page_main)
+            raise TaskEnd
 
 
 if __name__ == '__main__':
