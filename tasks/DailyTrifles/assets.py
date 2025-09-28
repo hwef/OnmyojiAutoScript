@@ -23,6 +23,8 @@ class DailyTriflesAssets:
 	I_MEMBER_ADD = RuleImage(roi_front=(1100,155,39,38), roi_back=(1075,137,86,400), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/guild/member_add.png")
 	# member_flush 
 	I_MEMBER_FLUSH = RuleImage(roi_front=(1004,615,92,32), roi_back=(1004,615,92,32), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/guild/member_flush.png")
+	# 发布招新公告 
+	I_POSTS = RuleImage(roi_front=(244,526,71,37), roi_back=(244,526,71,37), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/guild/posts.png")
 
 
 	# Image Rule Assets

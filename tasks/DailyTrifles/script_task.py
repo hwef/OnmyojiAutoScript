@@ -314,6 +314,9 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
             if timer.reached():
                 self.push_notify(content="招募寮成员超时，或没有管理权限")
                 return
+            if self.appear_then_click(self.I_POSTS):
+                timer.reset()
+                continue
             if self.appear_then_click(self.I_MEMBER_FLUSH, interval=1):
                 flush_count += 1
                 timer.reset()

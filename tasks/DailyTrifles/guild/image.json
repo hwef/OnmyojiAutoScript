@@ -52,5 +52,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "member_flush"
+  },
+  {
+    "itemName": "posts",
+    "imageName": "posts.png",
+    "roiFront": "244,526,71,37",
+    "roiBack": "244,526,71,37",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "发布招新公告"
   }
 ]
