@@ -109,8 +109,8 @@ class Scales(Buy, MallNavbar):
                 continue
         logger.info('Scales start select souls')
 
-        sea_list = [self.I_YINNIAN, self.I_KUANGGU, self.I_WANGQIE, self.I_HAIYUE, self.I_BANGJING,
-                    self.I_1, self.I_2, self.I_3, self.I_4, self.I_5, self.I_6, self.I_7]
+        sea_list = [self.I_PIAN_YE, self.I_YIN_NIAN,  self.I_HAI_YUE, self.I_KUANG_GU, self.I_WANG_QIE, self.I_BANG_JING, self.I_HUO_LING,
+                    self.I_YUAN_XING_SI, self.I_YI_NIAN_HUO, self.I_DIAO_PING_HUO, self.I_E_LOU, self.I_XIN_YAN, self.I_PO_SHI]
         # 选择魂
         while 1:
             time.sleep(1)

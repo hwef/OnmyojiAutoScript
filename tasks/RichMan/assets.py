@@ -320,30 +320,32 @@ class RichManAssets:
 
 
 	# Image Rule Assets
-	# 海月火玉 
-	I_HAIYUE = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/haiyue.png")
-	# 狂骨 
-	I_KUANGGU = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/kuanggu.png")
+	# 片叶 
+	I_PIAN_YE = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/pian_ye.png")
 	# 隐念 
-	I_YINNIAN = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/yinnian.png")
+	I_YIN_NIAN = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/yin_nian.png")
+	# 海月火玉 
+	I_HAI_YUE = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/hai_yue.png")
+	# 狂骨 
+	I_KUANG_GU = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/kuang_gu.png")
 	# 网切 
-	I_WANGQIE = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/wangqie.png")
+	I_WANG_QIE = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/wang_qie.png")
 	# 蚌精 
-	I_BANGJING = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/bangjing.png")
-	# 元兴寺 
-	I_1 = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/Screenshots_1.png")
-	# 心眼 
-	I_2 = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/Screenshots_2.png")
-	# 破势 
-	I_3 = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/Screenshots_3.png")
-	# 遗念火 
-	I_4 = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/Screenshots_4.png")
-	# 吊瓶火 
-	I_5 = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/Screenshots_5.png")
+	I_BANG_JING = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/bang_jing.png")
 	# 火灵 
-	I_6 = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/Screenshots_6.png")
+	I_HUO_LING = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/huo_ling.png")
+	# 元兴寺 
+	I_YUAN_XING_SI = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/yuan_xing_si.png")
+	# 遗念火 
+	I_YI_NIAN_HUO = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/yi_nian_huo.png")
+	# 吊瓶火 
+	I_DIAO_PING_HUO = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/diao_ping_huo.png")
 	# 恶楼 
-	I_7 = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/Screenshots_7.png")
+	I_E_LOU = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/e_lou.png")
+	# 心眼 
+	I_XIN_YAN = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/xin_yan.png")
+	# 破势 
+	I_PO_SHI = RuleImage(roi_front=(962,240,95,95), roi_back=(151,165,984,220), threshold=0.8, method="Template matching", file="./tasks/RichMan/sea/po_shi.png")
 
 
 	# Click Rule Assets
