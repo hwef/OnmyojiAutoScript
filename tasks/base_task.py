@@ -751,8 +751,18 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         logger.info(f"[{target.name}] 颜色匹配成功")
         return True
 
-    def save_image(self, task_name=None, content=None, wait_time=2, image_type=False, push_flag=False):
+    def save_image(self, task_name=None, content=None, wait_time=2, image_type=False, push_flag=False, level=3):
         try:
+            # 检查消息级别是否满足要求
+            need_level = self.config.script.message_level.save_image_level
+            if need_level < level:
+                logger.warning(f"级别不够，不保存图片")
+                # 级别不够，不保存图片，但仍然可以推送消息
+                if push_flag and content:
+                    self.push_notify(content=content, level=level)
+                return
+
+            # 获取任务名称
             if task_name is None:
                 task_name = "task_name"
                 if self.config and self.config.task:
@@ -762,33 +772,29 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             if wait_time > 0:
                 sleep(wait_time)
                 self.screenshot()
+
             # 使用getattr同时检查属性和值，避免冗长的条件判断
             if getattr(self.device, 'image', None) is None:
                 self.screenshot()
+
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
 
+            # 小号配置检查
             if self.config.small_account.scheduler.enable:
-                if self.config.small_account.small_account_config.enable_save_img:
-                    filename = get_filename(self.config.small_account.small_account_config.account_name)
-                else:
-                    logger.warning(f"开启了小号任务, 未开启截图保存，保存截图将被忽略")
-                    if push_flag:
-                        self.push_notify(content=content)
-                    return
+                filename = get_filename(self.config.small_account.small_account_config.account_name)
             else:
                 filename = get_filename(self.config.config_name.upper())
 
             # 设置保存图像的文件夹
             WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
             if task_name in WeeklyTask:
-                folder_name = f'{week_path}/{I18n.trans_zh_cn(task_name)}'
+                folder_name = f'{self.config.config_name.upper()}/{week_path}/{I18n.trans_zh_cn(task_name)}'
             else:
-                folder_name = f'{log_path}/{I18n.trans_zh_cn(task_name)}'
-            if self.config.small_account.scheduler.enable:
-                folder_name = folder_name.replace("\log", "\log\小号截图")
+                folder_name = f'{self.config.config_name.upper()}/{log_path}/{I18n.trans_zh_cn(task_name)}'
+
+
             folder_path = Path(folder_name)
             folder_path.mkdir(parents=True, exist_ok=True)
-
             image_path = folder_path / filename  # 使用pathlib路径对象
 
             if image_type:
@@ -826,14 +832,15 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             self.push_notify(content=f"保存截图异常，{e}")
             logger.error(f"保存{task_name}截图异常，{e}")
 
-    def push_notify(self, content='', title=None):
+    def push_notify(self, content='', title=None, level=3):
+
         if content != '':
             logger.info(content)
 
-        if self.config.small_account.scheduler.enable:
-            if not self.config.small_account.small_account_config.enable_notify:
-                logger.warning("已开启小号任务，但未启用小号通知，通知将被忽略")
-                return
+        need_level = self.config.script.message_level.push_notify_level
+        if need_level < level:
+            logger.warning(f"级别不够，不推送消息")
+            return
 
         # 处理title的逻辑优化
         if not title:
@@ -843,10 +850,9 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 title = 'task_name'
 
         if self.config.small_account.scheduler.enable:
-            if self.config.small_account.small_account_config.enable_notify:
-                name = self.config.small_account.small_account_config.account_name
-                logger.info(f"已开启小号任务，并启用了小号通知，拼接[{name}]，准备发送通知")
-                title = f"{name}▪{I18n.trans_zh_cn(title)}"
+            name = self.config.small_account.small_account_config.account_name
+            logger.info(f"已开启小号任务，并启用了小号通知，拼接[{name}]，准备发送通知")
+            title = f"{name}▪{I18n.trans_zh_cn(title)}"
 
         # 使用getattr同时检查属性和值，避免冗长的条件判断
         if getattr(self.device, 'image', None) is None:
@@ -953,7 +959,7 @@ if __name__ == '__main__':
     d = Device(c)
     t = BaseTask(c, d)
     # t.next_run_week(2)
-    t.push_notify("123456", "123456")
+    t.push_notify("123456", "123456",1)
     # t.next_run_week(c.duel.switch_week.next_week_day)
 
     # t.screenshot()

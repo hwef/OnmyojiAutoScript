@@ -8,14 +8,11 @@ from module.logger import logger
 
 
 class Error(BaseModel):
-    handle_error: bool = Field(default=True,
-                               description='handle_error_help')
-    save_error: bool = Field(default=True,
-                             description='')
-    screenshot_length: int = Field(default=1,
-                                   description='')
-    notify_enable: bool = Field(default=False,
-                                description='')
+    handle_error: bool = Field(default=True, description='handle_error_help')
+    save_error: bool = Field(default=True, description='')
+    screenshot_length: int = Field(default=1, description='')
+
+    notify_enable: bool = Field(default=False, description='')
     notify_config: MultiLine = Field(default='provider: null', description='notify_config_help')
 
     pushtg_enable: bool = Field(default=False, description='')
