@@ -92,7 +92,7 @@ class Script:
                                                    handle_sensitive_logs)
         if self.config.script.error.save_error:
 
-            folder = f'{error_path}/{task}/{error_type}'
+            folder = f'{error_path}/{self.config.config_name.upper()}/{task}/{error_type}'
             filename = get_filename(self.config.config_name.upper())
             error_path_base = f'{folder}/{filename}'
             error_log_path = f'{error_path_base}.log'

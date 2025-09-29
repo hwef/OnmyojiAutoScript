@@ -787,11 +787,11 @@ class BaseTask(GlobalGameAssets, CostumeBase):
 
             # 设置保存图像的文件夹
             WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
+            path = f"{self.config.config_name.upper()}/{I18n.trans_zh_cn(task_name)}"
             if task_name in WeeklyTask:
-                folder_name = f'{self.config.config_name.upper()}/{week_path}/{I18n.trans_zh_cn(task_name)}'
+                folder_name = f'{week_path}/{path}'
             else:
-                folder_name = f'{self.config.config_name.upper()}/{log_path}/{I18n.trans_zh_cn(task_name)}'
-
+                folder_name = f'{log_path}/{path}'
 
             folder_path = Path(folder_name)
             folder_path.mkdir(parents=True, exist_ok=True)
@@ -959,11 +959,11 @@ if __name__ == '__main__':
     d = Device(c)
     t = BaseTask(c, d)
     # t.next_run_week(2)
-    t.push_notify("123456", "123456",1)
+    # t.push_notify("123456", "123456",1)
     # t.next_run_week(c.duel.switch_week.next_week_day)
 
     # t.screenshot()
-    # t.save_image(push_flag=True, content='成功保存截图')
+    t.save_image(push_flag=True, content='成功保存截图')
     # I_E_AUTO_ROTATE_OFF = RuleImage(roi_front=(108,650,150,46), roi_back=(108,650,150,46), threshold=0.85, method="Template matching", file="./tasks/Exploration/res/res_e_auto_rotate_off.png")
     # t.appear_rgb(I_E_AUTO_ROTATE_OFF)
 
