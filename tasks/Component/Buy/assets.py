@@ -28,6 +28,8 @@ class BuyAssets:
 	I_BUY_SUB = RuleImage(roi_front=(467,429,50,48), roi_back=(452,412,85,147), threshold=0.8, method="Template matching", file="./tasks/Component/Buy/buy/buy_buy_sub.png")
 	# 出现用魂玉购买 
 	I_BUY_RMB = RuleImage(roi_front=(610,532,35,32), roi_back=(548,483,178,119), threshold=0.8, method="Template matching", file="./tasks/Component/Buy/buy/buy_buy_rmb.png")
+	# 购买溢出取消 
+	I_BUY_CANCEL = RuleImage(roi_front=(502,405,68,34), roi_back=(455,359,184,120), threshold=0.8, method="Template matching", file="./tasks/Component/Buy/buy/buy_cancel.png")
 
 
 	# Ocr Rule Assets

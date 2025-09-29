@@ -34,5 +34,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "出现用魂玉购买"
+  },
+  {
+    "itemName": "buy_cancel",
+    "imageName": "buy_cancel.png",
+    "roiFront": "502,405,68,34",
+    "roiBack": "455,359,184,120",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "购买溢出取消"
   }
 ]

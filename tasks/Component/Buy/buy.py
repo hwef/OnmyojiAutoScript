@@ -56,7 +56,6 @@ class Buy(BaseTask, BuyAssets):
                         continue
                 return False
 
-
             if self.ui_reward_appear_click():
                 while 1:
                     self.screenshot()
@@ -73,7 +72,6 @@ class Buy(BaseTask, BuyAssets):
                 continue
 
         return True
-
 
     def buy_more(self, start_click: Union[RuleImage, RuleOcr, RuleClick],
                  number: int = None):
@@ -92,7 +90,6 @@ class Buy(BaseTask, BuyAssets):
             if try_click_count >= 3:
                 logger.warning(f'Buy_more failed, try_click_count: {try_click_count}')
                 logger.warning('Close the purchase')
-                return
 
             if isinstance(start_click, RuleImage):
                 if self.appear_then_click(start_click, interval=1):
@@ -139,6 +136,10 @@ class Buy(BaseTask, BuyAssets):
         # 购买确认
         while 1:
             self.screenshot()
+            if self.appear(self.I_BUY_CANCEL):
+                self.ui_click_until_disappear(self.I_BUY_CANCEL)
+                logger.warning('购买溢出点击取消')
+                return True
 
             if self.ui_reward_appear_click():
                 time.sleep(0.5)

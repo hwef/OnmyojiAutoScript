@@ -141,7 +141,8 @@ class Special(Buy, MallNavbar):
             buy_res_number = buy_number
         if buy_cycles_number:
             for i in range(buy_cycles_number):
-                self.buy_more(self.I_SP_BUY_LOW)
+                if self.buy_more(self.I_SP_BUY_LOW):
+                    return True
                 time.sleep(0.5)
         if buy_res_number:
             self.buy_more(self.I_SP_BUY_LOW, buy_res_number)
@@ -188,8 +189,9 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oa')
+    c = Config('mi')
     d = Device(c)
     t = Special(c, d)
+    t.screenshot()
 
     t.execute_special()
