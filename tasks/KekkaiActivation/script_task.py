@@ -285,7 +285,8 @@ class ScriptTask(KU, KekkaiActivationAssets):
             ocr_count += 1
             # 第一步：筛选出包含 "体力或者勾玉" 的结果
             filtered_results = [result for result in results if check_card in result.ocr_text]
-            logger.info(f"识别到的结界卡：{filtered_results}")
+            logger.info(f"识别到卡: {[result.ocr_text for result in filtered_results]}")
+
             # 第二步：提取数字并按数字排序
             numeric_results = []
             for result in filtered_results:
@@ -301,7 +302,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
                 sorted_results = [result for _, result in sorted(numeric_results, key=lambda x: x[0], reverse=True)]
                 max_result = sorted_results[0]  # 获取数字最大的结果对象
                 target = RuleClick(roi_front=max_result.after_box, roi_back=max_result.after_box, name="tmpclick")
-                logger.info(f"最大值的具体位置（矩形框）：{max_result.after_box}")
+                logger.info(f"选择挂卡: [{max_result.ocr_text}] {max_result.after_box}")
                 return target
             else:
                 if ocr_count > 3:
