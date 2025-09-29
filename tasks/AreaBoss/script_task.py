@@ -2,7 +2,7 @@
 # @author runhey
 # github https://github.com/runhey
 import time
-
+from datetime import datetime
 import random
 import re
 
@@ -26,6 +26,13 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         运行脚本
         :return:
         """
+        # 检查当前时间是否在允许的任务执行时间段内(6点到24点)
+        current_hour = datetime.now().hour
+        if not (6 <= current_hour < 24):
+            logger.info(f"当前时间({current_hour}点)不在任务执行时间段内(6-24) ")
+            self.set_next_run(task='AreaBoss', success=True, finish=False)
+            raise TaskEnd
+
         # 直接手动关闭这个锁定阵容的设置
         self.config.area_boss.general_battle.lock_team_enable = False
         con = self.config.area_boss.boss
