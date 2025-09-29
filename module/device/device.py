@@ -3,9 +3,10 @@ from win32gui import IsWindow
 import os
 import psutil
 import pywintypes
+import subprocess
+import time
 from collections import deque
 from datetime import datetime
-import time
 # Patch pkg_resources before importing adbutils and uiautomator2
 from module.device.pkg_resources import get_distribution
 # Just avoid being removed by import optimization
@@ -39,15 +40,19 @@ class Device(Platform, Screenshot, Control, AppControl):
     def __init__(self, *args, **kwargs):
         max_retries = 3
         success = False
-        last_exception = None  # 记录最后一次异常
+        last_exception = None
 
-        for trial in range(1, max_retries + 1):  # trial从1开始更符合语义
+        for trial in range(1, max_retries + 1):
             try:
+                # 在初始化前检查ADB连接
+                if trial > 1:  # 重试时检查ADB连接
+                    self.reconnect_adb()
+                    
                 super().__init__(*args, **kwargs)
                 if IS_WINDOWS:
                     self._validate_window_handle()
                 success = True
-                break  # 成功则跳出循环
+                break
 
             except (EmulatorNotRunningError, pywintypes.error) as e:
                 last_exception = e
@@ -86,20 +91,6 @@ class Device(Platform, Screenshot, Control, AppControl):
         if self.config.script.device.screenshot_method == 'auto':
             self.run_simple_screenshot_benchmark()
 
-    def _validate_window_handle(self):
-        """Windows平台专用句柄验证"""
-        # 添加快速检查
-        if hasattr(self, '_screenshot_handle_num') and not IsWindow(getattr(self, '_screenshot_handle_num', 0)):
-            raise pywintypes.error(1400, "GetWindowRect", "无效窗口句柄")
-        try:
-            # 触发窗口属性检查
-            _ = self.screenshot_size
-        except pywintypes.error as e:
-            if e.winerror == 1400:
-                logger.error("窗口句柄验证失败")
-                raise pywintypes.error(e.args)  # 重新抛出给上层捕获
-            raise
-
     def force_cleanup(self):
         """精准终止当前模拟器实例关联进程"""
         logger.info('尝试清理模拟器进程')
@@ -110,9 +101,12 @@ class Device(Platform, Screenshot, Control, AppControl):
 
         # 获取监听该端口的进程
         listeners = []
-        for conn in psutil.net_connections(kind='tcp'):
-            if conn.status == 'LISTEN' and conn.laddr.port == port:
-                listeners.append(conn.pid)
+        try:
+            for conn in psutil.net_connections(kind='tcp'):
+                if conn.status == 'LISTEN' and conn.laddr.port == port:
+                    listeners.append(conn.pid)
+        except Exception as e:
+            logger.warning(f'获取网络连接信息失败: {e}')
 
         if not listeners:
             logger.info(f'端口 {port} 无监听进程')
@@ -125,11 +119,17 @@ class Device(Platform, Screenshot, Control, AppControl):
                 proc = psutil.Process(pid)
                 # 终止子进程
                 for child in proc.children(recursive=True):
-                    child.kill()
-                    killed.append(f"{child.name()}({child.pid})")
+                    try:
+                        child.kill()
+                        killed.append(f"{child.name()}({child.pid})")
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        pass
                 # 终止主进程
-                proc.kill()
-                killed.append(f"{proc.name()}({proc.pid})")
+                try:
+                    proc.kill()
+                    killed.append(f"{proc.name()}({proc.pid})")
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
             except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
                 logger.warning(f'进程终止失败: {e}')
 
@@ -139,10 +139,17 @@ class Device(Platform, Screenshot, Control, AppControl):
         else:
             logger.warning(f'端口 {port} 无权限终止进程')
 
-        # 补充ADB清理
-        os.system(f'adb -s {self.serial} kill-server')
-        logger.info(f'已重置ADB连接: {self.serial}, 请稍等')
-        time.sleep(3)
+        # 改进ADB清理
+        try:
+            # 先停止ADB服务
+            subprocess.run(['adb', 'kill-server'], capture_output=True, timeout=5)
+            time.sleep(1)
+            # 重新启动ADB服务
+            subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10)
+            logger.info(f'已重置ADB连接: {self.serial}')
+            time.sleep(3)
+        except Exception as e:
+            logger.error(f'ADB重置失败: {e}')
 
     def get_port_from_serial(self):
         """
@@ -160,6 +167,66 @@ class Device(Platform, Screenshot, Control, AppControl):
         except ValueError:
             logger.error(f'端口号非数字: {port}')
             return None
+
+    def check_adb_connection(self):
+        """
+        检查ADB连接状态
+        Returns:
+            bool: 连接是否正常
+        """
+        try:
+            result = subprocess.run(
+                ['adb', 'devices'], 
+                capture_output=True, 
+                text=True, 
+                timeout=10
+            )
+            if self.serial in result.stdout:
+                return True
+            else:
+                logger.warning(f'设备 {self.serial} 未在ADB设备列表中')
+                return False
+        except Exception as e:
+            logger.error(f'ADB连接检查失败: {e}')
+            return False
+
+    def reconnect_adb(self):
+        """
+        重新连接ADB设备
+        """
+        try:
+            # 断开连接
+            subprocess.run(['adb', 'disconnect', self.serial], 
+                          capture_output=True, timeout=5)
+            time.sleep(1)
+            # 重新连接
+            subprocess.run(['adb', 'connect', self.serial], 
+                          capture_output=True, timeout=10)
+            time.sleep(2)
+            logger.info(f'尝试重新连接ADB设备: {self.serial}')
+        except Exception as e:
+            logger.error(f'ADB重新连接失败: {e}')
+
+    def _validate_window_handle(self):
+        """Windows平台专用句柄验证"""
+        # 添加快速检查
+        if hasattr(self, '_screenshot_handle_num') and not IsWindow(getattr(self, '_screenshot_handle_num', 0)):
+            # 检查是否是ADB连接问题
+            if not self.check_adb_connection():
+                logger.warning("ADB连接异常，尝试重新连接")
+                self.reconnect_adb()
+            raise pywintypes.error(1400, "GetWindowRect", "无效窗口句柄")
+        try:
+            # 触发窗口属性检查
+            _ = self.screenshot_size
+        except pywintypes.error as e:
+            if e.winerror == 1400:
+                logger.error("窗口句柄验证失败")
+                # 检查ADB连接
+                if not self.check_adb_connection():
+                    self.reconnect_adb()
+                raise pywintypes.error(e.args)  # 重新抛出给上层捕获
+            raise
 
     def run_simple_screenshot_benchmark(self):
         """

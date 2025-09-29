@@ -239,10 +239,18 @@ class ConnectionAttr:
         file = os.path.join(sys.executable, '../Lib/site-packages/adbutils/binaries/adb.exe')
         file = os.path.abspath(file).replace('\\', '/')
         if os.path.exists(file):
+            logger.info(f'Using adb binary: {file}')
             return file
+
+        # Try existing adb.exe in common paths
+        for path in self.adb_binary_list:
+            if os.path.exists(path):
+                logger.info(f'Using adb binary: {os.path.abspath(path)}')
+                return os.path.abspath(path)
 
         # Use adb in system PATH
         file = 'adb'
+        logger.info('Using adb from system PATH')
         return file
 
     @cached_property
@@ -257,6 +265,17 @@ class ConnectionAttr:
                 port = int(env)
             except ValueError:
                 logger.warning(f'Invalid environ variable ANDROID_ADB_SERVER_PORT={port}, using default port')
+
+        # Ensure ADB server is running with the correct binary
+        try:
+            adb_path = self.adb_binary
+            if adb_path and adb_path != 'adb':
+                subprocess.run([adb_path, 'start-server'], capture_output=True, timeout=10)
+            else:
+                subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10)
+            time.sleep(1)
+        except Exception as e:
+            logger.warning(f'Failed to start ADB server: {e}')
 
         logger.attr('AdbClient', f'AdbClient({host}, {port})')
         return AdbClient(host, port)
