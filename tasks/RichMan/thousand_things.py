@@ -101,13 +101,19 @@ class ThousandThings(GameUi, RichManAssets):
         return True
 
     def share_shishen(self):
+        click_count = 0
         while 1:
             self.screenshot()
+            if click_count >= 6:
+                logger.warning('无法进入唤妖借出')
+                return
             if self.appear(self.I_TT_SHARE2):
                 break
             if self.appear_then_click(self.I_TT_SHARE1, interval=1):
+                click_count += 1
                 continue
             if self.appear_then_click(self.I_TT_SHARE0, interval=1):
+                click_count += 1
                 continue
 
         click_count = 0
@@ -231,7 +237,7 @@ class ThousandThings(GameUi, RichManAssets):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('du')
+    c = Config('wy')
     d = Device(c)
     t = ThousandThings(c, d)
 
