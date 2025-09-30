@@ -22,6 +22,10 @@ class ConfigManager:
             if json.stem == 'template':
                 continue
             result.append(json.stem)
+
+        # 按照字母优先排序，数字开头的排在后面
+        result.sort(key=lambda x: (re.match(r'^\d+', x) is not None, x))
+
         if len(result) == 0:
             # 如果没有脚本文件 则创建一个
             ConfigManager.copy(file='oas1', template='template')
