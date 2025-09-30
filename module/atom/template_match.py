@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 def match_template(source, template, method=cv2.TM_CCOEFF_NORMED, 
-                  min_confidence=0.4, multi_target=False, max_targets=5):
+                  min_confidence=0.4, multi_target=False, max_targets=5,mask=None):
     """
     优化的模板匹配函数，显著提升精度和速度
     支持多目标检测和亚像素精度
@@ -60,9 +60,9 @@ def match_template(source, template, method=cv2.TM_CCOEFF_NORMED,
                 
             # 使用积分图加速小模板匹配
             if tpl.size < 2500:
-                result = cv2.matchTemplate(search_area, tpl, method)
+                result = cv2.matchTemplate(search_area, tpl, method,mask=mask)
             else:
-                result = cv2.matchTemplate(search_area, tpl, method)
+                result = cv2.matchTemplate(search_area, tpl, method,mask=mask)
             
             # 获取候选点
             current_candidates = _get_candidate_points(result, min_confidence, multi_target, max_targets, tpl)
@@ -83,7 +83,7 @@ def match_template(source, template, method=cv2.TM_CCOEFF_NORMED,
     del candidate_points
     
     # 创建结果图（当前有问题，返回None）
-    # result_image = _create_result_image(source, template, final_matches, pyramid_levels)
+    # result_image = _create_result_image(source, template, final_matches, pyramid_levels,mask=mask)
     
     if multi_target:
         return [(score, loc) for score, loc, _ in final_matches], None
