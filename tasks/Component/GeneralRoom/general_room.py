@@ -136,7 +136,7 @@ class GeneralRoom(BaseTask, GeneralRoomAssets):
             # https://github.com/runhey/OnmyojiAutoScript/issues/488
             # 只能说朴实无华
             text_ocr = self.O_GR_ZONES_NAME.ocr(self.device.image)
-            if name == '石距' and name in text_ocr:
+            if name == '石距' or name in text_ocr:
                 break
             if click_timer.reached():
                 click_timer.reset()

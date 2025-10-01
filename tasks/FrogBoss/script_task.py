@@ -318,7 +318,7 @@ class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
 

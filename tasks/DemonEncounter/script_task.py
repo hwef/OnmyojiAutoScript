@@ -37,12 +37,14 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
     def run(self):
         if not self.check_time():
             logger.warning('Time is not right')
+            self.set_next_run(task='DemonEncounter', success=True, finish=False)
             raise TaskEnd('DemonEncounter')
-        self.ui_get_current_page()
-        self.ui_goto(page_shikigami_records)
 
         # 切换通用御魂
-        self.run_switch_soul(self.config.demon_encounter.switch_soul.switch_group_team)
+        if self.config.demon_encounter.switch_soul.enable:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul(self.config.demon_encounter.switch_soul.switch_group_team)
 
         # 根据周几切换指定御魂
         soul_config = self.config.demon_encounter.demon_soul_config
@@ -51,9 +53,11 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
             self.ui_goto(page_shikigami_records)
             self.checkout_soul()
 
+        self.ui_get_current_page()
         self.ui_goto(page_demon_encounter)
         self.execute_lantern()
-        self.execute_boss()
+        if self.config.demon_encounter.switch_soul.enable_boss:
+            self.execute_boss()
 
         self.set_next_run(task='DemonEncounter', success=True, finish=False)
         raise TaskEnd('DemonEncounter')
@@ -252,6 +256,8 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
         if not self.appear(self.I_DE_AWARD):
             self.ui_get_reward(self.I_DE_RED_DHARMA)
         self.wait_until_appear(self.I_DE_AWARD)
+        if not self.config.demon_encounter.switch_soul.enable_four:
+            return
         # 然后到四个灯笼
         match_click = {
             1: self.C_DE_1,
@@ -352,9 +358,13 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
             self.screenshot()
             if self.appear(self.I_BLUE_PIAO):
                 if self.click(self.I_JADE_50):
-                    logger.info('Buy a mystery amulet for 50 jade')
+                    logger.info('50 勾玉购买蓝票')
                     continue
-            if not self.appear(self.I_BLUE_PIAO):
+            if self.appear(self.I_SUSHI_100):
+                if self.click(self.I_JADE_50):
+                    logger.info('50 勾玉购买体力')
+                    continue
+            if not self.appear(self.I_BLUE_PIAO) and not self.appear(self.I_SUSHI_100):
                 if self.appear_then_click(self.I_DE_FIND, interval=2.5):
                     break
 

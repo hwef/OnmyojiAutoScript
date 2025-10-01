@@ -177,6 +177,8 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
                 continue
             if self.appear_then_click(self.I_L_FRIENDS, interval=1):
                 continue
+            if self.appear_then_click(self.I_L_FRIENDS_SELECT, interval=1):
+                continue
         logger.info('Start friend love')
         check_timer = Timer(5)
         check_timer.start()

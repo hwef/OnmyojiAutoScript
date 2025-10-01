@@ -2,17 +2,17 @@
   {
     "itemName": "add_1",
     "imageName": "gi_add_1.png",
-    "roiFront": "592,288,114,51",
-    "roiBack": "592,288,114,51",
+    "roiFront": "593,266,103,39",
+    "roiBack": "593,266,103,39",
     "method": "Template matching",
-    "threshold": 0.9,
+    "threshold": 0.8,
     "description": "中间的邀请图片"
   },
   {
     "itemName": "add_2",
     "imageName": "gi_add_2.png",
-    "roiFront": "1039,205,100,100",
-    "roiBack": "1039,205,100,100",
+    "roiFront": "1036,225,56,54",
+    "roiBack": "942,141,243,221",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "最右边的邀请"

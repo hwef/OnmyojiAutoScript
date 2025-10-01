@@ -12,7 +12,7 @@ class RestartAssets:
 
 	# Image Rule Assets
 	# 点击勾玉 
-	I_HARVEST_JADE = RuleImage(roi_front=(732,489,34,33), roi_back=(177,451,973,141), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_jade.png")
+	I_HARVEST_JADE = RuleImage(roi_front=(732,489,34,33), roi_back=(177,451,973,141), threshold=0.8, method="Template matching mask", file="./tasks/Restart/harvest/harvest_harvest_jade.png")
 	# 签到小图标 
 	I_HARVEST_SIGN = RuleImage(roi_front=(397,500,24,34), roi_back=(70,471,889,89), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_sign.png")
 	# description 
@@ -21,6 +21,8 @@ class RestartAssets:
 	I_HARVEST_SIGN_999 = RuleImage(roi_front=(345,494,23,29), roi_back=(51,459,888,103), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_sign_999.png")
 	# 邮件小图标 
 	I_HARVEST_MAIL = RuleImage(roi_front=(337,505,37,25), roi_back=(38,465,880,89), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_mail.png")
+	# 邮件右上角图标 
+	I_HARVEST_MAIL_TOP_RIGHT = RuleImage(roi_front=(1137,33,34,26), roi_back=(1137,33,34,26), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_mail_top_right.png")
 	# 全部收取 
 	I_HARVEST_MAIL_ALL = RuleImage(roi_front=(80,622,75,64), roi_back=(80,622,75,64), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_mail_all.png")
 	# 有些邮件需要点击一次 
@@ -53,6 +55,10 @@ class RestartAssets:
 	I_HARVEST_ZIDU = RuleImage(roi_front=(785,475,135,135), roi_back=(785,475,135,135), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_zidu.png")
 	# description 
 	I_HARVEST_MAIL_COPY = RuleImage(roi_front=(257,509,29,21), roi_back=(192,472,790,100), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_mail_copy.png")
+	# 邮件未读红点 
+	I_MAIL_RED_DOTS = RuleImage(roi_front=(1153,14,36,26), roi_back=(1141,5,54,51), threshold=0.8, method="Template matching mask", file="./tasks/Restart/harvest/mail_red_dots.png")
+	# 寮消息通知 
+	I_LIAO_MESSAGE = RuleImage(roi_front=(189,138,35,34), roi_back=(35,50,358,248), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/liao_message.png")
 
 
 	# Click Rule Assets

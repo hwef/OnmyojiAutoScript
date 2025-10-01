@@ -97,5 +97,23 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "溢出确认"
+  },
+  {
+    "itemName": "tp_task",
+    "imageName": "tp_task.png",
+    "roiFront": "1200,343,35,57",
+    "roiBack": "1188,305,59,115",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "tp_task"
+  },
+  {
+    "itemName": "tp_skip",
+    "imageName": "tp_tp_skip.png",
+    "roiFront": "1089,119,72,41",
+    "roiBack": "988,7,284,205",
+    "method": "Template matching",
+    "threshold": 0.7,
+    "description": "跳过"
   }
 ]

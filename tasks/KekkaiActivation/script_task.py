@@ -3,12 +3,16 @@
 # github https://github.com/runhey
 import time
 
+import random
+import re
 from cached_property import cached_property
 from datetime import datetime, timedelta
+from module.atom.click import RuleClick
 
 from module.base.timer import Timer
 from module.atom.image_grid import ImageGrid
 from module.atom.image import RuleImage
+from module.base.utils import point2str
 from module.logger import logger
 from module.exception import TaskEnd, GameStuckError
 
@@ -87,9 +91,9 @@ class ScriptTask(KU, KekkaiActivationAssets):
     def order_targets(self) -> ImageGrid:
         rule = self.config.kekkai_activation.activation_config.card_type
         if rule == CardType.TAIKO:
-            return ImageGrid([self.I_CARDS_KAIKO_6, self.I_CARDS_KAIKO_5,self.I_CARDS_KAIKO_4,self.I_CARDS_KAIKO_3])
+            return ImageGrid([self.I_CARDS_KAIKO_6, self.I_CARDS_KAIKO_5])
         elif rule == CardType.FISH:
-            return ImageGrid([self.I_CARDS_FISH_6, self.I_CARDS_FISH_5,self.I_CARDS_FISH_4])
+            return ImageGrid([self.I_CARDS_FISH_6, self.I_CARDS_FISH_5])
         else:
             logger.error('Unknown utilize rule')
             raise ValueError('Unknown utilize rule')
@@ -246,7 +250,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
         # 找最优卡
         while 1:
             self.screenshot()
-            target = self.order_targets.find_anyone(self.device.image)
+            target = self.check_card_num()
             if target is None:
                 # 未发现卡，处理逻辑
                 self._card_not_found()
@@ -259,8 +263,60 @@ class ScriptTask(KU, KekkaiActivationAssets):
                         message = f'✅ 确认挂卡: {rule}'
                         self.save_image(content=message, push_flag=False, wait_time=0)
                         return
-                    if self.appear_then_click(target, interval=1):
+                    if self.click(target, interval=1):
                         continue
+
+    def check_card_num(self):
+        rule = self.config.kekkai_activation.activation_config.card_type
+        if rule == CardType.TAIKO:
+            min_card_num = self.config.kekkai_activation.activation_config.min_taiko_num
+            check_card = "勾玉"
+        elif rule == CardType.FISH:
+            min_card_num = self.config.kekkai_activation.activation_config.min_fish_num
+            check_card = "体力"
+        else:
+            logger.error('Unknown utilize rule')
+            raise ValueError('Unknown utilize rule')
+
+        ocr_count = 0
+        while 1:
+            self.screenshot()
+            results = self.O_CHECK_CARD_NUMBER.detect_and_ocr(self.device.image)
+            ocr_count += 1
+            # 第一步：筛选出包含 "体力或者勾玉" 的结果
+            filtered_results = [result for result in results if check_card in result.ocr_text]
+            logger.info(f"识别到的结界卡：{filtered_results}")
+            # 第二步：提取数字并按数字排序
+            numeric_results = []
+            for result in filtered_results:
+                # 使用正则表达式提取所有数字
+                numbers = [int(num) for num in re.findall(r'\d+', result.ocr_text)]
+                if numbers:  # 如果提取到数字
+                    if numbers[0] < min_card_num:
+                        continue
+                    numeric_results.append((numbers[0], result))  # 按第一个数字排序
+
+            if numeric_results:
+                # 按数字大到小排序
+                sorted_results = [result for _, result in sorted(numeric_results, key=lambda x: x[0], reverse=True)]
+                max_result = sorted_results[0]  # 获取数字最大的结果对象
+                target = RuleClick(roi_front=max_result.after_box, roi_back=max_result.after_box, name="tmpclick")
+                logger.info(f"最大值的具体位置（矩形框）：{max_result.after_box}")
+                return target
+            else:
+                if ocr_count > 3:
+                    logger.error('多次未找到符合条件的结果, 退出')
+                    return None
+                logger.warning("未找到符合条件的结果, 准备往上滑动")
+                duration = 2
+                safe_pos_x = random.randint(200, 400)
+                safe_pos_y = random.randint(580, 600)
+                p1 = (safe_pos_x, safe_pos_y)
+                p2 = (safe_pos_x, safe_pos_y - 410)
+                logger.info('Swipe %s -> %s, %sS ' % (point2str(*p1), point2str(*p2), duration))
+                self.device.swipe_adb(p1, p2, duration=duration)
+                time.sleep(1)
+                continue
 
     def _card_not_found(self):
         # 获取配置引用
@@ -347,9 +403,9 @@ if __name__ == "__main__":
     from module.device.device import Device
     import cv2
 
-    c = Config('oas2')
+    c = Config('switch')
     d = Device(c)
 
     t = ScriptTask(c, d)
-    t.run()
+    t.check_card_num()
     # t.run_activation(t.config.kekkai_activation.activation_config)

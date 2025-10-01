@@ -10,6 +10,18 @@ from module.atom.list import RuleList
 class TalismanPassAssets: 
 
 
+	# Click Rule Assets
+	# 花合战需要点击的空白区域 
+	C_CLICK_AREA = RuleClick(roi_front=(1197,565,43,44), roi_back=(1197,565,43,44), name="click_area")
+
+
+	# Ocr Rule Assets
+	# 点击空白处关闭此界面 
+	O_CLICK_CLOSE_1 = RuleOcr(roi=(521,659,232,32), area=(521,659,232,32), mode="Single", method="Default", keyword="点击空白处关闭此界面", name="click_close_1")
+	# 点击空白处关闭弹窗 
+	O_CLICK_CLOSE_2 = RuleOcr(roi=(508,584,214,40), area=(508,584,214,40), mode="Single", method="Default", keyword="点击空白处关闭弹窗", name="click_close_2")
+
+
 	# Image Rule Assets
 	# 领取全部 
 	I_TP_GET_ALL = RuleImage(roi_front=(903,599,70,71), roi_back=(903,599,70,71), threshold=0.8, method="Template matching", file="./tasks/TalismanPass/tp/tp_tp_get_all.png")
@@ -33,5 +45,9 @@ class TalismanPassAssets:
 	I_TP_EXP = RuleImage(roi_front=(922,254,32,36), roi_back=(884,215,100,331), threshold=0.8, method="Template matching", file="./tasks/TalismanPass/tp/tp_tp_exp.png")
 	# 溢出确认 
 	I_OVERFLOW_CONFIRME = RuleImage(roi_front=(585,410,116,44), roi_back=(585,410,116,44), threshold=0.8, method="Template matching", file="./tasks/TalismanPass/tp/tp_overflow_confirme.png")
+	# tp_task 
+	I_TP_TASK = RuleImage(roi_front=(1200,343,35,57), roi_back=(1188,305,59,115), threshold=0.8, method="Template matching", file="./tasks/TalismanPass/tp/tp_task.png")
+	# 跳过 
+	I_TP_SKIP = RuleImage(roi_front=(1089,119,72,41), roi_back=(988,7,284,205), threshold=0.7, method="Template matching", file="./tasks/TalismanPass/tp/tp_tp_skip.png")
 
 

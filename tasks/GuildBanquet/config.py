@@ -7,7 +7,7 @@ from pydantic import Field, BaseModel
 
 from tasks.Component.config_scheduler import Scheduler
 from tasks.Component.config_base import ConfigBase, Time
-
+from tasks.Component.SwitchSoul.switch_soul_config import SwitchSoulConfig
 
 class Weekday(str, Enum):
     Monday: str = "星期一"
@@ -25,10 +25,11 @@ class GuildBanquetTime(BaseModel):
     run_time_1: Time = Field(default=Time(hour=19, minute=0, second=0))
     day_2: Weekday = Field(default=Weekday.Saturday, description="每周第2次运行时间设置")
     run_time_2: Time = Field(default=Time(hour=19, minute=0, second=0), description="每周第2次运行时间设置")
-    enable: bool = Field(default=False, description="是否启用荒川9层三只石距战斗")
+    enable: bool = Field(default=False, description="荒川秘闻9层三只石距战斗")
 
 
 
 class GuildBanquet(ConfigBase):
     scheduler: Scheduler = Field(default_factory=Scheduler)
     guild_banquet_time: GuildBanquetTime = Field(default_factory=GuildBanquetTime)
+    switch_soul: SwitchSoulConfig = Field(default_factory=SwitchSoulConfig)

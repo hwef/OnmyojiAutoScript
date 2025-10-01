@@ -10,13 +10,6 @@ from module.atom.list import RuleList
 class GameUiAssets: 
 
 
-	# Ocr Rule Assets
-	# 点击空白处关闭此界面 
-	O_CLICK_CLOSE_1 = RuleOcr(roi=(521,659,232,32), area=(521,659,232,32), mode="Single", method="Default", keyword="点击空白处关闭此界面", name="click_close_1")
-	# 点击空白处关闭弹窗 
-	O_CLICK_CLOSE_2 = RuleOcr(roi=(508,584,214,40), area=(508,584,214,40), mode="Single", method="Default", keyword="点击空白处关闭弹窗", name="click_close_2")
-
-
 	# Image Rule Assets
 	# 商店弹窗红色关闭 
 	I_AD_CLOSE_RED = RuleImage(roi_front=(993,130,33,36), roi_back=(953,91,215,121), threshold=0.8, method="Template matching", file="./tasks/GameUi/additional/additional_ad_close_red.png")
@@ -110,7 +103,9 @@ class GameUiAssets:
 	# description 
 	I_CHECK_DEMON_ENCOUNTER = RuleImage(roi_front=(26,658,42,43), roi_back=(2,619,100,100), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_demon_encounter.png")
 	# description 
-	I_CHECK_HUNT = RuleImage(roi_front=(575,30,46,25), roi_back=(553,1,81,68), threshold=0.7, method="Template matching", file="./tasks/GameUi/page/page_check_hunt.png")
+	I_CHECK_NETHERWORLD = RuleImage(roi_front=(575,30,46,25), roi_back=(553,1,81,68), threshold=0.7, method="Template matching", file="./tasks/GameUi/page/page_check_netherworld.png")
+	# description 
+	I_CHECK_KIRIN = RuleImage(roi_front=(91,20,96,36), roi_back=(42,8,248,72), threshold=0.7, method="Template matching", file="./tasks/GameUi/page/page_check_kirin.png")
 	# description 
 	I_CHECK_HYAKKISEN = RuleImage(roi_front=(1014,607,53,55), roi_back=(986,587,100,100), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_hyakkisen.png")
 	# description 
@@ -148,8 +143,8 @@ class GameUiAssets:
 	I_CHECK_RECORDS = RuleImage(roi_front=(269,71,55,50), roi_back=(269,71,55,50), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_records.png")
 	# description 
 	I_CHECK_ONMYODO = RuleImage(roi_front=(1166,117,84,547), roi_back=(1166,117,84,547), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_onmyodo.png")
-	# description 
-	I_CHECK_FRIENDS = RuleImage(roi_front=(1011,592,133,60), roi_back=(1011,592,133,60), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_friends.png")
+	# page_check_friends 
+	I_CHECK_FRIENDS = RuleImage(roi_front=(594,50,146,31), roi_back=(519,10,290,120), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_friends.png")
 	# description 
 	I_CHECK_DAILY = RuleImage(roi_front=(38,515,45,62), roi_back=(1,489,155,127), threshold=0.7, method="Template matching", file="./tasks/GameUi/page/page_check_daily.png")
 	# description 
@@ -159,7 +154,7 @@ class GameUiAssets:
 	# description 
 	I_CHECK_TEAM = RuleImage(roi_front=(32,585,82,90), roi_back=(32,585,82,90), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_team.png")
 	# description 
-	I_CHECK_COLLECTION = RuleImage(roi_front=(471,618,100,100), roi_back=(289, 618, 819, 100), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_collection.png")
+	I_CHECK_COLLECTION = RuleImage(roi_front=(380,620,100,100), roi_back=(380,620,100,100), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_collection.png")
 	# description 
 	I_BACK_Y = RuleImage(roi_front=(15,4,57,52), roi_back=(1,2,100,91), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_back_y.png")
 	# description 

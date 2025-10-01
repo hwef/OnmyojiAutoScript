@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from datetime import time
 
 from tasks.Component.config_scheduler import Scheduler
+from tasks.Component.config_switch_week import SwitchWeek
 from tasks.Component.config_base import ConfigBase, Time
 from tasks.Component.GeneralBattle.config_general_battle import GreenMarkType
 from enum import Enum
@@ -48,5 +49,6 @@ class DuelCelebConfig(ConfigBase):
 class Duel(ConfigBase):
     scheduler: Scheduler = Field(default_factory=Scheduler)
     duel_config: DuelConfig = Field(default_factory=DuelConfig)
+    switch_week: SwitchWeek = Field(default_factory=SwitchWeek)
     duel_celeb_config: DuelCelebConfig = Field(default_factory=DuelCelebConfig)
     switch_soul: SwitchSoulConfig = Field(default_factory=SwitchSoulConfig)

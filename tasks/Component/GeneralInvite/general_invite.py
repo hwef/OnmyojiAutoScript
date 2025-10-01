@@ -629,7 +629,7 @@ if __name__ == '__main__':
     from module.device.device import Device
     import cv2
 
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     t = GeneralInvite(c, d)
 

@@ -53,16 +53,16 @@ area_map = (
         "rule_click": RyouToppaAssets.C_AREA_6,
         "finished_sign": (RyouToppaAssets.I_AREA_6_FINISHED, RyouToppaAssets.I_AREA_6_FINISHED_NEW)
     },
-    {
-        "fail_sign": (RyouToppaAssets.I_AREA_7_IS_FAILURE_NEW, RyouToppaAssets.I_AREA_7_IS_FAILURE),
-        "rule_click": RyouToppaAssets.C_AREA_7,
-        "finished_sign": (RyouToppaAssets.I_AREA_7_FINISHED, RyouToppaAssets.I_AREA_7_FINISHED_NEW)
-    },
-    {
-        "fail_sign": (RyouToppaAssets.I_AREA_8_IS_FAILURE_NEW, RyouToppaAssets.I_AREA_8_IS_FAILURE),
-        "rule_click": RyouToppaAssets.C_AREA_8,
-        "finished_sign": (RyouToppaAssets.I_AREA_8_FINISHED, RyouToppaAssets.I_AREA_8_FINISHED_NEW)
-    }
+    # {
+    #     "fail_sign": (RyouToppaAssets.I_AREA_7_IS_FAILURE_NEW, RyouToppaAssets.I_AREA_7_IS_FAILURE),
+    #     "rule_click": RyouToppaAssets.C_AREA_7,
+    #     "finished_sign": (RyouToppaAssets.I_AREA_7_FINISHED, RyouToppaAssets.I_AREA_7_FINISHED_NEW)
+    # },
+    # {
+    #     "fail_sign": (RyouToppaAssets.I_AREA_8_IS_FAILURE_NEW, RyouToppaAssets.I_AREA_8_IS_FAILURE),
+    #     "rule_click": RyouToppaAssets.C_AREA_8,
+    #     "finished_sign": (RyouToppaAssets.I_AREA_8_FINISHED, RyouToppaAssets.I_AREA_8_FINISHED_NEW)
+    # }
 )
 
 
@@ -176,7 +176,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
                 self.area_index += 1
                 # logger.info("切换进攻区域 [%s]" % str(self.area_index + 1))
                 if self.area_index >= len(area_map):
-                    logger.warning('所有区域均不可用，将刷新区域缓存')
+                    logger.warning('战斗区域均失败或无法进攻,上滑战斗区域')
                     self.area_index = 0
                     self.flush_area_cache()
                 continue
@@ -264,10 +264,10 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
         return True
 
     def flush_area_cache(self):
-        time.sleep(2)
+        time.sleep(1)
         duration = 0.352
-        count = random.randint(1, 3)
-        for i in range(count):
+        # count = random.randint(1, 3)
+        for i in range(1):
             # 测试过很多次 win32api, win32gui 的 MOUSEEVENTF_WHEEL, WM_MOUSEWHEEL
             # 都出现过很多次离奇的事件，索性放弃了使用以下方法，参数是精心调试的
             # 每次执行刚好刷新一组（2个）设定随机刷新 1 - 3 次
@@ -277,7 +277,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
             p2 = (safe_pos_x, safe_pos_y - 101)
             logger.info('Swipe %s -> %s, %s ' % (point2str(*p1), point2str(*p2), duration))
             self.device.swipe_adb(p1, p2, duration=duration)
-            time.sleep(2)
+            time.sleep(1)
 
     def attack_area(self, index: int):
         """
@@ -301,7 +301,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
         while True:
             self.screenshot()
             if click_failure_count >= 2 and self.appear(self.I_TOPPA_RECORD):
-                logger.warning("点击失败，请检查点击位置")
+                # 在点击进攻后如果未进入战斗画面则点击的安全区域
+                logger.warning("2次点击进攻后, 未进入战斗, 点击的安全区域")
+                self.click(self.C_SAFE_AREA)
                 return False
             if not self.appear(self.I_TOPPA_RECORD, threshold=0.85):
                 time.sleep(1)
@@ -319,13 +321,13 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
                 self.area_index = 0
                 return True
 
-            if self.appear_then_click(RealmRaidAssets.I_FIRE, interval=2, threshold=0.8):
+            if self.appear_then_click(RealmRaidAssets.I_FIRE, interval=1, threshold=0.8):
                 click_failure_count += 1
                 continue
             if self.click(rcl, interval=5):
                 click_rcl_count += 1
                 if click_rcl_count >= 3:
-                    logger.info("区域多次点击未成功，应该已击败")
+                    logger.info("区域多次点击未弹出进攻按钮，应该已击败")
                     return True
                 continue
 
@@ -334,7 +336,8 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('oas1')
+    config = Config('du')
     device = Device(config)
     t = ScriptTask(config, device)
-    t.run()
+    t.attack_area(1)
+    t.flush_area_cache()

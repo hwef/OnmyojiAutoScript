@@ -33,13 +33,21 @@ class SwitchAccountAssets:
 	C_SA_EG_PROFILE_PHOTO = RuleClick(roi_front=(35,35,55,55), roi_back=(35,35,55,55), name="sa_eg_profile_photo")
 	# 选择服务器界面 底部角色名 列表---与ocr.json中同名对象区域一致 
 	C_SA_SELECT_SVR_CHARACTER_LIST = RuleClick(roi_front=(205,570,815,40), roi_back=(205,570,815,40), name="sa_select_svr_character_list")
+	# 未识别到区服 随即点击 四个区服务位置1 
+	C_SA_SELECT_SVR_1 = RuleClick(roi_front=(292,494,31,35), roi_back=(292,494,31,35), name="sa_select_svr_1")
+	# 未识别到区服 随即点击 四个区服务位置2 
+	C_SA_SELECT_SVR_2 = RuleClick(roi_front=(499,501,27,28), roi_back=(499,501,27,28), name="sa_select_svr_2")
+	# 未识别到区服 随即点击 四个区服务位置3 
+	C_SA_SELECT_SVR_3 = RuleClick(roi_front=(695,499,32,31), roi_back=(695,499,32,31), name="sa_select_svr_3")
+	# 未识别到区服 随即点击 四个区服务位置4 
+	C_SA_SELECT_SVR_4 = RuleClick(roi_front=(900,503,30,25), roi_back=(900,503,30,25), name="sa_select_svr_4")
 
 
 	# Ocr Rule Assets
 	# 登录页面服务器名称 
-	O_SA_LOGIN_FORM_SVR_NAME = RuleOcr(roi=(545,510,140,40), area=(545,510,140,40), mode="SINGLE", method="Default", keyword="", name="sa_login_form_svr_name")
+	O_SA_LOGIN_FORM_SVR_NAME = RuleOcr(roi=(475,507,201,37), area=(475,507,201,37), mode="SINGLE", method="Default", keyword="", name="sa_login_form_svr_name")
 	# 选择服务器界面 底部角色所属服务器名 列表 
-	O_SA_SELECT_SVR_SVR_LIST = RuleOcr(roi=(205,540,815,25), area=(205,540,815,25), mode="FULL", method="Default", keyword="", name="sa_select_svr_svr_list")
+	O_SA_SELECT_SVR_SVR_LIST = RuleOcr(roi=(205,535,815,30), area=(205,535,815,30), mode="FULL", method="Default", keyword="", name="sa_select_svr_svr_list")
 	# 选择服务器界面 底部角色名 列表 
 	O_SA_SELECT_SVR_CHARACTER_LIST = RuleOcr(roi=(205,570,815,40), area=(205,570,815,40), mode="FULL", method="Default", keyword="", name="sa_select_svr_character_list")
 	# 选择账号界面 账号列表 

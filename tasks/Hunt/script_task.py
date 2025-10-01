@@ -10,7 +10,7 @@ from module.logger import logger
 from module.base.timer import Timer
 
 from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_hunt, page_shikigami_records
+from tasks.GameUi.page import page_main, page_kirin, page_netherworld, page_shikigami_records
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
 from tasks.Component.GeneralInvite.general_invite import GeneralInvite
@@ -18,6 +18,8 @@ from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.Hunt.assets import HuntAssets
 
 """ 狩猎战 """
+
+
 class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
     kirin_day = True  # 不是麒麟就是阴界之门
 
@@ -25,87 +27,62 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
         if not self.check_datetime():
             # 设置下次运行时间 为今天的晚上七点钟
             raise TaskEnd('Hunt')
-        con = self.config.hunt.hunt_config
-        if con.kirin_group_team != '-1,-1' or con.netherworld_group_team != '-1,-1':
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
-
-            if self.kirin_day:
-                if con.kirin_group_team != '-1,-1':
-                    self.run_switch_soul(con.kirin_group_team)
-            else:
-                if con.netherworld_group_team != '-1,-1':
-                    self.run_switch_soul(con.netherworld_group_team)
-        self.ui_goto(page_main)
-        self.ui_click(self.I_MAIN_GOTO_TOWN, self.I_CHECK_TOWN)
-        self.ui_get_current_page()
-        self.ui_goto(page_hunt)
 
         if self.kirin_day:
-            self.kirin()
+            con = self.config.hunt.kirin_config
         else:
-            self.netherworld()
-        sleep(1)
+            con = self.config.hunt.nether_world_config
+
+        if con.enable:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul(con.switch_group_team)
+
+        if self.kirin_day:
+            success = self.kirin()
+        else:
+            success = self.netherworld()
+
+        # 处理通用战斗配置
+        config = GeneralBattleConfig()
+        if success:
+            if con.enable:
+                preset_group, preset_team = self.split_group_team(con.switch_group_team)
+                config.preset_enable = con.preset_enable
+                config.preset_group = preset_group
+                config.preset_team = preset_team
+                config.lock_team_enable = False
+            self.run_general_battle(config)
+
         self.ui_get_current_page()
         self.ui_goto(page_main)
 
         self.set_next_run(task='Hunt', success=True, finish=True)
         raise TaskEnd('Hunt')
 
-    def check_datetime(self) -> bool:
-        """
-        检查日期和时间, 会设置是麒麟还是阴界之门
-        :return: 符合19:00-21:00的时间返回True, 否则返回False
-        """
-        now = datetime.now()
-        day_of_week = now.weekday()
-        if 0 <= day_of_week <= 3:
-            self.kirin_day = True
-        elif 4 <= day_of_week <= 6:
-            self.kirin_day = False
-
-        now = datetime.now()
-        # 如果时间在00:00-19:00 之间则设定时间为当天的19:00，返回False
-        if now.time() < time(19, 0):
-            next_run = datetime.combine(now.date(), time(19, 0))
-            self.set_next_run(task='Hunt', success=False, finish=True, target=next_run)
-            raise TaskEnd('Hunt')
-        # 如果是在21:00-23:59之间则设定时间为明天的19:00，返回False
-        elif now.time() > time(21, 0):
-            next_run = datetime.combine(now.date() + timedelta(days=1), time(19, 0))
-            self.set_next_run(task='Hunt', success=False, finish=True, target=next_run)
-            raise TaskEnd('Hunt')
-        # 如果是在19:00-21:00之间则返回True
-        else:
-            return True
-
     def kirin(self):
-        logger.hr('kirin', 2)
+        logger.hr('麒麟', 2)
+        self.ui_get_current_page()
+        self.ui_goto(page_kirin)
         while 1:
             self.screenshot()
 
+            self.check_and_invite()
+
             if self.appear(self.I_KIRIN_END):
-                # 你的阴阳寮已经打过的麒麟了
-                logger.warning('Your guild have already challenged the Kirin')
-                self.set_next_run(task='Hunt', success=True, finish=True)
-                raise TaskEnd('Hunt')
-            if self.appear(self.I_KIRIN_CHALLAGE, interval=1):
-                break
-            if self.click(self.C_HUNT_ENTER, interval=3):
+                # 麒麟已挑战
+                logger.warning('麒麟已挑战')
+                return False
+            if self.appear_then_click(self.I_KIRIN_CHALLAGE, interval=1):
                 continue
-        logger.info('Arrive the Kirin')
-        self.ui_click(self.I_KIRIN_CHALLAGE, self.I_KIRIN_GATHER)
-
-        self.screenshot()
-        if self.appear(self.I_KIRIN_CHALLAGE) and self.appear_rgb(self.I_KIRIN_CHALLAGE):
-            self.ui_click_until_disappear(self.I_KIRIN_CHALLAGE)
-
-        self.device.stuck_record_add('BATTLE_STATUS_S')
-        self.wait_until_disappear(self.I_KIRIN_GATHER)
-        self.run_general_battle()
+            if self.appear(self.I_PREPARE_HIGHLIGHT):
+                logger.info('Arrive the Kirin')
+                return True
 
     def netherworld(self):
-        logger.hr('netherworld', 2)
+        logger.hr('阴界之门', 2)
+        self.ui_get_current_page()
+        self.ui_goto(page_netherworld)
         while 1:
             self.screenshot()
             if self.is_in_room(False):
@@ -113,7 +90,8 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
                 if not self.appear(self.I_FIRE):
                     continue
                 self.click_fire()
-                break
+                logger.info('Start battle')
+                return True
 
             if self.appear_then_click(self.I_NW, interval=0.9):
                 continue
@@ -123,11 +101,9 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
                 continue
             if self.appear(self.I_NW_DONE):
                 # 今日已挑战
-                logger.warning('Today have already challenged the Netherworld')
+                logger.warning('今日已挑战')
                 self.ui_click_until_disappear(self.I_UI_BACK_RED)
-                return
-        logger.info('Start battle')
-        self.run_general_battle()
+                return False
 
     def battle_wait(self, random_click_swipt_enable: bool) -> bool:
         """
@@ -155,6 +131,9 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
                 logger.info("Battle result is false")
                 self.ui_click_until_disappear(self.I_FALSE)
                 return False
+            if self.appear_then_click(self.I_PREPARE_HIGHLIGHT, interval=2):
+                self.device.stuck_record_add('BATTLE_STATUS_S')
+                continue
             # 如果三分钟还没打完，再延长五分钟
             if stuck_timer and stuck_timer.reached():
                 stuck_timer.reset()
@@ -166,14 +145,57 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
                 self.device.stuck_record_clear()
                 self.device.stuck_record_add('BATTLE_STATUS_S')
 
+    def check_datetime(self) -> bool:
+        """
+        检查日期和时间, 会设置是麒麟还是阴界之门
+        :return: 符合19:00-21:00的时间返回True, 否则返回False
+        """
+        now = datetime.now()
+        day_of_week = now.weekday()
+        if 0 <= day_of_week <= 3:
+            self.kirin_day = True
+        elif 4 <= day_of_week <= 6:
+            self.kirin_day = False
+
+        # 根据kirin_day的值判断有效时间范围
+        if self.kirin_day:
+            # kirin_day为True时，有效时间为6:00-23:00
+            if time(6, 0) <= now.time() <= time(23, 0):
+                return True
+            else:
+                logger.warning(f'麒麟时间不符合6:00-23:00，当前时间: {now.time()}')
+                # 设定时间为当天或明天的19:00
+                if now.time() < time(6, 0):
+                    # 当天06:00之前，设定为当天19:00
+                    next_run = datetime.combine(now.date(), time(19, 0))
+                else:
+                    # 当天23:00之后，设定为明天19:00
+                    next_run = datetime.combine(now.date() + timedelta(days=1), time(19, 0))
+        else:
+            # kirin_day为False时，有效时间为19:00-21:00
+            if time(19, 0) <= now.time() <= time(21, 0):
+                return True
+            else:
+                logger.warning(f'阴界之门时间不符合19:00-21:00，当前时间: {now.time()}')
+                # 设定时间为当天或明天的19:00
+                if now.time() < time(19, 0):
+                    # 当天19:00之前，设定为当天19:00
+                    next_run = datetime.combine(now.date(), time(19, 0))
+                else:
+                    # 当天21:00之后，设定为明天19:00
+                    next_run = datetime.combine(now.date() + timedelta(days=1), time(19, 0))
+
+        self.set_next_run(task='Hunt', success=False, finish=True, target=next_run)
+        raise TaskEnd('Hunt')
+
 
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('oas1')
+
+    c = Config('switch')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()
 
     t.run()
-

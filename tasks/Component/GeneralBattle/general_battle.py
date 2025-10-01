@@ -28,7 +28,8 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
         # 本人选择的策略是只要进来了就算一次，不管是不是打完了
         logger.hr("General battle start", 2)
         self.current_count += 1
-        logger.info(f'Current tasks: {I18n.trans_zh_cn(self.config.task.command)}')
+        if self.config.task:
+            logger.info(f'Current tasks: {I18n.trans_zh_cn(self.config.task.command)}')
         logger.info(f'Current count: {self.current_count} / {self.limit_count}')
 
         task_run_time = datetime.now() - self.start_time
@@ -210,7 +211,7 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
                 action_click = random.choice([self.C_WIN_1, self.C_WIN_2, self.C_WIN_3])
                 if self.appear_then_click(self.I_WIN, action=action_click, interval=0.5):
                     continue
-                if not self.appear(self.I_WIN):
+                if self.appear(self.I_REWARD) or self.appear(self.I_REWARD_GOLD) or self.appear(self.I_GREED_GHOST) or self.appear(self.I_REWARD_STATISTICS):
                     break
             else:
                 # 如果失败且 点击失败后
@@ -218,37 +219,24 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
                     continue
                 if not self.appear(self.I_FALSE, threshold=0.6):
                     return False
-        # 最后保证能点击 获得奖励
-        has_reward = False
-        while 1:
-            self.screenshot()
-            if self.appear(self.I_REWARD, threshold=0.6):
-                # 有些的战斗没有下面的奖励，所以直接返回
-                has_reward = True
-                break
 
-            # 如果领奖励出现金币
-            if self.appear(self.I_REWARD_GOLD, threshold=0.8):
-                # 有些的战斗没有下面的奖励，所以直接返回
-                has_reward = True
-                break
-        if not has_reward:
-            logger.info("There is no reward, Exit battle")
-            return win
         logger.info("Get reward")
         while 1:
             self.screenshot()
             # 如果出现领奖励
             action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
-            if self.appear_then_click(self.I_REWARD, threshold=0.6, action=action_click, interval=1.5) or \
-                    self.appear_then_click(self.I_REWARD_GOLD, threshold=0.8, action=action_click, interval=1.5):
+            if self.appear_then_click(self.I_REWARD, action=action_click, interval=1):
+                continue
+            if self.appear_then_click(self.I_REWARD_GOLD, action=action_click, interval=1):
+                continue
+            if self.appear_then_click(self.I_REWARD_STATISTICS, action=action_click, interval=1):
                 continue
             if self.appear(self.I_SOUL_FULL_ENSURE):
                 self.push_notify("御魂溢出")
                 self.appear_then_click(self.I_SOUL_FULL_ENSURE)
                 self.set_next_run(task='SoulsTidy', target=datetime.now())
                 continue
-            if not self.appear(self.I_REWARD) and not self.appear(self.I_REWARD_GOLD) and not self.appear(self.I_GREED_GHOST):
+            if not (self.appear(self.I_REWARD) or self.appear(self.I_REWARD_GOLD) or self.appear(self.I_GREED_GHOST) or self.appear(self.I_REWARD_STATISTICS)):
                 break
 
         return win
@@ -319,6 +307,14 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
                 break
             if self.appear_then_click(self.I_PRESET, threshold=0.8, interval=1):
                 continue
+            if self.appear_then_click(self.I_PRESET_WIT_NUMBER, threshold=0.8, interval=1):
+                continue
+            if self.ocr_appear(self.O_PRESET):
+                self.click(self.O_PRESET, interval=1)
+                continue
+            if self.ocr_appear(self.O_PRESET_FULL):
+                self.click(self.O_PRESET_FULL, interval=1)
+                continue
         logger.info("Click preset button")
 
         # 选择预设组
@@ -339,7 +335,8 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
             case 7:
                 x, y = self.C_PRESET_GROUP_7.coord()
             case _:
-                x, y = self.C_PRESET_GROUP_1.coord()
+                logger.info("Preset group is out of range")
+                return
         self.device.click(x, y)
         logger.info("Select preset group")
 
@@ -355,7 +352,8 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
             case 4:
                 x, y = self.C_PRESET_TEAM_4.coord()
             case _:
-                x, y = self.C_PRESET_TEAM_1.coord()
+                logger.info("Preset team is out of range")
+                return
         self.device.click(x, y)
         logger.info("Select preset team")
 
@@ -521,8 +519,9 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('SWITCH')
     d = Device(c)
     t = GeneralBattle(c, d)
 
-    t.check_buff([BuffClass.EXP_50, BuffClass.GOLD_50])
+    # t.check_buff([BuffClass.EXP_50, BuffClass.GOLD_50])
+    t.switch_preset_team(True, 1,3)

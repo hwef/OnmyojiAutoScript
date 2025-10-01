@@ -281,7 +281,7 @@ def test_predict_res():
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     hd = HyaSlave(c, d)
     img = cv2.imread('D:/Project/OnmyojiAutoScript/tasks/Hyakkiyakou/temp/20240621T221325/all1718979259551.png')
@@ -302,7 +302,7 @@ def test_predict_bean():
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     hd = HyaSlave(c, d)
     img = cv2.imread('./tasks/Hyakkiyakou/temp/20240621T221325/all1718979269677.png')
@@ -321,7 +321,7 @@ def test_predict_buff():
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     hd = HyaSlave(c, d)
     img = cv2.imread(r'E:\Project\OnmyojiAutoScript\tasks\Hyakkiyakou\temp\save14\all1718372600237.png')
@@ -334,7 +334,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     hd = HyaSlave(c, d)
     # hd.invite_friend(False)

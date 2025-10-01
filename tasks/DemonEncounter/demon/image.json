@@ -63,6 +63,15 @@
     "description": "逢魔蓝票"
   },
   {
+    "itemName": "sushi_100",
+    "imageName": "sushi_100.png",
+    "roiFront": "420,226,444,262",
+    "roiBack": "420,226,444,262",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "逢魔体力100"
+  },
+  {
     "itemName": "jade_50",
     "imageName": "jade_50.png",
     "roiFront": "420,226,444,262",

@@ -26,11 +26,17 @@ class Shrine(BaseModel):
 
 
 class GuildStore(BaseModel):
-    # 寮商店
+    # 功勋商店
     enable: bool = Field(title='Enable', default=False)
+    guild_libao: bool = Field(title='功勋礼包', default=False)
+    guild_fl: bool = Field(title='风铃', default=False)
+    guild_exp: bool = Field(title='经验御札', default=False)
+
     mystery_amulet: bool = Field(title='Mystery Amulet', default=False)
     black_daruma_scrap: bool = Field(title='Black Daruma Scrap', default=False)
     skin_ticket: int = Field(title='Skin Ticket', default=0, description='skin_ticket_help')
+    guild_yuhun: bool = Field(title='随机六星御魂', default=False)
+
 
 
 class Consignment(BaseModel):
@@ -109,7 +115,7 @@ class RichMan(ConfigBase):
     thousand_things: ThousandThings = Field(default_factory=ThousandThings)
     # 神龛
     shrine: Shrine = Field(default_factory=Shrine)
-    # 寮商店
+    # 功勋商店
     guild_store: GuildStore = Field(default_factory=GuildStore)
     # 寄售屋
     consignment: Consignment = Field(default_factory=Consignment)

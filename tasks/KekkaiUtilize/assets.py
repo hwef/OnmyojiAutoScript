@@ -20,15 +20,15 @@ class KekkaiUtilizeAssets:
 	# 神灶 
 	I_GUILD_SHIRNE = RuleImage(roi_front=(872,624,60,62), roi_back=(872,624,60,62), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_shirne.png")
 	# 寮体力 
-	I_GUILD_AP = RuleImage(roi_front=(483,314,22,22), roi_back=(290,224,393,218), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_ap.png")
+	I_GUILD_AP = RuleImage(roi_front=(483,314,22,22), roi_back=(1,134,582,363), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_ap.png")
 	# 寮资金 
-	I_GUILD_ASSETS = RuleImage(roi_front=(315,311,23,28), roi_back=(290,224,393,218), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_assets.png")
+	I_GUILD_ASSETS = RuleImage(roi_front=(315,311,23,28), roi_back=(1,134,782,363), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_assets.png")
 	# 领取寮资金 
 	I_GUILD_ASSETS_RECEIVE = RuleImage(roi_front=(565,426,144,63), roi_back=(565,426,144,63), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_assets_receive.png")
-	# 收起寮活动横幅 
-	I_GUILD_COLLAPSE = RuleImage(roi_front=(28,159,19,22), roi_back=(28,159,19,22), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_collapse.png")
-	# 展开寮活动横幅 
-	I_GUILD_EXPAND = RuleImage(roi_front=(264,162,16,18), roi_back=(264,162,16,18), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_expand.png")
+	# 收起的寮活动横幅 
+	I_GUILD_COLLAPSE = RuleImage(roi_front=(28,159,19,22), roi_back=(12,125,88,101), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_collapse.png")
+	# 展开的寮活动横幅 
+	I_GUILD_EXPAND = RuleImage(roi_front=(264,162,16,18), roi_back=(212,102,110,124), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_expand.png")
 
 
 	# Swipe Rule Assets
@@ -153,7 +153,7 @@ class KekkaiUtilizeAssets:
 
 	# Swipe Rule Assets
 	# 向下滑动 
-	S_U_UP = RuleSwipe(roi_front=(247,520,43,20), roi_back=(247,180,43,20), mode="default", name="u_up")
+	S_U_UP = RuleSwipe(roi_front=(247,520,100,1), roi_back=(247,104,100,1), mode="default", name="u_up")
 	# 滑动到底部 
 	S_U_END = RuleSwipe(roi_front=(175,179,26,26), roi_back=(164,518,49,102), mode="default", name="u_end")
 

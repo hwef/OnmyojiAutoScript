@@ -27,19 +27,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
     def run(self):
         self.run_2()
 
-    # def is_ticket(self) -> bool:
-    #     """
-    #     如果没有票了，那么就返回False
-    #     :return:
-    #     """
-    #     self.wait_until_appear(self.I_BACK_RED)
-    #     self.screenshot()
-    #     cu, res, total = self.O_NUMBER.ocr(self.device.image)
-    #     if cu == 0 and cu + res == total:
-    #         logger.warning(f'Execute round failed, no ticket')
-    #         return False
-    #     return True
-
     def medal_fire(self) -> bool:
         """
         点击勋章
@@ -88,18 +75,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
         :param config:
         :return:
         """
-        # 如果没有锁定队伍那么在点击准备后才退出的
-        # if not config.lock_team_enable:
-        #     # 点击准备按钮
-        #     self.wait_until_appear(self.I_PREPARE_HIGHLIGHT)
-        #     while 1:
-        #         self.screenshot()
-        #         if self.appear_then_click(self.I_PREPARE_HIGHLIGHT, interval=1.5):
-        #             continue
-        #         if not self.appear(self.I_PRESET):
-        #             break
-        #     logger.info(f"Click {self.I_PREPARE_HIGHLIGHT.name}")
-
         # 点击返回
         while 1:
             self.screenshot()
@@ -107,7 +82,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
                 continue
             if self.appear(self.I_EXIT_ENSURE):
                 break
-        logger.info(f"Click {self.I_EXIT.name}")
 
         # 点击返回确认
         while 1:
@@ -116,19 +90,15 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
                 continue
             if self.appear(self.I_FALSE):
                 break
-        logger.info(f"Click {self.I_EXIT_ENSURE.name}")
 
         # 点击失败确认
-        self.wait_until_appear(self.I_FALSE)
         while 1:
             self.screenshot()
             if self.appear_then_click(self.I_FALSE, interval=1.5):
                 continue
             if not self.appear(self.I_FALSE):
                 break
-        logger.info(f"Click {self.I_FALSE.name}")
 
-        return True
     # ------------------------------------------------------------------------------------------------------------------
     def run_2(self):
         con = self.config.realm_raid
@@ -160,7 +130,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
         frog = self.is_frog(True)
         if frog:
             logger.info(f'Frog raid')
-
 
         # 开始循环
         success = True
@@ -195,6 +164,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
             if index == 1:
                 logger.info('Now is the first one')
                 if con.raid_config.exit_four:
+                    # 退四
                     logger.info('Exit four enable')
                     self.fire(index)
                     self.run_general_battle_back()
@@ -245,13 +215,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
         self.ui_goto(page_main)
         self.set_next_run(task='RealmRaid', success=success, finish=True)
         raise TaskEnd
-
-
-
-
-
-
-
 
     # ----------------------------------------------------------------------------------------------------------------------
     # 2023.7.21 改版个人突破

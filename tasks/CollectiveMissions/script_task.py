@@ -2,22 +2,21 @@
 # @author runhey
 # github https://github.com/runhey
 import time
-import random
-import re
-from cached_property import cached_property
-from enum import Enum
-from datetime import timedelta
 
+import random
+from datetime import datetime
+from enum import Enum
+from module.base.timer import Timer
 from module.exception import TaskEnd, RequestHumanTakeover
 from module.logger import logger
-from module.base.timer import Timer
-from module.atom.ocr import RuleOcr
-
+from tasks.CollectiveMissions.assets import CollectiveMissionsAssets
+from tasks.CollectiveMissions.config import MissionsType
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_guild
-from tasks.CollectiveMissions.assets import CollectiveMissionsAssets
-from datetime import datetime
+
 """ 集体任务 """
+
+
 class MC(str, Enum):
     BL = '契灵'
     AW1 = '觉醒一'
@@ -30,21 +29,47 @@ class MC(str, Enum):
     SO2 = '御魂二'
     FRIEND = '结伴同行'
     UNKNOWN = '未知'
-    FEED = '远远不够'  # 喂N卡
+    FEED = '养成'  # 喂N卡
 
 
 class ScriptTask(GameUi, CollectiveMissionsAssets):
     missions: list = []  # 用于记录三个的任务的种类
 
     def run(self):
+
+        missions_type = self.config.collective_missions.missions_config.missions_type
+
+        match missions_type:
+            case MissionsType.AW:
+                logger.info('Selecting 觉醒三')
+                target = MC.AW3
+                target_1 = MC.AW1
+            case MissionsType.GR:
+                logger.info('Selecting 御灵三')
+                target = MC.GR3
+                target_1 = MC.GR1
+            case MissionsType.SO:
+                logger.info('Selecting 御魂一')
+                target = MC.SO1
+                target_1 = MC.SO2
+            case MissionsType.FEED:
+                logger.info('Selecting N卡')
+                target = MC.FEED
+                target_1 = None
+            case _:
+                logger.error('Default Selecting 御灵三')
+                target = MC.GR3
+                target_1 = None
+
         self.goto_cm_main()
 
-        self.select_gr(MC.GR3)
-        if not self._donate_all(0, MC.GR3):
-            self.back_cm_main()
-            self.goto_cm_main()
-            self.select_gr(MC.GR1)
-            self._donate_all(0, MC.GR1)
+        self.select_gr(target)
+        if not self._donate_all(0, target, 30):
+            if target_1:
+                self.back_cm_main()
+                self.goto_cm_main()
+                self.select_gr(target_1)
+                self._donate_all(0, target_1, 90)
 
         self.ui_get_current_page()
         self.ui_goto(page_main)
@@ -133,7 +158,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
             if self.appear_then_click(self.I_CM_FLUSH, interval=1):
                 time.sleep(1)  # 等待页面刷新完成（根据实际加载时间调整）
 
-    def _donate_all(self, index: int, target: str):
+    def _donate_all(self, index: int, target: str, num: int):
         """
         捐赠材料
         :param index: 0, 1, 2 三个任务的位置
@@ -144,7 +169,6 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
             1: self.C_CM_2,
             2: self.C_CM_3,
         }
-        first_run = True
         while 1:
             while 1:
                 self.screenshot()
@@ -167,19 +191,14 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
                     max_number = total
                     max_index = i
             # 综合判断是否需要推送
-            if first_run:
-                need_push = (total_number < 90 and target == MC.GR1) or (total_number < 30 and target == MC.GR3)
-                GRADE_MAP = {
-                    '御灵一': '低级',   # 对应原 MC.GR1
-                    '御灵三': '高级'    # 对应原 MC.GR3
-                }
-                self.save_image(push_flag=need_push, content=f'⚠️{GRADE_MAP.get(target)}御灵材料，总量剩余{total_number}')
-                if need_push:
-                    return False
-                first_run = False
-
-            self._swipe_cm(max_index)
-            self.check_cm_number()
+            if total_number < num:
+                self.save_image(wait_time=0, push_flag=True, content=f'⚠️{target.value} 材料不足，总量剩余{total_number}')
+                return False
+            else:
+                self.save_image(wait_time=0, push_flag=False, content=f'{target.value} 材料充足，总量剩余{total_number}')
+                self._swipe_cm(max_index)
+                self.check_cm_number()
+                return True
 
     def _swipe_cm(self, max_index: int):
         match_swipe = {
@@ -244,106 +263,13 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
         logger.info('Donate finished')
         return True
 
-    def _donate(self, index: int, target: str):
-        """
-        捐赠材料
-        :param index: 0, 1, 2 三个任务的位置
-        :return:
-        """
-        match_click = {
-            0: self.C_CM_1,
-            1: self.C_CM_2,
-            2: self.C_CM_3,
-        }
-        while 1:
-            self.screenshot()
-            if self.appear(self.I_CM_PRESENT):
-                break
-            if self.click(match_click[index], interval=1.5):
-                continue
-        # 开始捐材料
-        logger.info('Start to donate')
-        # 判断哪一个的材料最多
-        self.screenshot()
-        max_index = 0
-        max_number = 0
-        for i, ocr in enumerate([self.O_CM_1_MATTER, self.O_CM_2_MATTER,
-                                 self.O_CM_3_MATTER, self.O_CM_4_MATTER]):
-            curr, remain, total = ocr.ocr(self.device.image)
-            if total > max_number:
-                max_number = total
-                max_index = i
-        # 综合判断是否需要推送
-        push_flag = (max_number <= 90 and target == MC.GR1) or (max_number <= 30 and target == MC.GR3)
-        self.save_image(push_flag=push_flag, content=f'⚠️御灵材料不足，数量{max_number}', image_type=True)
-        if push_flag:
-            return False
-
-        match_swipe = {
-            0: self.S_CM_MATTER_1,
-            1: self.S_CM_MATTER_2,
-            2: self.S_CM_MATTER_3,
-            3: self.S_CM_MATTER_4,
-        }
-        match_image = {
-            0: self.I_CM_ADD_1,
-            1: self.I_CM_ADD_2,
-            2: self.I_CM_ADD_3,
-            3: self.I_CM_ADD_4,
-        }
-        # 滑动到最多的材料
-        random_click = [self.I_CM_ADD_1, self.I_CM_ADD_2, self.I_CM_ADD_3, self.I_CM_ADD_4]
-        window_control = self.config.script.device.control_method == 'window_message'
-        swipe_count = 0
-        click_count = 0
-        while 1:
-            self.screenshot()
-            if self.appear(self.I_CM_MATTER):
-                break
-            if not window_control and self.swipe(match_swipe[max_index], interval=2.5):
-                swipe_count += 1
-                time.sleep(1.5)
-                continue
-
-            # 为什么使用window_message无法滑动
-            if window_control and click_count > 30:
-                logger.info('Swipe to the most matter failed')
-                logger.info('Please check your game resolution')
-                break
-            if window_control and self.click(random.choice(random_click), interval=0.7):
-                click_count += 1
-                continue
-
-            if not window_control and swipe_count >= 5:
-                logger.info('Swipe to the most matter failed')
-                logger.info('Please check your game resolution')
-                raise RequestHumanTakeover
-
-        logger.info('Swipe to the most matter')
-        # 还有一点很重要的，捐赠会有双倍的，需要领两次
-        reward_number = 0
-        while 1:
-            self.screenshot()
-
-            if reward_number >= 2:
-                break
-            if self.ui_reward_appear_click(False):
-                reward_number += 1
-                continue
-            if self.appear_then_click(self.I_CM_PRESENT, interval=1):
-                continue
-        self.ui_reward_appear_click(True)
-        logger.info('Donate finished')
-        return True
-
 
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('mi')
+    c = Config('switch')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()
-
     t.run()
 

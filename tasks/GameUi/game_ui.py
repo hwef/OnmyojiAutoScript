@@ -30,7 +30,7 @@ class GameUi(BaseTask, GameUiAssets):
         page_secret_zones, page_area_boss, page_heian_kitan, page_six_gates, page_bondling_fairyland,
         page_kekkai_toppa,
         # 町中的
-        page_duel, page_demon_encounter, page_hunt, page_draft_duel, page_hyakkisen,
+        page_duel, page_demon_encounter, page_kirin, page_netherworld, page_draft_duel, page_hyakkisen,
         # 庭院里面的
         page_shikigami_records, page_onmyodo, page_friends, page_daily, page_mall, page_guild, page_team,
         page_collection,
@@ -265,25 +265,6 @@ class GameUi(BaseTask, GameUiAssets):
     # 下面的这些是一些特殊的页面，需要额外处理
     # ------------------------------------------------------------------------------------------------------------------
 
-    def main_goto_daily(self):
-        """
-        无法直接一步到花合战，需要先到主页，然后再到花合战
-        :return:
-        """
-        while 1:
-            self.screenshot()
-            if self.appear(self.I_CHECK_DAILY):
-                break
-            if self.appear_then_click(self.I_MAIN_GOTO_DAILY, interval=1):
-                continue
-            if self.ocr_appear_click(self.O_CLICK_CLOSE_1, interval=1):
-                continue
-            if self.ocr_appear_click(self.O_CLICK_CLOSE_2, interval=1):
-                continue
-        logger.info('Page arrive: Daily')
-        time.sleep(1)
-        return
-
     def back_main(self):
         # 回到庭院
         while 1:
@@ -303,7 +284,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oas1')
+    c = Config('du')
     d = Device(c)
     game = GameUi(config=c, device=d)
 

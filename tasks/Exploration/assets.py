@@ -76,11 +76,15 @@ class ExplorationAssets:
 	# 探索按钮 
 	I_E_EXPLORATION_CLICK = RuleImage(roi_front=(898,518,96,42), roi_back=(898,518,96,42), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/res_e_exploration_click.png")
 	# 自动轮换开着 
-	I_E_AUTO_ROTATE_ON = RuleImage(roi_front=(104,649,153,44), roi_back=(104,649,153,44), threshold=0.9, method="Template matching", file="./tasks/Exploration/res/res_e_auto_rotate_on.png")
+	I_E_AUTO_ROTATE_ON = RuleImage(roi_front=(119,658,23,24), roi_back=(119,658,23,24), threshold=0.9, method="Template matching", file="./tasks/Exploration/res/res_e_auto_rotate_on.png")
 	# 自动轮换关闭 
-	I_E_AUTO_ROTATE_OFF = RuleImage(roi_front=(108,650,150,46), roi_back=(108,650,150,46), threshold=0.85, method="Template matching", file="./tasks/Exploration/res/res_e_auto_rotate_off.png")
+	I_E_AUTO_ROTATE_OFF = RuleImage(roi_front=(119,658,23,24), roi_back=(119,658,23,24), threshold=0.85, method="Template matching", file="./tasks/Exploration/res/res_e_auto_rotate_off.png")
+	# 锁定阵容关闭 
+	I_LOCK_OFF = RuleImage(roi_front=(888,648,37,36), roi_back=(888,648,37,36), threshold=0.85, method="Template matching", file="./tasks/Exploration/res/lock_off.png")
+	# 锁定阵容开启 
+	I_LOCK_ON = RuleImage(roi_front=(888,648,37,36), roi_back=(888,648,37,36), threshold=0.85, method="Template matching", file="./tasks/Exploration/res/lock_on.png")
 	# 成功打开设置 
-	I_E_OPEN_SETTINGS = RuleImage(roi_front=(466,110,170,50), roi_back=(466,110,170,50), threshold=0.6, method="Template matching", file="./tasks/Exploration/res/res_e_open_settings.png")
+	I_E_OPEN_SETTINGS = RuleImage(roi_front=(466,110,170,50), roi_back=(466,110,170,50), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/res_e_open_settings.png")
 	# 选择式神稀有度 
 	I_E_ENTER_CHOOSE_RARITY = RuleImage(roi_front=(34,288,62,47), roi_back=(34,288,62,47), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/res_e_enter_choose_rarity.png")
 	# 候补N卡 

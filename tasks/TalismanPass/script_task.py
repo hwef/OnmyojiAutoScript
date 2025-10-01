@@ -32,7 +32,6 @@ class ScriptTask(GameUi, TalismanPassAssets):
         self.set_next_run(task='TalismanPass', success=True, finish=True)
         raise TaskEnd('TalismanPass')
 
-
     def get_all(self):
         """
         一键收取所有的
@@ -90,20 +89,74 @@ class ScriptTask(GameUi, TalismanPassAssets):
         判断是否在任务的界面
         :return:
         """
-        self.screenshot()
-        if self.appear(self.I_TP_GOTO) or self.appear(self.I_TP_EXP):
-            return True
-        return False
+        timer = Timer(5)
+        timer.start()
+        while 1:
+            self.screenshot()
+            if timer.reached():
+                logger.warning('No appear task button')
+                return False
+            if self.appear(self.I_TP_GOTO) or self.appear(self.I_TP_EXP):
+                return True
+            if self.appear_then_click(self.I_TP_TASK, interval=1):
+                continue
 
+    def main_goto_daily(self):
+        """
+        无法直接一步到花合战，需要先到主页，然后再到花合战
+        :return:
+        """
+        while 1:
+            self.screenshot()
+            if self.appear(self.I_CHECK_DAILY):
+                break
+            if self.appear_then_click(self.I_TP_SKIP, interval=1):
+                continue
+            if self.appear_then_click(self.I_MAIN_GOTO_DAILY, interval=1):
+                continue
+            if self.ocr_text_threshold(self.O_CLICK_CLOSE_1, interval=2):
+                self.click(self.C_CLICK_AREA)
+                continue
+            if self.ocr_text_threshold(self.O_CLICK_CLOSE_2, interval=2):
+                self.click(self.C_CLICK_AREA)
+                continue
+        logger.info('Page arrive: Daily')
+        time.sleep(1)
+        return
+
+
+import os
+
+import cv2
+import numpy as np
+
+from numpy import float32, int32, uint8, fromfile
+from pathlib import Path
+
+from module.logger import logger
+from module.atom.image import RuleImage
+from module.atom.ocr import RuleOcr
+
+def load_image(file: str):
+    file = Path(file)
+    img = cv2.imdecode(fromfile(file, dtype=uint8), -1)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    height, width, channels = img.shape
+    if height != 720 or width != 1280:
+        logger.error(f'Image size is {height}x{width}, not 720x1280')
+        return None
+    return img
 
 
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('oas1')
+    c = Config('switch')
     d = Device(c)
     t = ScriptTask(c, d)
-    t.screenshot()
-
+    # t.screenshot()
+    d.image = load_image(r"D:\共享文件夹\Screenshots\花合战\1 (1).png")
+    t.main_goto_daily()
     t.run()
 

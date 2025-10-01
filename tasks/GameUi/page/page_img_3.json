@@ -92,16 +92,16 @@
   {
     "itemName": "check_friends",
     "imageName": "page_check_friends.png",
-    "roiFront": "1011,592,133,60",
-    "roiBack": "1011,592,133,60",
+    "roiFront": "594,50,146,31",
+    "roiBack": "519,10,290,120",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "description"
+    "description": "page_check_friends"
   },
   {
     "itemName": "check_daily",
     "imageName": "page_check_daily.png",
-    "roiFront": "27,515,69,62",
+    "roiFront": "38,515,45,62",
     "roiBack": "1,489,155,127",
     "method": "Template matching",
     "threshold": 0.7,
@@ -137,8 +137,8 @@
   {
     "itemName": "check_collection",
     "imageName": "page_check_collection.png",
-    "roiFront": "471,618,100,100",
-    "roiBack": "289, 618, 819, 100",
+    "roiFront": "380,620,100,100",
+    "roiBack": "380,620,100,100",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"

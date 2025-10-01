@@ -40,12 +40,12 @@ class ThousandThings(GameUi, RichManAssets):
         if not self.appear(self.I_TT_TICKET_BULE) and not self.appear(self.I_TT_BLACK) and not self.appear(self.I_TT_AP):
             time.sleep(1)
 
-        # 体力
-        if con.ap:
-            self.tt_buy_ap()
         # 黑蛋碎片
         if con.black_daruma_fragment:
             self.tt_buy_black_daruma_scrap()
+        # 体力
+        if con.ap:
+            self.tt_buy_ap()
         # 蓝票
         if con.mystery_amulet:
             self.tt_buy_mystery_amulet()

@@ -25,6 +25,8 @@ class AccountInfo(BaseModel):
         tmp_account = AccountInfo.preprocessAccount(self.account)
         if ocr_account == self.account or ocr_account.startswith(tmp_account):
             return True
+        if self.extract_digits(ocr_account) == self.extract_digits(self.account):
+            return True
         if not self.account_alias:
             return False
         _accountAliasList = self.account_alias.split('#')
@@ -33,6 +35,9 @@ class AccountInfo(BaseModel):
                 return True
         return False
 
+    def extract_digits(self, s):
+        # 尝试提取并比较数字部分
+        return ''.join(c for c in s if c.isdigit())
     @staticmethod
     def preprocessAccount(account: str):
         """

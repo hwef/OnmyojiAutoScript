@@ -97,7 +97,7 @@ class DokanAssets:
 	# 状态：达到失败次数，CD中。观战按钮 
 	I_RYOU_DOKAN_CD = RuleImage(roi_front=(1122,566,117,74), roi_back=(1122,566,117,74), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_cd.png")
 	# 状态：进入战斗，待开始，右下角图标。TODO 欠截图。 
-	I_RYOU_DOKAN_IN_FIELD = RuleImage(roi_front=(1128,536,100,100), roi_back=(1128,536,100,100), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_in_field.png")
+	I_RYOU_DOKAN_IN_FIELD = RuleImage(roi_front=(1128,536,100,100), roi_back=(1032,492,239,210), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_ryou_dokan_in_field.png")
 	# 馆主战等待中 
 	I_DOKAN_BOSS_WAITING = RuleImage(roi_front=(542,142,195,45), roi_back=(542,142,195,45), threshold=0.8, method="Template matching", file="./tasks/Dokan/res/res_dokan_boss_waiting.png")
 	# 打馆主胜利 
@@ -185,6 +185,6 @@ class DokanAssets:
 
 	# Swipe Rule Assets
 	# 道馆选择界面 右侧侧边栏 手指向上滑动 
-	S_DOKAN_LIST_UP = RuleSwipe(roi_front=(1100,420,30,21), roi_back=(1240,240,30,21), mode="default", name="dokan_list_up")
+	S_DOKAN_LIST_UP = RuleSwipe(roi_front=(1100,520,30,10), roi_back=(1100,100,30,10), mode="default", name="dokan_list_up")
 
 

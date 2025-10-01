@@ -8,7 +8,7 @@ from module.logger import logger
 from datetime import datetime, timedelta
 from tasks.Component.SwitchAccount.switch_account import SwitchAccount
 from tasks.Component.SwitchAccount.switch_account_config import AccountInfo
-from module.exception import TaskEnd
+from module.exception import TaskEnd, SwitchAccountError
 from tasks.GameUi.game_ui import GameUi
 
 """ 小号切换 """
@@ -29,12 +29,12 @@ class ScriptTask(GameUi):
     # 限时任务 晚上7点后运行
     limit_task = ['Hunt', 'DemonEncounter', 'CollectiveMissions']
     # 协站50运行的任务
-    assist50_run_task = ['EvoZone']
+    assist50_run_task = ['DailyTrifles', 'EvoZone']
     # 总是运行的任务
     always_run_task = ['KekkaiUtilize', 'TalismanPass']
     task_type = ''
     account_info = ''
-    
+
     def run(self):
         con = self.config.small_account
 
@@ -124,14 +124,14 @@ class ScriptTask(GameUi):
             # 上次完成时间
             logger.info(f"[角色] {self.account_info}, 上次 [{self.task_type}] 完成时间: {taskCompleteTime}")
             # 切换角色
-            self.switch_account(con, current_account_data)
+            self.switch_account(con, current_account_data, all_accounts_data, task_type)
             # 设置角色任务
             self.set_task(current_account_data, all_accounts_data, task_type)
 
             self.set_next_run(task='SmallAccount', target=datetime.now() + timedelta(minutes=1))
             raise TaskEnd('SmallAccount')
 
-    def switch_account(self, con, current_account_data):
+    def switch_account(self, con, current_account_data, all_accounts_data, task_type):
         logger.info(f"[角色] {self.account_info}, 开始切换...")
         toAccount = AccountInfo(
             account=current_account_data.get("account"),
@@ -141,13 +141,28 @@ class ScriptTask(GameUi):
             svr=current_account_data.get("svr"),
         )
         sa = SwitchAccount(self.config, self.device, toAccount)
-        sa.switchAccount()
-        con.small_account_name.account_name = self.account_info
-        self.config.save()
-        logger.info(f"[角色] {self.account_info}, 切换完成")
-    
+        login = sa.switchAccount()
+        if login:
+            con.small_account_name.account_name = self.account_info
+            self.config.save()
+            logger.info(f"[角色] {self.account_info}, 切换完成")
+        else:
+            self.push_notify(f"[角色] {self.account_info}, 切换失败, 默认已完成")
+            # 更新日常任务完成时间，保存更新后的配置文件
+            datetoday = datetime.now().strftime("%Y-%m-%d")
+            logger.info(f"[角色] {self.account_info}, 更新 {task_type}: {datetoday}")
+            current_account_data[f"{task_type}"] = datetoday
+            with open('config/SmallAccount/accounts.json', 'w', encoding='utf-8') as file:
+                json.dump(all_accounts_data, file, ensure_ascii=False, indent=4)
+            raise SwitchAccountError(f"[角色] {self.account_info}, 切换失败")
+
     def set_task(self, current_account_data, all_accounts_data, task_type):
         logger.info(f"[角色] {self.account_info}, 开始调起任务")
+
+        # 开启蹭卡
+        self.config.kekkai_utilize.utilize_config.utilize_enable = True
+        self.config.save()
+
         target_time = datetime(2000, 1, 1)
         match task_type:
             # 日常任务
@@ -168,11 +183,12 @@ class ScriptTask(GameUi):
             case TaskType.assist50:
                 for task in self.assist50_run_task:
                     self.set_next_run(task=task, target=target_time)
+                # 只做协站关闭蹭卡
+                self.config.kekkai_utilize.utilize_config.utilize_enable = False
+                self.config.save()
 
-        # 除了 assist50，其他任务类型都运行 always_run_task
-        if task_type != TaskType.assist50:
-            for task in self.always_run_task:
-                self.set_next_run(task=task, target=target_time)
+        for task in self.always_run_task:
+            self.set_next_run(task=task, target=target_time)
 
         # 更新日常任务完成时间，保存更新后的配置文件
         datetoday = datetime.now().strftime("%Y-%m-%d")
@@ -181,7 +197,7 @@ class ScriptTask(GameUi):
         with open('config/SmallAccount/accounts.json', 'w', encoding='utf-8') as file:
             json.dump(all_accounts_data, file, ensure_ascii=False, indent=4)
 
-        self.push_notify(content=f"{self.account_info}, [{self.task_type}]已创建")
+        self.push_notify(content=f"{self.account_info} [{self.task_type}]创建")
 
     def all_account_complete_task(self, con):
         logger.hr("任务结束", 1)
@@ -195,18 +211,50 @@ class ScriptTask(GameUi):
         raise TaskEnd('SmallAccount')
 
 
+def run_task(config, device):
+    t = ScriptTask(config, device)
+    t.run()
+
+
+def set_task_time(cconfig):
+    # 批量修改任务时间
+    config.get_next()
+    target_time = datetime(2099, 1, 1)
+    for task in config.pending_task:
+        config.task_delay(task=task.command, target=target_time)
+    config.task_delay(task="SmallAccount", target=datetime.now())
+
+
+def switch_account(config, device):
+    account_list = [
+        # AccountInfo(account="178****7164", account_alias="178****7164", apple_or_android=True, character="浙沥沥、下雨", svr="全球国际区"),
+        # AccountInfo(account="187****4867", account_alias="187****4867", apple_or_android=True, character="紫芪", svr="破晓之樱"),
+
+        AccountInfo(account="187****4867", account_alias="187****4867", apple_or_android=True, character="三千菟", svr="樱之华"),
+        AccountInfo(account="150****7970", account_alias="150****7970", apple_or_android=True, character="落地反弹", svr="樱之华"),
+        AccountInfo(account="sui94044@163.com", account_alias="sui94044", apple_or_android=True, character="阿岁啊", svr="樱之华"),
+        AccountInfo(account="178****7164", account_alias="178****7164", apple_or_android=True, character="浙沥沥、下雨", svr="破晓之樱"),
+
+        AccountInfo(account="150****7970", account_alias="150****7970", apple_or_android=True, character="落地反弹", svr="网易一两情相悦"),
+        AccountInfo(account="187****4867", account_alias="187****4867", apple_or_android=True, character="三千卍", svr="旧友新朋"),
+        AccountInfo(account="187****4867", account_alias="187****4867", apple_or_android=True, character="唳莅", svr="灵狐愿"),
+        AccountInfo(account="187****4867", account_alias="187****4867", apple_or_android=True, character="夜玖幻", svr="游梦迷蝶"),
+    ]
+
+    for toAccount in account_list:
+        sa = SwitchAccount(config, device, toAccount)
+        sa.switchAccount()
+
+
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('switch')
-    d = Device(c)
-    t = ScriptTask(c, d)
-    # t.run()
-
-    # 批量修改任务时间
-    c.get_next()
-    target_time = datetime(2099, 1, 1)
-    for task in c.pending_task:
-        c.task_delay(task=task.command, target=target_time)
-    c.task_delay(task="SmallAccount", target=datetime.now())
+    config = Config('switch')
+    device = Device(config)
+    # 运行任务
+    # run_task(config, device)
+    # 设置时间
+    # set_task_time(config)
+    # 切换账号
+    switch_account(config, device)

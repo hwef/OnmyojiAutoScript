@@ -24,7 +24,6 @@ from module.logger import logger
 from module.exception import RequestHumanTakeover, TaskEnd
 from module.atom.image_grid import ImageGrid
 from module.base.utils import load_image
-from time import sleep
 
 class Scene(Enum):
     UNKNOWN = 0  #
@@ -214,17 +213,11 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
 
     # 添加式神
     def add_shiki(self, screenshot=True):
-        attempt_count = 0
-        while attempt_count < 3:
+        if screenshot:
             self.screenshot()
-            if self.appear(self.I_E_OPEN_SETTINGS,threshold=0.6):
+            if not self.appear(self.I_E_OPEN_SETTINGS):
                 logger.warning('Opening settings failed due to now in battle')
-                sleep(0.5)
-                break
-            else:
-                attempt_count += 1
-        else:
-            return 'Error: Failed to detect settings menu after 3 attempts.'
+                return
         choose_rarity = self._config.exploration_config.choose_rarity
         rarity = ShikigamiClass.N if choose_rarity == ChooseRarity.N else ShikigamiClass.MATERIAL
         self.switch_shikigami_class(rarity)
@@ -235,7 +228,7 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             # 慢一点
             time.sleep(0.5)
             self.screenshot()
-            if not self.appear(self.I_E_OPEN_SETTINGS,threshold=0.6):
+            if not self.appear(self.I_E_OPEN_SETTINGS):
                 logger.warning('Opening settings failed due to now in battle')
                 return
             if self.appear(self.I_E_RATATE_EXSIT):
@@ -321,6 +314,12 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         else:
             cu, res, total = self.O_REALM_RAID_NUMBER.ocr(self.device.image)
         # 判断突破票数量
+
+        # 添加校验：只有当总值等于30时才认为是突破券数量
+        if total != 30:
+            logger.warning(f"识别到的总值{total}不是30，可能不是突破券，跳过此次识别")
+            return  
+    
         if cu < con_scrolls.scrolls_threshold:
             return
         logger.info(f"突破票数量:{cu}, 结束探索任务")
@@ -355,7 +354,7 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         raise TaskEnd
 
     #
-    def check_exit(self) -> bool:
+    def check_exit(self, check_flag: bool = True) -> bool:
 
         # 判断是否开启绘卷模式
         if not self._config.scrolls.scrolls_enable:
@@ -366,8 +365,9 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             if datetime.now() - self.start_time >= self.limit_time:
                 logger.info('探索时间限制已到, 结束探索任务')
                 return True
-
-        self.activate_realm_raid(self._config.scrolls, self._config.exploration_config)
+        else:
+            if check_flag:
+                self.activate_realm_raid(self._config.scrolls, self._config.exploration_config)
         return False
 
     def quit_explore(self):

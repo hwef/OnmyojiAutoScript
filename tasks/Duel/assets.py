@@ -112,7 +112,9 @@ class DuelAssets:
 	# 荣誉 
 	O_D_HONOR = RuleOcr(roi=(699,562,131,31), area=(699,562,131,31), mode="DigitCounter", method="Default", keyword="", name="d_honor")
 	# 分数 
-	O_D_SCORE = RuleOcr(roi=(704,509,61,33), area=(704,509,61,33), mode="Digit", method="Default", keyword="", name="d_score")
+	O_D_SCORE = RuleOcr(roi=(701,509,61,33), area=(701,509,61,33), mode="Digit", method="Default", keyword="", name="d_score")
+	# 名士星星数 
+	O_D_CELEB_STAR = RuleOcr(roi=(625,454,77,37), area=(625,454,77,37), mode="Digit", method="Default", keyword="", name="d_celeb_star")
 	# 手动 
 	O_D_HAND = RuleOcr(roi=(31,639,63,45), area=(31,639,63,45), mode="Single", method="Default", keyword="手动", name="d_hand")
 	# 自动 
@@ -129,7 +131,7 @@ class DuelAssets:
 	# 区域找绿标2 
 	I_GREEN_MARK_1 = RuleImage(roi_front=(124,192,1012,197), roi_back=(124,192,1012,197), threshold=0.6, method="Template matching", file="./tasks/Duel/green_mark/green_mark_1.png")
 	# 通过蒙版区域找绿标 
-	I_GREEN_MARK_AUTO = RuleImage(roi_front=(124,192,1012,197), roi_back=(124,192,1012,197), threshold=0.8, method="Template matching", file="./tasks/Duel/green_mark/green_mark_auto.png")
+	I_GREEN_MARK_AUTO = RuleImage(roi_front=(124,192,1012,197), roi_back=(124,192,1012,197), threshold=0.8, method="Template matching mask", file="./tasks/Duel/green_mark/green_mark_auto.png")
 	# 区域找式神标记左1 
 	I_GREEN_MARK_IMG1 = RuleImage(roi_front=(145,258,212,176), roi_back=(145,258,212,176), threshold=0.8, method="Template matching", file="./tasks/Duel/green_mark/green_mark_img.png")
 	# 区域找式神标记左2 

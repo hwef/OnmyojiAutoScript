@@ -27,6 +27,8 @@ class SwitchSoulAssets:
 	C_SOU_GROUP_7 = RuleClick(roi_front=(1090,505,156,62), roi_back=(1090,505,156,62), name="sou_group_7")
 	# description 
 	C_SOU_GROUP_8 = RuleClick(roi_front=(1088,569,156,62), roi_back=(1088,569,156,62), name="sou_group_8")
+	# 切换御魂分组临时点击位置暂存区域 
+	C_SOU_GROUP_CLICK_AREA = RuleClick(roi_front=(0,0,0,0), roi_back=(0,0,0,0), name="sou_group_click_area")
 	# 阵容选择按钮位置 
 	C_SOU_TEAM_SELECT = RuleClick(roi_front=(977,157,21,21), roi_back=(977,157,21,21), name="sou_team_select")
 
@@ -37,13 +39,13 @@ class SwitchSoulAssets:
 	# 预设 
 	I_SOUL_PRESET = RuleImage(roi_front=(335,73,90,51), roi_back=(310,57,169,72), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchSoul/ss/ss_soul_preset.png")
 	# description 
-	I_SOU_SWITCH_1 = RuleImage(roi_front=(971,149,34,32), roi_back=(962,141,51,48), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchSoul/ss/ss_sou_switch_1.png")
+	I_SOU_SWITCH_1 = RuleImage(roi_front=(971,149,34,32), roi_back=(962,141,51,48), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchSoul/ss/ss_sou_switch.png")
 	# description 
-	I_SOU_SWITCH_2 = RuleImage(roi_front=(967,296,42,39), roi_back=(961,292,54,49), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchSoul/ss/ss_sou_switch_2.png")
+	I_SOU_SWITCH_2 = RuleImage(roi_front=(967,296,42,39), roi_back=(961,292,54,49), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchSoul/ss/ss_sou_switch.png")
 	# description 
-	I_SOU_SWITCH_3 = RuleImage(roi_front=(968,448,41,38), roi_back=(962,442,52,48), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchSoul/ss/ss_sou_switch_3.png")
+	I_SOU_SWITCH_3 = RuleImage(roi_front=(968,448,41,38), roi_back=(962,442,52,48), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchSoul/ss/ss_sou_switch.png")
 	# description 
-	I_SOU_SWITCH_4 = RuleImage(roi_front=(967,597,42,25), roi_back=(962,592,53,34), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchSoul/ss/ss_sou_switch_4.png")
+	I_SOU_SWITCH_4 = RuleImage(roi_front=(967,597,42,25), roi_back=(962,592,53,34), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchSoul/ss/ss_sou_switch.png")
 	# description 
 	I_SOU_SWITCH_SURE = RuleImage(roi_front=(668,401,180,61), roi_back=(668,401,180,61), threshold=0.8, method="Template matching", file="./tasks/Component/SwitchSoul/ss/ss_sou_switch_sure.png")
 	# 用于判断是否在式神录里面 

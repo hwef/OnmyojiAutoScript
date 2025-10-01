@@ -18,6 +18,8 @@ from tasks.KekkaiUtilize.config import UtilizeRule, SelectFriendList
 from tasks.KekkaiUtilize.utils import CardClass, target_to_card_class
 from tasks.Component.ReplaceShikigami.replace_shikigami import ReplaceShikigami
 from tasks.GameUi.page import page_main, page_guild
+from module.base.utils import point2str
+import random
 
 """ 结界蹭卡 """
 
@@ -37,7 +39,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         # 进入寮结界
         self.goto_realm()
         # 育成界面去蹭卡
-        self.check_utilize_add()
+        if con.utilize_enable:
+            self.check_utilize_add()
 
         # 查看育成满级
         self.check_max_lv(con.shikigami_class)
@@ -46,19 +49,24 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         # 收体力盒子或者是经验盒子
         self.check_box_ap_or_exp(con.box_ap_enable, con.box_exp_enable, con.box_exp_waste)
 
+        # 收取寮资金和体力
+        self.recive_guild_ap_or_assets()
+        if not con.utilize_enable:
+            self.set_next_run(task='KekkaiUtilize', finish=True, success=True)
+        raise TaskEnd
+
+    def recive_guild_ap_or_assets(self):
         for i in range(1, 5):
             self.ui_get_current_page()
             self.ui_goto(page_guild)
             # 在寮的主界面 检查是否有收取体力或者是收取寮资金
-            if self.check_guild_ap_or_assets(ap_enable=con.guild_ap_enable, assets_enable=con.guild_assets_enable):
+            if self.check_guild_ap_or_assets():
                 logger.warning(f'第[{i}]次检查寮收获,成功')
                 self.ui_goto(page_main)
                 break
             else:
                 logger.warning(f'第[{i}]次检查寮收获寮收获,失败')
             self.ui_goto(page_main)
-
-        raise TaskEnd
 
     def check_utilize_add(self):
         con = self.config.kekkai_utilize.utilize_config
@@ -82,7 +90,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                     logger.warning('Ocr remaining time error')
                 logger.info(f'Utilize remaining time: {remaining_time}')
                 # 已经蹭上卡了，设置下次蹭卡时间  # 减少30秒
-                remaining_time = remaining_time - timedelta(seconds=30)
+                # remaining_time = remaining_time - timedelta(seconds=30)
                 next_time = datetime.now() + remaining_time
                 self.set_next_run(task='KekkaiUtilize', target=next_time)
                 return
@@ -135,69 +143,49 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         如果有就顺带收取
         :return:
         """
-        # if ap_enable or assets_enable:
-        #     self.screenshot()
-        #     if not self.appear(self.I_GUILD_AP) and not self.appear(self.I_GUILD_ASSETS):
-        #         logger.info('No ap or assets to collect')
-        #         return False
-        # else:
-        #     return False
-        if ap_enable or assets_enable:
-            self.ui_click(self.I_GUILD_EXPAND, self.I_GUILD_COLLAPSE)
-            # 尝试移动寻找体力或资金
-            try_find_ap = 0
-            while try_find_ap < 1:
-                self.screenshot()
-                try_find_ap += 1
-                if self.appear(self.I_GUILD_AP) or self.appear(self.I_GUILD_ASSETS):
-                    logger.info('Find ap or assets')
-                    break
-                else:
-                    logger.info('Try find ap or assets')
-                    time.sleep(1)
-                    self.swipe(self.S_GUILD_FIND_AP, duration=1)
-                    self.swipe(self.S_GUILD_FIND_AP, duration=1)
-
-            # 如果未找到则返回False
-            if not self.appear(self.I_GUILD_AP) and not self.appear(self.I_GUILD_ASSETS):
-                logger.info('No ap or assets to collect')
-                return False
-        else:
-            return False
-
-        # 如果有就收取
         timer_check = Timer(2)
         timer_check.start()
+        click_ap = False
         while 1:
             self.screenshot()
 
             # 获得奖励
             if self.ui_reward_appear_click():
                 timer_check.reset()
+                continue
 
-            # 资金收取确认
-            if self.appear_then_click(self.I_GUILD_ASSETS_RECEIVE, interval=0.5):
+            if timer_check.reached():
+                return False
+
+            if click_ap and not self.appear(self.I_GUILD_AP) and not self.appear(self.I_UI_REWARD):
+                return True
+
+            # 关闭展开的寮活动横幅
+            if self.appear_then_click(self.I_GUILD_EXPAND):
                 timer_check.reset()
                 continue
 
-            # 收体力
-            if self.appear_then_click(self.I_GUILD_AP, interval=1.5):
-                # 等待1秒，看到获得奖励
+            # 资金收取确认
+            if self.appear_then_click(self.I_GUILD_ASSETS_RECEIVE, interval=1):
                 time.sleep(1)
-                logger.info('appear_click guild_ap success')
-                if self.ui_reward_appear_click(True):
-                    logger.info('appear_click reward success')
-                    timer_check.reset()
-                    return True
+                timer_check.reset()
                 continue
+
             # 收资金
             if self.appear_then_click(self.I_GUILD_ASSETS, interval=1.5, threshold=0.6):
                 timer_check.reset()
                 continue
 
-            if timer_check.reached():
-                break
-        return False
+            # 收体力
+            if self.appear_then_click(self.I_GUILD_AP, interval=1):
+                # 等待1秒，看到获得奖励
+                time.sleep(1)
+                logger.info('appear_click guild_ap success')
+                if self.ui_reward_appear_click(True):
+                    logger.info('appear_click reward success')
+                    click_ap = True
+                    timer_check.reset()
+                continue
 
     def goto_realm(self):
         """
@@ -582,7 +570,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         """
         # ============== 配置常量 ==============#
         RESOURCE_CONFIG = {
-            '斗鱼': {'max': 143, 'record_attr': 'ap_max_num'},
+            '斗鱼': {'max': 151, 'record_attr': 'ap_max_num'},
             '太鼓': {'max': 76, 'record_attr': 'jade_max_num'}
         }
         MAX_SWIPES = 20  # 最大滑动次数
@@ -672,7 +660,15 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
     def perform_swipe_action(self):
         """统一滑动操作"""
-        self.swipe(self.S_U_UP, duration=1)
+        # duration = 2
+        # safe_pos_x = random.randint(340, 600)
+        # safe_pos_y = random.randint(500, 565)
+        # p1 = (safe_pos_x, safe_pos_y)
+        # p2 = (safe_pos_x, safe_pos_y - 416)
+        # logger.info('Swipe %s -> %s, %sS ' % (point2str(*p1), point2str(*p2), duration))
+        # self.device.swipe_adb(p1, p2, duration=duration)
+
+        self.swipe(self.S_U_UP, duration=1, wait_up_time=1)
         self.device.click_record_clear()
         time.sleep(2)
 
@@ -746,10 +742,12 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('du')
+    c = Config('switch')
     d = Device(c)
     t = ScriptTask(c, d)
-    t.run()
+    for i in range(10):
+        t.perform_swipe_action()
+    t.recive_guild_ap_or_assets()
     # t.check_utilize_add()
     # t.check_card_num('勾玉', 67)
     # t.screenshot()

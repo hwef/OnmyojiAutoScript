@@ -31,15 +31,23 @@ class SoloExploration(BaseExploration):
         logger.hr('solo')
         explore_init = False
         search_fail_cnt = 0
+        atuo_rotate_on = self.config.exploration.exploration_config.atuo_rotate_on
         while 1:
             self.screenshot()
+
+            if self.check_exit(False):
+                self.quit_explore()
+                break
+
             scene = self.get_current_scene()
 
             #
             if scene == Scene.WORLD:
+                # 宝箱
                 self.get_box()
                 if self.check_exit():
                     break
+                # 打开指定的章节：
                 self.open_expect_level()
                 continue
             #
@@ -52,9 +60,26 @@ class SoloExploration(BaseExploration):
             elif scene == Scene.MAIN:
                 # 是否第一次进
                 if not explore_init:
-                    self.ui_click(self.I_E_AUTO_ROTATE_OFF, stop=self.I_E_AUTO_ROTATE_ON)
-                    if self._config.exploration_config.auto_rotate == AutoRotate.yes:
-                        self.enter_settings_and_do_operations()
+                    if atuo_rotate_on:
+                        while 1:
+                            self.screenshot()
+                            if not self.appear_rgb(self.I_E_AUTO_ROTATE_OFF):
+                                break
+                            if self.appear_then_click(self.I_E_AUTO_ROTATE_OFF, interval=1):
+                                continue
+                        logger.info('自动轮换已开启')
+                        if self._config.exploration_config.auto_rotate == AutoRotate.yes:
+                            self.enter_settings_and_do_operations()
+                    else:
+                        while 1:
+                            self.screenshot()
+                            if self.appear_rgb(self.I_E_AUTO_ROTATE_OFF):
+                                break
+                            if self.appear_then_click(self.I_E_AUTO_ROTATE_OFF, interval=1):
+                                continue
+                        logger.info('自动轮换已关闭')
+                        self.ui_click(self.I_LOCK_ON, stop=self.I_LOCK_OFF)
+                        logger.info('阵容已锁定')
                     explore_init = True
                     continue
                 # 小纸人

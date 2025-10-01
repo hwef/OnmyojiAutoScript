@@ -20,9 +20,25 @@ from module.logger import logger
 from module.exception import TaskEnd
 
 """八岐大蛇"""
+
+
 class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi, SwitchSoul, OrochiAssets):
     soul_full_push = True
+
     def run(self):
+
+        now = datetime.now()
+        # 今天晚上6点的时间
+        evening_6pm = now.replace(hour=18, minute=0, second=0, microsecond=0)
+        # 如果当前时间在晚上6点之后，直接结束任务
+        if now >= evening_6pm:
+            self.config.orochi.next_day_orochi_config.plan = Plan.TEN30
+            self.config.save()
+            start_time = self.config.orochi.next_day_orochi_config.start_time
+            next_run = parse_tomorrow_server(start_time)
+            self.push_notify(content="当前时间已超过18点，结束任务")
+            self.set_next_run('Orochi', target=next_run)
+            raise TaskEnd
 
         limit_count = self.config.orochi.next_day_orochi_config.limit_count
         # 御魂层数
@@ -64,10 +80,6 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                 logger.info('Orochi Plan end')
                 raise TaskEnd
             case _:
-                logger.info('Orochi Plan Eleven 30')
-                limit_count = 30
-                group_team = orochi_switch_soul.eleven_switch
-                layer = Layer.ELEVEN
                 logger.error('Unknown user plan')
 
         if orochi_switch_soul.auto_enable:
@@ -232,7 +244,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                     break
 
             # 如果没有进入房间那就不需要后面的邀请
-            if not self.is_in_room():
+            if not self.is_in_room(is_screenshot=False):
                 if self.is_room_dead():
                     logger.warning('Orochi task failed')
                     success = False

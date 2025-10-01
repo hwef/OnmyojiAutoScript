@@ -106,10 +106,6 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                     current_score = "名仕"
                     duel_week_over = True
                     break
-            # 练习
-            if self.appear(self.I_BATTLE_WITH_TRAIN) or self.appear(self.I_BATTLE_WITH_TRAIN2):
-                logger.info('不在斗技时间')
-                break
 
             # if con.honor_full_exit and self.check_honor():
             #     # 荣誉满了，退出
@@ -131,6 +127,11 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 else:
                     break
 
+            # 练习
+            if self.appear(self.I_BATTLE_WITH_TRAIN) or self.appear(self.I_BATTLE_WITH_TRAIN2):
+                logger.info('不在斗技时间')
+                break
+
             # 进行一次斗技
             self.duel_one(current_score, con.green_enable, con.green_mark, celeb_con.ban_name)
 
@@ -140,7 +141,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_TOWN)
 
         if duel_week_over:
-            self.next_run_week(2)
+            self.next_run_week(self.config.duel.switch_week.next_week_day)
         else:
             self.set_next_run(task='Duel', success=True, finish=False)
 
@@ -249,7 +250,7 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         """
         current, remain, total = self.O_D_HONOR.ocr(self.device.image)
         logger.info(f'当前荣誉: {current} / {total} 剩余: {remain}')
-        if current == total and remain == 0:
+        if current == total and remain == 0 and current != 0:
             return True
         return False
 
@@ -263,8 +264,8 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             self.screenshot()
             if self.appear(self.I_D_CELEB_STAR) or self.appear(self.I_D_CELEB_HONOR):
                 current_score, score = self.O_D_CELEB_STAR.ocr(self.device.image, return_score=True)
-                if score < 0.7:
-                    continue
+                # if score < 0.7:
+                #     continue
                 logger.info(f"当前分数: 名仕({current_score}星)")
                 current_score = 3000 + current_score * 100
             else:
@@ -307,10 +308,10 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             # 战斗带保护的按钮
             if self.appear_then_click(self.I_D_BATTLE_PROTECT, interval=1.6):
                 continue
-            # 斗技模式（普通）
+            # # 斗技模式（普通）
             # if self.appear_then_click(self.I_BATTLE_TYPE_COMMON, interval=1):
             #     continue
-            # 练习
+            # # 练习
             # if self.appear_then_click(self.I_BATTLE_WITH_TRAIN, interval=1) or self.appear_then_click(self.I_BATTLE_WITH_TRAIN2, interval=1):
             #     continue
 
@@ -511,30 +512,13 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
                 self.save_image(task_name='斗技绿标超时', wait_time=0, push_flag=True, content='超时未识别到绿标',image_type=True)
                 return False
             self.screenshot()
-            if self.duel_wait_until_appear(self.I_GREEN_MARK_AUTO, mask_path=r"./tasks/Duel/green_mark/green_mark_auto_mask.png", wait_time=1):
+            if self.wait_until_appear(self.I_GREEN_MARK_AUTO, wait_time=1):
                 # self.save_image(wait_time=0, push_flag=True, content='识别到绿标',image_type=True)
                 logger.info('识别到绿标,返回')
                 return True
             self.click(self.C_DUEL_GREEN_LEFT_FULL)
 
-    def duel_wait_until_appear(self, target, wait_time: int = None, mask_path: str = None) -> bool:
-        """
-        等待直到出现目标
-        :param wait_time: 等待时间，单位秒
-        :param target:
-        :param skip_first_screenshot:
-        :return:
-        """
-        wait_timer = None
-        if wait_time:
-            wait_timer = Timer(wait_time)
-            wait_timer.start()
-        while 1:
-            self.screenshot()
-            if wait_timer and wait_timer.reached():
-                return False
-            if self.appear_mask(target=target, mask_path=mask_path):
-                return True
+
     def duel_green_mark(self, mark_mode: GreenMarkType = GreenMarkType.GREEN_MAIN):
         """
         绿标， 如果不使能就直接返回

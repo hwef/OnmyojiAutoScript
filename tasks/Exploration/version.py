@@ -84,7 +84,7 @@ if __name__ == '__main__':
     # from dev_tools.get_images import GetAnimation
     # from module.config.config import Config
     # from module.device.device import Device
-    # c = Config('oas1')
+    # c = Config('du')
     # d = Device(c)
     # t = HighLight(c, d)
     # t.screenshot()

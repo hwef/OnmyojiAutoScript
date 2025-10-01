@@ -69,7 +69,10 @@ class UtilizeScheduler(Scheduler):
     priority: int = Field(default=2, description='priority_help')
 
 class SwitchSoulConfig(BaseModel):
+    enable: bool = Field(default=True, description='enable_help')
     switch_group_team: str = Field(default='-1,-1', description='switch_group_team_help')
+    enable_four: bool = Field(default=True, description='是否查看四个灯笼')
+    enable_boss: bool = Field(default=True, description='是否进行BOSS战斗')
 
 class DemonEncounter(ConfigBase):
     scheduler: UtilizeScheduler = Field(default_factory=UtilizeScheduler)

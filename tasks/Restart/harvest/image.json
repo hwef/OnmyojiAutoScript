@@ -4,7 +4,7 @@
     "imageName": "harvest_harvest_jade.png",
     "roiFront": "732,489,34,33",
     "roiBack": "177,451,973,141",
-    "method": "Template matching",
+    "method": "Template matching mask",
     "threshold": 0.8,
     "description": "点击勾玉"
   },
@@ -43,6 +43,15 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "邮件小图标"
+  },
+  {
+    "itemName": "harvest_mail_top_right",
+    "imageName": "harvest_mail_top_right.png",
+    "roiFront": "1137,33,34,26",
+    "roiBack": "1137,33,34,26",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "邮件右上角图标"
   },
   {
     "itemName": "harvest_mail_all",
@@ -187,5 +196,23 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"
+  },
+  {
+    "itemName": "mail_red_dots",
+    "imageName": "mail_red_dots.png",
+    "roiFront": "1153,14,36,26",
+    "roiBack": "1141,5,54,51",
+    "method": "Template matching mask",
+    "threshold": 0.8,
+    "description": "邮件未读红点"
+  },
+  {
+    "itemName": "liao_message",
+    "imageName": "liao_message.png",
+    "roiFront": "189,138,35,34",
+    "roiBack": "35,50,358,248",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "寮消息通知"
   }
 ]

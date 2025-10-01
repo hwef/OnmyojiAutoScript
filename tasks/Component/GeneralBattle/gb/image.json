@@ -21,7 +21,7 @@
     "itemName": "prepare_highlight",
     "imageName": "gb_prepare_highlight.png",
     "roiFront": "1128,536,100,100",
-    "roiBack": "1128,536,100,100",
+    "roiBack": "1032,492,239,210",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "准备"
@@ -135,15 +135,6 @@
     "description": "左下角的位置指针"
   },
   {
-    "itemName": "statistics",
-    "imageName": "gb_statistics.png",
-    "roiFront": "61,644,33,28",
-    "roiBack": "61,644,33,28",
-    "method": "Template matching",
-    "threshold": 0.8,
-    "description": "description"
-  },
-  {
     "itemName": "exit",
     "imageName": "gb_exit.png",
     "roiFront": "14,12,43,41",
@@ -171,19 +162,10 @@
     "description": "左上角好友图标"
   },
   {
-    "itemName": "reward_statistics",
-    "imageName": "gb_reward_statistics.png",
-    "roiFront": "51,629,54,59",
-    "roiBack": "51,629,54,59",
-    "method": "Template matching",
-    "threshold": 0.8,
-    "description": "结算时左下角统计图标"
-  },
-  {
     "itemName": "reward_gold",
     "imageName": "gb_reward_gold.png",
     "roiFront": "943,312,97,69",
-    "roiBack": "111, 158, 1081, 532",
+    "roiBack": "943,312,97,69",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "结算金币"
@@ -207,15 +189,6 @@
     "description": "description"
   },
   {
-    "itemName": "de_gold",
-    "imageName": "gb_de_gold.png",
-    "roiFront": "61,52,30,25",
-    "roiBack": "45,33,65,64",
-    "method": "Template matching",
-    "threshold": 0.8,
-    "description": "封魔的金币"
-  },
-  {
     "itemName": "soul_full_ensure",
     "imageName": "gb_exit_ensure.png",
     "roiFront": "573,388,35,63",
@@ -223,5 +196,23 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "御魂溢出确认"
+  },
+  {
+    "itemName": "reward_statistics",
+    "imageName": "gb_reward_statistics.png",
+    "roiFront": "51,629,54,59",
+    "roiBack": "17,305,643,389",
+    "method": "Template matching mask",
+    "threshold": 0.7,
+    "description": "结算时左下角统计图标"
+  },
+  {
+    "itemName": "preset_wit_number",
+    "imageName": "gb_preset_wit_number.png",
+    "roiFront": "40,655,37,37",
+    "roiBack": "9,636,100,74",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "新版本的预设图案带数字"
   }
 ]

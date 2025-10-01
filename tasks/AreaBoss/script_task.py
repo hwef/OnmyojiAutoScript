@@ -54,10 +54,10 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         else:
             # 热门
             self.switch_to_famous()
-
-        self.boss_fight(self.I_BATTLE_1, flag=True)
-        self.boss_fight(self.I_BATTLE_2, flag=True)
-        self.boss_fight(self.I_BATTLE_3, flag=True)
+        flag = self.config.area_boss.boss.Attack_60
+        self.boss_fight(self.I_BATTLE_1, flag=flag)
+        self.boss_fight(self.I_BATTLE_2, flag=flag)
+        self.boss_fight(self.I_BATTLE_3, flag=flag)
 
         # 退出
         self.go_back()
@@ -509,7 +509,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('du')
+    c = Config('switch')
     d = Device(c)
     t = ScriptTask(c, d)
     # time.sleep(3)

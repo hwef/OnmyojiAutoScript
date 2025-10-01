@@ -3,7 +3,7 @@
 # github https://github.com/runhey
 
 from time import sleep
-
+from fuzzywuzzy import fuzz
 import cv2
 from datetime import datetime, timedelta
 from numpy import uint8, fromfile
@@ -30,6 +30,7 @@ from tasks.Component.Costume.costume_base import CostumeBase
 from tasks.Component.config_base import Time
 from tasks.GlobalGame.assets import GlobalGameAssets
 from tasks.GlobalGame.config_emergency import FriendInvitation
+from tasks.Component.config_switch_week import Week
 
 
 class BaseTask(GlobalGameAssets, CostumeBase):
@@ -108,6 +109,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         # 接受邀请后立即执行悬赏任务
         if click_button == self.I_G_ACCEPT:
             logger.warning('已接受悬赏邀请')
+            self.push_notify("已接到悬赏邀请,记得去做呢")
             self.set_next_run(task='WantedQuests', target=datetime.now().replace(microsecond=0))
         else:
             logger.warning(f"已忽略悬赏邀请")
@@ -123,10 +125,6 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         self._burst()
 
         return self.device.image
-
-    def appear_mask(self, target: RuleImage, threshold: float = None, mask_path: str = None):
-        appear = target.match_mask(self.device.image, threshold=threshold, mask_path=mask_path)
-        return appear
 
     def appear(self,
                target: RuleImage,
@@ -221,20 +219,19 @@ class BaseTask(GlobalGameAssets, CostumeBase):
 
     def wait_until_appear_then_click(self,
                                      target: RuleImage,
-                                     action: Union[RuleClick, RuleLongClick] = None) -> None:
+                                     wait_time: int = None) -> bool:
         """
         等待直到出现目标，然后点击
-        :param action:
         :param target:
+        :param wait_time:
         :return:
         """
-        self.wait_until_appear(target)
-        if action is None:
-            self.device.click(target.coord(), control_name=target.name)
-        elif isinstance(action, RuleLongClick):
-            self.device.long_click(target.coord(), duration=action.duration / 1000, control_name=target.name)
-        elif isinstance(action, RuleClick):
-            self.device.click(target.coord(), control_name=target.name)
+        if self.wait_until_appear(target, wait_time=wait_time):
+            x, y = target.coord()
+            self.device.click(x=x, y=y, control_name=target.name)
+            return True
+        else:
+            return False
 
     def wait_until_disappear(self, target: RuleImage) -> None:
         while 1:
@@ -311,12 +308,13 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 logger.info(f'Wait_animate_stable({rule}) timeout')
                 break
 
-    def swipe(self, swipe: RuleSwipe, interval: float = None, duration: float = 0.1) -> None:
+    def swipe(self, swipe: RuleSwipe, interval: float = None, duration: float = 0.1, wait_up_time=0) -> None:
         """
 
         :param interval:
         :param swipe:
         :param  duration
+        :param  wait_up_time
         :return:
         """
         if not isinstance(swipe, RuleSwipe):
@@ -335,7 +333,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 return
 
         x1, y1, x2, y2 = swipe.coord()
-        self.device.swipe(p1=(x1, y1), p2=(x2, y2), control_name=swipe.name, duration=(duration, duration + 0.1))
+        self.device.swipe(p1=(x1, y1), p2=(x2, y2), control_name=swipe.name, duration=(duration, duration + 0.1), wait_up_time=wait_up_time)
 
         # 执行后，如果有限制时间，则重置限制时间
         if interval:
@@ -519,6 +517,29 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         参数:
         target_day (int): 目标运行的日，取值1到7代表周一到周日，默认为1（周一）。
         """
+        def convert_week_to_number(week_day: Week) -> int:
+            """
+            将 Week 枚举转换为对应的数字
+            周一对应 1，周二对应 2，... 周日对应 7
+
+            :param week_day: Week 枚举值
+            :return: 对应的数字 (1-7)
+            """
+            week_map = {
+                Week.mon: 1,
+                Week.tue: 2,
+                Week.wed: 3,
+                Week.thu: 4,
+                Week.fri: 5,
+                Week.sat: 6,
+                Week.sun: 7
+            }
+
+            return week_map.get(week_day, 0)  # 如果找不到返回0
+
+        if isinstance(target_day, Week):
+            target_day = convert_week_to_number(target_day)
+
         today = datetime.today()
         current_weekday = today.weekday()  # 周一为0，周日为6
         target = target_day - 1    # 将输入1-7转换为0-6
@@ -533,7 +554,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         scheduler = getattr(task_object, 'scheduler', None)
         server_update = scheduler.server_update
 
-        self.config.notifier.push(title=I18n.trans_zh_cn(TaskName), content=f'任务下周{target_day}执行')
+        self.push_notify(content=f'任务下周{target_day}执行')
 
         # 调用自定义函数设置下一次运行时间
         self.custom_next_run(task=TaskName,
@@ -657,6 +678,74 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             return None
         return img
 
+    def get_rgb_from_target(self, target: tuple):
+        """
+        从传入的目标区域提取平均RGB值
+
+        参数:
+        - target: 目标区域 (x, y, width, height)
+
+        返回:
+        - 平均RGB值 (R, G, B)
+        """
+        x, y, w, h = target.roi_front
+        # 截图并获取设备当前图像
+        image = self.device.image
+
+        # 提取目标区域的图像
+        region = image[y:y + h, x:x + w]
+
+        # 计算平均RGB值
+        average_color = cv2.mean(region)[:3]  # 只取前三个值 (B, G, R)
+
+        logger.info(f"目标区域 [{target.roi_front}] 的RGB值为: {average_color}")
+        return average_color
+
+    def appear_rgb(self, target, image=None, difference: int = 10):
+        """
+        判断目标的平均颜色是否与图像中的颜色匹配。
+
+        参数:
+        - target: 目标对象，包含目标的文件路径和区域信息。
+        - image: 输入图像，如果未提供，则使用设备捕获的图像。
+        - difference: 颜色差异阈值，默认为10。
+
+        返回:
+        - 如果目标颜色与图像颜色匹配，则返回True，否则返回False。
+        """
+        # 如果未提供图像，则使用设备捕获的图像
+        # logger.info(f"target [{target}], image [{image}]")
+        if not self.appear(target):
+            logger.warning(f"[{target.name}]未匹配到")
+            return False
+
+        if image is None:
+            image = self.device.image
+
+        # 加载图像并计算其平均颜色
+        img = cv2.imread(target.file)
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        average_color = cv2.mean(img_rgb)
+        # logger.info(f"[{target.name}]average_color: {average_color}")
+
+        # 提取目标区域的坐标和尺寸，并确保它们为整数
+        x, y, w, h = target.roi_front
+        x, y, w, h = int(x), int(y), int(w), int(h)
+        # 从输入图像中提取目标区域
+        img = image[y:y + h, x:x + w]
+        # 计算目标区域的平均颜色
+        color = cv2.mean(img)
+        # logger.info(f"[{target.name}] color: {color}")
+
+        # 比较目标图像和目标区域的颜色差异
+        for i in range(3):
+            if abs(average_color[i] - color[i]) > difference:
+                logger.warning(f" [{target.name}] 颜色匹配失败")
+                return False
+
+        logger.info(f"[{target.name}] 颜色匹配成功")
+        return True
+
     def save_image(self, task_name=None, content=None, wait_time=2, image_type=False, push_flag=False):
         try:
             if task_name is None:
@@ -670,6 +759,8 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 folder_name = f'{week_path}/{I18n.trans_zh_cn(task_name)}'
             else:
                 folder_name = f'{log_path}/{I18n.trans_zh_cn(task_name)}'
+            if self.config.small_account.scheduler.enable:
+                folder_name = folder_name.replace("\log", "\log\小号截图")
             folder_path = Path(folder_name)
             folder_path.mkdir(parents=True, exist_ok=True)
 
@@ -681,8 +772,18 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             if getattr(self.device, 'image', None) is None:
                 self.screenshot()
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
-            
-            filename = get_filename(self.config.config_name.upper())
+
+            if self.config.small_account.scheduler.enable:
+                if self.config.small_account.small_account_name.enable_save_img:
+                    filename = get_filename(self.config.small_account.small_account_name.account_name)
+                else:
+                    logger.warning(f"开启了小号任务, 未开启截图保存，保存截图将被忽略")
+                    if push_flag:
+                        self.push_notify(content=content)
+                    return
+            else:
+                filename = get_filename(self.config.config_name.upper())
+
             image_path = folder_path / filename  # 使用pathlib路径对象
 
             if image_type:
@@ -720,79 +821,104 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             self.push_notify(content=f"保存截图异常，{e}")
             logger.error(f"保存{task_name}截图异常，{e}")
 
-    def appear_rgb(self, target, image=None, difference: int = 10):
-        """
-        判断目标的平均颜色是否与图像中的颜色匹配。
-
-        参数:
-        - target: 目标对象，包含目标的文件路径和区域信息。
-        - image: 输入图像，如果未提供，则使用设备捕获的图像。
-        - difference: 颜色差异阈值，默认为10。
-
-        返回:
-        - 如果目标颜色与图像颜色匹配，则返回True，否则返回False。
-        """
-        # 如果未提供图像，则使用设备捕获的图像
-        # logger.info(f"target [{target}], image [{image}]")
-        if image is None:
-            image = self.device.image
-
-        # 加载图像并计算其平均颜色
-        img = cv2.imread(target.file)
-        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        average_color = cv2.mean(img_rgb)
-        # logger.info(f"[{target.name}]average_color: {average_color}")
-
-        # 提取目标区域的坐标和尺寸，并确保它们为整数
-        x, y, w, h = target.roi_front
-        x, y, w, h = int(x), int(y), int(w), int(h)
-        # 从输入图像中提取目标区域
-        img = image[y:y + h, x:x + w]
-        # 计算目标区域的平均颜色
-        color = cv2.mean(img)
-        # logger.info(f"[{target.name}] color: {color}")
-
-        # 比较目标图像和目标区域的颜色差异
-        for i in range(3):
-            if abs(average_color[i] - color[i]) > difference:
-                logger.warning(f"颜色匹配失败: [{target.name}]")
-                return False
-
-        logger.info(f"颜色匹配成功: [{target.name}]")
-        return True
-
     def push_notify(self, content=''):
+        if content != '':
+            logger.info(content)
+
+        if self.config.small_account.scheduler.enable:
+            if not self.config.small_account.small_account_name.enable_notify:
+                logger.warning("已开启小号任务，但未启用小号通知，通知将被忽略")
+                return
+
         # 处理title的逻辑优化
         title = 'task_name'
         if self.config and self.config.task:
             title = self.config.task.command
 
+        if self.config.small_account.scheduler.enable:
+            if self.config.small_account.small_account_name.enable_notify:
+                name = self.config.small_account.small_account_name.account_name
+                logger.info(f"已开启小号任务，并启用了小号通知，拼接[{name}]，准备发送通知")
+                title = f"{name}▪{I18n.trans_zh_cn(title)}"
+
         # 使用getattr同时检查属性和值，避免冗长的条件判断
         if getattr(self.device, 'image', None) is None:
             self.screenshot()
         image = self.device.image
-        if content != '':
-            logger.info(content)
 
         # 发送邮件
         self.config.notifier.send_push(title=title, content=content, image=image)
+        
+    def ocr_text_threshold(self, target, threshold=0.7, interval: float = None):
+        if interval:
+            if target.name in self.interval_timer:
+                # 如果传入的限制时间不一样，则替换限制新的传入的时间
+                if self.interval_timer[target.name].limit != interval:
+                    self.interval_timer[target.name] = Timer(interval)
+            else:
+                # 如果没有限制时间，则创建限制时间
+                self.interval_timer[target.name] = Timer(interval)
+                # 如果时间还没到达，则不执行
+            if not self.interval_timer[target.name].reached():
+                return None
+
+        appear = False
+
+        ocrResult = target.ocr(self.device.image)
+        # 边界检查：确保 OCR 结果不为空
+        if not ocrResult or len(ocrResult) == 0:
+            return False
+        if self.assess_text_threshold(target.keyword, ocrResult, threshold):
+            appear = True
+        if interval and appear:
+            self.interval_timer[target.name].reset()
+        return appear
+
+    def assess_text_threshold(self, old_str, new_str, threshold=0.7):
+        threshold_pct = threshold * 100
+        similarity_score = fuzz.ratio(old_str, new_str)
+        if similarity_score >= threshold_pct:
+            logger.info(f"✅ [{old_str}] vs [{new_str}], 相似度 {similarity_score}% ≥ {threshold_pct}%, 匹配成功")
+            return True
+        else:
+            logger.info(f"❌ [{old_str}] vs [{new_str}], 相似度 {similarity_score}% < {threshold_pct}%, 匹配失败")
+            return False
+
+    def split_group_team(self, target):
+        if isinstance(target, str):
+            try:
+                parts = target.split(',')
+                if len(parts) != 2:
+                    raise ValueError('Switch_str must be 2 parts')
+                return int(parts[0]), int(parts[1])
+            except ValueError:
+                logger.error(f'Invalid switch_group_team format: {target}')
+                return -1, -1
+        return -1, -1
 
 
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('oa')
+    c = Config('switch')
     d = Device(c)
     t = BaseTask(c, d)
+    # t.next_run_week(2)
+    t.next_run_week(c.duel.switch_week.next_week_day)
+
+    # t.screenshot()
+    # t.save_image(push_flag=True, content='成功保存截图')
+    # I_E_AUTO_ROTATE_OFF = RuleImage(roi_front=(108,650,150,46), roi_back=(108,650,150,46), threshold=0.85, method="Template matching", file="./tasks/Exploration/res/res_e_auto_rotate_off.png")
+    # t.appear_rgb(I_E_AUTO_ROTATE_OFF)
 
     # self.config.notifier.send_mail(title=task_name, head=head, image_path=image_path)
 
     # t.push_notify()
     # t.save_image(content='成功找到最优挂卡', push_flag=True)
-    card_type = '斗鱼'
-    card_value = '118'
-    t.save_image(push_flag=True, wait_time=0, content=f'🎉 确认蹭卡 ({card_type}: {card_value})')
+    # card_type = '斗鱼'
+    # card_value = '118'
+    # t.save_image(push_flag=True, wait_time=0, content=f'🎉 确认蹭卡 ({card_type}: {card_value})')
     # logger.hr('INVITE FRIEND')
     # logger.hr('INVITE FRIEND', 0)
     # logger.hr('INVITE FRIEND', 1)
