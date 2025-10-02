@@ -292,3 +292,5 @@ test_multiscale_images/
 multiscale_integration_test/
 # 个人优化代码
 module/atom/image.py
+temp_path/
+ 

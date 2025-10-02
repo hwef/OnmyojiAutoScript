@@ -13,6 +13,8 @@ from PyQt5.QtCore import Qt, pyqtSignal, QPoint, QRect
 from PyQt5.QtGui import QPixmap, QPainter, QPen, QColor, QFont, QImage
 from PIL import Image
 
+# 修复路径问题，添加项目根目录到sys.path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from dev_tools.rule_edit_gui import ADB
 from dev_tools.rule_edit_gui.PreviewWindow import PreviewWindow
 from dev_tools.rule_edit_gui.ThemeManager import ThemeManager

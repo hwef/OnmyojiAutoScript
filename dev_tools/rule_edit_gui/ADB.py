@@ -5,11 +5,17 @@ import cv2
 import numpy as np
 
 def get_adb_path():
-    # 获取当前脚本所在目录
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    # 构建adb路径
-    adb_path = os.path.join(current_dir, '', 'platform-tools', 'adb.exe')
-    return adb_path
+    """获取ADB可执行文件路径"""
+    # 1. 尝试从Python环境中获取
+    import sys
+    file = os.path.join(sys.executable, '../Lib/site-packages/adbutils/binaries/adb.exe')
+    file = os.path.abspath(file).replace('\\', '/')
+    if os.path.exists(file):
+        return file
+    
+    # 2. 尝试使用系统PATH中的ADB
+    # 在Windows系统上，直接使用'adb'会自动寻找adb.exe
+    return 'adb'
 
 _adb_target = None  # 全局变量，存储当前目标设备ip:port
 
