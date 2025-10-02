@@ -25,14 +25,15 @@ def enlarge_canvas(image):
     image with w:h=1:1 is the best while 3:1 rectangles takes three times as long.
     Also enlarge into the integer multiple of 32 cause PaddleOCR will downscale images to 1/32.
     
-    修改：对于小图像（尺寸<320*320），直接padding到320*320进行检测
+    修改：对于长或宽有一边不到320的图像，将短边padding到320
     """
     height, width = image.shape[:2]
     
-    # 对于小图像（尺寸<320*320），直接padding到320*320  
-    if width < 320 and height < 320:
-        target_size = 320
-        border = (0, target_size - height, 0, target_size - width)
+    # 对于长或宽有一边不到320的图像，将短边padding到320  
+    if width < 320 or height < 320:
+        target_width = max(width, 320)
+        target_height = max(height, 320)
+        border = (0, target_height - height, 0, target_width - width)
         if sum(border) > 0:
             image = cv2.copyMakeBorder(image, *border, borderType=cv2.BORDER_CONSTANT, value=(0, 0, 0))
         return image
