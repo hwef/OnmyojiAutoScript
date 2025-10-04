@@ -53,6 +53,8 @@ class Script:
         try:
             from module.config.config import Config
             config = Config(config_name=self.config_name)
+            # 将state_queue传递给config实例
+            config.state_queue = self.state_queue
             return config
         except RequestHumanTakeover:
             logger.critical('Request human takeover')

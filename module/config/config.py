@@ -26,6 +26,7 @@ from module.notify.pushtg import PushTg
 
 from module.exception import RequestHumanTakeover, ScriptError
 from module.logger import logger
+from multiprocessing.queues import Queue
 
 
 class Function:
@@ -105,6 +106,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         super(ConfigWatcher, self).__init__()
         super(ConfigMenu, self).__init__()
         self.model = ConfigModel(config_name=config_name)
+        self.state_queue: Queue = None
 
     def __getattr__(self, name):
         """
@@ -419,6 +421,19 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             self.save()
         finally:
             self.lock_config.release()
+
+        # 广播调度更新
+        if next_run <= datetime.now():
+            if self.state_queue is not None:
+                try:
+                    self.update_scheduler()
+                    self.state_queue.put({"schedule": self.get_schedule_data()})
+                    # logger.info("已广播调度更新")
+                except Exception as e:
+                    logger.warning(f"广播调度更新失败: {e}")
+            else:
+                logger.debug("state_queue 未设置，跳过广播")
+
         # 设置
         logger.hr(f'设置任务（`{I18n.trans_zh_cn(old_task)}` | {next_run}）执行', 2)
 
