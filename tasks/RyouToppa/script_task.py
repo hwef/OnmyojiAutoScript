@@ -183,11 +183,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
                     self.flush_area_cache()
                 continue
 
-
-        # 回 page_main 失败
-        # self.ui_current = page_ryou_toppa
-        # self.ui_goto(page_main)
-
         if success:
             self.set_next_run(task='RyouToppa', finish=True, server=True, success=True)
         else:
@@ -232,8 +227,11 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
         :return:
         """
         # 21点后无限进攻机会
-        if datetime.now().hour >= 21:
+        now = datetime.now()
+        if now.hour >= 21 or now.hour < 5:
             return True
+        if now.hour == 5:
+            return False
         self.wait_until_appear(self.I_TOPPA_RECORD)
         self.screenshot()
         cu, res, total = self.O_NUMBER.ocr(self.device.image)
