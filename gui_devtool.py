@@ -11,6 +11,33 @@ from datetime import datetime
 import pyperclip
 from tkinter import messagebox
 
+# 添加模块导入
+import sys
+from pathlib import Path
+
+# 将当前目录加入系统路径，以便导入项目模块
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+if parent_dir not in sys.path:
+    sys.path.append(parent_dir)
+
+# 尝试导入项目模块
+try:
+    from module.atom.image import RuleImage
+    from module.atom.ocr import RuleOcr
+    MODULE_AVAILABLE = True
+except ImportError:
+    MODULE_AVAILABLE = False
+    print("无法导入项目模块，部分功能将不可用")
+
+# 添加对 mask_generator 的导入
+try:
+    from mask_generator import MaskGenerator
+    MASK_GENERATOR_AVAILABLE = True
+except ImportError:
+    MASK_GENERATOR_AVAILABLE = False
+    print("无法导入蒙版生成器模块")
+
 class DevTool(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -21,9 +48,9 @@ class DevTool(ctk.CTk):
         self.rect = {"x1": 0, "y1": 0, "x2": 0, "y2": 0}  # 矩形框
         self.img_info = None  # 保存图片信息
         # 创建窗口
-        self.geometry("1690x750")
+        self.geometry("1900x800")  # 增加窗口宽度和高度
         self.title("DevTool")
-        self.resizable(False, False)
+        self.resizable(True, True)  # 允许调整窗口大小
 
         # 设置默认路径
         self.screenshots_path = r"D:\共享文件夹\Screenshots"
@@ -42,74 +69,144 @@ class DevTool(ctk.CTk):
             except:
                 self.save_img_path = os.getcwd()  # 如果创建失败，使用当前目录
 
-        self.screen_canvas = ctk.CTkCanvas(self, width=1280, height=720)
+        # 创建主框架以支持更好的布局
+        self.main_frame = ctk.CTkFrame(self)
+        self.main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # 配置网格权重以支持调整大小
+        self.main_frame.grid_columnconfigure(0, weight=1)
+        self.main_frame.grid_columnconfigure(1, weight=0)
+        self.main_frame.grid_rowconfigure(0, weight=1)
+
+        # 创建画布框架
+        self.canvas_frame = ctk.CTkFrame(self.main_frame)
+        self.canvas_frame.grid(row=0, column=0, padx=(0, 10), pady=0, sticky="nsew")
+        self.canvas_frame.grid_columnconfigure(0, weight=1)
+        self.canvas_frame.grid_rowconfigure(0, weight=1)
+        
+        # 创建画布
+        self.screen_canvas = ctk.CTkCanvas(self.canvas_frame, width=1280, height=720)
         self.screen_canvas.configure(borderwidth=2, relief="solid")
         self.screen_canvas.bind("<Enter>", self.in_canvas)
         self.screen_canvas.bind("<Leave>", self.out_canvas)
         self.screen_canvas.bind("<Button-1>", self.on_click)
         self.screen_canvas.bind("<B1-Motion>", self.on_move)
         self.screen_canvas.bind("<ButtonRelease-1>", self.on_release)
+        self.screen_canvas.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
         self.mouse_is_in_canvas = False
-        # 画布
-        self.screen_canvas.grid(row=0, column=0, padx=10, pady=10)
-        # 左框架
-        self.left_frame = ctk.CTkFrame(self, width=300, height=620)
-        self.left_frame.grid(row=0, column=1, padx=0, pady=10, sticky="sn")
 
+        # 右侧控制面板框架
+        self.control_frame = ctk.CTkFrame(self.main_frame, width=500)
+        self.control_frame.grid(row=0, column=1, padx=0, pady=0, sticky="nsew")
+        self.control_frame.grid_columnconfigure(0, weight=1)
+        self.control_frame.grid_rowconfigure(1, weight=1)
+
+        # 创建选项卡视图
+        self.tabview = ctk.CTkTabview(self.control_frame, width=500, height=600)
+        self.tabview.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nsew")
+        
+        # 添加三个选项卡
+        self.screenshot_tab = self.tabview.add("截图工具")
+        self.template_tab = self.tabview.add("模板匹配")
+        self.ocr_tab = self.tabview.add("OCR工具")
+        
+        # 配置各选项卡的网格权重
+        self.screenshot_tab.grid_columnconfigure(0, weight=1)
+        self.screenshot_tab.grid_rowconfigure(10, weight=1)
+        self.template_tab.grid_columnconfigure(0, weight=1)
+        self.template_tab.grid_rowconfigure(10, weight=1)
+        self.ocr_tab.grid_columnconfigure(0, weight=1)
+        self.ocr_tab.grid_rowconfigure(10, weight=1)
+
+        # 在截图工具选项卡中添加控件
         # 文件夹路径输入框
-        self.folder_path_entry = ctk.CTkEntry(self.left_frame, placeholder_text="请选择保存图片文件夹", width=260, justify="center")
-        self.folder_path_entry.grid(row=1, column=1, columnspan=2, padx=10, pady=10, sticky="ew")
+        self.folder_path_entry = ctk.CTkEntry(self.screenshot_tab, placeholder_text="请选择保存图片文件夹", width=300, justify="center")
+        self.folder_path_entry.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
         # 选择文件夹按钮
-        self.choese_folder_button = ctk.CTkButton(self.left_frame, text="保存文件夹", width=20, command=self.choose_folder)
-        self.choese_folder_button.grid(row=1, column=3, padx=10, pady=10, sticky="w")
+        self.choese_folder_button = ctk.CTkButton(self.screenshot_tab, text="保存文件夹", width=80, command=self.choose_folder)
+        self.choese_folder_button.grid(row=0, column=2, padx=10, pady=10, sticky="w")
 
         # 图片名称输入框
-        self.img_name = ctk.CTkEntry(self.left_frame, placeholder_text="请选择加载的图片",  width=260, justify="center")
-        self.img_name.grid(row=2, column=1, columnspan=2, padx=10, pady=10, sticky="ew")
+        self.img_name = ctk.CTkEntry(self.screenshot_tab, placeholder_text="请选择加载的图片", width=300, justify="center")
+        self.img_name.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
         # 读取图片按钮
-        self.load_image_button = ctk.CTkButton(self.left_frame, text="加载图片", width=20, command=self.load_image)
-        self.load_image_button.grid(row=2, column=3, padx=10, pady=10, sticky="ew")
+        self.load_image_button = ctk.CTkButton(self.screenshot_tab, text="加载图片", width=80, command=self.load_image)
+        self.load_image_button.grid(row=1, column=2, padx=10, pady=10, sticky="ew")
 
         # 请输入保存图片名称
-        self.save_name_entry = ctk.CTkEntry(self.left_frame, placeholder_text="请输入保存图片的名字", width=260, justify="center")
-        self.save_name_entry.grid(row=3, column=1, columnspan=2, padx=10, pady=10, sticky="ew")
+        self.save_name_entry = ctk.CTkEntry(self.screenshot_tab, placeholder_text="请输入保存图片的名字", width=300, justify="center")
+        self.save_name_entry.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
         # 保存按钮
-        self.save_and_fmt_button = ctk.CTkButton(self.left_frame, text="保存图片",  width=20, command=self.save_img)
-        self.save_and_fmt_button.grid(row=3, column=3, padx=10, pady=10, sticky="ew")
+        self.save_and_fmt_button = ctk.CTkButton(self.screenshot_tab, text="保存图片", width=80, command=self.save_img)
+        self.save_and_fmt_button.grid(row=2, column=2, padx=10, pady=10, sticky="ew")
 
         # 框选坐标显示框
-        self.rect_info = ctk.CTkEntry(self.left_frame, placeholder_text="矩形框坐标", width=260, justify="center")
-        self.rect_info.grid(row=4, column=1, columnspan=2, padx=10, pady=10, sticky="ew")
+        self.rect_info = ctk.CTkEntry(self.screenshot_tab, placeholder_text="矩形框坐标", width=300, justify="center")
+        self.rect_info.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
         # 绑定回车键事件，当在坐标输入框按回车时显示矩形框
         self.rect_info.bind("<KeyRelease>", self.show_rectangle_from_entry)
         # 复制按钮
-        self.copy_button = ctk.CTkButton(self.left_frame, width=20, text="复制坐标", command=lambda: self.copy_to_clipboard(str(self.coordinates)))
-        self.copy_button.grid(row=4, column=3, padx=10, pady=10, sticky="ew")
+        self.copy_button = ctk.CTkButton(self.screenshot_tab, width=80, text="复制坐标", command=lambda: self.copy_to_clipboard(str(self.coordinates)))
+        self.copy_button.grid(row=3, column=2, padx=10, pady=10, sticky="ew")
 
-        # # 图片信息显示框
-        # self.img_info = ctk.CTkEntry(self.left_frame, placeholder_text="图片信息", width=250, justify="center")
-        # self.img_info.grid(row=5, column=1, columnspan=2, padx=10, pady=10, sticky="ew")
-        # # 图片信息保存按钮
-        # self.img_info_save_btn = ctk.CTkButton(self.left_frame, width=20, text="image_info", command=lambda: self.write_to_file("image"))
-        # self.img_info_save_btn.grid(row=5, column=3, padx=10, pady=10, sticky="ew")
+        # 如果蒙版生成器可用，添加相应按钮到截图工具选项卡
+        if MASK_GENERATOR_AVAILABLE:
+            # 蒙版生成器按钮
+            self.mask_generator_button = ctk.CTkButton(
+                self.screenshot_tab,
+                text="蒙版生成器",
+                width=120,
+                command=self.open_mask_generator
+            )
+            self.mask_generator_button.grid(row=4, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
 
-        # # 页面信息显示框
-        # self.page_info = ctk.CTkEntry(self.left_frame, placeholder_text="page信息", width=250, justify="center")
-        # self.page_info.grid(row=6, column=1, columnspan=2, padx=10, pady=10, sticky="ew")
-        # # 页面信息保存按钮
-        # self.page_info_save_btn = ctk.CTkButton(self.left_frame, width=20, text="page_info", command=lambda: self.write_to_file("page"))
-        # self.page_info_save_btn.grid(row=6, column=3, padx=10, pady=10, sticky="ew")
+        # 在模板匹配选项卡中添加控件
+        if MODULE_AVAILABLE:
+            # 模板匹配按钮
+            self.template_match_button = ctk.CTkButton(self.template_tab, text="模板匹配", width=120, command=self.perform_template_match)
+            self.template_match_button.grid(row=0, column=0, padx=5, pady=10, sticky="ew")
+            
+            # 选择模板按钮
+            self.select_template_button = ctk.CTkButton(self.template_tab, text="选择模板", width=120, command=self.select_template)
+            self.select_template_button.grid(row=0, column=1, padx=5, pady=10, sticky="ew")
+            
+            # 模板路径显示
+            self.template_path_label = ctk.CTkLabel(self.template_tab, text="未选择模板", width=300, height=20)
+            self.template_path_label.grid(row=1, column=0, columnspan=3, padx=10, pady=5, sticky="ew")
+            
+            # 阈值滑块
+            self.threshold_label = ctk.CTkLabel(self.template_tab, text="匹配阈值: 0.80", width=200)
+            self.threshold_label.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
+            
+            self.threshold_slider = ctk.CTkSlider(self.template_tab, from_=0.1, to=1.0, number_of_steps=90, command=self.update_threshold_label)
+            self.threshold_slider.set(0.8)
+            self.threshold_slider.grid(row=2, column=2, padx=10, pady=10, sticky="ew")
+            
+            # 添加占位符以在模板选项卡中留出空间
+            self.template_placeholder = ctk.CTkLabel(self.template_tab, text="", height=200)
+            self.template_placeholder.grid(row=3, column=0, columnspan=3, padx=10, pady=5, sticky="ew")
 
-        # # 点击坐标显示框
-        # self.click_info = ctk.CTkEntry(self.left_frame, placeholder_text="点击坐标", width=250, justify="center")
-        # self.click_info.grid(row=7, column=1, columnspan=2, padx=10, pady=10, sticky="ew")
-        # # 点击坐标保存按钮
-        # self.click_info_save_btn = ctk.CTkButton(self.left_frame, width=20, text="click_info", command=lambda: self.write_to_file("coor"))
-        # self.click_info_save_btn.grid(row=7, column=3, padx=10, pady=10, sticky="ew")
+        # 在OCR工具选项卡中添加控件
+        if MODULE_AVAILABLE:
+            # OCR按钮
+            self.ocr_button = ctk.CTkButton(self.ocr_tab, text="执行OCR", width=120, command=self.perform_ocr)
+            self.ocr_button.grid(row=0, column=0, columnspan=3, padx=5, pady=10, sticky="ew")
+            
+            # OCR结果文本框
+            self.ocr_result_textbox = ctk.CTkTextbox(self.ocr_tab, height=150, width=300)
+            self.ocr_result_textbox.grid(row=1, column=0, columnspan=3, padx=10, pady=5, sticky="ew")
+            self.ocr_result_textbox.insert("0.0", "OCR结果将显示在这里")
+            
+            # 添加占位符以在OCR选项卡中留出空间
+            self.ocr_placeholder = ctk.CTkLabel(self.ocr_tab, text="", height=200)
+            self.ocr_placeholder.grid(row=2, column=0, columnspan=3, padx=10, pady=5, sticky="ew")
 
-        # log显示框
-        self.log_box = ctk.CTkTextbox(self.left_frame, bg_color="#dadada", fg_color="#000000", text_color="#48BB31", width=120, height=520)
-        self.log_box.grid(row=5, column=1, columnspan=3, padx=10, pady=10, sticky="nsew")
+        # 当前选中模板路径
+        self.current_template_path = None
+
+        # log显示框（放在选项卡视图下方）
+        self.log_box = ctk.CTkTextbox(self.control_frame, bg_color="#dadada", fg_color="#000000", text_color="#48BB31", width=300, height=200)
+        self.log_box.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
 
         # 初始化保存路径输入框为默认保存路径
         self.folder_path_entry.insert(0, self.save_img_path)
@@ -309,6 +406,9 @@ class DevTool(ctk.CTk):
             "threshold": 0.8,
             "description": save_name
         }
+
+        formatted_json = json.dumps(image_data, ensure_ascii=False, indent=2)
+        self.log_print(formatted_json)
 
         # 检查文件是否存在
         if os.path.exists(json_file_path):
@@ -527,6 +627,169 @@ class DevTool(ctk.CTk):
             # 其他异常也不处理
             pass
 
+    # 新增功能：OCR识别
+    def perform_ocr(self):
+        """执行OCR识别"""
+        if not MODULE_AVAILABLE:
+            self.log_print("项目模块不可用，无法执行OCR")
+            return
+            
+        if self.np_image is None:
+            self.log_print("请先加载图片")
+            return
+
+        if not self.is_rect_valid():
+            self.log_print("请先选择有效区域")
+            return
+
+        try:
+            # 获取选区坐标
+            x1, y1, x2, y2 = self.coordinates
+            # 转换为图片坐标系
+            x1, y1, x2, y2 = x1 - 4, y1 - 4, x2 - 4, y2 - 4
+            
+            # 确保坐标有效
+            x1, x2 = sorted([x1, x2])
+            y1, y2 = sorted([y1, y2])
+            
+            if x1 < 0 or y1 < 0 or x2 > self.np_image.shape[1] or y2 > self.np_image.shape[0]:
+                self.log_print("选区超出图片范围")
+                return
+                
+            # 创建RuleOcr对象
+            ocr_rule = RuleOcr(roi=(x1, y1, x2-x1, y2-y1), area=(x1, y1, x2-x1, y2-y1), mode="Single", method="Default", keyword="", name="devtool_ocr")
+
+            # 转换图片格式
+            rgb_image = cv2.cvtColor(self.np_image, cv2.COLOR_BGR2RGB)
+            
+            # 执行OCR
+            ocr_result = ocr_rule.detect_and_ocr(rgb_image)
+            
+            # 显示结果
+            if ocr_result:
+                self.ocr_result_textbox.delete("0.0", "end")
+                if isinstance(ocr_result, list):
+                    for result in ocr_result:
+                        self.ocr_result_textbox.insert("end", f"{result}\n")
+                else:
+                    self.ocr_result_textbox.insert("end", str(ocr_result))
+                self.log_print(f"OCR识别完成: {ocr_result}")
+            else:
+                self.ocr_result_textbox.delete("0.0", "end")
+                self.ocr_result_textbox.insert("0.0", "未识别到文本")
+                self.log_print("OCR未识别到文本")
+                
+        except Exception as e:
+            self.log_print(f"OCR执行出错: {str(e)}")
+
+    # 新增功能：模板匹配
+    def perform_template_match(self):
+        """执行模板匹配"""
+        if not MODULE_AVAILABLE:
+            self.log_print("项目模块不可用，无法执行模板匹配")
+            return
+            
+        if self.np_image is None:
+            self.log_print("请先加载图片")
+            return
+
+        if not self.current_template_path:
+            self.log_print("请先选择模板图片")
+            return
+
+        if not self.is_rect_valid():
+            self.log_print("请先选择有效区域")
+            return
+
+        try:
+            # 获取选区坐标
+            x1, y1, x2, y2 = self.coordinates
+            # 转换为图片坐标系
+            x1, y1, x2, y2 = x1 - 4, y1 - 4, x2 - 4, y2 - 4
+            
+            # 确保坐标有效
+            x1, x2 = sorted([x1, x2])
+            y1, y2 = sorted([y1, y2])
+            
+            if x1 < 0 or y1 < 0 or x2 > self.np_image.shape[1] or y2 > self.np_image.shape[0]:
+                self.log_print("选区超出图片范围")
+                return
+                
+            # 获取当前阈值
+            threshold = self.threshold_slider.get()
+            
+            # 创建RuleImage对象
+            template_rule = RuleImage(
+                roi_front=(x1, y1, x2-x1, y2-y1),
+                roi_back=(x1, y1, x2-x1, y2-y1),
+                threshold=threshold,
+                method="Template matching",
+                file=self.current_template_path
+            )
+            print(f"Template matching: {template_rule.roi_front}")
+
+            # 转换图片格式
+            rgb_image = cv2.cvtColor(self.np_image, cv2.COLOR_BGR2RGB)
+            
+            # 执行模板匹配
+            match_result = template_rule.match(rgb_image)
+            
+            # 显示结果
+            if match_result:
+                # 在画布上绘制匹配结果
+                self.screen_canvas.delete("match_result")
+                roi = template_rule.roi_front
+                print(f"Match result: {roi}")
+                # 转换回画布坐标系
+                canvas_x1, canvas_y1 = roi[0] + 4, roi[1] + 4
+                canvas_x2, canvas_y2 = roi[2] + 4, roi[3] + 4
+                self.screen_canvas.create_rectangle(
+                    canvas_x1, canvas_y1, canvas_x1 + canvas_x2, canvas_y1 + canvas_y2,
+                    outline="green", width=1, tags="match_result"
+                )
+                self.log_print(f"模板匹配成功: {roi}")
+            else:
+                self.screen_canvas.delete("match_result")
+                self.log_print("模板匹配失败")
+                
+        except Exception as e:
+            self.log_print(f"模板匹配执行出错: {str(e)}")
+
+    # 新增功能：选择模板
+    def select_template(self):
+        """选择模板图片"""
+        if not MODULE_AVAILABLE:
+            self.log_print("项目模块不可用")
+            return
+            
+        template_path = filedialog.askopenfilename(
+            title="选择模板图片",
+            filetypes=(("PNG图片", "*.png"), ("所有文件", "*.*"))
+        )
+        
+        if template_path:
+            self.current_template_path = template_path
+            # 显示文件名
+            filename = os.path.basename(template_path)
+            self.template_path_label.configure(text=filename)
+            self.log_print(f"已选择模板: {filename}")
+
+    # 新增功能：更新阈值标签
+    def update_threshold_label(self, value):
+        """更新阈值标签显示"""
+        self.threshold_label.configure(text=f"匹配阈值: {float(value):.2f}")
+
+    # 辅助方法：检查矩形是否有效
+    def is_rect_valid(self):
+        """检查当前选择的矩形是否有效"""
+        x1, y1, x2, y2 = self.coordinates
+        return (x1 != x2 and y1 != y2)
+
+    def open_mask_generator(self):
+        """打开蒙版生成器"""
+        # 创建并显示蒙版生成器窗口
+        mask_app = MaskGenerator()
+        mask_app.mainloop()
 
 
 if __name__ == "__main__":
