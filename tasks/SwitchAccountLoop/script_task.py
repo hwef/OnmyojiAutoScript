@@ -85,20 +85,43 @@ class ScriptTask(GameUi):
         else:
             raise SwitchAccountError(f"[角色] {account_info}, 切换失败")
 
-    def get_next_execution_times(self):
-        now = datetime.now()
-        # 从当前时间开始计算
-        next_hour = now.hour + 1 if now.minute >= 30 else now.hour
-        # 找到下一个符合条件的小时（奇数小时）
-        next_hour = next_hour if next_hour % 2 == 1 else next_hour + 1
+    def get_next_execution_times(self, start_hour=11, end_hour=23, interval_hours=2, execution_minute=30):
+        """
+        获取下次执行时间，支持动态配置
+        在指定时间范围内每隔interval_hours小时执行一次，执行时间为每个小时的execution_minute分钟
 
-        if next_hour > 23:
-            # 如果超过23点，则转到第二天
-            next_time = now.replace(hour=15, minute=30, second=0, microsecond=0) + timedelta(days=1)
+        Args:
+            start_hour: 开始执行的小时数（默认11点）
+            end_hour: 结束执行的小时数（默认23点）
+            interval_hours: 执行间隔小时数（默认2小时）
+            execution_minute: 执行分钟数（默认30分）
+
+        Returns:
+            datetime: 下次执行时间
+        """
+        now = datetime.now()
+        # now = now.replace(hour=23, minute=31, second=0, microsecond=0)
+
+        # 从start_hour开始，每隔interval_hours小时生成执行时间点
+        execution_times = []
+        hour = start_hour
+        while hour <= end_hour:
+            execution_times.append(hour)
+            hour += interval_hours
+
+        # 查找下一个执行时间
+        next_hour = None
+        for hour in execution_times:
+            candidate_time = now.replace(hour=hour, minute=execution_minute, second=0, microsecond=0)
+            if candidate_time > now:
+                next_hour = hour
+                break
+
+        # 如果今天没有可执行的时间了，则设置为第二天的第一次执行时间
+        if next_hour is None:
+            next_time = now.replace(hour=start_hour, minute=execution_minute, second=0, microsecond=0) + timedelta(days=1)
         else:
-            next_time = now.replace(hour=next_hour, minute=30, second=0, microsecond=0)
-            if next_time <= now:
-                next_time += timedelta(hours=2)
+            next_time = now.replace(hour=next_hour, minute=execution_minute, second=0, microsecond=0)
 
         return next_time
 
@@ -107,7 +130,8 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('wy_loop')
+    config = Config('wy')
     device = Device(config)
     t = ScriptTask(config, device)
-    t.run()
+    a = t.get_next_execution_times()
+    print(a)
