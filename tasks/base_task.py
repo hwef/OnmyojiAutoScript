@@ -485,7 +485,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 self.device.swipe(p1=(x1, y1), p2=(x2, y2))
                 sleep(1)  # 等待滑动完成， 还没想好如何优化
 
-    def set_next_run(self, task: str, finish: bool = False,
+    def set_next_run(self, task: str = None, finish: bool = False,
                      success: bool = None, server: bool = True, target: datetime = None) -> None:
         """
         设置下次运行时间  当然这个也是可以重写的
@@ -751,17 +751,8 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         logger.info(f"[{target.name}] 颜色匹配成功")
         return True
 
-    def save_image(self, task_name=None, content=None, wait_time=2, image_type=False, push_flag=False, level=3):
+    def save_image(self, task_name=None, content=None, wait_time=2, image_type=False, push_flag=False):
         try:
-            # 检查消息级别是否满足要求
-            need_level = self.config.script.message_level.save_image_level
-            if need_level < level:
-                logger.warning(f"级别不够，不保存图片")
-                # 级别不够，不保存图片，但仍然可以推送消息
-                if push_flag and content:
-                    self.push_notify(content=content, level=level)
-                return
-
             # 获取任务名称
             if task_name is None:
                 task_name = "task_name"
@@ -780,8 +771,13 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
 
             # 小号配置检查
-            if self.config.small_account.scheduler.enable:
-                filename = get_filename(self.config.small_account.small_account_config.account_name)
+            con = self.config.switch_account_config.config
+            if con.enable:
+                if not con.enable_save_image:
+                    logger.warning(f"未启用账号截图保存")
+                    return
+                name = con.account_name
+                filename = get_filename(name)
             else:
                 filename = get_filename(self.config.config_name.upper())
 
@@ -832,15 +828,10 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             self.push_notify(content=f"保存截图异常，{e}")
             logger.error(f"保存{task_name}截图异常，{e}")
 
-    def push_notify(self, content='', title=None, level=3):
+    def push_notify(self, content='', title=None):
 
         if content != '':
             logger.info(content)
-
-        need_level = self.config.script.message_level.push_notify_level
-        if need_level < level:
-            logger.warning(f"级别不够，不推送消息")
-            return
 
         # 处理title的逻辑优化
         if not title:
@@ -849,8 +840,12 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             else:
                 title = 'task_name'
 
-        if self.config.small_account.scheduler.enable:
-            name = self.config.small_account.small_account_config.account_name
+        con = self.config.switch_account_config.config
+        if con.enable:
+            if not con.enable_push_notify:
+                logger.warning(f"未启用账号消息推送")
+                return
+            name = con.account_name
             logger.info(f"已开启小号任务，并启用了小号通知，拼接[{name}]，准备发送通知")
             title = f"{name}▪{I18n.trans_zh_cn(title)}"
 
@@ -942,7 +937,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         if first_priority_task != current_task:
             logger.info(f"结束当前任务: {I18n.trans_zh_cn(current_task)}")
             logger.info(f"执行优先任务: {I18n.trans_zh_cn(first_priority_task)}")
-            self.save_image(task_name=current_task, content=f"执行优先任务: {I18n.trans_zh_cn(first_priority_task)}", push_flag=True , image_type=True, wait_time=0)
+            self.push_notify(content=f"执行优先任务: {I18n.trans_zh_cn(first_priority_task)}")
             from tasks.GameUi.game_ui import GameUi
             from tasks.GameUi.page import page_main
             GameUi = GameUi(self.config, self.device)
@@ -955,7 +950,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('du')
+    c = Config('4399')
     d = Device(c)
     t = BaseTask(c, d)
     # t.next_run_week(2)
