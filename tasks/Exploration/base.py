@@ -57,7 +57,6 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
 
         # 初始化 scene 变量
         scene = Scene.UNKNOWN
-        log_message = "UNKNOWN"
         if self.appear(self.I_CHECK_EXPLORATION) and not (self.appear(self.I_E_SETTINGS_BUTTON) or self.appear(self.I_E_AUTO_ROTATE_ON) or self.appear(self.I_E_AUTO_ROTATE_OFF)):
             scene = Scene.WORLD
             log_message = "在探索大世界中"
@@ -82,6 +81,8 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             self.ui_get_current_page()
             # 探索页面
             self.ui_goto(page_exploration)
+        else:
+            log_message = "未知"
 
         # 新增：判断日志是否重复，避免重复打印
         if log_message != self.last_scene_log:
@@ -118,10 +119,6 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             if con.buff_exp_100_click:
                 self.exp_100()
             self.close_buff()
-
-        self.ui_get_current_page()
-        # 探索页面
-        self.ui_goto(page_exploration)
 
     def post_process(self):
         self.wait_until_stable(self.I_UI_BACK_RED)

@@ -80,11 +80,11 @@ class SoloExploration(BaseExploration):
                     explore_init = True
                     continue
                 # 小纸人
-                if self.appear(self.I_BATTLE_REWARD):
-                    # if self.ui_get_reward(self.I_BATTLE_REWARD):
-                    logger.info('识别到小纸人')
-                    self.quit_explore()
-                    continue
+                # if self.appear(self.I_BATTLE_REWARD):
+                #     # if self.ui_get_reward(self.I_BATTLE_REWARD):
+                #     logger.info('识别到小纸人')
+                #     self.quit_explore()
+                #     continue
                 # boss
                 if self.appear(self.I_BOSS_BATTLE_BUTTON):
                     if self.fire(self.I_BOSS_BATTLE_BUTTON):
@@ -111,8 +111,6 @@ class SoloExploration(BaseExploration):
             #
             elif scene == Scene.BATTLE_PREPARE or scene == Scene.BATTLE_FIGHTING:
                 self.check_take_over_battle(is_screenshot=False, config=self._config.general_battle_config)
-            elif scene == Scene.UNKNOWN:
-                continue
 
     def run_leader(self):
         logger.hr('leader')
@@ -443,22 +441,6 @@ class SoloExploration(BaseExploration):
 class ScriptTask(SoloExploration):
     def run(self):
         logger.hr('exploration')
-        random_click_cnt = 0
-        # while 1:
-        #     self.screenshot()
-        #     scene = self.get_current_scene()
-        #     if random_click_cnt >= 2:
-        #         break
-        #     if scene == Scene.UNKNOWN:
-        #         logger.warning('Unknown scene, random click')
-        #         if self.click(self.C_SAFE_RANDOM, interval=1.5):
-        #             random_click_cnt += 1
-        #         continue
-        #     else:
-        #         break
-        #
-        # if scene == Scene.UNKNOWN:
-        #     pass
         # 换御魂
         self.pre_process()
         self.limit_count = self._config.exploration_config.minions_cnt
