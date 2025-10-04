@@ -193,8 +193,11 @@ class PlatformWindows(PlatformBase, EmulatorManager):
         """
         Start a emulator without error handling
         """
-        # show_window = not self.config.script.device.emulator_window_minimize and not self.config.script.device.run_background_only
-        show_window = False
+        emulator_window = self.config.script.device.emulator_window
+        if emulator_window == EmulatorWindow.default:
+            show_window = True
+        else:
+            show_window = False
         exe: str = instance.emulator.path
         logger.info(f"模拟器instance:{instance}")
 
