@@ -400,7 +400,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
             o_account = RuleOcr(roi=o_account_roi, area=o_account_roi, mode="Single", method="Default", keyword="账号", name="sa_select_svr_svr_list")
             o_password = RuleOcr(roi=o_password_roi, area=o_password_roi, mode="Single", method="Default", keyword="账号", name="sa_select_svr_svr_list")
 
-            logger.info(f"开始输入账号: {account}, 密码: {password}")
+            logger.info(f"开始输入账号: {account}")
 
             # 定位账号输入框并点击激活
             self.click(click_account)
@@ -410,7 +410,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
             self.ui_click_until_disappear(self.I_QD_CLEAR_ACCOUNT_INPUT)
 
             self.screenshot()
-            if o_account.ocr(self.device.image) != '请输入439':
+            if o_account.ocr(self.device.image) not in '请输入4399账号':
                 logger.info("账号输入框没清空")
                 continue
 
@@ -419,7 +419,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
             time.sleep(1)
 
             self.screenshot()
-            if o_account.ocr(self.device.image) != '请输入439':
+            if o_account.ocr(self.device.image) not in '请输入4399账号':
                 logger.info(f"账号输入成功")
             else:
                 logger.warning(f"账号输入失败")
@@ -433,7 +433,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
             self.ui_click_until_disappear(self.I_QD_CLEAR_PASSWORD_INPUT)
 
             self.screenshot()
-            if o_password.ocr(self.device.image) != '请输入密':
+            if o_password.ocr(self.device.image) not in '请输入密码':
                 logger.info("密码输入框没清空")
                 continue
 
@@ -442,7 +442,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
             time.sleep(1)
 
             self.screenshot()
-            if o_password.ocr(self.device.image) != '请输入密':
+            if o_password.ocr(self.device.image) not in '请输入密码':
                 logger.info(f"密码输入成功")
                 break
             else:
