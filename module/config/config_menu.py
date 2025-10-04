@@ -17,7 +17,7 @@ class ConfigMenu:
         self.menu["Overview"] = []
         self.menu['TaskList'] = []
         # 脚本设置
-        self.menu['Script'] = ['Script', 'Restart', 'GlobalGame', 'SmallAccount']
+        self.menu['Script'] = ['Script', 'Restart', 'GlobalGame']
         # 开发工具
         self.menu["Tools"] = ['Image Rule', 'Ocr Rule', 'Click Rule', 'Long Click Rule', 'Swipe Rule', 'List Rule']
 
@@ -42,6 +42,9 @@ class ConfigMenu:
         # 活动的任务
         self.menu["Activity Task"] = ['ActivityCommon', 'ActivityCommon2', 'AutoCake', 'ActivityShikigami', 'MetaDemon', 'FrogBoss', 'FloatParade', 'Quiz', 'KittyShop',
                                       'NianTrue']
+
+        # 账号切换
+        self.menu["SwitchAccount"] = ["SwitchAccountConfig", "SwitchAccountOnce", "SwitchAccountLoop"]
 
         self.menu["other"] = ['FallenSun', 'ExperienceYoukai', 'Nian', 'Delegation', 'Tako',  "EvoZone",   "Hyakkiyakou",
                               "HeroTest",  'MysteryShop', 'MainStory', 'BackUp']

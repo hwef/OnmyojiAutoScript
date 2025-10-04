@@ -1,23 +1,18 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from enum import Enum
-
-import json
-from module.logger import logger
 from datetime import datetime, timedelta
-from tasks.Component.SwitchAccount.switch_account import SwitchAccount
-from tasks.Component.SwitchAccount.switch_account_config import AccountInfo
-from module.exception import TaskEnd, SwitchAccountError
-from tasks.GameUi.game_ui import GameUi
-from tasks.SmallAccount.base_channel_task import BaseChannelTask, TaskType
+from enum import Enum
+from module.exception import TaskEnd
+from module.logger import logger
+from tasks.SwitchAccountOnce.base_channel_task import BaseChannelTask, TaskType
 
 """ 小号切换 """
 
 
 class ScriptTask(BaseChannelTask):
     # 跳过的任务
-    skip_task = ['Restart', 'BackUp']
+    skip_task = ['Restart', 'BackUp', 'SwitchAccountLoop']
     # 周任务只在周一 运行
     week_task = ['RichMan', 'WeeklyTrifles']
     # 限时任务 晚上7点后运行
@@ -63,15 +58,11 @@ class ScriptTask(BaseChannelTask):
         logger.info(f"[角色] {self.account_info}, 上次 [{self.task_type_name}] 完成时间: {taskCompleteTime}")
         self.switch_account(con, current_account_data, index, task_type)
         self.set_task(con, current_account_data, index, task_type)
-        self.set_next_run(task='SmallAccount', target=datetime.now() + timedelta(minutes=1))
-        raise TaskEnd('SmallAccount')
+        self.set_next_run(target=datetime.now() + timedelta(minutes=1))
+        raise TaskEnd
 
     def set_task(self, con, current_account_data, index, task_type):
         logger.info(f"[角色] {self.account_info}, 开始调起任务")
-
-        # 开启蹭卡
-        self.config.kekkai_utilize.utilize_config.utilize_enable = True
-        self.config.save()
 
         target_time = datetime(2000, 1, 1)
         match task_type:
@@ -90,19 +81,10 @@ class ScriptTask(BaseChannelTask):
             # 协站50任务
             case TaskType.assist50:
                 self._set_batch_tasks(self.assist50_run_task, target_time)
-                # 只做协站关闭蹭卡
-                self.config.kekkai_utilize.utilize_config.utilize_enable = False
-                self.config.save()
 
         # 设置总是运行的任务
         self._set_batch_tasks(self.always_run_task, target_time)
 
         # 更新数据和通知
-        self.update_account_data(con, current_account_data, index, task_type)
-        self.push_notify(content=f"{self.account_info} [{self.task_type_name}]创建")
-
-
-
-
-
-
+        self.update_account_data(con.once_config.accounts_file, current_account_data, index, task_type)
+        # self.push_notify(content=f"{self.account_info} [{self.task_type_name}]创建")

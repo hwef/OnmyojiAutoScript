@@ -7,6 +7,7 @@ from tasks.Component.SwitchAccount.switch_account import SwitchAccount
 from tasks.Component.SwitchAccount.switch_account_config import AccountInfo
 from module.exception import TaskEnd, SwitchAccountError
 from tasks.GameUi.game_ui import GameUi
+from tasks.SwitchAccountConfig.config import SwitchAccountConfig
 
 
 class TaskType(str, Enum):
@@ -17,6 +18,8 @@ class TaskType(str, Enum):
 
 
 class BaseChannelTask(GameUi):
+    switich_account_task_list = ["SwitchAccountOnce", "SwitchAccountLoop"]
+
     # 提取两个子类的共同方法
     def run_task(self, con, current_account_data, index, task_type):
         pass
@@ -42,42 +45,52 @@ class BaseChannelTask(GameUi):
         sa = SwitchAccount(self.config, self.device, toAccount)
         login = sa.switchAccount()
         if login:
-            con.small_account_config.account_name = account_info
+            self.config.switch_account_config.config.account_name = account_info
             self.config.save()
             logger.info(f"[角色] {account_info}, 切换完成")
         else:
-            self.update_account_data(con, current_account_data, index, task_type)
+            self.update_account_data(con.once_config.accounts_file, current_account_data, index, task_type)
             raise SwitchAccountError(f"[角色] {account_info}, 切换失败")
 
-    def update_account_data(self, con, current_account_data, account_index, task_type):
+    def update_account_data(self, accounts_file, current_account_data, account_index, task_type, datetoday=None):
         # 更新当前账号的完成时间
-        datetoday = datetime.now().strftime("%Y-%m-%d")
+        if datetoday is None:
+            datetoday = datetime.now().strftime("%Y-%m-%d")
         current_account_data[f"{task_type}"] = datetoday
 
         # 重新读取完整数据
-        accounts_file = con.small_account_config.accounts_file
-        with open(f'config/SmallAccount/{accounts_file}', 'r', encoding='utf-8') as file:
+        with open(f'config/SwitchAccount/{accounts_file}', 'r', encoding='utf-8') as file:
             all_accounts_data = json.load(file)
 
         # 更新指定索引位置的数据
         all_accounts_data[account_index] = current_account_data
 
         # 保存回文件
-        with open(f'config/SmallAccount/{accounts_file}', 'w', encoding='utf-8') as file:
+        with open(f'config/SwitchAccount/{accounts_file}', 'w', encoding='utf-8') as file:
             json.dump(all_accounts_data, file, ensure_ascii=False, indent=4)
 
-    def all_account_complete_task(self, con):
-        logger.hr("任务结束", 1)
-        con.small_account_config.account_name = "未知角色"
+    def update_all_account_data(self, accounts_file, all_accounts_data, task_type, datetoday=None):
+        # 更新当前账号的完成时间
+        if datetoday is None:
+            datetoday = datetime.now().strftime("%Y-%m-%d")
+
+        # 遍历所有账号数据，更新每个账号的指定任务类型时间
+        for account_data in all_accounts_data:
+            account_data[f"{task_type}"] = datetoday
+
+        # 保存回文件
+        with open(f'config/SwitchAccount/{accounts_file}', 'w', encoding='utf-8') as file:
+            json.dump(all_accounts_data, file, ensure_ascii=False, indent=4)
+
+    def set_wait_task_time(self):
+        self.config.switch_account_config.config.account_name = "未知角色"
         self.config.save()
 
         target_time = datetime(2099, 1, 1)
         for task in self.config.waiting_task:
+            if task.command in self.switich_account_task_list:
+                continue
             self.set_next_run(task=task.command, target=target_time)
-
-        self.set_next_run(task='SmallAccount', success=True, finish=True)
-        self.push_notify(content="✅ 所有角色任务均已完成")
-        raise TaskEnd('SmallAccount')
 
     def get_task_type_name(self, task_type: TaskType) -> str:
         mapping = {
@@ -95,15 +108,10 @@ class BaseChannelTask(GameUi):
             return  # 可以执行限时任务
 
         # 未到执行时间，设置等待
-        target_time = datetime(2099, 1, 1)
-        for task in self.config.waiting_task:
-            self.set_next_run(task=task.command, target=target_time)
-
-        self.config.small_account.small_account_config.account_name = "未知角色"
-        self.config.save()
+        self.set_wait_task_time()
         self.push_notify(content=f'[{task_type_name}]等待 {limit_hour}:00 运行')
-        self.set_next_run(task='SmallAccount', target=datetime.now().replace(hour=limit_hour, minute=0, second=0, microsecond=0))
-        raise TaskEnd('SmallAccount')
+        self.set_next_run(task=self.config.task.command, target=datetime.now().replace(hour=limit_hour, minute=0, second=0, microsecond=0))
+        raise TaskEnd
 
     def _set_batch_tasks(self, task_list, target_time):
         """批量设置任务执行时间"""

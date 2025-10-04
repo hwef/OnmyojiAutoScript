@@ -22,7 +22,8 @@ class ConfigManual:
         > Delegation > Hyakkiyakou
         > MysteryShop > Duel > MetaDemon > FrogBoss > FloatParade > Quiz > KittyShop > AutoCake
         > TalismanPass > MainStory
-        > SmallAccount
+        > SwitchAccountLoop
+        > SwitchAccountOnce
         """
 
     DEVICE_OVER_HTTP = False

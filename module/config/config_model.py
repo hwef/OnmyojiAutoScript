@@ -69,7 +69,10 @@ from tasks.GoryouRealm.config import GoryouRealm
 from tasks.Hyakkiyakou.config import Hyakkiyakou
 from tasks.HeroTest.config import HeroTest
 from tasks.MemoryScrolls.config import MemoryScrolls
-from tasks.SmallAccount.config import SmallAccount
+from tasks.SwitchAccountConfig.config import SwitchAccountConfig
+from tasks.SwitchAccountOnce.config import SwitchAccountOnce
+from tasks.SwitchAccountLoop.config import SwitchAccountLoop
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -133,8 +136,9 @@ class ConfigModel(ConfigBase):
     kitty_shop: KittyShop = Field(default_factory=KittyShop)
     nian_true: NianTrue = Field(default_factory=NianTrue)
     main_story: MainStory = Field(default_factory=MainStory)
-    small_account: SmallAccount = Field(default_factory=SmallAccount)
-
+    switch_account_config: SwitchAccountConfig = Field(default_factory=SwitchAccountConfig)
+    switch_account_once: SwitchAccountOnce = Field(default_factory=SwitchAccountOnce)
+    switch_account_loop: SwitchAccountLoop = Field(default_factory=SwitchAccountLoop)
 
     # 这些是肝帝专属
     bondling_fairyland: BondlingFairyland = Field(default_factory=BondlingFairyland)

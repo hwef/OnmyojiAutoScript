@@ -10,9 +10,9 @@ from tasks.Component.SwitchAccount.switch_account import SwitchAccount
 from tasks.Component.SwitchAccount.switch_account_config import AccountInfo
 from module.exception import TaskEnd, SwitchAccountError
 from tasks.GameUi.game_ui import GameUi
-from tasks.SmallAccount.channel4399 import ScriptTask as ScriptTask4399
-from tasks.SmallAccount.channelwy import ScriptTask as ScriptTaskWY
-from tasks.SmallAccount.base_channel_task import BaseChannelTask, TaskType
+from tasks.SwitchAccountOnce.channel4399 import ScriptTask as ScriptTask4399
+from tasks.SwitchAccountOnce.channelwy import ScriptTask as ScriptTaskWY
+from tasks.SwitchAccountOnce.base_channel_task import BaseChannelTask, TaskType
 
 
 """ 账号切换 """
@@ -25,7 +25,7 @@ class ScriptTask(BaseChannelTask):
         self.task_4399 = ScriptTask4399(self.config, self.device)
 
     def run(self):
-        con = self.config.small_account
+        con = self.config.switch_account_once
 
         # ===== 日常任务 =====
         self.run_start(con, TaskType.dailyTask)
@@ -40,14 +40,17 @@ class ScriptTask(BaseChannelTask):
         self.run_start(con, TaskType.limitTask)
 
         # 所有角色任务均已完成
-        self.all_account_complete_task(con)
+        self.set_wait_task_time()
+        self.set_next_run(task=self.config.task.command, success=True, finish=True)
+        self.push_notify(content="✅ 所有角色任务均已完成")
+        raise TaskEnd
         
     def run_start(self, con, task_type):
 
-        accounts_file = con.small_account_config.accounts_file
+        accounts_file = con.once_config.accounts_file
 
         # 加载所有账号数据
-        with open(f'config/SmallAccount/{accounts_file}', 'r', encoding='utf-8') as file:
+        with open(f'config/SwitchAccount/{accounts_file}', 'r', encoding='utf-8') as file:
             all_accounts_data = json.load(file)
 
         task_type_name = self.get_task_type_name(task_type)
@@ -73,7 +76,7 @@ def set_task_time(config):
     target_time = datetime(2099, 1, 1)
     for task in config.pending_task:
         config.task_delay(task=task.command, target=target_time)
-    config.task_delay(task="SmallAccount", target=datetime.now())
+    config.task_delay(task="SwitchAccountOnce", target=datetime.now())
 
 
 def switch_account(config, device):
