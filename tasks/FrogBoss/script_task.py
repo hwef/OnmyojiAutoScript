@@ -24,8 +24,11 @@ from tasks.FrogBoss.config import Strategy
 
 
 """对弈竞猜 呱老板"""
+
+
 class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
     betted_status = None
+
     def run(self):
         self.enter(self.I_FROG_BOSS_ENTER)
         time.sleep(3)
@@ -35,15 +38,14 @@ class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
 
             # 已经下注
             if self.appear(self.I_BETTED):
-                self.save_image(content=f'下注: {self.betted_status}，请查看截图', push_flag=True)
                 break
             # 休息中
             if self.appear(self.I_FROG_BOSS_REST):
-                self.save_image(content='休息中....', push_flag=True)
+                logger.info('休息中...')
                 break
             # 竞猜成功
             if self.appear(self.I_BET_SUCCESS):
-                logger.info('You bet win')
+                logger.info('上场竞猜成功')
                 self.detect()
                 while 1:
                     self.screenshot()
@@ -58,13 +60,14 @@ class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
                 continue
             # 竞猜失败
             if self.appear(self.I_BET_FAILURE):
-                logger.info('You bet lose')
+                logger.info('上场竞猜失败')
                 self.ui_click_until_disappear(self.I_NEXT_COMPETITION)
                 self.detect()
                 continue
             # 正式竞猜
             if self.appear(self.I_BET_LEFT) and self.appear(self.I_BET_RIGHT):
                 self.do_bet()
+                self.push_notify(content=f'已竞猜: {self.betted_status}')
                 continue
 
         logger.info('FrogBoss end')
@@ -187,7 +190,7 @@ class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
                 if 'result' in data and 'feeds' in data['result'] and len(data['result']['feeds']) > 0:
                     return data['result']['feeds'][0]['id']
             return None
-        
+
         # 获取 feed 详细信息的函数
         def get_feed_details(feed_id):
             url = f'https://inf.ds.163.com/v1/web/feed/basic/facade?feedId={feed_id}'
@@ -208,18 +211,18 @@ class ScriptTask(RightActivity, FrogBossAssets, GeneralBattleAssets):
                 except (KeyError, IndexError, json.JSONDecodeError):
                     return None
             return None
-        
+
         # 检查发布时间是否符合规则
         def is_time_valid(create_time):
             # 定义时间段
             valid_time_ranges = [(10, 12), (12, 14), (14, 16), (16, 18), (18, 20), (20, 22), (22, 24)]
             now = datetime.now()
             # now = datetime(year=2024, month=10, day=3, hour=19, minute=45, second=0)  # 指定时间读取历史文章
-            
+
             # 获取发布时间
             post_time = datetime.fromtimestamp(create_time / 1000)  # 假设 create_time 是毫秒级时间戳
             post_hour = post_time.hour
-            
+
             # 检查发布时间是否在有效时间段内
             for start, end in valid_time_ranges:
                 if start <= post_hour < end and start <= now.hour < end:
