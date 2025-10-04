@@ -159,7 +159,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AbyssShadowsAssets):
         self.device.stuck_record_add('BATTLE_STATUS_S')
         # 集结中图片
         logger.info(f"集结中,等待可进攻时间")
-        self.wait_until_disappear(self.I_WAIT_TO_START)
+        self.wait_until_appear(self.I_BATTLE_TO_START)
         self.device.stuck_record_clear()
 
         # 循环每个区域战斗

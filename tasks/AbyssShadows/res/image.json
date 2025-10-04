@@ -83,8 +83,8 @@
   {
     "itemName": "abyss_shadows",
     "imageName": "res_abyss_shadows.png",
-    "roiFront": "711,489,107,38",
-    "roiBack": "711,479,107,48",
+    "roiFront": "713,481,105,28",
+    "roiBack": "117,64,1031,611",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "寮-狭间暗域"
@@ -133,15 +133,6 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "前往"
-  },
-  {
-    "itemName": "change_area",
-    "imageName": "res_change_area.png",
-    "roiFront": "993,610,63,61",
-    "roiBack": "993,610,63,61",
-    "method": "Template matching",
-    "threshold": 0.8,
-    "description": "description"
   },
   {
     "itemName": "is_attack",
@@ -205,6 +196,15 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"
+  },
+  {
+    "itemName": "battle_to_start",
+    "imageName": "res_battle_to_start.png",
+    "roiFront": "588,64,70,26",
+    "roiBack": "588,64,70,26",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "进攻中"
   },
   {
     "itemName": "change_battle_level",
