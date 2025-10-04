@@ -34,5 +34,14 @@
   "method": "Template matching",
   "threshold": 0.8,
   "description": "源赖光御魂buff"
+  },
+  {
+    "itemName": "harvest_sign_999_11",
+    "imageName": "harvest_harvest_sign_999_11.png",
+    "roiFront": "347,466,23,18",
+    "roiBack": "215,409,449,121",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "源赖光福袋"
   }
 ]
