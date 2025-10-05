@@ -262,6 +262,15 @@ class DevTool(ctk.CTk):
             )
             self.mask_generator_button.grid(row=1, column=0, padx=10, pady=(5, 10), sticky="ew")
 
+        # 执行 assets_extract 按钮
+        self.assets_extract_button = ctk.CTkButton(
+            self.tools_tab,
+            text="执行 assets_extract",
+            width=260,
+            command=self.run_assets_extract
+        )
+        self.assets_extract_button.grid(row=2, column=0, padx=10, pady=(5, 10), sticky="ew")
+
         # 当前选中模板路径
         self.current_template_path = None
 
@@ -945,9 +954,6 @@ class DevTool(ctk.CTk):
     def open_mask_generator(self):
         """打开蒙版生成器"""
         try:
-            # 执行命令行启动mask_generator.py
-            import subprocess
-
             # 构建命令行参数
             python_executable = r"F:\Python3.10\VENV\Scripts\pythonw.exe"
             script_path = r"D:\OnmyojiAutoScript\ljxun\mask_generator.py"
@@ -957,6 +963,21 @@ class DevTool(ctk.CTk):
 
         except Exception as e:
             self.log_print(f"启动蒙版生成器时出错: {str(e)}")
+
+    def run_assets_extract(self):
+        """生成 assets"""
+        try:
+            # 构建命令行参数
+            python_executable = r"F:\Python3.10\VENV\Scripts\pythonw.exe"
+            script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets_extract.py")
+            self.log_print(script_path)
+
+            # 启动子进程
+            subprocess.Popen([python_executable, script_path])
+            self.log_print("执行 assets_extract 成功")
+
+        except Exception as e:
+            self.log_print(f"执行 assets_extract 出错: {str(e)}")
 
     def check_canvas_size(self):
         """检查画布实际尺寸"""
