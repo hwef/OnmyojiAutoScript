@@ -85,7 +85,7 @@ class ScriptTask(GameUi):
         else:
             raise SwitchAccountError(f"[角色] {account_info}, 切换失败")
 
-    def get_next_execution_times(self, start_hour=11, end_hour=23, interval_hours=2, execution_minute=30):
+    def get_next_execution_times(self, start_hour=7, end_hour=23, interval_hours=2, execution_minute=30):
         """
         获取下次执行时间，支持动态配置
         在指定时间范围内每隔interval_hours小时执行一次，执行时间为每个小时的execution_minute分钟
