@@ -12,10 +12,10 @@ import json
 def start_websocket(config_name, command: str = "start"):
 
     # 日志配置部分保持不变...
-    log_dir = rf".\log"
+    log_file = rf"D:\OnmyojiAutoScript\ljxun\log\log_{config_name}.log"
 
     # 配置日志：通过 handlers 实现文件+控制台输出
-    file_handler = logging.FileHandler(os.path.join(log_dir, f"log_{config_name}.log"))
+    file_handler = logging.FileHandler(log_file)
     stream_handler = logging.StreamHandler(sys.stdout)  # 输出到控制台
 
     logging.basicConfig(

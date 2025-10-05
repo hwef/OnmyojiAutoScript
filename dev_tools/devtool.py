@@ -956,7 +956,7 @@ class DevTool(ctk.CTk):
         try:
             # 构建命令行参数
             python_executable = r"F:\Python3.10\VENV\Scripts\pythonw.exe"
-            script_path = r"D:\OnmyojiAutoScript\ljxun\mask_generator.py"
+            script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mask_generator.py")
 
             # 启动子进程
             subprocess.Popen([python_executable, script_path])
