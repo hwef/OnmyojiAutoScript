@@ -212,20 +212,21 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
         # 延长时间并在战斗结束后改回来
         self.device.stuck_timer_long = Timer(480, count=480).start()
         config = self.con
-        self.run_general_battle(config)
-        self.device.stuck_timer_long = Timer(300, count=300).start()
-
-        # 等待回到挑战boss主界面
-        self.wait_until_appear(self.I_BOSS_GATHER)
         while 1:
-            self.screenshot()
-            if self.appear(self.I_DE_LOCATION):
-                break
-            if self.appear_then_click(self.I_UI_CONFIRM_SAMLL, interval=1):
-                continue
-            if self.appear_then_click(self.I_BOSS_BACK_WHITE, interval=1):
-                continue
-        # 返回到封魔主界面
+            if self.run_general_battle(config):
+                self.device.stuck_timer_long = Timer(300, count=300).start()
+
+                # 等待回到挑战boss主界面
+                self.wait_until_appear(self.I_BOSS_GATHER)
+                while 1:
+                    self.screenshot()
+                    if self.appear(self.I_DE_LOCATION):
+                        return
+                    if self.appear_then_click(self.I_UI_CONFIRM_SAMLL, interval=1):
+                        continue
+                    if self.appear_then_click(self.I_BOSS_BACK_WHITE, interval=1):
+                        continue
+                    # 返回到封魔主界面
 
     def execute_lantern(self):
         """
