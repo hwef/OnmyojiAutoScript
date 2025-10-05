@@ -61,15 +61,15 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
                 target = MC.GR3
                 target_1 = None
 
-        self.goto_cm_main()
+        remain = self.goto_cm_main()
 
         self.select_gr(target)
-        if not self._donate_all(0, target, 30):
+        if not self._donate_all(0, target, 1, remain):
             if target_1:
                 self.back_cm_main()
                 self.goto_cm_main()
                 self.select_gr(target_1)
-                self._donate_all(0, target_1, 90)
+                self._donate_all(0, target_1, 3, remain)
 
         self.ui_get_current_page()
         self.ui_goto(page_main)
@@ -101,6 +101,8 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
             self.ui_goto(page_main)
             # 设置任务结束
             self.next_run_task()
+        else:
+            return remain
 
     def back_cm_main(self):
         # 退出
@@ -120,7 +122,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
         self.ui_click(self.I_CM_SHRINE, self.I_CM_CM)
         self.ui_click(self.I_CM_CM, self.I_CM_RECORDS)
         logger.info('Start to detect missions')
-        self.check_cm_number()
+        return self.check_cm_number()
 
     def next_run_task(self):
         self.config.collective_missions.missions_config.task_date = str(datetime.now().date())
@@ -158,7 +160,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
             if self.appear_then_click(self.I_CM_FLUSH, interval=1):
                 time.sleep(1)  # 等待页面刷新完成（根据实际加载时间调整）
 
-    def _donate_all(self, index: int, target: str, num: int):
+    def _donate_all(self, index: int, target: str, num: int, incomplete_num: int):
         """
         捐赠材料
         :param index: 0, 1, 2 三个任务的位置
@@ -191,7 +193,8 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
                     max_number = total
                     max_index = i
             # 综合判断是否需要推送
-            if total_number < num:
+            self.screenshot()
+            if total_number < num * incomplete_num:
                 self.save_image(wait_time=0, push_flag=True, content=f'⚠️{target.value} 材料不足，总量剩余{total_number}')
                 return False
             else:
@@ -267,7 +270,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('switch')
+    c = Config('mi')
     d = Device(c)
     t = ScriptTask(c, d)
     t.screenshot()
