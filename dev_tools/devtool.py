@@ -190,6 +190,10 @@ class DevTool(ctk.CTk):
         )
         self.log_box.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew")
         
+        # 配置日志框的颜色标签
+        self.log_box.tag_config("success", foreground="#48BB31")  # 绿色
+        self.log_box.tag_config("error", foreground="#FF4136")    # 红色
+        
         # 在模板匹配选项卡中添加控件
         if MODULE_AVAILABLE:
             # 匹配方式选择标签和下拉框
@@ -288,8 +292,11 @@ class DevTool(ctk.CTk):
 
         # 移除重复的画布尺寸设置
 
-    def log_print(self, text):
-        self.log_box.insert("end", f"{text}\n")
+    def log_print(self, text, color=None):
+        if color:
+            self.log_box.insert("end", f"{text}\n", color)
+        else:
+            self.log_box.insert("end", f"{text}\n")
         self.log_box.update()
         self.log_box.see("end")
 
@@ -341,7 +348,7 @@ class DevTool(ctk.CTk):
 
             # 检查图片是否存在
             if self.np_image is None:
-                self.log_print("无法读取图片文件")
+                self.log_print("无法读取图片文件", "error")
                 return
 
             # 检查图片尺寸
@@ -371,7 +378,7 @@ class DevTool(ctk.CTk):
                 self.draw_rectangle()
 
         except Exception as e:
-            self.log_print(f"加载图片时出错: {e}")
+            self.log_print(f"加载图片时出错: {e}", "error")
 
     @property
     def coordinates(self):
@@ -388,7 +395,7 @@ class DevTool(ctk.CTk):
         img_name = self.name
         # 检查文件名是否合法
         if not img_name or not img_name.strip():
-            self.log_print("图片名称不能为空")
+            self.log_print("图片名称不能为空", "error")
             return
         # if not re.match(r"^[\w\-. ]+$", img_name):
         #     self.log_print("图片名称含有非法字符")
@@ -396,7 +403,7 @@ class DevTool(ctk.CTk):
 
         # 检查目录是否存在
         if not os.path.exists(base_path):
-            self.log_print("保存路径不存在")
+            self.log_print("保存路径不存在", "error")
             return
         timestamp = datetime.now().strftime("%H%M%S")
         path = os.path.relpath(base_path, start=os.curdir) + "/" + img_name + f"_{timestamp}.png"  # 保存路径x
@@ -408,13 +415,13 @@ class DevTool(ctk.CTk):
 
         # 检查是否已加载图片
         if self.np_image is None:
-            self.log_print("请先加载图片")
+            self.log_print("请先加载图片", "error")
             return
 
         # 检查是否已选择有效区域
         x1, y1, x2, y2 = self.coordinates
         if not (x1 != x2 and y1 != y2):  # 检查是否已选择区域
-            self.log_print("请先选择要保存的区域")
+            self.log_print("请先选择要保存的区域", "error")
             return
 
         # 获取保存名称输入框的内容作为文件名
@@ -426,7 +433,7 @@ class DevTool(ctk.CTk):
             if base_name:
                 save_name = f"{base_name}_1"
             else:
-                self.log_print("保存图片的名字不能为空")
+                self.log_print("保存图片的名字不能为空", "error")
                 return
 
         path = os.path.join(self.folder_path_entry.get(), f"{save_name}.png")
@@ -442,7 +449,7 @@ class DevTool(ctk.CTk):
             # self.deiconify()  # 恢复主窗口
 
             if not result:  # 用户选择否，取消保存
-                self.log_print("取消保存操作")
+                self.log_print("取消保存操作", "error")
                 return
             else:  # 用户选择是，覆盖文件
                 self.log_print(f"将覆盖文件: {save_name}.png")
@@ -451,16 +458,16 @@ class DevTool(ctk.CTk):
             x1, y1, x2, y2 = self.coordinates
             # 检查裁剪框的有效性
             if not (0 <= x1 < x2 <= self.np_image.shape[1] and 0 <= y1 < y2 <= self.np_image.shape[0]):
-                self.log_print("裁剪框的坐标无效")
+                self.log_print("裁剪框的坐标无效", "error")
                 return
             try:
                 cropped_image = self.np_image[y1 - 4 : y2 - 4, x1 - 4 : x2 - 4]
                 cv2.imencode(".png", cropped_image)[1].tofile(path)
-                self.log_print(f"{save_name}.png 保存成功")
+                self.log_print(f"{save_name}.png 保存成功", "success")
                 # 新增：保存图片信息到 image.json
                 self.save_image_info(save_name, path, x1, y1, x2, y2)
             except Exception as e:
-                self.log_print(f"保存图像时出错: {e}")
+                self.log_print(f"保存图像时出错: {e}", "error")
 
     def save_image_info(self, save_name, path, x1, y1, x2, y2):
         """保存图片信息到 image.json"""
@@ -536,9 +543,9 @@ class DevTool(ctk.CTk):
                     f.write(str(self._img_info) + "\n")  # 写入内容
                     self.log_print("写入文件成功")
             else:
-                self.log_print("没有图像信息或图像名称")
+                self.log_print("没有图像信息或图像名称", "error")
         except Exception as e:
-            self.log_print(f"写入文件时出错: {e}")
+            self.log_print(f"写入文件时出错: {e}", "error")
 
     def in_canvas(self, event):
         self.mouse_is_in_canvas = True
@@ -702,15 +709,15 @@ class DevTool(ctk.CTk):
     def perform_ocr(self):
         """执行OCR识别"""
         if not MODULE_AVAILABLE:
-            self.log_print("项目模块不可用，无法执行OCR")
+            self.log_print("项目模块不可用，无法执行OCR", "error")
             return
             
         if self.np_image is None:
-            self.log_print("请先加载图片")
+            self.log_print("请先加载图片", "error")
             return
 
         if not self.is_rect_valid():
-            self.log_print("请先选择有效区域")
+            self.log_print("请先选择有效区域", "error")
             return
 
         try:
@@ -724,7 +731,7 @@ class DevTool(ctk.CTk):
             y1, y2 = sorted([y1, y2])
             
             if x1 < 0 or y1 < 0 or x2 > self.np_image.shape[1] or y2 > self.np_image.shape[0]:
-                self.log_print("选区超出图片范围")
+                self.log_print("选区超出图片范围", "error")
                 return
                 
             # 创建RuleOcr对象
@@ -748,16 +755,16 @@ class DevTool(ctk.CTk):
             else:
                 self.ocr_result_textbox.delete("0.0", "end")
                 self.ocr_result_textbox.insert("0.0", "未识别到文本")
-                self.log_print("OCR未识别到文本")
+                self.log_print("OCR未识别到文本", "error")
                 
         except Exception as e:
-            self.log_print(f"OCR执行出错: {str(e)}")
+            self.log_print(f"OCR执行出错: {str(e)}", "error")
 
     # 新增功能：选择模板
     def select_template(self):
         """选择模板图片"""
         if not MODULE_AVAILABLE:
-            self.log_print("项目模块不可用")
+            self.log_print("项目模块不可用", "error")
             return
             
         template_path = filedialog.askopenfilename(
@@ -794,11 +801,11 @@ class DevTool(ctk.CTk):
     def perform_template_match(self):
         """执行模板匹配"""
         if not MODULE_AVAILABLE:
-            self.log_print("项目模块不可用，无法执行模板匹配")
+            self.log_print("项目模块不可用，无法执行模板匹配", "error")
             return
             
         if self.np_image is None:
-            self.log_print("请先加载图片")
+            self.log_print("请先加载图片", "error")
             return
 
         # 获取当前选择的匹配方式
@@ -806,11 +813,11 @@ class DevTool(ctk.CTk):
         
         if match_method == "图片匹配":
             if not self.current_template_path:
-                self.log_print("请先选择模板图片")
+                self.log_print("请先选择模板图片", "error")
                 return
 
             if not self.is_rect_valid():
-                self.log_print("请先选择有效区域")
+                self.log_print("请先选择有效区域", "error")
                 return
             try:
                 # 获取选区坐标
@@ -823,7 +830,7 @@ class DevTool(ctk.CTk):
                 y1, y2 = sorted([y1, y2])
 
                 if x1 < 0 or y1 < 0 or x2 > self.np_image.shape[1] or y2 > self.np_image.shape[0]:
-                    self.log_print("选区超出图片范围")
+                    self.log_print("选区超出图片范围", "error")
                     return
 
                 # 获取当前阈值
@@ -833,7 +840,7 @@ class DevTool(ctk.CTk):
                 self._perform_image_match(x1, y1, x2, y2, threshold)
 
             except Exception as e:
-                self.log_print(f"模板匹配执行出错: {str(e)}")
+                self.log_print(f"模板匹配执行出错: {str(e)}", "error")
 
         else:
             # 执行RuleImage匹配逻辑
@@ -875,35 +882,35 @@ class DevTool(ctk.CTk):
                 # 提取roi_front
                 roi_front_match = re.search(r'roi_front=\(([^)]+)\)', params_str)
                 if not roi_front_match:
-                    self.log_print("roi_front参数格式不正确")
+                    self.log_print("roi_front参数格式不正确", "error")
                     return  # 匹配失败，直接返回
                 roi_front = tuple(map(int, roi_front_match.group(1).split(',')))
 
                 # 提取roi_back
                 roi_back_match = re.search(r'roi_back=\(([^)]+)\)', params_str)
                 if not roi_back_match:
-                    self.log_print("roi_back参数格式不正确")
+                    self.log_print("roi_back参数格式不正确", "error")
                     return  # 匹配失败，直接返回
                 roi_back = tuple(map(int, roi_back_match.group(1).split(',')))
 
                 # 提取threshold
                 threshold_match = re.search(r'threshold=([\d.]+)', params_str)
                 if not threshold_match:
-                    self.log_print("threshold参数格式不正确")
+                    self.log_print("threshold参数格式不正确", "error")
                     return  # 匹配失败，直接返回
                 threshold = float(threshold_match.group(1))
 
                 # 提取method
                 method_match = re.search(r'method=([\'"])([^\'"]+)\1', params_str)
                 if not method_match:
-                    self.log_print("method参数格式不正确")
+                    self.log_print("method参数格式不正确", "error")
                     return  # 匹配失败，直接返回
                 method = method_match.group(2)
 
                 # 提取file
                 file_match = re.search(r'file=([\'"])([^\'"]+)\1', params_str)
                 if not file_match:
-                    self.log_print("file参数格式不正确")
+                    self.log_print("file参数格式不正确", "error")
                     return  # 匹配失败，直接返回
                 file = file_match.group(2)
 
@@ -918,10 +925,10 @@ class DevTool(ctk.CTk):
 
                 self._perform_match(template_rule)
             else:
-                self.log_print("RuleImage参数格式不正确")
+                self.log_print("RuleImage参数格式不正确", "error")
 
         except Exception as e:
-            self.log_print(f"RuleImage参数解析出错: {str(e)}")
+            self.log_print(f"RuleImage参数解析出错: {str(e)}", "error")
 
     def _perform_match(self, template_rule):
         try:
@@ -947,9 +954,9 @@ class DevTool(ctk.CTk):
                 self.log_print(f"RuleImage匹配成功: {roi}")
             else:
                 self.screen_canvas.delete("match_result")
-                self.log_print("RuleImage匹配失败")
+                self.log_print("RuleImage匹配失败", "error")
         except Exception as e:
-            self.log_print(f"RuleImage匹配执行出错: {str(e)}")
+            self.log_print(f"RuleImage匹配执行出错: {str(e)}", "error")
 
     def open_mask_generator(self):
         """打开蒙版生成器"""
@@ -962,7 +969,7 @@ class DevTool(ctk.CTk):
             subprocess.Popen([python_executable, script_path])
 
         except Exception as e:
-            self.log_print(f"启动蒙版生成器时出错: {str(e)}")
+            self.log_print(f"启动蒙版生成器时出错: {str(e)}", "error")
 
     def run_assets_extract(self):
         """生成 assets"""
@@ -970,14 +977,13 @@ class DevTool(ctk.CTk):
             # 构建命令行参数
             python_executable = r"F:\Python3.10\VENV\Scripts\pythonw.exe"
             script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets_extract.py")
-            self.log_print(script_path)
 
             # 启动子进程
             subprocess.Popen([python_executable, script_path])
-            self.log_print("执行 assets_extract 成功")
+            self.log_print("执行 assets_extract 成功", "success")
 
         except Exception as e:
-            self.log_print(f"执行 assets_extract 出错: {str(e)}")
+            self.log_print(f"执行 assets_extract 出错: {str(e)}", "error")
 
     def check_canvas_size(self):
         """检查画布实际尺寸"""
