@@ -96,8 +96,8 @@
     "general_battle": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -186,8 +186,8 @@
     "general_battle_config": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -219,8 +219,8 @@
     "general_battle_config": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -247,6 +247,7 @@
       "select_friend_list": "same_server",
       "shikigami_class": "N",
       "shikigami_order": 4,
+      "utilize_enable": true,
       "guild_ap_enable": true,
       "guild_assets_enable": true,
       "box_ap_enable": true,
@@ -265,6 +266,8 @@
     },
     "activation_config": {
       "card_type": "太鼓",
+      "min_taiko_num": 8,
+      "min_fish_num": 16,
       "exchange_before": true,
       "exchange_max": true,
       "shikigami_class": "N",
@@ -327,11 +330,13 @@
     "trifles_config": {
       "one_summon": false,
       "summon_type": "普通召唤",
+      "broken_amulet": 0,
       "guild_wish": false,
       "friend_love": false,
       "luck_msg": false,
       "store_sign": false,
-      "buy_sushi_count": -1
+      "buy_sushi_count": -1,
+      "recruit_members": false
     }
   },
   "talisman_pass": {
@@ -430,8 +435,8 @@
     "general_battle_config": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -523,8 +528,8 @@
     "general_battle_config": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -558,8 +563,8 @@
     "general_battle_config": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -598,8 +603,8 @@
     "general_battle_config": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -630,8 +635,8 @@
     "general_battle_config": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -700,8 +705,8 @@
     "general_battle": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -715,6 +720,29 @@
     }
   },
   "activity_common": {
+    "scheduler": {
+      "enable": false,
+      "next_run": "2023-01-01 00:00:00",
+      "priority": 5,
+      "success_interval": "01 00:00:00",
+      "failure_interval": "01 00:00:00",
+      "server_update": "09:00:00"
+    },
+    "activity_common_config": {
+      "enable": false,
+      "limit_count": 200,
+      "limit_time": "00:30:00",
+      "active_souls_clean": false
+    },
+    "switch_soul_config": {
+      "enable": false,
+      "switch_group_team": "-1,-1",
+      "enable_switch_by_name": false,
+      "group_name": "",
+      "team_name": ""
+    }
+  },
+  "activity_common_2": {
     "scheduler": {
       "enable": false,
       "next_run": "2023-01-01 00:00:00",
@@ -856,7 +884,15 @@
     },
     "main_story_config": {}
   },
-  "small_account": {
+  "switch_account_config": {
+    "config": {
+      "enable": false,
+      "account_name": "未知账号",
+      "enable_push_notify": false,
+      "enable_save_image": false
+    }
+  },
+  "switch_account_once": {
     "scheduler": {
       "enable": false,
       "next_run": "2023-01-01 00:00:00",
@@ -865,10 +901,21 @@
       "failure_interval": "01 00:00:00",
       "server_update": "09:00:00"
     },
-    "small_account_name": {
-      "enable_notify": false,
-      "enable_save_img": false,
-      "account_name": "未知账号"
+    "once_config": {
+      "accounts_file": ""
+    }
+  },
+  "switch_account_loop": {
+    "scheduler": {
+      "enable": false,
+      "next_run": "2023-01-01 00:00:00",
+      "priority": 5,
+      "success_interval": "01 00:00:00",
+      "failure_interval": "01 00:00:00",
+      "server_update": "09:00:00"
+    },
+    "loop_config": {
+      "accounts_file": ""
     }
   },
   "bondling_fairyland": {
@@ -948,8 +995,8 @@
     "general_battle_config": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -980,8 +1027,8 @@
     "general_battle_config": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -1050,8 +1097,8 @@
     "general_battle": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -1210,8 +1257,8 @@
     "general_battle": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -1284,6 +1331,9 @@
       "green_enable": false,
       "green_mark": "green_left1"
     },
+    "switch_week": {
+      "next_week_day": "周一"
+    },
     "duel_celeb_config": {
       "celeb_battle": false,
       "ban_name": ""
@@ -1320,9 +1370,15 @@
       "failure_interval": "01 00:00:00",
       "server_update": "09:00:00"
     },
-    "hunt_config": {
-      "kirin_group_team": "-1,-1",
-      "netherworld_group_team": "-1,-1"
+    "kirin_config": {
+      "enable": false,
+      "preset_enable": false,
+      "switch_group_team": "-1,-1"
+    },
+    "nether_world_config": {
+      "enable": false,
+      "preset_enable": false,
+      "switch_group_team": "-1,-1"
     }
   },
   "dokan": {
@@ -1344,8 +1400,8 @@
     "general_battle_config": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -1377,8 +1433,8 @@
     "general_battle_config": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
@@ -1406,8 +1462,8 @@
     "general_battle": {
       "lock_team_enable": false,
       "preset_enable": false,
-      "preset_group": 1,
-      "preset_team": 1,
+      "preset_group": -1,
+      "preset_team": -1,
       "green_enable": false,
       "green_mark": "green_left1",
       "random_click_swipt_enable": false
