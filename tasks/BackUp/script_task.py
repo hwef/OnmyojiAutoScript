@@ -8,7 +8,7 @@ import shutil
 from datetime import datetime
 
 from module.exception import TaskEnd
-from module.logger import logger, log_path, log_names, backup_path, week_path, delete_path, old_path, error_path
+from module.logger import logger, log_path, ignore_log_names, backup_path, week_path, delete_path, old_path, error_path
 from tasks.base_task import BaseTask
 from deploy.git import GitManager
 """ 备份日志 """
@@ -69,7 +69,7 @@ class ScriptTask(BaseTask):
             files = [f for f in files if not f.startswith('.')]
 
             for file_name in files:
-                if file_name.split('.')[0] in log_names or file_name == 'server.log':
+                if file_name.split('.')[0] in ignore_log_names or file_name == 'server.log':
                     logger.warning(f'Skip [{file_name}]')
                     continue
                 file_path = os.path.join(root, file_name)
