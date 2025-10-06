@@ -21,6 +21,7 @@ from module.atom.image import RuleImage
 from module.atom.click import RuleClick
 
 """个人突破"""
+
 class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
     medal_grid: ImageGrid = None
 
@@ -137,6 +138,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
         # 更改循环顺序
         while 1:
             self.screenshot()
+            self._check_first_priority_task()
             # 检查票数
             if not self.check_ticket(con.raid_config.number_base):
                 break
