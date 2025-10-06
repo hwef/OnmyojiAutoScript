@@ -38,6 +38,7 @@ except ImportError:
     MASK_GENERATOR_AVAILABLE = False
     print("无法导入蒙版生成器模块")
 
+
 class DevTool(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -290,7 +291,6 @@ class DevTool(ctk.CTk):
         self.new_rect_start_x = 0  # 新矩形的起始点x坐标
         self.new_rect_start_y = 0  # 新矩形的起始点y坐标
 
-        # 移除重复的画布尺寸设置
 
     def log_print(self, text, color=None):
         if color:
@@ -353,7 +353,7 @@ class DevTool(ctk.CTk):
 
             # 检查图片尺寸
             if self.np_image.shape[1] != 1280 or self.np_image.shape[0] != 720:
-                self.log_print(f"警告: 图片尺寸为 {self.np_image.shape[1]}x{self.np_image.shape[0]}，不是1280x720")
+                self.log_print(f"警告: 图片尺寸为 {self.np_image.shape[1]}x{self.np_image.shape[0]}，不是1280x720", "error")
 
             # 转换为PIL Image并显示
             pil_image = Image.fromarray(cv2.cvtColor(self.np_image, cv2.COLOR_BGR2RGB))
@@ -397,9 +397,6 @@ class DevTool(ctk.CTk):
         if not img_name or not img_name.strip():
             self.log_print("图片名称不能为空", "error")
             return
-        # if not re.match(r"^[\w\-. ]+$", img_name):
-        #     self.log_print("图片名称含有非法字符")
-        #     return
 
         # 检查目录是否存在
         if not os.path.exists(base_path):
@@ -648,12 +645,6 @@ class DevTool(ctk.CTk):
         x1, y1, x2, y2 = self.coordinates
         self.rect_info.delete(0, "end")
         self.rect_info.insert(0, f"{x1-4},{y1-4},{x2-x1},{y2-y1}")
-        # self.img_info.delete(0, "end")
-        # self.img_info.insert(0, f"{self.format_img('image')}")
-        # self.page_info.delete(0, "end")
-        # self.page_info.insert(0, f"{self.format_img('page')}")
-        # self.click_info.delete(0, "end")
-        # self.click_info.insert(0, f"{self.format_img('coor')}")
 
     def draw_rectangle(self):
         self.screen_canvas.delete("rect")
@@ -858,7 +849,6 @@ class DevTool(ctk.CTk):
         )
         print(f"Template matching: {template_rule.roi_front}")
         self._perform_match(template_rule)
-
 
     def _perform_ruleimage_match(self):
         """执行RuleImage匹配"""
