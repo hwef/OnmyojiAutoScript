@@ -300,11 +300,14 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
         click_rcl_count = 0
         while True:
             self.screenshot()
-            if click_failure_count >= 2 and self.appear(self.I_TOPPA_RECORD):
-                # 在点击进攻后如果未进入战斗画面则点击的安全区域
-                logger.warning("2次点击进攻后, 未进入战斗, 点击的安全区域")
-                self.click(self.C_SAFE_AREA)
-                return False
+            if click_failure_count >= 2:
+                time.sleep(1)
+                self.screenshot()
+                if self.appear(self.I_TOPPA_RECORD):
+                    # 在点击进攻后如果未进入战斗画面则点击的安全区域
+                    logger.warning("2次点击进攻后, 未进入战斗, 点击的安全区域")
+                    self.click(self.C_SAFE_AREA)
+                    return False
             if not self.appear(self.I_TOPPA_RECORD, threshold=0.85):
                 time.sleep(1)
                 self.screenshot()
