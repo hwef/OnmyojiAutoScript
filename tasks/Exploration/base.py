@@ -7,6 +7,7 @@ import random
 from enum import Enum
 from cached_property import cached_property
 from datetime import timedelta, datetime
+from module.atom.click import RuleClick
 
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.Component.GeneralRoom.general_room import GeneralRoom
@@ -24,6 +25,8 @@ from module.logger import logger
 from module.exception import RequestHumanTakeover, TaskEnd
 from module.atom.image_grid import ImageGrid
 from module.base.utils import load_image
+from tasks.Exploration.config import ExplorationLevel
+
 
 class Scene(Enum):
     UNKNOWN = 0  #
@@ -35,11 +38,9 @@ class Scene(Enum):
     TEAM = 6  # 组队
 
 
-
-
 class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigami, GameUi, SwitchSoul, ExplorationAssets):
-    minions_cnt = 0
     last_scene_log = None  # 新增：用于缓存上一次的日志内容
+
     @cached_property
     def _config(self):
         self.config.exploration.general_battle_config.lock_team_enable = True
@@ -136,19 +137,22 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         raise TaskEnd
 
     # 打开指定的章节：
-    def open_expect_level(self):
+    def open_expect_level(self, goal_level):
         swipeCount = 0
         while 1:
-            # 探索的 config
-            explorationConfig = self.config.exploration
-
             # 判断有无目标章节
             self.screenshot()
             # 获取当前章节名
             results = self.O_E_EXPLORATION_LEVEL_NUMBER.detect_and_ocr(self.device.image)
             text1 = [result.ocr_text for result in results]
+            logger.info(f"当前章节: {text1}")
+            logger.info(f"目标章节: {goal_level}")
+
+            # 判断目标章节与当前章节的相对位置
+            should_swipe_up = self._should_swipe_up(text1, goal_level)
+
             # 判断当前章节有无目标章节
-            result = set(text1).intersection({explorationConfig.exploration_config.exploration_level})
+            result = set(text1).intersection({goal_level})
             # 有则跳出检测
             if self.appear(self.I_E_EXPLORATION_CLICK) or result and len(result) > 0:
                 break
@@ -157,7 +161,13 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             if self.appear_then_click(self.I_UI_CONFIRM_SAMLL, interval=1):
                 continue
             self.device.click_record_clear()
-            self.swipe(self.S_SWIPE_LEVEL_UP)
+
+            # 根据判断结果决定滑动方向
+            if should_swipe_up:
+                self.swipe(self.S_SWIPE_LEVEL_UP)
+            else:
+                self.swipe(self.S_SWIPE_LEVEL_DOWN)
+
             swipeCount += 1
             if swipeCount >= 25:
                 return False
@@ -169,8 +179,15 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
                 continue
             if self.appear_then_click(self.I_UI_CONFIRM_SAMLL, interval=1):
                 continue
-            self.O_E_EXPLORATION_LEVEL_NUMBER.keyword = explorationConfig.exploration_config.exploration_level
-            if self.ocr_appear_click(self.O_E_EXPLORATION_LEVEL_NUMBER):
+            self.O_E_EXPLORATION_LEVEL_NUMBER.keyword = goal_level
+            if self.O_E_EXPLORATION_LEVEL_NUMBER.ocr(self.device.image):
+                logger.info(f"已找到目标章节: {goal_level} {self.O_E_EXPLORATION_LEVEL_NUMBER.area}")
+                x = self.O_E_EXPLORATION_LEVEL_NUMBER.area[0]
+                y = self.O_E_EXPLORATION_LEVEL_NUMBER.area[1]
+                w = self.O_E_EXPLORATION_LEVEL_NUMBER.area[2]
+                h = self.O_E_EXPLORATION_LEVEL_NUMBER.area[3]
+                CLICK_TMP = RuleClick(roi_front=(x,y+30,w,h), roi_back=(x,y+30,w,h), name="CLICK_TMP")
+                self.click(CLICK_TMP)
                 self.wait_until_appear(self.I_E_EXPLORATION_CLICK, wait_time=3)
             if self.appear(self.I_E_EXPLORATION_CLICK):
                 break
@@ -356,7 +373,7 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         # 判断是否开启绘卷模式
         if not self._config.scrolls.scrolls_enable:
             # True 表示要退出这个任务
-            if self.minions_cnt >= self._config.exploration_config.minions_cnt:
+            if self.current_count >= self.limit_count:
                 logger.info('探索次数已到, 结束探索任务')
                 return True
             if datetime.now() - self.start_time >= self.limit_time:
@@ -391,7 +408,6 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             logger.warning('Fire button disappear, but still in exploration')
             return False
         self.run_general_battle(self._config.general_battle_config)
-        self.minions_cnt += 1
         return True
 
     def get_box(self):
@@ -403,6 +419,38 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             # 宝箱
             logger.info('Treasure box appear, get it.')
             self.ui_click_until_disappear(self.I_TREASURE_BOX_CLICK)
+
+    def _should_swipe_up(self, current_levels, target_level):
+        """
+        判断是否需要向上滑动
+        小章节在上面，大章节在下面
+        """
+        # 获取所有章节列表
+        exploration_levels = list(ExplorationLevel)
+
+        # 找到目标章节在枚举中的索引
+        target_index = -1
+        for i, level in enumerate(exploration_levels):
+            if level.value == target_level:
+                target_index = i
+                break
+
+        if target_index == -1:
+            return True  # 无法找到目标章节，默认向上滑动
+
+        # 检查当前显示的章节
+        for current_level in current_levels:
+            # 找到当前章节在枚举中的索引
+            for i, level in enumerate(exploration_levels):
+                if level.value == current_level:
+                    # 如果当前显示的章节索引大于目标章节索引
+                    # 说明目标章节在上方，需要向上滑动
+                    if i > target_index:
+                        return True
+                    break
+
+        # 默认向下滑动（目标章节在下方）
+        return False
 
 if __name__ == "__main__":
     from module.config.config import Config

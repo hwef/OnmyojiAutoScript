@@ -6,15 +6,19 @@ from cached_property import cached_property
 
 from module.logger import logger
 from module.base.timer import Timer
-
+from module.exception import TaskEnd
 
 from tasks.Component.GeneralInvite.config_invite import InviteConfig, InviteNumber, FindMode
 from tasks.Exploration.base import BaseExploration, UpType, Scene
 from tasks.Exploration.config import ChooseRarity, AutoRotate, UserStatus
+from module.atom.image_grid import ImageGrid
+from tasks.Exploration.config import ExplorationLevel
+from datetime import timedelta, datetime
 
 class SoloExploration(BaseExploration):
     INVITE_FLAG_OFF = (157, 109, 83)
     INVITE_FLAG_ON = (227, 193, 153)
+    goal_level = ""
 
     @cached_property
     def _invite_config(self) -> InviteConfig:
@@ -32,6 +36,9 @@ class SoloExploration(BaseExploration):
         explore_init = False
         search_fail_cnt = 0
         atuo_rotate_on = self.config.exploration.exploration_config.atuo_rotate_on
+        self.goal_level = self.config.exploration.exploration_config.exploration_level
+        self.limit_count = self._config.exploration_config.minions_cnt
+        open_expect_level = False
         while 1:
             self.screenshot()
 
@@ -48,15 +55,20 @@ class SoloExploration(BaseExploration):
                 if self.check_exit():
                     break
                 # 打开指定的章节：
-                self.open_expect_level()
+                self.open_expect_level(self.goal_level)
+                open_expect_level = True
                 continue
-            #
+
             elif scene == Scene.ENTRANCE:
                 # 判断是否有更高优先级任务，去执行新任务
                 self._check_first_priority_task()
                 if self.check_exit():
                     break
-                self.ui_click(self.I_E_EXPLORATION_CLICK, stop=self.I_E_SETTINGS_BUTTON)
+                if open_expect_level:
+                    self.ui_click(self.I_SMALL_HARD, stop=self.I_BIG_HARD)
+                    self.ui_click(self.I_E_EXPLORATION_CLICK, stop=self.I_E_SETTINGS_BUTTON)
+                else:
+                    self.appear_then_click(self.I_UI_BACK_RED)
                 continue
             #
             elif scene == Scene.MAIN:
@@ -437,13 +449,50 @@ class SoloExploration(BaseExploration):
 
         return True
 
+    def get_next_exploration_level(self):
+        """
+        获取下一个探索章节
+        """
+        current_level = self.goal_level
+        # 获取所有章节列表
+        levels = list(ExplorationLevel)
+
+        # 找到当前章节的索引
+        current_index = levels.index(current_level)
+
+        # 如果是最后一个章节，则返回None表示结束
+        if current_index == len(levels) - 1:
+            logger.warning('已经是最后一章，结束任务')
+            self.set_next_run(success=True, finish=True)
+            raise TaskEnd
+
+        # 返回下一个章节
+        next_index = current_index + 1
+        if levels[next_index]=="第十三章":
+            logger.warning('已经是最后一章，结束任务')
+            self.set_next_run(success=True, finish=True)
+            raise TaskEnd
+        return levels[next_index]
+
+    def next_level(self):
+        """
+        打开下一个探索章节
+        """
+        next_level = self.get_next_exploration_level()
+        logger.info(f"切换到下一个章节: {next_level.value}")
+
+        # 更新配置中的章节
+        self.goal_level = next_level
+
+        self.current_count = 0
+        self.start_time = datetime.now()
+
 
 class ScriptTask(SoloExploration):
     def run(self):
         logger.hr('exploration')
         # 换御魂
         self.pre_process()
-        self.limit_count = self._config.exploration_config.minions_cnt
         match self._config.exploration_config.user_status:
             case UserStatus.ALONE: self.run_solo()
             case UserStatus.LEADER: self.run_leader()
