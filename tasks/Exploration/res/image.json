@@ -241,5 +241,23 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "创建确认"
+  },
+  {
+    "itemName": "small_hard",
+    "imageName": "small_hard.png",
+    "roiFront": "437,215,66,33",
+    "roiBack": "437,215,66,33",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "小图标困难-就是普通模式"
+  },
+  {
+    "itemName": "big_hard",
+    "imageName": "big_hard.png",
+    "roiFront": "437,215,66,33",
+    "roiBack": "437,215,66,33",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "大图标困难-就是困难模式"
   }
 ]

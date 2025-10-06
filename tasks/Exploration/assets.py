@@ -127,6 +127,10 @@ class ExplorationAssets:
 	I_EXP_CREATE_TEAM = RuleImage(roi_front=(590,514,122,52), roi_back=(543,490,192,100), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/res_exp_create_team.png")
 	# 创建确认 
 	I_EXP_CREATE_ENSURE = RuleImage(roi_front=(534,486,218,59), roi_back=(516,475,244,85), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/res_exp_create_ensure.png")
+	# 小图标困难-就是普通模式 
+	I_SMALL_HARD = RuleImage(roi_front=(437,215,66,33), roi_back=(437,215,66,33), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/small_hard.png")
+	# 大图标困难-就是困难模式 
+	I_BIG_HARD = RuleImage(roi_front=(437,215,66,33), roi_back=(437,215,66,33), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/big_hard.png")
 
 
 	# Long Click Rule Assets
@@ -142,7 +146,7 @@ class ExplorationAssets:
 
 	# Ocr Rule Assets
 	# 识别当前显示的章节 
-	O_E_EXPLORATION_LEVEL_NUMBER = RuleOcr(roi=(1079,193,147,467), area=(1079,193,147,467), mode="Full", method="Default", keyword="", name="e_exploration_level_number")
+	O_E_EXPLORATION_LEVEL_NUMBER = RuleOcr(roi=(1095,190,114,335), area=(1095,190,114,335), mode="Full", method="Default", keyword="", name="e_exploration_level_number")
 	# 候补出战的数量 
 	O_E_ALTERNATE_NUMBER = RuleOcr(roi=(1092,122,69,32), area=(1092,122,69,32), mode="DigitCounter", method="Default", keyword="", name="e_alternate_number")
 	# 探索右上角 突破卷的数量 
