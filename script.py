@@ -93,13 +93,22 @@ class Script:
         from module.handler.sensitive_info import (handle_sensitive_image,
                                                    handle_sensitive_logs)
         if self.config.script.error.save_error:
+            # 账号切换任务配置
+            con = self.config.switch_account_config.config
+            config_name = self.config.config_name.upper()
 
-            folder = f'{error_path}/{self.config.config_name.upper()}/{task}/{error_type}'
-            filename = get_filename(self.config.config_name.upper())
+            if con.enable:
+                name = con.account_name
+                config_name = f"{config_name}_{name}"
+
+            folder = f'{error_path}/{config_name}/{task}/{error_type}'
+            filename = get_filename(config_name)
             error_path_base = f'{folder}/{filename}'
             error_log_path = f'{error_path_base}.log'
             error_image_path = f'{error_path_base}.png'
             Path(folder).mkdir(parents=True, exist_ok=True)
+            logger.info(f"保存错误日志到: {error_log_path}")
+            logger.info(f"保存错误截图到: {error_image_path}")
 
             if hasattr(self.device, 'image') and self.device.image is not None:
                 try:
@@ -121,7 +130,6 @@ class Script:
             with open(error_log_path, 'w', encoding='utf-8') as f:
                 f.writelines(lines)
             # asyncio.run(self.config.pushtg.telegram_send(title, error_path_image, error_path_log))
-            con = self.config.switch_account_config.config
             if con.enable:
                 name = con.account_name
                 logger.info(f"已开启小号任务，拼接[{name}]，发送通知")
