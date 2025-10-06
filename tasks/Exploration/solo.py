@@ -101,7 +101,12 @@ class SoloExploration(BaseExploration):
                 if self.appear(self.I_BOSS_BATTLE_BUTTON):
                     if self.fire(self.I_BOSS_BATTLE_BUTTON):
                         logger.info(f'Boss战斗完成')
-                        self.quit_explore()
+                    self.quit_explore()
+
+                    """ 测试代码实现章节依次递增进攻 """
+                    # self.next_level()
+                    # open_expect_level = False
+
                     continue
                 # 小怪
                 fight_button = self.search_up_fight()
@@ -468,10 +473,11 @@ class SoloExploration(BaseExploration):
 
         # 返回下一个章节
         next_index = current_index + 1
-        if levels[next_index]=="第十三章":
+        if levels[next_index] == "第十三章":
             logger.warning('已经是最后一章，结束任务')
             self.set_next_run(success=True, finish=True)
             raise TaskEnd
+
         return levels[next_index]
 
     def next_level(self):
@@ -484,6 +490,7 @@ class SoloExploration(BaseExploration):
         # 更新配置中的章节
         self.goal_level = next_level
 
+        # 重置探索次数和时间
         self.current_count = 0
         self.start_time = datetime.now()
 
