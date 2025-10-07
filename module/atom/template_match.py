@@ -3,8 +3,82 @@ import cv2
 import numpy as np
 import math
 
+def generate_template_mask(template, method='canny'):
+    """
+    生成模板mask，用于提高模板匹配的可靠性
+    
+    针对小尺寸彩色模板优化：
+    1. 小尺寸模板禁用高斯模糊避免过度平滑
+    2. 彩色模板使用多通道信息增强特征提取
+    3. 针对小尺寸优化形态学操作参数
+    
+    参数:
+        template: 模板图像 (灰度或彩色)
+        method: mask生成方法 ('canny', 'otsu', 'adaptive')
+    
+    返回:
+        mask: 二值化mask图像 (8位单通道，255表示有效区域，0表示忽略区域)
+    """
+    #----fix (小尺寸彩色模板优化)-----#
+    # 检查模板尺寸
+    h, w = template.shape[:2]
+    
+    # 彩色模板处理：使用多通道信息
+    if len(template.shape) == 3:
+        # 方法1: 转换为灰度图
+        gray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+        
+        # 方法2: 使用颜色对比度增强（针对彩色小模板）
+        # 计算各通道的对比度
+        b, g, r = cv2.split(template)
+        contrast_r = cv2.convertScaleAbs(r - cv2.mean(r)[0])
+        contrast_g = cv2.convertScaleAbs(g - cv2.mean(g)[0])
+        contrast_b = cv2.convertScaleAbs(b - cv2.mean(b)[0])
+        
+        # 合并对比度信息
+        color_contrast = cv2.addWeighted(contrast_r, 0.33, contrast_g, 0.33, 0)
+        color_contrast = cv2.addWeighted(color_contrast, 1.0, contrast_b, 0.34, 0)
+        
+        # 小尺寸模板使用颜色对比度
+        gray = color_contrast
+   
+    
+    # 小尺寸模板禁用高斯模糊，避免过度平滑
+    blurred = gray.copy()
+   
+    if method == 'canny':
+        # 小模板使用更敏感的阈值
+        edges = cv2.Canny(blurred, 30, 90)
+        # 小尺寸模板使用更小的形态学核
+        morph_kernel_size = 2
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (morph_kernel_size, morph_kernel_size))
+        mask = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel, iterations=1)
+        
+    elif method == 'otsu':
+        # OTSU自适应阈值
+        _, mask = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        
+    elif method == 'adaptive':
+        # 小模板使用更小的邻域和常数
+        block_size = max(3, min(h, w) // 2 * 2 + 1)  # 确保为奇数
+        mask = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+                                        cv2.THRESH_BINARY, block_size, 5)
+    else:
+        # 默认使用简单阈值
+        _, mask = cv2.threshold(blurred, 127, 255, cv2.THRESH_BINARY)
+    
+    # 确保mask是单通道且尺寸与模板一致
+    mask = cv2.resize(mask, (w, h))
+    
+    # 转换为8位单通道
+    if len(mask.shape) == 3:
+        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    
+    return mask
+
 def match_template(source, template, method=cv2.TM_CCOEFF_NORMED, 
-                  min_confidence=0.4, multi_target=False, max_targets=5,mask=None):
+                  min_confidence=0.4, multi_target=False, max_targets=5, mask=None,
+                  auto_mask=False, mask_method='otsu'):
     """
     优化的模板匹配函数，显著提升精度和速度
     支持多目标检测和亚像素精度
@@ -37,6 +111,13 @@ def match_template(source, template, method=cv2.TM_CCOEFF_NORMED,
     # 候选点存储
     candidate_points = []
     
+    # 在最高分辨率生成mask（避免金字塔降采样影响mask质量）
+    is_gen_mask = False
+    if auto_mask and mask is None:
+        local_mask = generate_template_mask(template, mask_method)
+        is_gen_mask = True
+ 
+    
     # 从顶层（低分辨率）到底层（高分辨率）搜索
     for level in range(pyramid_levels-1, -1, -1):
         # 惰性计算金字塔层级 - 只在需要时计算
@@ -58,15 +139,26 @@ def match_template(source, template, method=cv2.TM_CCOEFF_NORMED,
             if search_area.size == 0 or tpl.size == 0 or search_area.shape[0] < tpl.shape[0] or search_area.shape[1] < tpl.shape[1]:
                 continue
                 
-            # 使用积分图加速小模板匹配
-            if tpl.size < 2500:
-                result = cv2.matchTemplate(search_area, tpl, method,mask=mask)
-            else:
-                result = cv2.matchTemplate(search_area, tpl, method,mask=mask)
-            
+            # 在金字塔各层使用对应的mask
+            #　处理逻辑　如果传入mask则优先使用传入的mask 否则直接进行模板匹配 如果模板匹配失败/置信度低于阈值 则使用自动生成的mask再次进行匹配
+            result = None
+            if not auto_mask :
+                result = cv2.matchTemplate(search_area, tpl, method, mask=mask)
             # 获取候选点
-            current_candidates = _get_candidate_points(result, min_confidence, multi_target, max_targets, tpl)
-            
+            current_candidates = _get_candidate_points(result, min_confidence, multi_target, max_targets, tpl, method)
+            if result is None or result.size == 0 or auto_mask or len(current_candidates) == 0:
+                if (not is_gen_mask):
+                    local_mask = generate_template_mask(template, mask_method)
+                    is_gen_mask = True
+
+                current_mask = None
+                # 对mask进行与模板相同的金字塔降采样
+                current_mask = _get_pyramid_level(local_mask, level)
+              
+                result = cv2.matchTemplate(search_area, tpl, method, mask=current_mask)
+                # 获取候选点
+                current_candidates = _get_candidate_points(result, min_confidence, multi_target, max_targets, tpl, method)
+                # print(f' 使用自动生成的mask 匹配到 {len(current_candidates)} 个目标')
             # 转换坐标到当前层图像
             for score, loc in current_candidates:
                 abs_loc = (loc[0] + x, loc[1] + y)
@@ -75,7 +167,7 @@ def match_template(source, template, method=cv2.TM_CCOEFF_NORMED,
         # 释放当前层级的图像以节省内存
         del tpl
         del src
-    
+        del current_mask
     # 过滤和融合候选点
     final_matches = _process_candidates(candidate_points, source, template, pyramid_levels)
     
@@ -96,6 +188,8 @@ def match_template(source, template, method=cv2.TM_CCOEFF_NORMED,
 
 def _get_pyramid_level(image, level):
     """惰性计算金字塔层级"""
+    if image is None:
+        return None
     if level == 0:
         return image.copy()
     
@@ -208,7 +302,7 @@ def _add_area(merged, new_area):
     return merged
 
 
-def _get_candidate_points(result, min_confidence, multi_target, max_targets, tpl):
+def _get_candidate_points(result, min_confidence, multi_target, max_targets, tpl, method=cv2.TM_CCOEFF_NORMED):
     """获取候选匹配点"""
     # 单目标匹配
     if not multi_target:
