@@ -193,15 +193,15 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
                     max_number = total
                     max_index = i
             # 综合判断是否需要推送
+            logger.info(f'{target.value} 需要数量: {num * incomplete_num}')
             self.screenshot()
             if total_number < num * incomplete_num:
                 self.save_image(wait_time=0, push_flag=True, content=f'⚠️{target.value} 材料不足，总量剩余{total_number}')
                 return False
             else:
-                self.save_image(wait_time=0, push_flag=False, content=f'{target.value} 材料充足，总量剩余{total_number}')
+                logger.info(f'{target.value} 总量剩余{total_number}')
                 self._swipe_cm(max_index)
-                self.check_cm_number()
-                return True
+                incomplete_num = self.check_cm_number()
 
     def _swipe_cm(self, max_index: int):
         match_swipe = {
