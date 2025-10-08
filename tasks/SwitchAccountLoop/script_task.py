@@ -85,53 +85,64 @@ class ScriptTask(GameUi):
         else:
             raise SwitchAccountError(f"[角色] {account_info}, 切换失败")
 
-    def get_next_execution_times(self, start_hour=7, end_hour=23, interval_hours=2, execution_minute=30):
+    def get_next_execution_times(self):
         """
         获取下次执行时间，支持动态配置
-        在指定时间范围内每隔interval_hours小时执行一次，执行时间为每个小时的execution_minute分钟
-
-        Args:
-            start_hour: 开始执行的小时数（默认11点）
-            end_hour: 结束执行的小时数（默认23点）
-            interval_hours: 执行间隔小时数（默认2小时）
-            execution_minute: 执行分钟数（默认30分）
+        在指定时间范围内按间隔执行任务
 
         Returns:
             datetime: 下次执行时间
         """
-        now = datetime.now()
-        # now = now.replace(hour=23, minute=31, second=0, microsecond=0)
+        # 从配置中获取时间参数
+        con = self.config.switch_account_loop.loop_config
+        start_time = con.task_start_time
+        end_time = con.task_end_time
+        interval = con.task_interval
 
-        # 从start_hour开始，每隔interval_hours小时生成执行时间点
+        now = datetime.now()
+
+        # 直接使用Time对象创建时间
+        start_datetime = now.replace(hour=start_time.hour, minute=start_time.minute, second=start_time.second, microsecond=0)
+        end_datetime = now.replace(hour=end_time.hour, minute=end_time.minute, second=end_time.second, microsecond=0)
+
+        # 计算间隔总秒数
+        interval_total_seconds = interval.hour * 3600 + interval.minute * 60 + interval.second
+
+        # 生成当天所有可能的执行时间点
         execution_times = []
-        hour = start_hour
-        while hour <= end_hour:
-            execution_times.append(hour)
-            hour += interval_hours
+        current_time = start_datetime
+
+        while current_time <= end_datetime:
+            execution_times.append(current_time)
+            current_time += timedelta(seconds=interval_total_seconds)
 
         # 查找下一个执行时间
-        next_hour = None
-        for hour in execution_times:
-            candidate_time = now.replace(hour=hour, minute=execution_minute, second=0, microsecond=0)
-            if candidate_time > now:
-                next_hour = hour
-                break
+        for exec_time in execution_times:
+            if exec_time > now:
+                return exec_time
 
         # 如果今天没有可执行的时间了，则设置为第二天的第一次执行时间
-        if next_hour is None:
-            next_time = now.replace(hour=start_hour, minute=execution_minute, second=0, microsecond=0) + timedelta(days=1)
-        else:
-            next_time = now.replace(hour=next_hour, minute=execution_minute, second=0, microsecond=0)
-
-        return next_time
+        return start_datetime + timedelta(days=1)
 
 
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
+    from tasks.Component.config_base import Time
 
+    # 创建配置和设备实例
     config = Config('wy')
     device = Device(config)
-    t = ScriptTask(config, device)
-    a = t.get_next_execution_times()
-    print(a)
+
+    # 创建任务实例
+    task = ScriptTask(config, device)
+
+    # 设置测试时间参数
+    # 注意：需要根据实际的Time类型设置
+    task.config.switch_account_loop.loop_config.task_start_time = Time(7, 0, 0)
+    task.config.switch_account_loop.loop_config.task_end_time = Time(23, 0, 0)
+    task.config.switch_account_loop.loop_config.task_interval = Time(1, 30, 0)
+
+    # 调用方法并打印结果
+    next_time = task.get_next_execution_times()
+    print(f"下次执行时间: {next_time}")
