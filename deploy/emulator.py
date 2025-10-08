@@ -248,7 +248,14 @@ class EmulatorConnect:
         if not output:
             cmd.extend(['>nul', '2>nul'])
         logger.info(' '.join(cmd))
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+        
+        # 隐藏CMD窗口执行命令
+        startupinfo = None
+        if os.name == 'nt':  # Windows系统
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True, startupinfo=startupinfo)
         try:
             stdout, stderr = process.communicate(timeout=timeout)
             ret_code = process.returncode
