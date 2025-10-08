@@ -153,7 +153,13 @@ class Connection(ConnectionAttr):
         # To disable it, edit gooey/gui/util/taskkill.py
 
         # No gooey anymore, just shell=False
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=False)
+        # 隐藏CMD窗口执行ADB命令
+        startupinfo = None
+        if os.name == 'nt':  # Windows系统
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=False, startupinfo=startupinfo)
         try:
             stdout, stderr = process.communicate(timeout=timeout)
         except subprocess.TimeoutExpired:
