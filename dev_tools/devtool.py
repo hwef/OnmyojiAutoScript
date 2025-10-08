@@ -1,20 +1,20 @@
+# 添加模块导入
+import sys
 from tkinter import filedialog
+from tkinter import messagebox
+
+import pyperclip
 
 import customtkinter as ctk
 import cv2
 import json
 import numpy as np
 import os
+import re
 import subprocess
 from PIL import Image, ImageTk
 from datetime import datetime
-import pyperclip
-from tkinter import messagebox
 
-# 添加模块导入
-import sys
-from pathlib import Path
-import re
 # 将当前目录加入系统路径，以便导入项目模块
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -37,6 +37,25 @@ try:
 except ImportError:
     MASK_GENERATOR_AVAILABLE = False
     print("无法导入蒙版生成器模块")
+
+
+class EmulatorComboBox(ctk.CTkComboBox):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.refresh_callback = None
+        # 重新绑定鼠标点击事件
+        self.bind("<Button-1>", self._on_click, add="+")
+        # 重新绑定下拉箭头的点击事件
+        self._canvas.bind("<Button-1>", self._on_click, add="+")
+
+    def set_refresh_callback(self, callback):
+        """设置刷新回调函数"""
+        self.refresh_callback = callback
+
+    def _on_click(self, event):
+        """处理点击事件"""
+        if self.refresh_callback:
+            self.refresh_callback()
 
 
 class DevTool(ctk.CTk):
@@ -103,7 +122,7 @@ class DevTool(ctk.CTk):
         self.control_frame.grid(row=0, column=1, padx=0, pady=0, sticky="nsew")
         self.control_frame.grid_propagate(False)  # 防止框架根据子控件调整大小
         self.control_frame.grid_columnconfigure(0, weight=1)
-        self.control_frame.grid_rowconfigure(1, weight=1)
+        self.control_frame.grid_rowconfigure(10, weight=1)
 
         # 创建选项卡视图
         self.tabview = ctk.CTkTabview(self.control_frame, width=200, height=100)
@@ -142,13 +161,6 @@ class DevTool(ctk.CTk):
         self.load_image_button = ctk.CTkButton(self.screenshot_tab, text="加载图片", width=20, command=self.load_image)
         self.load_image_button.grid(row=1, column=2, padx=(5, 10), pady=(5, 5), sticky="w")
 
-        # 添加"上一张"和"下一张"按钮
-        self.prev_image_button = ctk.CTkButton(self.screenshot_tab, text="← 上一张", width=120, command=self.load_prev_image)
-        self.prev_image_button.grid(row=4, column=0, padx=(10, 5), pady=(5, 5), sticky="ew")
-        
-        self.next_image_button = ctk.CTkButton(self.screenshot_tab, text="下一张 →", width=120, command=self.load_next_image)
-        self.next_image_button.grid(row=4, column=1, padx=(5, 10), pady=(5, 5), sticky="ew")
-
         # 请输入保存图片名称
         self.save_name_entry = ctk.CTkEntry(self.screenshot_tab, placeholder_text="请输入保存图片的名字", width=260, justify="center")
         self.save_name_entry.grid(row=2, column=0, columnspan=2, padx=10, pady=(5, 5), sticky="ew")
@@ -165,13 +177,23 @@ class DevTool(ctk.CTk):
         self.copy_button = ctk.CTkButton(self.screenshot_tab, width=20, text="复制坐标", command=lambda: self.copy_to_clipboard(str(self.coordinates)))
         self.copy_button.grid(row=3, column=2, padx=(5, 10), pady=(5, 5), sticky="w")
 
-        # 添加模拟器端口输入框
-        self.emulator_port_entry = ctk.CTkEntry(self.screenshot_tab, placeholder_text="模拟器端口(默认16384)", width=180, justify="center")
-        self.emulator_port_entry.grid(row=5, column=0, columnspan=2, padx=10, pady=(5, 5), sticky="ew")
+        # 添加模拟器选择下拉框（点击时自动刷新）
+        self.emulator_selector = EmulatorComboBox(self.screenshot_tab, values=["请选择模拟器"], width=260, command=self.on_emulator_selected)
+        self.emulator_selector.set("请选择模拟器")
+        self.emulator_selector.grid(row=4, column=0, columnspan=2, padx=10, pady=(5, 5), sticky="ew")
+        # 设置刷新回调
+        self.emulator_selector.set_refresh_callback(self.refresh_emulators)
         
         # 模拟器截图按钮
         self.capture_emulator_button = ctk.CTkButton(self.screenshot_tab, text="木木截图", width=20, command=self.capture_emulator_screenshot)
-        self.capture_emulator_button.grid(row=5, column=2, padx=(5, 10), pady=(5, 5), sticky="w")
+        self.capture_emulator_button.grid(row=4, column=2, padx=(5, 10), pady=(5, 5), sticky="w")
+
+        # 添加"上一张"和"下一张"按钮
+        self.prev_image_button = ctk.CTkButton(self.screenshot_tab, text="← 上一张", width=120, command=self.load_prev_image)
+        self.prev_image_button.grid(row=5, column=0, padx=(10, 5), pady=(5, 5), sticky="ew")
+
+        self.next_image_button = ctk.CTkButton(self.screenshot_tab, text="下一张 →", width=120, command=self.load_next_image)
+        self.next_image_button.grid(row=5, column=1, padx=(5, 10), pady=(5, 5), sticky="ew")
 
         # log显示框（放在控制面板框架内，在选项卡下方）
         self.log_frame = ctk.CTkFrame(self.control_frame)
@@ -307,6 +329,9 @@ class DevTool(ctk.CTk):
         self.is_drawing = False  # 是否正在绘制新矩形
         self.new_rect_start_x = 0  # 新矩形的起始点x坐标
         self.new_rect_start_y = 0  # 新矩形的起始点y坐标
+
+        # 初始化时自动加载模拟器列表
+        self.after(100, self.refresh_emulators)
 
 
     def log_print(self, text, color=None):
@@ -1085,24 +1110,108 @@ class DevTool(ctk.CTk):
         """清空日志框内容"""
         self.log_box.delete("0.0", "end")
 
+    def refresh_emulators(self):
+        """刷新模拟器列表"""
+        try:
+            # MuMuManager路径
+            mumu_manager_path = "E:\\MuMuPlayer-12.0\\shell\\MuMuManager.exe"  # 用户指定的路径
+
+            # 检查MuMuManager是否存在
+            if not mumu_manager_path:
+                self.log_print("未找到MuMuManager.exe，请检查安装路径", "error")
+                return
+            
+            self.log_print(f"使用MuMuManager路径: {mumu_manager_path}")
+            
+            # 隐藏CMD窗口执行命令
+            startupinfo = None
+            if os.name == 'nt':  # Windows系统
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            
+            # 执行命令获取模拟器信息
+            self.log_print("正在获取模拟器列表...")
+            result = subprocess.run(
+                [mumu_manager_path, "info", "-v", "all"], 
+                capture_output=True, 
+                text=True, 
+                timeout=10,
+                startupinfo=startupinfo
+            )
+            
+            if result.returncode != 0:
+                self.log_print(f"获取模拟器列表失败: {result.stderr}", "error")
+                return
+            
+            # 解析JSON输出
+            import json
+            try:
+                emulators_info = json.loads(result.stdout)
+                emulator_list = []
+                self.emulator_info_dict = {}  # 保存模拟器信息用于后续选择
+                
+                # 处理每个模拟器实例
+                for index, emulator in emulators_info.items():
+                    # 跳过非模拟器信息的条目（如版本信息等）
+                    if not isinstance(emulator, dict):
+                        continue
+                        
+                    name = emulator.get("name", f"模拟器{index}")
+                    adb_port = emulator.get("adb_port", None)
+                    
+                    # adb_port存在即代表模拟器已启动
+                    if adb_port is not None:
+                        display_name = f"{name} ({adb_port})"
+                        emulator_list.append(display_name)
+                        self.emulator_info_dict[display_name] = {
+                            "name": name,
+                            "adb_port": adb_port,
+                            "index": index
+                        }
+                
+                if not emulator_list:
+                    emulator_list = ["未找到已启动的模拟器"]
+                    self.log_print("未找到已启动的模拟器")
+                else:
+                    self.log_print(f"找到 {emulator_list} 模拟器")
+                
+                # 更新下拉框
+                self.emulator_selector.configure(values=emulator_list)
+                # 只有在当前没有有效选择时才设置默认值
+                current_value = self.emulator_selector.get()
+                if current_value in ["请选择模拟器", "未找到已启动的模拟器"] or current_value not in emulator_list:
+                    self.emulator_selector.set(emulator_list[0])
+                
+            except json.JSONDecodeError as e:
+                self.log_print(f"解析模拟器信息失败: {e}", "error")
+                self.log_print(f"原始输出: {result.stdout}", "error")
+                
+        except subprocess.TimeoutExpired:
+            self.log_print("获取模拟器列表超时", "error")
+        except Exception as e:
+            self.log_print(f"刷新模拟器列表时出错: {str(e)}", "error")
+
+    def on_emulator_selected(self, choice):
+        """当选择模拟器时的回调函数"""
+        if choice != "请选择模拟器" and choice != "未找到已启动的模拟器" and choice in self.emulator_info_dict:
+            self.log_print(f"已选择模拟器: {choice}")
+
     def capture_emulator_screenshot(self):
         """从模拟器截取画面"""
         try:
-            # 获取端口输入
-            port_text = self.emulator_port_entry.get().strip()
-            if port_text:
-                # 检查是否是完整的地址格式 (IP:PORT)
-                if ':' in port_text:
-                    device_address = port_text
-                else:
-                    # 只输入了端口号
-                    if port_text.isdigit():
-                        device_address = f"127.0.0.1:{port_text}"
-                    else:
-                        device_address = "127.0.0.1:16384"  # 默认地址
-            else:
-                # 没有输入，使用默认地址
-                device_address = "127.0.0.1:16384"
+            # 获取从下拉框选择的模拟器信息
+            selected_emulator = self.emulator_selector.get()
+            if selected_emulator == "请选择模拟器" or selected_emulator == "未找到已启动的模拟器":
+                self.log_print("请先选择一个模拟器", "error")
+                return
+                
+            if selected_emulator not in self.emulator_info_dict:
+                self.log_print("选择的模拟器信息无效", "error")
+                return
+                
+            # 从选择的模拟器中获取端口号
+            adb_port = self.emulator_info_dict[selected_emulator]["adb_port"]
+            device_address = f"127.0.0.1:{adb_port}"
             
             # 构建ADB路径
             adb_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "toolkit", "Lib", "site-packages", "adbutils", "binaries", "adb.exe")
@@ -1113,19 +1222,27 @@ class DevTool(ctk.CTk):
             else:
                 self.log_print(f"使用ADB路径: {adb_path}")
             
+            # 隐藏CMD窗口执行ADB命令
+            startupinfo = None
+            if os.name == 'nt':  # Windows系统
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            
             # 连接设备
             self.log_print(f"正在连接设备: {device_address}")
             connect_result = subprocess.run(
                 [adb_path, "connect", device_address], 
                 capture_output=True, 
                 text=True, 
-                timeout=10
+                timeout=10,
+                startupinfo=startupinfo
             )
             
             self.log_print(f"连接命令输出: {connect_result.stdout}")
             if connect_result.stderr:
                 self.log_print(f"连接命令错误输出: {connect_result.stderr}")
-                
+                return
+
             if connect_result.returncode != 0:
                 self.log_print(f"连接设备失败: {connect_result.stderr}", "error")
                 return
@@ -1138,25 +1255,29 @@ class DevTool(ctk.CTk):
                 [adb_path, "devices"], 
                 capture_output=True, 
                 text=True, 
-                timeout=10
+                timeout=10,
+                startupinfo=startupinfo
             )
             if devices_result.returncode == 0:
                 self.log_print(devices_result.stdout)
             else:
                 self.log_print(f"获取设备列表失败: {devices_result.stderr}", "error")
+                return
             
             # 获取屏幕截图
             self.log_print("正在获取屏幕截图...")
             screenshot_result = subprocess.run(
                 [adb_path, "-s", device_address, "shell", "screencap", "-p"], 
                 capture_output=True, 
-                timeout=30
+                timeout=30,
+                startupinfo=startupinfo
             )
             
             self.log_print(f"截图命令返回码: {screenshot_result.returncode}")
             if screenshot_result.stderr:
                 self.log_print(f"截图命令错误输出: {screenshot_result.stderr.decode('utf-8') if isinstance(screenshot_result.stderr, bytes) else screenshot_result.stderr}", "error")
-            
+                return
+
             if screenshot_result.returncode != 0:
                 self.log_print(f"截图命令执行失败: {screenshot_result.stderr}", "error")
                 return
@@ -1168,14 +1289,14 @@ class DevTool(ctk.CTk):
                 
             # 处理截图数据
             screenshot_data = screenshot_result.stdout
-            self.log_print(f"原始截图数据大小: {len(screenshot_data)} 字节")
+            # self.log_print(f"原始截图数据大小: {len(screenshot_data)} 字节")
             
             if os.name == 'nt':  # Windows系统
                 screenshot_data = screenshot_data.replace(b'\r\n', b'\n')
                 
             # 将截图数据转换为numpy数组
             nparr = np.frombuffer(screenshot_data, np.uint8)
-            self.log_print(f"解码前数据大小: {len(nparr)} 字节")
+            # self.log_print(f"解码前数据大小: {len(nparr)} 字节")
             
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
             
@@ -1185,12 +1306,12 @@ class DevTool(ctk.CTk):
                 
             # 检查图片尺寸并调整（如果需要）
             if img.shape[1] != 1280 or img.shape[0] != 720:
-                self.log_print(f"截图尺寸 {img.shape[1]}x{img.shape[0]}，正在调整为1280x720")
-                img = cv2.resize(img, (1280, 720))
-                
+                self.log_print(f"截图尺寸 {img.shape[1]}x{img.shape[0]} 不符合1280x720", "error")
+                return
+
             # 保存截图到文件
             timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-            filename = f"emulator_screenshot_{timestamp}.png"
+            filename = f"MuMu12-{timestamp}.png"
             save_path = os.path.join(self.save_img_path, filename)
             
             # 确保目录存在
@@ -1206,19 +1327,14 @@ class DevTool(ctk.CTk):
                 self.log_print("图像数据为空", "error")
                 return
                 
-            # 直接使用PIL保存（在测试中证明更可靠）
+            # 直接使用PIL保存
             try:
                 pil_image = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
                 pil_image.save(save_path, 'PNG')
-                success = True
             except Exception as e:
-                self.log_print(f"PIL保存失败: {str(e)}", "error")
-                success = False
-            
-            if not success:
-                self.log_print("截图保存失败", "error")
+                self.log_print(f"PIL截图保存失败: {str(e)}", "error")
                 return
-                
+            
             # 加载截图到界面
             self.load_image_by_path(save_path)
             self.log_print(f"模拟器截图已保存: {filename}", "success")
@@ -1232,6 +1348,7 @@ class DevTool(ctk.CTk):
             self.log_print("未找到ADB工具，请确保已安装并添加到系统路径或使用项目自带的ADB", "error")
         except Exception as e:
             self.log_print(f"截取模拟器画面时出错: {str(e)}", "error")
+
 
 if __name__ == "__main__":
     app = DevTool()
