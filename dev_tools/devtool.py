@@ -48,6 +48,8 @@ class DevTool(ctk.CTk):
         self.current_image = None  # 当前显示的图像
         self.rect = {"x1": 0, "y1": 0, "x2": 0, "y2": 0}  # 矩形框
         self.img_info = None  # 保存图片信息
+        self.image_files = []  # 存储当前文件夹中的图片文件列表
+        self.current_image_index = -1  # 当前显示的图片在列表中的索引
         # 创建窗口
         self.geometry("1730x780")  # 增加窗口宽度和高度
         self.title("DevTool")
@@ -140,6 +142,13 @@ class DevTool(ctk.CTk):
         self.load_image_button = ctk.CTkButton(self.screenshot_tab, text="加载图片", width=20, command=self.load_image)
         self.load_image_button.grid(row=1, column=2, padx=(5, 10), pady=(5, 5), sticky="w")
 
+        # 添加"上一张"和"下一张"按钮
+        self.prev_image_button = ctk.CTkButton(self.screenshot_tab, text="← 上一张", width=120, command=self.load_prev_image)
+        self.prev_image_button.grid(row=4, column=0, padx=(10, 5), pady=(5, 5), sticky="ew")
+        
+        self.next_image_button = ctk.CTkButton(self.screenshot_tab, text="下一张 →", width=120, command=self.load_next_image)
+        self.next_image_button.grid(row=4, column=1, padx=(5, 10), pady=(5, 5), sticky="ew")
+
         # 请输入保存图片名称
         self.save_name_entry = ctk.CTkEntry(self.screenshot_tab, placeholder_text="请输入保存图片的名字", width=260, justify="center")
         self.save_name_entry.grid(row=2, column=0, columnspan=2, padx=10, pady=(5, 5), sticky="ew")
@@ -155,6 +164,14 @@ class DevTool(ctk.CTk):
         # 复制按钮
         self.copy_button = ctk.CTkButton(self.screenshot_tab, width=20, text="复制坐标", command=lambda: self.copy_to_clipboard(str(self.coordinates)))
         self.copy_button.grid(row=3, column=2, padx=(5, 10), pady=(5, 5), sticky="w")
+
+        # 添加模拟器端口输入框
+        self.emulator_port_entry = ctk.CTkEntry(self.screenshot_tab, placeholder_text="模拟器端口(默认16384)", width=180, justify="center")
+        self.emulator_port_entry.grid(row=5, column=0, columnspan=2, padx=10, pady=(5, 5), sticky="ew")
+        
+        # 模拟器截图按钮
+        self.capture_emulator_button = ctk.CTkButton(self.screenshot_tab, text="木木截图", width=20, command=self.capture_emulator_screenshot)
+        self.capture_emulator_button.grid(row=5, column=2, padx=(5, 10), pady=(5, 5), sticky="w")
 
         # log显示框（放在控制面板框架内，在选项卡下方）
         self.log_frame = ctk.CTkFrame(self.control_frame)
@@ -187,7 +204,7 @@ class DevTool(ctk.CTk):
             fg_color="#000000",
             text_color="#48BB31",
             width=120,
-            height=480
+            height=420
         )
         self.log_box.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew")
         
@@ -333,14 +350,60 @@ class DevTool(ctk.CTk):
         )
         if file_path:  # 如果选择了文件
             self.last_selected_image = os.path.dirname(file_path)  # 记住文件所在目录
+            # 更新图片文件列表和当前索引
+            self.update_image_files(file_path)
         return file_path
 
-    def load_image(self):
-        """通过文件对话框加载PNG图片"""
-        image_path = self.choose_image_file()
-        if not image_path:  # 用户取消选择
-            return
+    def update_image_files(self, current_file_path):
+        """更新当前文件夹中的1280x720尺寸图片文件列表"""
+        folder_path = os.path.dirname(current_file_path)
+        # 获取文件夹中所有PNG文件
+        all_files = []
+        for f in os.listdir(folder_path):
+            if f.lower().endswith('.png'):
+                # 检查图片尺寸是否为1280x720
+                img_path = os.path.join(folder_path, f)
+                try:
+                    img = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), cv2.IMREAD_COLOR)
+                    if img is not None:
+                        if img.shape[1] == 1280 and img.shape[0] == 720:
+                            all_files.append(f)
+                except Exception as e:
+                    continue
 
+        # 按创建时间排序，时间晚的靠后面（升序排列）
+        all_files.sort(key=lambda x: os.path.getctime(os.path.join(folder_path, x)))
+
+        self.image_files = [os.path.join(folder_path, f) for f in all_files]
+
+        # 直接通过文件名比较来确定当前图片索引
+        current_filename = os.path.basename(current_file_path)
+        self.current_image_index = -1
+        for i, img_path in enumerate(self.image_files):
+            if os.path.basename(img_path) == current_filename:
+                self.current_image_index = i
+                break
+
+    def load_prev_image(self):
+        """加载上一张图片"""
+        if not self.image_files or self.current_image_index <= 0:
+            self.log_print("已经是第一张图片或没有图片可加载", "error")
+            return
+            
+        self.current_image_index -= 1
+        self.load_image_by_path(self.image_files[self.current_image_index])
+
+    def load_next_image(self):
+        """加载下一张图片"""
+        if not self.image_files or self.current_image_index >= len(self.image_files) - 1:
+            self.log_print("已经是最后一张图片或没有图片可加载", "error")
+            return
+            
+        self.current_image_index += 1
+        self.load_image_by_path(self.image_files[self.current_image_index])
+
+    def load_image_by_path(self, image_path):
+        """通过指定路径加载PNG图片"""
         self.log_print(f"加载图片: {os.path.basename(image_path)}")
         try:
             # 使用cv2读取图片
@@ -365,9 +428,11 @@ class DevTool(ctk.CTk):
             self.img_name.delete(0, "end")
             self.img_name.insert(0, img_name)
 
-            # 设置默认保存名称为加载图片名_1
-            self.save_name_entry.delete(0, "end")
-            self.save_name_entry.insert(0, f"{img_name}_1")
+            # 设置默认保存名称为加载图片名_1（仅当保存名称为空或与图片名称输入框内容不同时）
+            current_save_name = self.save_name_entry.get().strip()
+            if not current_save_name or current_save_name == self.name:
+                self.save_name_entry.delete(0, "end")
+                self.save_name_entry.insert(0, f"{img_name}_1")
 
             # 自动填充文件夹路径为默认保存路径
             self.folder_path_entry.delete(0, "end")
@@ -379,6 +444,14 @@ class DevTool(ctk.CTk):
 
         except Exception as e:
             self.log_print(f"加载图片时出错: {e}", "error")
+
+    def load_image(self):
+        """通过文件对话框加载PNG图片"""
+        image_path = self.choose_image_file()
+        if not image_path:  # 用户取消选择
+            return
+
+        self.load_image_by_path(image_path)
 
     @property
     def coordinates(self):
@@ -1012,6 +1085,153 @@ class DevTool(ctk.CTk):
         """清空日志框内容"""
         self.log_box.delete("0.0", "end")
 
+    def capture_emulator_screenshot(self):
+        """从模拟器截取画面"""
+        try:
+            # 获取端口输入
+            port_text = self.emulator_port_entry.get().strip()
+            if port_text:
+                # 检查是否是完整的地址格式 (IP:PORT)
+                if ':' in port_text:
+                    device_address = port_text
+                else:
+                    # 只输入了端口号
+                    if port_text.isdigit():
+                        device_address = f"127.0.0.1:{port_text}"
+                    else:
+                        device_address = "127.0.0.1:16384"  # 默认地址
+            else:
+                # 没有输入，使用默认地址
+                device_address = "127.0.0.1:16384"
+            
+            # 构建ADB路径
+            adb_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "toolkit", "Lib", "site-packages", "adbutils", "binaries", "adb.exe")
+            if not os.path.exists(adb_path):
+                # 如果指定路径不存在，则使用系统PATH中的adb
+                adb_path = "adb"
+                self.log_print("使用系统PATH中的ADB工具")
+            else:
+                self.log_print(f"使用ADB路径: {adb_path}")
+            
+            # 连接设备
+            self.log_print(f"正在连接设备: {device_address}")
+            connect_result = subprocess.run(
+                [adb_path, "connect", device_address], 
+                capture_output=True, 
+                text=True, 
+                timeout=10
+            )
+            
+            self.log_print(f"连接命令输出: {connect_result.stdout}")
+            if connect_result.stderr:
+                self.log_print(f"连接命令错误输出: {connect_result.stderr}")
+                
+            if connect_result.returncode != 0:
+                self.log_print(f"连接设备失败: {connect_result.stderr}", "error")
+                return
+                
+            self.log_print(f"设备连接成功: {device_address}")
+            
+            # 列出所有已连接的设备以供调试
+            self.log_print("当前连接的设备:")
+            devices_result = subprocess.run(
+                [adb_path, "devices"], 
+                capture_output=True, 
+                text=True, 
+                timeout=10
+            )
+            if devices_result.returncode == 0:
+                self.log_print(devices_result.stdout)
+            else:
+                self.log_print(f"获取设备列表失败: {devices_result.stderr}", "error")
+            
+            # 获取屏幕截图
+            self.log_print("正在获取屏幕截图...")
+            screenshot_result = subprocess.run(
+                [adb_path, "-s", device_address, "shell", "screencap", "-p"], 
+                capture_output=True, 
+                timeout=30
+            )
+            
+            self.log_print(f"截图命令返回码: {screenshot_result.returncode}")
+            if screenshot_result.stderr:
+                self.log_print(f"截图命令错误输出: {screenshot_result.stderr.decode('utf-8') if isinstance(screenshot_result.stderr, bytes) else screenshot_result.stderr}", "error")
+            
+            if screenshot_result.returncode != 0:
+                self.log_print(f"截图命令执行失败: {screenshot_result.stderr}", "error")
+                return
+                
+            # 检查是否有截图数据
+            if not screenshot_result.stdout:
+                self.log_print("截图命令没有返回数据", "error")
+                return
+                
+            # 处理截图数据
+            screenshot_data = screenshot_result.stdout
+            self.log_print(f"原始截图数据大小: {len(screenshot_data)} 字节")
+            
+            if os.name == 'nt':  # Windows系统
+                screenshot_data = screenshot_data.replace(b'\r\n', b'\n')
+                
+            # 将截图数据转换为numpy数组
+            nparr = np.frombuffer(screenshot_data, np.uint8)
+            self.log_print(f"解码前数据大小: {len(nparr)} 字节")
+            
+            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            
+            if img is None:
+                self.log_print("无法解码截图数据", "error")
+                return
+                
+            # 检查图片尺寸并调整（如果需要）
+            if img.shape[1] != 1280 or img.shape[0] != 720:
+                self.log_print(f"截图尺寸 {img.shape[1]}x{img.shape[0]}，正在调整为1280x720")
+                img = cv2.resize(img, (1280, 720))
+                
+            # 保存截图到文件
+            timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+            filename = f"emulator_screenshot_{timestamp}.png"
+            save_path = os.path.join(self.save_img_path, filename)
+            
+            # 确保目录存在
+            if not os.path.exists(self.save_img_path):
+                try:
+                    os.makedirs(self.save_img_path)
+                except Exception as e:
+                    self.log_print(f"创建目录失败: {str(e)}", "error")
+                    return
+            
+            # 检查图像数据
+            if img is None:
+                self.log_print("图像数据为空", "error")
+                return
+                
+            # 直接使用PIL保存（在测试中证明更可靠）
+            try:
+                pil_image = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+                pil_image.save(save_path, 'PNG')
+                success = True
+            except Exception as e:
+                self.log_print(f"PIL保存失败: {str(e)}", "error")
+                success = False
+            
+            if not success:
+                self.log_print("截图保存失败", "error")
+                return
+                
+            # 加载截图到界面
+            self.load_image_by_path(save_path)
+            self.log_print(f"模拟器截图已保存: {filename}", "success")
+            
+            # 更新图片列表，将新截图加入列表
+            self.update_image_files(save_path)
+
+        except subprocess.TimeoutExpired:
+            self.log_print("截图操作超时", "error")
+        except FileNotFoundError:
+            self.log_print("未找到ADB工具，请确保已安装并添加到系统路径或使用项目自带的ADB", "error")
+        except Exception as e:
+            self.log_print(f"截取模拟器画面时出错: {str(e)}", "error")
 
 if __name__ == "__main__":
     app = DevTool()
