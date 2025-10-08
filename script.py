@@ -490,7 +490,14 @@ class Script:
             self.config.task_call('Restart')
             return True
         except Exception as e:
-            error_type = type(e).__name__  # 获取异常类型名称
+            # 特别处理OpenCV模板匹配异常
+            if isinstance(e, cv2.error) and "Assertion failed" in str(e) and "corr.rows <= img.rows" in str(e):
+                logger.error(f"模板匹配失败: 模板尺寸大于目标图像尺寸")
+                logger.error(f"详细错误: {str(e)}")
+                error_type = "TemplateMatchError"
+            else:
+                error_type = type(e).__name__  # 获取异常类型名称
+
             result = False
             if isinstance(e, (GameWaitTooLongError, GameTooManyClickError, GamePageUnknownError, GameStuckError, GameBugError, FileNotFoundError)):
                 logger.error(e)
