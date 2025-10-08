@@ -774,6 +774,8 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             con = self.config.switch_account_config.config
             if con.enable:
                 if not con.enable_save_image:
+                    if content:
+                        logger.info(content)
                     logger.warning(f"未启用账号截图保存")
                     return
                 name = con.account_name
