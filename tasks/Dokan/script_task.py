@@ -617,10 +617,12 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 if bounty < self.config.dokan.dokan_config.min_bounty:
                     logger.warning(f"寮资金{bounty}少于{self.config.dokan.dokan_config.min_bounty},不符合要求")
                     continue
-                # 馆主不是修习等级的
-                if not self.appear(self.I_CENTER_GUANZHU_XIUXI):
-                    logger.warning(f"馆主不是修习等级的,不符合要求")
-                    continue
+                # 道馆是否退出，来决定是否需要判断馆主等级
+                if not self.dokan_quit:
+                    # 馆主不是修习等级的
+                    if not self.appear(self.I_CENTER_GUANZHU_XIUXI):
+                        logger.warning(f"馆主不是修习等级的,不符合要求")
+                        continue
                 self.save_image(image_type=False, wait_time=0, push_flag=True, content=f"开启道馆: {dokan_name},资金: {bounty},人数: {p_num},系数: {item_score}")
                 return True
             # 在所有列表中都没有符合的,且忽略系数限制,那么就选择最低分数的那个,点击显示挑战按钮
