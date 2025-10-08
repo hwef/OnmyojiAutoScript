@@ -102,15 +102,20 @@ class BaseChannelTask(GameUi):
         return mapping.get(task_type, "未知任务")
 
     def _handle_limit_task_wait(self, now, task_type_name):
-        """检查是否到达限时任务执行时间（19:00后）"""
-        limit_hour = 19
-        if now.hour > limit_hour or (now.hour == limit_hour and now.minute >= 0):
+        """检查是否到达限时任务执行时间"""
+        # 从配置中获取限时任务开始时间
+        limit_time = self.config.switch_account_once.once_config.limit_task_time
+
+        # 创建今天的限时任务执行时间
+        limit_datetime = now.replace(hour=limit_time.hour, minute=limit_time.minute, second=limit_time.second, microsecond=0)
+
+        if now >= limit_datetime:
             return  # 可以执行限时任务
 
         # 未到执行时间，设置等待
         self.set_wait_task_time()
-        self.push_notify(content=f'[{task_type_name}]等待 {limit_hour}:00 运行')
-        self.set_next_run(task=self.config.task.command, target=datetime.now().replace(hour=limit_hour, minute=0, second=0, microsecond=0))
+        self.push_notify(content=f'[{task_type_name}]等待 {limit_time.hour:02d}:{limit_time.minute:02d} 运行')
+        self.set_next_run(task=self.config.task.command, target=limit_datetime)
         raise TaskEnd
 
     def _set_batch_tasks(self, task_list, target_time):
