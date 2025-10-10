@@ -20,6 +20,7 @@ from tasks.Restart.assets import RestartAssets
 
 
 class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
+    last_img = None
 
     def run(self):
         # 加载所有图片
@@ -28,23 +29,31 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
         goto_delegate_folder2 = "./tasks/ActivityCommon/gotoDelegate2"
         goto_delegate_folder3 = "./tasks/ActivityCommon/gotoDelegate3"
 
+        self.ui_get_current_page()
+        self.ui_goto(page_main)
+
         self.goto_delegate(self._load_image_template(goto_delegate_folder1), over_img)
         logger.hr("已进入灵视界面", 1)
-        for i in range(2):
-            self.goto_delegate(self._load_image_template(goto_delegate_folder2), over_img)
-            logger.hr("已进入委派界面", 1)
-            self.start_delegate()
-            self.goto_delegate(self._load_image_template(goto_delegate_folder3), over_img)
+        self.goto_delegate(self._load_image_template(goto_delegate_folder2), over_img)
+        logger.hr("已进入委派界面", 1)
+        self.start_delegate()
+        self.goto_delegate(self._load_image_template(goto_delegate_folder3), over_img)
 
         logger.hr("委派任务结束", 1)
         # 回到庭院
         self.back_main()
         self.set_next_run()
+        raise TaskEnd
 
     def goto_delegate(self, goto_challenge_templates, over_img):
         # 进入挑战界面
         goto_activity = False
+        click_count = 1
         while not goto_activity:
+            if click_count >= 3:
+                self.back_main()
+                self.set_next_run()
+                raise TaskEnd
             self.screenshot()
             # 获得奖励
             if self.ui_reward_appear_click():
@@ -60,6 +69,11 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                         break
                 else:
                     if self.appear_then_click(goto_template, interval=1):
+                        if self.last_img == goto_template.file:
+                            click_count += 1
+                        else:
+                            click_count = 0
+                            self.last_img = goto_template.file
                         break
 
     def start_delegate(self):
