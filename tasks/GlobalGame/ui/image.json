@@ -97,5 +97,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "勾选"
+  },
+  {
+    "itemName": "ui_exit",
+    "imageName": "ui_ui_exit.png",
+    "roiFront": "14,12,43,41",
+    "roiBack": "2,4,95,81",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "左上角的退出"
   }
 ]

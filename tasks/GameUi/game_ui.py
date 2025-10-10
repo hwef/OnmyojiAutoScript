@@ -278,6 +278,8 @@ class GameUi(BaseTask, GameUiAssets):
                 continue
             if self.appear_then_click(self.I_UI_BACK_YELLOW, interval=1):
                 continue
+            if self.appear_then_click(self.I_UI_EXIT, interval=1):
+                continue
 
 
 if __name__ == '__main__':
