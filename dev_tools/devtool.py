@@ -1136,7 +1136,8 @@ class DevTool(ctk.CTk):
                 capture_output=True, 
                 text=True, 
                 timeout=10,
-                startupinfo=startupinfo
+                startupinfo=startupinfo,
+                encoding='utf-8'  # 明确指定编码
             )
             
             if result.returncode != 0:
