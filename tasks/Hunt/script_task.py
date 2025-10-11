@@ -131,9 +131,11 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
                 logger.info("Battle result is false")
                 self.ui_click_until_disappear(self.I_FALSE)
                 return False
-            if self.appear_then_click(self.I_PREPARE_HIGHLIGHT, interval=2):
-                self.device.stuck_record_add('BATTLE_STATUS_S')
-                continue
+            if self.appear(self.I_PREPARE_HIGHLIGHT):
+                if self.appear_then_click(self.I_EXIT_ENSURE):
+                    continue
+                if self.appear_then_click(self.I_UI_EXIT, interval=1):
+                    continue
             # 如果三分钟还没打完，再延长五分钟
             if stuck_timer and stuck_timer.reached():
                 stuck_timer.reset()
@@ -148,45 +150,36 @@ class ScriptTask(GameUi, GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
     def check_datetime(self) -> bool:
         """
         检查日期和时间, 会设置是麒麟还是阴界之门
-        :return: 符合19:00-21:00的时间返回True, 否则返回False
+        :return: 符合有效时间范围返回True, 否则返回False
         """
         now = datetime.now()
         day_of_week = now.weekday()
+
+        # 根据星期几判断是麒麟日还是阴界之门日
         if 0 <= day_of_week <= 3:
             self.kirin_day = True
-        elif 4 <= day_of_week <= 6:
+            valid_start, valid_end = time(6, 0), time(23, 0)
+            task_name = "麒麟"
+        else:  # 4 <= day_of_week <= 6
             self.kirin_day = False
+            valid_start, valid_end = time(19, 0), time(23, 0)  # 修改结束时间为23点
+            task_name = "阴界之门"
 
-        # 根据kirin_day的值判断有效时间范围
-        if self.kirin_day:
-            # kirin_day为True时，有效时间为6:00-23:00
-            if time(6, 0) <= now.time() <= time(23, 0):
-                return True
-            else:
-                logger.warning(f'麒麟时间不符合6:00-23:00，当前时间: {now.time()}')
-                # 设定时间为当天或明天的19:00
-                if now.time() < time(6, 0):
-                    # 当天06:00之前，设定为当天19:00
-                    next_run = datetime.combine(now.date(), time(19, 0))
-                else:
-                    # 当天23:00之后，设定为明天19:00
-                    next_run = datetime.combine(now.date() + timedelta(days=1), time(19, 0))
+        # 检查当前时间是否在有效范围内
+        if valid_start <= now.time() <= valid_end:
+            return True
         else:
-            # kirin_day为False时，有效时间为19:00-21:00
-            if time(19, 0) <= now.time() <= time(21, 0):
-                return True
-            else:
-                logger.warning(f'阴界之门时间不符合19:00-21:00，当前时间: {now.time()}')
-                # 设定时间为当天或明天的19:00
-                if now.time() < time(19, 0):
-                    # 当天19:00之前，设定为当天19:00
-                    next_run = datetime.combine(now.date(), time(19, 0))
-                else:
-                    # 当天21:00之后，设定为明天19:00
-                    next_run = datetime.combine(now.date() + timedelta(days=1), time(19, 0))
+            logger.warning(f'{task_name}时间不符合{valid_start}-{valid_end}，当前时间: {now.time()}')
 
-        self.set_next_run(task='Hunt', success=False, finish=True, target=next_run)
-        raise TaskEnd('Hunt')
+            # 统一设定下次运行时间为当天或次日的19:00
+            target_time = time(19, 0)
+            if now.time() < target_time:
+                next_run = datetime.combine(now.date(), target_time)
+            else:
+                next_run = datetime.combine(now.date() + timedelta(days=1), target_time)
+
+            self.set_next_run(task='Hunt', target=next_run)
+            raise TaskEnd
 
 
 if __name__ == '__main__':
