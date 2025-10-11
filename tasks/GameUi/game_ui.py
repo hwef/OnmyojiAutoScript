@@ -16,9 +16,10 @@ from tasks.base_task import BaseTask
 from tasks.SixRealms.assets import SixRealmsAssets
 from module.logger import logger
 from module.exception import (GameNotRunningError, GamePageUnknownError, RequestHumanTakeover)
+from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
 
 
-class GameUi(BaseTask, GameUiAssets):
+class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
     ui_current: Page = None
     ui_pages = [
         # 登录
@@ -272,6 +273,8 @@ class GameUi(BaseTask, GameUiAssets):
             self.screenshot()
             if self.appear(self.I_CHECK_MAIN):
                 break
+            if self.appear_then_click(self.I_EXIT_ENSURE):
+                continue
             if self.appear_then_click(self.I_UI_BACK_RED, interval=1):
                 continue
             if self.appear_then_click(self.I_UI_BACK_BLUE, interval=1):
