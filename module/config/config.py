@@ -331,6 +331,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         :param finish: 是完成任务后的时间为基准还是开始任务的时间为基准
         :return:
         """
+        next_run = None
         days_num = 1
 
         # 加载配置文件
@@ -338,7 +339,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         # 任务预处理
         if not task:
             task = self.task.command
-        old_task = task
+        task_name = task
         # 驼峰形式的字符串转换为下划线形式的字符串
         task = convert_to_underscore(task)
         task_object = getattr(self.model, task, None)
@@ -354,9 +355,11 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         if not start_time:
             start_time = datetime.now().replace(microsecond=0)
 
-        # 依次判断是否有自定义的下次运行时间
-        run = []
-        if success is not None:
+        if target is not None:
+            target = [target] if not isinstance(target, list) else target
+            next_run = nearest_future(target)
+
+        elif success is not None:
             interval = (
                 scheduler.success_interval
                 if success
@@ -369,46 +372,19 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             if interval.days > 1:
                 days_num = interval.days
                 next_days_time = datetime.now() + timedelta(days=interval.days)
-                run.append(datetime.combine(next_days_time, scheduler.server_update))
+                next_run = datetime.combine(next_days_time, scheduler.server_update)
             else:
                 # 如果间隔时间小于等于1天, 则将下次运行时间设置为当前时间加间隔时间
                 days_num = 1
-                run.append(start_time + interval)
+                next_run = start_time + interval
 
-        if target is not None:
-            target = [target] if not isinstance(target, list) else target
-            target = nearest_future(target)
-            run.append(target)
+            if server and hasattr(scheduler, 'server_update'):
+                # 如果有强制运行时间 并且运行成功 并且间隔时间小于等于一天
+                if target is None and success and days_num == 1:
+                    if scheduler.server_update != time(hour=9):
+                        # 如果固定时间是不是9点 则将下次运行时间设置为明天的固定时间
+                        next_run = parse_tomorrow_server(scheduler.server_update)
 
-        next_run = None
-        # 排序
-        if not len(run):
-            raise ScriptError(
-                "Missing argument in delay_next_run, should set at least one"
-            )
-
-        run = min(run).replace(microsecond=0)
-        next_run = run
-
-        if server and hasattr(scheduler, 'server_update'):
-            # 如果有强制运行时间 并且运行成功 并且间隔时间小于等于一天
-            if target is None and success and days_num == 1:
-                # 如果固定时间是9点 则将下次运行时间设置为当前时间加间隔时间
-                if scheduler.server_update == time(hour=9):
-                    next_run = next_run
-                else:
-                    # 如果固定时间是不是9点 则将下次运行时间设置为明天的固定时间
-                    next_run = parse_tomorrow_server(scheduler.server_update)
-
-        # 将这些连接起来，方便日志输出
-        kv = dict_to_kv(
-            {
-                "success": success,
-                "server_update": server,
-                "target": target,
-            },
-            allow_none=False,
-        )
         # 总结
         # 如果间隔时间大于1天, 则将下次运行时间设置为固定时间加间隔天数
         # 如果间隔时间小于等于1天,并且固定时间是9点 则将下次运行时间设置为当前时间加间隔时间
@@ -417,7 +393,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         # 保证线程安全的
         self.lock_config.acquire()
         try:
-            scheduler.next_run = next_run
+            scheduler.next_run = next_run.replace(microsecond=0)
             self.save()
         finally:
             self.lock_config.release()
@@ -435,7 +411,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
                 logger.debug("state_queue 未设置，跳过广播")
 
         # 设置
-        logger.hr(f'设置任务（`{I18n.trans_zh_cn(old_task)}` | {next_run}）执行', 2)
+        logger.hr(f'设置任务（`{I18n.trans_zh_cn(task_name)}` | {next_run}）执行', 2)
 
     # @cached_property
     # def notifier(self):
