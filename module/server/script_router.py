@@ -253,7 +253,7 @@ async def websocket_endpoint(websocket: WebSocket, script_name: str):
     finally:
         # 确保连接被正确清理
         try:
-            script_process.disconnect(websocket)
+            await script_process.disconnect(websocket)
         except Exception as e:
             logger.error(f'[{script_name}] error disconnecting websocket: {e}')
 
