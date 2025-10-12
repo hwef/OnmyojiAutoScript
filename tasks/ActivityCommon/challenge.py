@@ -13,6 +13,7 @@ from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_shikigami_records
 from tasks.Restart.assets import RestartAssets
+from tasks.ActivityCommon.delegate import ScriptTask as Delegate
 
 """ 活动通用 """
 
@@ -25,6 +26,9 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
         # 加载所有图片
         goto_challenge_folder = "./tasks/ActivityCommon/gotoChallenge"
         battle_folder = "./tasks/ActivityCommon/战斗"
+
+
+
         self.run_config(config, goto_challenge_folder, battle_folder)
 
     def run_config(self, config, goto_challenge_folder, battle_folder):
@@ -60,6 +64,12 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
 
         self.ui_get_current_page()
         self.ui_goto(page_main)
+
+        goto_delegate_folder1 = "./tasks/ActivityCommon/gotoDelegate"
+        over_img = "over.png"
+
+        delegate = Delegate(self.config, self.device)
+        delegate.goto_delegate(self._load_image_template(goto_delegate_folder1), over_img)
 
         # 进入挑战页面
         self.goto_challenge(goto_challenge_templates)
