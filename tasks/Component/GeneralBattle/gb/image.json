@@ -147,10 +147,19 @@
     "itemName": "exit_ensure",
     "imageName": "gb_exit_ensure.png",
     "roiFront": "674,388,135,63",
-    "roiBack": "674,388,135,63",
+    "roiBack": "524,181,518,383",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "退出确认"
+  },
+  {
+    "itemName": "exit_ensure1",
+    "imageName": "gb_exit_ensure1.png",
+    "roiFront": "674,388,135,63",
+    "roiBack": "524,181,518,383",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "退出确定"
   },
   {
     "itemName": "friends",

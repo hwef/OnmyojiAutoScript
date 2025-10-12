@@ -17,6 +17,7 @@ from tasks.SixRealms.assets import SixRealmsAssets
 from module.logger import logger
 from module.exception import (GameNotRunningError, GamePageUnknownError, RequestHumanTakeover)
 from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
+from tasks.GlobalGame.assets import GlobalGameAssets
 
 
 class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
@@ -37,6 +38,8 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
         page_collection,
     ]
     ui_close = [GameUiAssets.I_BACK_MALL,
+                GeneralBattleAssets.I_EXIT_ENSURE, GeneralBattleAssets.I_EXIT_ENSURE1, GlobalGameAssets.I_UI_EXIT,
+                GeneralBattleAssets.I_REWARD, GeneralBattleAssets.I_FALSE, GeneralBattleAssets.I_WIN,
                 BaseTask.I_UI_BACK_RED, BaseTask.I_UI_BACK_YELLOW, BaseTask.I_UI_BACK_BLUE,
                 GameUiAssets.I_BACK_FRIENDS, GameUiAssets.I_BACK_DAILY,
                 GameUiAssets.I_REALM_RAID_GOTO_EXPLORATION,
