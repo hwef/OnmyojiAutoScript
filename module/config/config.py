@@ -335,7 +335,6 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         :return:
         """
         next_run = None
-        days_num = 1
 
         # 加载配置文件
         self.reload()
@@ -395,8 +394,9 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
 
         # 保证线程安全的
         self.lock_config.acquire()
+        next_run = next_run.replace(microsecond=0)
         try:
-            scheduler.next_run = next_run.replace(microsecond=0)
+            scheduler.next_run = next_run
             self.save()
         finally:
             self.lock_config.release()
@@ -411,7 +411,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
                 except Exception as e:
                     logger.warning(f"广播调度更新失败: {e}")
             else:
-                logger.debug("state_queue 未设置，跳过广播")
+                logger.warning("state_queue 未设置，跳过广播")
 
         # 设置
         logger.hr(f'设置任务（`{I18n.trans_zh_cn(task_name)}` | {next_run}）执行', 2)
