@@ -23,7 +23,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
     def run(self):
         config = self.config.activity_common
         # 加载所有图片
-        goto_challenge_folder = "./tasks/ActivityCommon/gotoActivity"
+        goto_challenge_folder = "./tasks/ActivityCommon/gotoChallenge"
         battle_folder = "./tasks/ActivityCommon/战斗"
         self.run_config(config, goto_challenge_folder, battle_folder)
 
@@ -37,7 +37,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
             roi_back=(1100, 540, 170, 170),
             threshold=0.8,
             method="Template matching",
-            file=f"./tasks/{goto_challenge_folder}/挑战.png"
+            file=f"{goto_challenge_folder}/挑战.png"
         )
         battle_templates.append(challenge)
 
@@ -185,38 +185,12 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                     if current_file == '挑战.png' or current_file == '准备.png':
                         self.device.stuck_record_add('BATTLE_STATUS_S')
 
-    def _load_image_template(self, image_folder=None):
-        image_templates = []
-        image_folder = f"./tasks/{image_folder}/"
-        supported_formats = ('.png', '.jpg', '.jpeg')
-
-        # 遍历图片文件夹
-        for filename in os.listdir(image_folder):
-            if not filename.lower().endswith(supported_formats):
-                continue
-            # 构建完整路径
-            file_path = os.path.join(image_folder, filename)
-
-            # 创建RuleImage对象并添加到列表
-            image_rule = RuleImage(
-                roi_front=(0, 0, 1280, 720),  # 保持与原来相同的ROI参数
-                roi_back=(0, 0, 1280, 720),
-                threshold=0.8,
-                method="Template matching",
-                file=file_path
-            )
-            image_templates.append(image_rule)
-
-        logger.info(f"加载图片模板集合: {image_templates}")
-        logger.info(f"加载图片模板数量: {len(image_templates)}")
-        return image_templates
-
 
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('mi')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
 

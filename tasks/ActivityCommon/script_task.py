@@ -13,7 +13,7 @@ from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_shikigami_records
 from tasks.Restart.assets import RestartAssets
-from tasks.ActivityCommon.battle import ScriptTask as Battle
+from tasks.ActivityCommon.challenge import ScriptTask as Battle
 from tasks.ActivityCommon.delegate import ScriptTask as Delegate
 
 """ 活动通用 """
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('wy')
+    c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)
 
