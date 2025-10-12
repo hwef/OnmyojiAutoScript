@@ -152,6 +152,15 @@
     "description": "description"
   },
   {
+    "itemName": "check_soul_zones1",
+    "imageName": "page_check_soul_zones1.png",
+    "roiFront": "117,29,68,29",
+    "roiBack": "102,3,176,88",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "description"
+  },
+  {
     "itemName": "check_realm_raid",
     "imageName": "page_check_realm_raid.png",
     "roiFront": "113,625,86,77",

@@ -177,7 +177,7 @@ page_dokan = Page(DokanAssets.I_RYOU_DOKAN_CHECK)
 page_dokan.additional = [GeneralBattleAssets.I_EXIT, DokanAssets.I_RYOU_DOKAN_EXIT_ENSURE, G.I_BACK_BLUE]
 page_dokan.link(button=G.I_BACK_Y, destination=page_main)
 
-
-
-
+page_soul_zones1 = Page(G.I_CHECK_SOUL_ZONES1)
+page_soul_zones1.link(button=G.I_BACK_BLUE, destination=page_soul_zones)
+page_team.link(button=G.I_BACK_BLUE, destination=page_soul_zones1)
 

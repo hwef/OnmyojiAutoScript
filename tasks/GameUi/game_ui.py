@@ -28,7 +28,7 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
         # 主页
         page_main, page_summon, page_exploration, page_town,
         # 探索的
-        page_awake_zones, page_soul_zones, page_realm_raid, page_goryou_realm, page_delegation,
+        page_awake_zones, page_soul_zones, page_soul_zones1, page_realm_raid, page_goryou_realm, page_delegation,
         page_secret_zones, page_area_boss, page_heian_kitan, page_six_gates, page_bondling_fairyland,
         page_kekkai_toppa,
         # 町中的
