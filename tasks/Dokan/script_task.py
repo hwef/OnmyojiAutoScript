@@ -5,26 +5,29 @@
 # github    https://github.com/roarhill/oas
 import time
 from time import sleep
+
 import cv2
+import os
 import re
+import yaml
+from cached_property import cached_property
 from datetime import datetime
 from enum import Enum
 from module.atom.click import RuleClick
-from module.atom.gif import RuleGif
-from module.atom.ocr import RuleOcr
 from module.atom.image import RuleImage
+from module.atom.ocr import RuleOcr
 from module.base.timer import Timer
 from module.exception import TaskEnd
 from module.logger import logger
 from tasks.Component.GeneralBattle.config_general_battle import GreenMarkType, GeneralBattleConfig
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.Component.GeneralInvite.assets import GeneralInviteAssets
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.Dokan.assets import DokanAssets
 from tasks.Dokan.config import Dokan
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_shikigami_records, page_guild
 from tasks.RichMan.assets import RichManAssets
-from tasks.Component.GeneralInvite.assets import GeneralInviteAssets
 
 """ 道馆 """
 
@@ -72,6 +75,27 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
     last_scene = None
     # 查找的所有道馆
     find_dokan_list = []
+    # 开启的是否为福利寮
+    open_welfare = False
+
+    @cached_property
+    def welfare_name_list(self):
+        """
+        从配置文件加载福利寮名单，只加载一次
+        """
+        welfare_file = 'config/福利寮名单.yaml'
+        try:
+            with open(welfare_file, 'r', encoding='utf-8') as file:
+                config = yaml.safe_load(file)
+                return config.get('welfare_name_list', [])
+        except FileNotFoundError:
+            self.push_notify(content=f"福利寮名单文件未找到: {config_path}")
+            logger.warning(f"福利寮名单文件未找到: {config_path}")
+            return []
+        except Exception as e:
+            self.push_notify(content=f"读取福利寮名单时出错: {e}")
+            logger.error(f"读取福利寮名单时出错: {e}")
+            return []
 
     def check_current_weekday(self, success=False):
         today = datetime.today()
@@ -96,6 +120,17 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             self.ui_get_current_page()
             self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(cfg.switch_soul_config.group_name, cfg.switch_soul_config.team_name)
+
+        # 自动换御魂2
+        if cfg.switch_soul_config2.enable:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul(cfg.switch_soul_config2.switch_group_team)
+        if cfg.switch_soul_config2.enable_switch_by_name:
+            self.ui_get_current_page()
+            self.ui_goto(page_shikigami_records)
+            self.run_switch_soul_by_name(cfg.switch_soul_config2.group_name, cfg.switch_soul_config2.team_name)
+            self.run_switch_soul_by_name(cfg.switch_soul_config2.group_name, cfg.switch_soul_config2.team_name)
 
         # 开始道馆流程
         self.goto_dokan()
@@ -124,6 +159,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
             # 如果当前不在道馆，或者被人工操作退出道馆了，重新尝试进入道馆
             if not in_dokan:
+                # 重置换阵容和是否为福利寮
+                self.team_switched = False
+                self.open_welfare = False
                 self.goto_dokan()
                 continue
 
@@ -268,15 +306,16 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         道馆集结结束后会自动进入战斗，打完一个也会自动进入下一个，因此直接点击右下角的开始
         :return: 战斗成功(True) or 战斗失败(False) or 区域不可用（False）
         """
-        config: GeneralBattleConfig = cfg.general_battle_config
-
         # 更换队伍
-        # if not self.team_switched:
-        #     logger.info(
-        #         f"switch team preset: enable={config.preset_enable}, preset_group={config.preset_group}, preset_team={config.preset_team}")
-        #     self.switch_preset_team(config.preset_enable, config.preset_group, config.preset_team)
-        #     self.team_switched = True
-        #     # 切完队伍后有时候会卡顿，先睡一觉，防止快速跳到绿标流程，导致未能成功绿标
+        if self.open_welfare == False:
+            config: GeneralBattleConfig = cfg.general_battle_config
+        else:
+            config: GeneralBattleConfig = cfg.general_battle_config2
+        if not self.team_switched:
+            logger.info(f"switch team preset: enable={config.preset_enable}, preset_group={config.preset_group}, preset_team={config.preset_team}")
+            self.switch_preset_team(config.preset_enable, config.preset_group, config.preset_team)
+            self.team_switched = True
+            # 切完队伍后有时候会卡顿，先睡一觉，防止快速跳到绿标流程，导致未能成功绿标
 
         while 1:
             self.screenshot()
@@ -579,11 +618,11 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
                 self.O_DOKAN_RIGHTPAD_NAME.roi = self.position_offset(item, (-37, 29, 127, 0))
                 dokan_name = self.O_DOKAN_RIGHTPAD_NAME.ocr(self.device.image)
-                welfare_name_list = ["堡家军", "渔渔子", "哈哈啊哈", "我独自升级", "棱镜","雾云川", "锦鲤一一", "叶落苑", "镜姬岛", "三丫小窝","橘势", "江南雨", "帐中妖", "喵喵教", "人前显圣"]
-                if dokan_name in welfare_name_list or "鑫鑫子" in dokan_name:
+                if dokan_name in self.welfare_name_list or "鑫鑫子" in dokan_name:
                     self.find_dokan_list.append(f"道馆: 名称:{dokan_name},资金:{bounty}")
                     self.save_image(image_type=False, wait_time=0, push_flag=True, content=f"✅ 开启福利道馆: 名称:{dokan_name},资金:{bounty}")
                     self.dokan_quit = True
+                    self.open_welfare = True
                     return True
 
                 # 获取防守人数
@@ -831,12 +870,12 @@ if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('test')
+    config = Config('du')
     device = Device(config)
     t = ScriptTask(config, device)
     # t.save_image()
-    # t.run()
-    t.find_dokan()
+    t.run()
+    # t.find_dokan()
 
     # test_ocr_locate_dokan_target()
     # test_anti_detect_random_click()

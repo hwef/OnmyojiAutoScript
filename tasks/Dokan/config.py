@@ -44,4 +44,6 @@ class Dokan(ConfigBase):
     scheduler: Scheduler = Field(default_factory=Scheduler)
     dokan_config: DokanConfig = Field(default_factory=DokanConfig)
     general_battle_config: GeneralBattleConfig = Field(default_factory=GeneralBattleConfig)
+    general_battle_config2: GeneralBattleConfig = Field(default_factory=GeneralBattleConfig)
     switch_soul_config: SwitchSoulConfig = Field(default_factory=SwitchSoulConfig)
+    switch_soul_config2: SwitchSoulConfig = Field(default_factory=SwitchSoulConfig)
