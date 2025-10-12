@@ -50,13 +50,13 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
             self.screenshot()
             if self.appear(self.I_MS_FRAGMENT_S_VERIFICATION):
                 cu, res, total = self.O_MS_COUNT_S.ocr(self.device.image)
-                message = f'已获得小绘卷，进度{cu}/{total}'
-                self.push_notify(content=message)
+                message = f'已获得小绘卷，进度{cu}/{total} '
                 if self.appear(self.I_MS_FRAGMENT_S_50) or (cu == total == 50):
                     time = self.config.memory_scrolls.memory_scrolls_finish.next_exploration_time
-                    self.push_notify(f'今日探索任务结束，设置明天{time}点执行')
+                    message += f'今日探索任务结束，设置明天{time}点执行'
                     # 安排下次探索
                     self.custom_next_run(task='Exploration', custom_time=time, time_delta=1)
+                self.push_notify(content=message)
                 break
             if self.appear_then_click(self.I_MS_FRAGMENT_S, interval=1.5):
                 continue
@@ -91,8 +91,6 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
 
         # 进度100%，结束
         if self.appear(self.I_MS_COMPLETE):
-            message = f'{con.scroll_number}进度100%'
-            self.push_notify(content=message)
             self.close_task(con)
         else:
             # 查看排名
@@ -103,7 +101,7 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
                 if my_ranking != 0:
                     break
             if (my_ranking >= con.ranking or my_ranking <= 0) or con.ranking == 0:
-                self.push_notify(content=f"{con.scroll_number}本次排名{my_ranking},高于{con.ranking},开始捐赠")
+                logger.info(f"{con.scroll_number}本次排名{my_ranking},高于{con.ranking},开始捐赠")
                 if con.auto_contribute_memoryscrolls:
                     # 进行捐赠
                     self.ui_click(self.I_MS_OPEN_MEMORY, self.I_MS_CONTRIBUTE)
@@ -119,7 +117,7 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
                     # 捐献前分数
                     ms_accrued_scores_after = self.O_MS_ACCRUED_SCORES.ocr(self.device.image)
                     ms_progress = self.O_MS_PROGRESS.ocr(self.device.image)
-                    message = f'{con.scroll_number}本次捐献{ms_accrued_scores_after - ms_accrued_scores},累计捐献{ms_accrued_scores_after}积分，进度{ms_progress}%'
+                    message = f'{con.scroll_number} 排名{my_ranking}，本次捐献{ms_accrued_scores_after - ms_accrued_scores}，累计捐献{ms_accrued_scores_after}积分，进度{ms_progress}%'
                     self.push_notify(content=message)
                 else:
                     self.push_notify(content=f"未开启捐赠")
@@ -130,16 +128,16 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
         logger.info('已退出绘卷捐献界面')
 
     def close_task(self, con):
+        message = f'{con.scroll_number}进度100%'
         if con.close_exploration:
-            logger.info('关闭探索任务')
+            message += ',关闭探索任务'
             self.config.exploration.scheduler.enable = False
-            self.push_notify(content='关闭探索任务')
         if con.close_memoryscrolls:
-            logger.info('关闭绘卷任务')
+            message += ',关闭绘卷任务'
             self.config.memory_scrolls.scheduler.enable = False
-            self.push_notify(content='关闭绘卷任务')
 
-            self.config.save()
+        self.config.save()
+        self.push_notify(content=message)
 
     def contribute_memoryscrolls_all(self, ms_accrued_scores):
         """
@@ -156,7 +154,7 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
             if self.appear(self.I_MS_ZERO_S) and self.appear(self.I_MS_ZERO_M) and self.appear(self.I_MS_ZERO_L):
                 logger.info('全部绘卷已捐献')
                 ms_accrued_scores_now = self.O_MS_ACCRUED_SCORES.ocr(self.device.image)
-                self.push_notify(f'本次已捐献{ms_accrued_scores_now - ms_accrued_scores}积分')
+                logger.info(f'本次已捐献{ms_accrued_scores_now - ms_accrued_scores}积分')
                 return
             self.swipe(self.S_MS_SWIPE_S, interval=1)
             self.swipe(self.S_MS_SWIPE_M, interval=1)
@@ -186,7 +184,7 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
             if self.appear(self.I_MS_ZERO_S) and self.appear(self.I_MS_ZERO_M) and self.appear(self.I_MS_ZERO_L):
                 logger.info('全部绘卷已捐献')
                 ms_accrued_scores_now = self.O_MS_ACCRUED_SCORES.ocr(self.device.image)
-                self.push_notify(f'本次已捐献{ms_accrued_scores_now - ms_accrued_scores}积分')
+                logger.info(f'本次已捐献{ms_accrued_scores_now - ms_accrued_scores}积分')
                 return
 
             self.appear_then_click(self.I_MS_ADD_S)
@@ -207,7 +205,7 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
 
             ms_accrued_scores_now = self.O_MS_ACCRUED_SCORES.ocr(self.device.image)
             if ms_accrued_scores_now >= ms_accrued_scores + donation_scores:
-                self.push_notify(f'本次已捐献{ms_accrued_scores_now - ms_accrued_scores}积分,超过{donation_scores}')
+                logger.info(f'本次已捐献{ms_accrued_scores_now - ms_accrued_scores}积分,超过{donation_scores}')
                 return
     
 
