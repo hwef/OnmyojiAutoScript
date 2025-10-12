@@ -141,7 +141,8 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
             self.duel_one(current_score, con.green_enable, con.green_mark, celeb_con.ban_name)
 
         logger.info('Duel battle end')
-        self.push_notify( f'场次: {self.battle_count} | 胜: {self.battle_win_count} 败: {self.battle_lose_count} | 分数: {current_score}')
+        if self.battle_count > 0:
+            self.push_notify( f'场次: {self.battle_count} | 胜: {self.battle_win_count} 败: {self.battle_lose_count} | 分数: {current_score}')
         # 记得退回去到町中
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_TOWN)
 
