@@ -620,7 +620,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 dokan_name = self.O_DOKAN_RIGHTPAD_NAME.ocr(self.device.image)
                 if dokan_name in self.welfare_name_list or "鑫鑫子" in dokan_name:
                     self.find_dokan_list.append(f"道馆: 名称:{dokan_name},资金:{bounty}")
-                    self.save_image(image_type=False, wait_time=0, push_flag=True, content=f"✅ 开启福利道馆: 名称:{dokan_name},资金:{bounty}")
+                    self.push_notify(content=f"✅ 开启福利道馆: 名称:{dokan_name},资金:{bounty}")
                     self.dokan_quit = True
                     self.open_welfare = True
                     return True
@@ -662,7 +662,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     if not self.appear(self.I_CENTER_GUANZHU_XIUXI):
                         logger.warning(f"馆主不是修习等级的,不符合要求")
                         continue
-                self.save_image(image_type=False, wait_time=0, push_flag=True, content=f"开启道馆: {dokan_name},资金: {bounty},人数: {p_num},系数: {item_score}")
+                self.push_notify(content=f"开启道馆: {dokan_name},资金: {bounty},人数: {p_num},系数: {item_score}")
                 return True
             # 在所有列表中都没有符合的,且忽略系数限制,那么就选择最低分数的那个,点击显示挑战按钮
             if ignore_score:
@@ -672,7 +672,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     sleep(0.5)
                     self.screenshot()
                     if self.appear(self.I_CENTER_CHALLENGE):
-                        self.save_image(image_type=False, wait_time=0, push_flag=True, content=f"选择当前列表中系数最低的{min_score}")
+                        self.push_notify(content=f"选择当前列表中系数最低的{min_score}")
                         return True
             return False
 
@@ -734,7 +734,6 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 continue
 
         self.find_dokan(self.config.dokan.dokan_config.find_dokan_score)
-        self.save_image(image_type=False, wait_time=0, push_flag=True, content=f"已开启道馆")
 
         # 道馆数量
         filtered_list = [item for item in self.find_dokan_list if "刷新列表" not in item]
