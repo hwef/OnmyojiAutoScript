@@ -58,7 +58,44 @@ def send_put_request():
     except requests.exceptions.RequestException as e:
         print(f"请求发生错误: {e}")
 
+def fetch_today_data():
+    """
+    请求 https://fetchbuild.luckyancj.site/today 并接收返回消息
+    """
+    url = "https://fetchbuild.luckyancj.site/today"
+
+    try:
+        # 发送GET请求
+        response = requests.get(url)
+
+        # 输出请求信息
+        print(f"请求URL: {url}")
+        print(f"请求方法: GET")
+        print(f"状态码: {response.status_code}")
+
+        # 检查请求是否成功
+        if response.status_code == 200:
+            print("请求成功!")
+            print(f"响应内容: {response.text}")
+
+            # 如果返回的是JSON格式数据
+            try:
+                json_data = response.json()
+                print(f"JSON响应: {json_data}")
+            except ValueError:
+                print("响应不是有效的JSON格式")
+
+        else:
+            print(f"请求失败，状态码: {response.status_code}")
+            print(f"响应内容: {response.text}")
+
+    except requests.exceptions.RequestException as e:
+        print(f"请求发生错误: {e}")
+
+
 
 if __name__ == "__main__":
-    print("=== 发送PUT请求 ===")
-    send_put_request()
+    # print("=== 发送PUT请求 ===")
+    # send_put_request()
+    print("=== 请求今日数据 ===")
+    fetch_today_data()
