@@ -12,6 +12,14 @@ from tasks.Component.config_base import ConfigBase, Time
 from tasks.Component.config_scheduler import Scheduler
 
 
+class WelfareConfig(BaseModel):
+    # 是否只开福利寮
+    welfare_enable: bool = Field(default=False, description='是否优先开启福利寮')
+    # 福利寮刷新次数
+    fresh_num: int = Field(default=5, description='福利寮刷新次数')
+    # 福利寮最少人数限制
+    min_people_num: int = Field(default=-1, description='福利寮最少人数')
+
 
 class DokanConfig(BaseModel):
     # # 寮管理开启道馆
@@ -43,6 +51,7 @@ class DokanConfig(BaseModel):
 class Dokan(ConfigBase):
     scheduler: Scheduler = Field(default_factory=Scheduler)
     dokan_config: DokanConfig = Field(default_factory=DokanConfig)
+    welfare_config: WelfareConfig = Field(default_factory=WelfareConfig)
     general_battle_config: GeneralBattleConfig = Field(default_factory=GeneralBattleConfig)
     general_battle_config2: GeneralBattleConfig = Field(default_factory=GeneralBattleConfig)
     switch_soul_config: SwitchSoulConfig = Field(default_factory=SwitchSoulConfig)

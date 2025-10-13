@@ -77,25 +77,27 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
     find_dokan_list = []
     # 开启的是否为福利寮
     open_welfare = False
+    # 福利寮名单
+    welfare_names = None
 
-    @cached_property
-    def welfare_name_list(self):
+    def welfare_name_str(self):
         """
         从配置文件加载福利寮名单，只加载一次
         """
-        welfare_file = 'config/福利寮名单.yaml'
+        welfare_file = 'config/福利寮名单.txt'
         try:
             with open(welfare_file, 'r', encoding='utf-8') as file:
-                config = yaml.safe_load(file)
-                return config.get('welfare_name_list', [])
+                # 读取所有行并连接成一个字符串
+                content = file.read().strip()
+                return content
         except FileNotFoundError:
             self.push_notify(content=f"福利寮名单文件未找到: {config_path}")
             logger.warning(f"福利寮名单文件未找到: {config_path}")
-            return []
+            return ''
         except Exception as e:
             self.push_notify(content=f"读取福利寮名单时出错: {e}")
             logger.error(f"读取福利寮名单时出错: {e}")
-            return []
+            return ''
 
     def check_current_weekday(self, success=False):
         today = datetime.today()
@@ -108,6 +110,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
     def run(self):
         # 检查今天周几
         # self.check_current_weekday()
+        self.welfare_names = self.welfare_name_str()
 
         cfg: Dokan = self.config.dokan
 
@@ -528,7 +531,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             return True
         return False
 
-    def find_dokan(self, score=4.6):
+    def find_dokan(self, con, welfare_flag):
         """
         寻找符合条件的道馆进行挑战。
 
@@ -538,8 +541,10 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         返回:
         bool: 是否找到了符合条件的道馆并进行挑战。
         """
-
-        #
+        if welfare_flag:
+            logger.info('开始寻找福利寮')
+        else:
+            logger.info('开始寻找普通寮')
         is_indokan, cur_scene = self.get_current_scene()
         if cur_scene != DokanScene.RYOU_DOKAN_SCENE_FINDING_DOKAN:
             return True
@@ -610,20 +615,26 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 # 扩大搜索区域,防止找不到
                 self.I_RIGHTPAD_POINT_BOUNTY.roi_back = self.position_offset(item, (-10, -10, 20, 20))
                 # Note: 道馆不可挑战时(被别的寮打了),8秒后跳过
-                if not self.ui_click_until_appear_or_timeout(self.I_RIGHTPAD_POINT_BOUNTY, self.I_CENTER_CHALLENGE,
-                                                             interval=1.5, timeout=8):
+                if not self.ui_click_until_appear_or_timeout(self.I_RIGHTPAD_POINT_BOUNTY, self.I_CENTER_CHALLENGE, interval=1.5, timeout=8):
                     logger.info(f"can't find challenge button,idx={idx} item={item}")
                     # 道馆不可挑战,挑战按钮不会弹出 ,直接进行下一个
                     continue
 
                 self.O_DOKAN_RIGHTPAD_NAME.roi = self.position_offset(item, (-37, 29, 127, 0))
                 dokan_name = self.O_DOKAN_RIGHTPAD_NAME.ocr(self.device.image)
-                if dokan_name in self.welfare_name_list or "鑫鑫子" in dokan_name:
+                if dokan_name == "":
+                    self.push_notify("道馆名称未识别")
+                    continue
+                if dokan_name in self.welfare_names or "鑫鑫子" in dokan_name:
                     self.find_dokan_list.append(f"道馆: 名称:{dokan_name},资金:{bounty}")
-                    self.push_notify(content=f"✅ 开启福利道馆: 名称:{dokan_name},资金:{bounty}")
                     self.dokan_quit = True
                     self.open_welfare = True
-                    return True
+                else:
+                    # 如果是要开启福利寮，但是此寮不是福利寮，则跳过
+                    if welfare_flag:
+                        logger.warning(f"道馆: 名称:{dokan_name},资金:{bounty} 不是福利寮")
+                        continue
+
 
                 # 获取防守人数
                 self.screenshot()
@@ -638,6 +649,15 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     continue
                 p_num = int(tmp.group())
 
+                if p_num < con.min_people_num:
+                    logger.warning(f"人数{p_num}少于{con.min_people_num},不符合要求")
+                    continue
+
+                # 如果是要开启福利寮，且此寮人数校验已经通过，直接确认此寮
+                if self.open_welfare:
+                    self.push_notify(content=f"✅ 开启福利道馆: 名称:{dokan_name},资金:{bounty},人数: {p_num}")
+                    return True
+
                 item_score = float(f"{bounty / p_num:.2f}")
                 dokan_info = (f"道馆: {dokan_name},资金: {bounty},人数: {p_num},系数: {item_score}")
                 self.find_dokan_list.append(dokan_info)
@@ -647,14 +667,11 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     min_score = item_score
                     idx_selected = idx
                 # 大于系数 或者 系数过小(文字识别错误导致)
-                if item_score > score or item_score < 1.5:
-                    logger.warning(f"系数{item_score}大于{score},不符合要求")
+                if item_score > con.find_dokan_score or item_score < 1.5:
+                    logger.warning(f"系数{item_score}大于{con.find_dokan_score},不符合要求")
                     continue
-                if p_num < self.config.dokan.dokan_config.min_people_num:
-                    logger.warning(f"人数{p_num}少于{self.config.dokan.dokan_config.min_people_num},不符合要求")
-                    continue
-                if bounty < self.config.dokan.dokan_config.min_bounty:
-                    logger.warning(f"寮资金{bounty}少于{self.config.dokan.dokan_config.min_bounty},不符合要求")
+                if bounty < con.min_bounty:
+                    logger.warning(f"寮资金{bounty}少于{con.min_bounty},不符合要求")
                     continue
                 # 道馆是否退出，来决定是否需要判断馆主等级
                 if not self.dokan_quit:
@@ -677,7 +694,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             return False
 
         logger.hr("开始寻找合适的道馆", 2)
-        while num_fresh < self.config.dokan.dokan_config.fresh_num:
+        while num_fresh < con.fresh_num:
             for i in range(3):
                 sleep(3)
                 if find_challengeable():
@@ -704,6 +721,10 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             self.ui_click(self.C_DOKAN_REFRESH, self.I_REFRESH_ENSURE, interval=1)
             self.ui_click_until_disappear(self.I_REFRESH_ENSURE, interval=1)
             sleep(1)
+
+        if welfare_flag:
+            self.push_notify(content="未找到福利寮")
+            return False
 
         # 刷新次数用完,仍未找到符合条件的道馆,选择当前列表(约4个)中系数最低的
         logger.warning("刷新次数已经上限,未找到符合条件的道馆,选择当前列表中系数最低的")
@@ -733,7 +754,13 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             if self.appear_then_click(self.I_CREATE_DAOGUAN, interval=1):
                 continue
 
-        self.find_dokan(self.config.dokan.dokan_config.find_dokan_score)
+        dokan_config = self.config.dokan.welfare_config
+        if dokan_config.welfare_enable and self.find_dokan(dokan_config, welfare_flag=True):
+            logger.info("已找到福利道馆")
+        else:
+            dokan_config = self.config.dokan.dokan_config
+            self.find_dokan(dokan_config, welfare_flag=False)
+            logger.info("已找到普通道馆")
 
         # 道馆数量
         filtered_list = [item for item in self.find_dokan_list if "刷新列表" not in item]
@@ -875,6 +902,10 @@ if __name__ == "__main__":
     # t.save_image()
     t.run()
     # t.find_dokan()
+
+    # welfare_names = t.welfare_name_str()
+    # if "鑫鑫" in welfare_names:
+    #     print("有")
 
     # test_ocr_locate_dokan_target()
     # test_anti_detect_random_click()
