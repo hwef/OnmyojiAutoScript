@@ -19,7 +19,9 @@ class WelfareConfig(BaseModel):
     fresh_num: int = Field(default=5, description='福利寮刷新次数')
     # 福利寮最少人数限制
     min_people_num: int = Field(default=-1, description='福利寮最少人数')
-
+    # 是否发送请求检查福利寮开启
+    enable_get_requests: bool = Field(default=False, description='是否发送请求检查福利寮开启')
+    get_requests_url: str = Field(default='', description='获取请求的URL')
 
 class DokanConfig(BaseModel):
     # # 寮管理开启道馆

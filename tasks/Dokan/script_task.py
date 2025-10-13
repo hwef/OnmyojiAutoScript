@@ -11,7 +11,7 @@ import os
 import re
 import yaml
 from cached_property import cached_property
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 from module.atom.click import RuleClick
 from module.atom.image import RuleImage
@@ -79,6 +79,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
     open_welfare = False
     # 福利寮名单
     welfare_names = None
+    # 福利寮创建时间
+    create_doukan_time = None
 
     def welfare_name_str(self):
         """
@@ -110,6 +112,29 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
     def run(self):
         # 检查今天周几
         # self.check_current_weekday()
+
+        cfg: Dokan = self.config.dokan
+
+        # 发送请求检查福利寮开启情况
+        if cfg.welfare_config.enable_get_requests:
+            json_response = self.get_requests(cfg.welfare_config.get_requests_url)
+
+            # 检查响应有效性
+            if not json_response or not json_response.get('est', False):
+                logger.warning(f"福利道馆未开启: {json_response}")
+                self.set_next_run(target=datetime.now() + timedelta(minutes=5))
+                raise TaskEnd
+
+            # 解析时间戳并设置创建道馆时间
+            timestamp = json_response['timestamp']
+            # 解析时间戳获取时分秒
+            timestamp_time = datetime.fromtimestamp(timestamp)
+            # 获取明天的日期，但使用timestamp的时分秒
+            tomorrow_date = (datetime.now() + timedelta(days=1)).date()
+            self.create_doukan_time = datetime.combine(tomorrow_date, timestamp_time.time())
+            logger.info(f"福利道馆创建时间: {self.create_doukan_time}")
+
+        # 加载福利寮名单
         self.welfare_names = self.welfare_name_str()
 
         cfg: Dokan = self.config.dokan
@@ -474,8 +499,11 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
         if '挑战成功' in dokan_status_str or '0次' in dokan_status_str:
             self.goto_main()
-            self.check_current_weekday(True)
-            self.set_next_run(task='Dokan', finish=True, server=True, success=True)
+            # self.check_current_weekday(True)
+            if self.create_doukan_time:
+                self.set_next_run(target=self.create_doukan_time)
+            else:
+                self.set_next_run(task='Dokan', finish=True, server=True, success=True)
             raise TaskEnd
         elif '集结中' in dokan_status_str:
             # 寮成员进入道馆
@@ -497,8 +525,11 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 if self.goto_dokan_num >= 15:
                     logger.info(f"寮成员{self.goto_dokan_num}次未进入道馆, 结束任务!")
                     self.goto_main()
-                    self.check_current_weekday(True)
-                    self.set_next_run(task='Dokan', finish=True, server=True, success=True)
+                    # self.check_current_weekday(True)
+                    if self.create_doukan_time:
+                        self.set_next_run(target=self.create_doukan_time)
+                    else:
+                        self.set_next_run(task='Dokan', finish=True, server=True, success=True)
                     raise TaskEnd
 
     def goto_dokan_click(self):
@@ -654,6 +685,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 if p_num < con.min_people_num:
                     self.find_dokan_list.append(f"道馆: 名称:{dokan_name},资金:{bounty},人数: {p_num}")
                     logger.warning(f"人数{p_num}少于{con.min_people_num},不符合要求")
+                    self.open_welfare = False
                     continue
 
                 # 如果是要开启福利寮，且此寮人数校验已经通过，直接确认此寮
