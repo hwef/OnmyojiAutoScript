@@ -36,7 +36,6 @@ import sys
 
 class Script:
     def __init__(self, config_name: str = 'oas') -> None:
-        self.device = None
         self.device_status = False  # 模拟器状态 True:运行中，False:已关闭
         self.team_running = False
         self.server = None
@@ -63,18 +62,18 @@ class Script:
             logger.exception(e)
             exit(1)
 
-    # @cached_property
-    # def device(self) -> "Device":
-    #     try:
-    #         from module.device.device import Device
-    #         device = Device(config=self.config)
-    #         return device
-    #     except RequestHumanTakeover:
-    #         logger.critical('Request human takeover')
-    #         exit(1)
-    #     except Exception as e:
-    #         logger.exception(e)
-    #         exit(1)
+    @cached_property
+    def device(self) -> "Device":
+        try:
+            from module.device.device import Device
+            device = Device(config=self.config)
+            return device
+        except RequestHumanTakeover:
+            logger.critical('Request human takeover')
+            exit(1)
+        except Exception as e:
+            logger.exception(e)
+            exit(1)
 
     @cached_property
     def checker(self):
@@ -147,7 +146,7 @@ class Script:
             return port
         except zmq.error.ZMQError:
             logger.error(f"Ocr server cannot bind on port {port}")
-            return None
+            return False
 
     def run_server(self) -> None:
         """
@@ -477,12 +476,11 @@ class Script:
             logger.error(f'Invalid command `{command}`')
 
         try:
-            self.device.screenshot()
             module_name = 'script_task'
             module_path = str(Path.cwd() / 'tasks' / command / (module_name + '.py'))
             logger.info(f'module_path: {module_path}, module_name: {module_name}')
             task_module = load_module(module_name, module_path)
-            task_module.ScriptTask(config=self.config, device=self.device).run()
+            task_module.ScriptTask(config=self.config).run()
         except TaskEnd:
             return True
         except GameNotRunningError as e:
@@ -530,7 +528,6 @@ class Script:
         # 重置状态
         logger.info(f'[准备] 正在重置状态...')
         self.failure_record = {}
-        self.device = None
         self.device_status = False
         is_first_task = True
         stop_requested = False
@@ -563,25 +560,6 @@ class Script:
                             self.send_team_task("Restart")
                             self.start_websocket(script_name, 'start')
                         self.send_team_task(task)
-
-                    # ------------------------- 设备重连逻辑 -------------------------
-                    if not (self.device_status and self.device):
-                        logger.warning('[设备] 检测到设备断开，尝试重新连接')
-                        self.device = Device(self.config)
-                        self.device_status = True
-                        logger.info('[设备] 重连成功')
-
-                    # ------------------------- 执行前清理 -------------------------
-                    if self.device and self.device_status:
-                        self.device.stuck_record_clear()
-                        self.device.click_record_clear()
-
-                    # ------------------------- 游戏未启动设置重启任务 -------------------------
-                    if task != 'Restart' and not self.device.app_is_running():
-                        logger.warning(f'[任务] 检测到游戏未启动，设置重启任务')
-                        self.config.task_call('Restart')
-                        is_first_task = False
-                        continue
 
                     # ------------------------- 跳过首次重启任务 -------------------------
                     if is_first_task and task == 'Restart':
@@ -645,7 +623,6 @@ class Script:
                         logger.info('[资源] 开始释放设备资源')
                         if self.device:
                             self.device.release_during_wait()
-                            self.device = None
                             logger.info('[设备] 资源释放完成')
                         del_cached_property(self, 'config')
                         logger.info('[清理] 线程退出前的清理工作已完成')
