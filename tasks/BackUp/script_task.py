@@ -310,8 +310,8 @@ if __name__ == '__main__':
     from module.device.device import Device
 
     c = Config('du')
-    d = Device(c)
-    t = ScriptTask(c, d)
+    # d = Device(c)
+    t = ScriptTask(c)
 
     t.run()
 # if __name__ == "__main__":

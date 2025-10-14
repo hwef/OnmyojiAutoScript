@@ -19,10 +19,10 @@ from tasks.SwitchAccountOnce.base_channel_task import BaseChannelTask, TaskType
 
 
 class ScriptTask(BaseChannelTask):
-    def __init__(self, config, device):
-        super().__init__(config, device)
-        self.task_wy = ScriptTaskWY(self.config, self.device)
-        self.task_4399 = ScriptTask4399(self.config, self.device)
+    def __init__(self, config):
+        super().__init__(config)
+        self.task_wy = ScriptTaskWY(self.config)
+        self.task_4399 = ScriptTask4399(self.config)
 
     def run(self):
         con = self.config.switch_account_once
@@ -65,8 +65,8 @@ class ScriptTask(BaseChannelTask):
                 self.task_4399.run_task(con, current_account_data, index, task_type)
 
 
-def run_task(config, device):
-    t = ScriptTask(config, device)
+def run_task(config):
+    t = ScriptTask(config)
     t.run()
 
 
@@ -79,7 +79,7 @@ def set_task_time(config):
     config.task_delay(task="SwitchAccountOnce", target=datetime.now())
 
 
-def switch_account(config, device):
+def switch_account(config):
     account_list = [
         # AccountInfo(account="178****7164", account_alias="178****7164", apple_or_android=True, character="浙沥沥、下雨", svr="全球国际区"),
         # AccountInfo(account="187****4867", account_alias="187****4867", apple_or_android=True, character="紫芪", svr="破晓之樱"),
@@ -96,11 +96,11 @@ def switch_account(config, device):
     ]
 
     for toAccount in account_list:
-        sa = SwitchAccount(config, device, toAccount)
+        sa = SwitchAccount(config, toAccount)
         sa.switchAccount()
 
 
-def switch_qd_account(config, device):
+def switch_qd_account(config):
 
     account_list = [
         AccountInfo(account="xilili1", account_alias="xilili1", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨1", svr="樱之华"),
@@ -115,21 +115,21 @@ def switch_qd_account(config, device):
         AccountInfo(account="xilili10", account_alias="xilili10", password="ljx112757", enable_wy=False, apple_or_android=True, character="下雨10", svr="樱之华"),
     ]
     for toAccount in account_list:
-        sa = SwitchAccount(config, device, toAccount)
+        sa = SwitchAccount(config, toAccount)
         sa.switchAccount()
 
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
+    # from module.device.device import Device
 
     config = Config('4399')
-    device = Device(config)
+    # device = Device(config)
     # 运行任务
-    # run_task(config, device)
+    # run_task(config)
     # 设置时间
     # set_task_time(config)
     # 切换账号
-    # switch_account(config, device)
-    switch_qd_account(config, device)
+    # switch_account(config)
+    switch_qd_account(config)
 

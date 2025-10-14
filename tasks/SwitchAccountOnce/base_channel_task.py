@@ -42,7 +42,7 @@ class BaseChannelTask(GameUi):
             enable_wy=current_account_data.get("enable_wy", True),
         )
 
-        sa = SwitchAccount(self.config, self.device, toAccount)
+        sa = SwitchAccount(self.config, toAccount)
         login = sa.switchAccount()
         if login:
             self.config.switch_account_config.config.account_name = account_info

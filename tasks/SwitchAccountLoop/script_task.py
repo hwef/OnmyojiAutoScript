@@ -18,9 +18,9 @@ from tasks.SwitchAccountConfig.config import SwitchAccountConfig
 
 
 class ScriptTask(GameUi):
-    def __init__(self, config, device):
-        super().__init__(config, device)
-        self.BaseChannelTask = BaseChannelTask(self.config, self.device)
+    def __init__(self, config):
+        super().__init__(config)
+        self.BaseChannelTask = BaseChannelTask(self.config)
 
     account_info = ""
     task_finsh = False
@@ -70,7 +70,7 @@ class ScriptTask(GameUi):
             enable_wy=current_account_data.get("enable_wy", True),
         )
 
-        sa = SwitchAccount(self.config, self.device, toAccount)
+        sa = SwitchAccount(self.config, toAccount)
         login = sa.switchAccount()
         if login:
             self.config.switch_account_config.config.account_name = account_info
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     device = Device(config)
 
     # 创建任务实例
-    task = ScriptTask(config, device)
+    task = ScriptTask(config)
 
     # 设置测试时间参数
     # 注意：需要根据实际的Time类型设置

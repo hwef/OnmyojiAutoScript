@@ -16,7 +16,7 @@ from module.logger import logger
 
 class SwitchAccount(LoginAccount, ExitGame, GameUi, SwitchAccountAssets):
 
-    def __init__(self, config: Config, device: Device, to: AccountInfo, frm: AccountInfo = None):
+    def __init__(self, config: Config, to: AccountInfo, frm: AccountInfo = None):
         """
 
         @param config:
@@ -28,7 +28,7 @@ class SwitchAccount(LoginAccount, ExitGame, GameUi, SwitchAccountAssets):
         @param frm: 上一个账号信息 ,避免关键字from
         @type frm:
         """
-        super().__init__(config, device)
+        super().__init__(config)
         self.to_account_info = to
         self.from_account_info = frm
 
@@ -48,7 +48,7 @@ class SwitchAccount(LoginAccount, ExitGame, GameUi, SwitchAccountAssets):
             return False
         logger.info("[角色] %s-%s 登陆成功!", self.to_account_info.svr, self.to_account_info.character)
         # 处理位于登录界面各种奇葩弹窗
-        login_handler = LoginHandler(config=self.config, device=self.device)
+        login_handler = LoginHandler(config=self.config)
         login_handler.set_specific_usr(self.to_account_info.svr)
         login_handler.app_handle_login()
 
@@ -85,5 +85,5 @@ if __name__ == '__main__':
     ]
 
     for toAccount in account_list:
-        sa = SwitchAccount(config, device, toAccount)
+        sa = SwitchAccount(config, toAccount)
         sa.switchAccount()

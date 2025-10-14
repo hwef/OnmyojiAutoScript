@@ -20,10 +20,10 @@ from tasks.ActivityCommon.delegate import ScriptTask as Delegate
 
 
 class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
-    def __init__(self, config, device):
-        super().__init__(config, device)
-        self.Battle = Battle(self.config, self.device)
-        self.Delegate = Delegate(self.config, self.device)
+    def __init__(self, config):
+        super().__init__(config)
+        self.Battle = Battle(self.config)
+        self.Delegate = Delegate(self.config)
 
     def run(self):
         config = self.config.activity_common.activity_common_config

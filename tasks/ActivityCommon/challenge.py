@@ -27,8 +27,6 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
         goto_challenge_folder = "./tasks/ActivityCommon/gotoChallenge"
         battle_folder = "./tasks/ActivityCommon/战斗"
 
-
-
         self.run_config(config, goto_challenge_folder, battle_folder)
 
     def run_config(self, config, goto_challenge_folder, battle_folder):
@@ -68,7 +66,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
         goto_delegate_folder1 = "./tasks/ActivityCommon/gotoDelegate"
         over_img = "over.png"
 
-        delegate = Delegate(self.config, self.device)
+        delegate = Delegate(self.config)
         delegate.goto_delegate(self._load_image_template(goto_delegate_folder1), over_img)
 
         # 进入挑战页面
@@ -198,10 +196,8 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
     c = Config('du')
-    d = Device(c)
-    t = ScriptTask(c, d)
+    t = ScriptTask(c)
 
     t.run()
