@@ -39,7 +39,7 @@ from module.exception import TaskEnd
 
 class BaseTask(GlobalGameAssets, CostumeBase):
     config: Config = None
-    device: Device = None
+    _device: Device = None
 
     folder: str
     name: str
@@ -49,13 +49,13 @@ class BaseTask(GlobalGameAssets, CostumeBase):
     limit_count: int = None  # 限制运行的次数
     current_count: int = None  # 当前运行的次数
 
-    def __init__(self, config: Config, device: Device) -> None:
+    def __init__(self, config: Config) -> None:
         """
 
         :rtype: object
         """
         self.config = config
-        self.device = device
+        self._device = None
 
         self.interval_timer = {}  # 这个是用来记录每个匹配的运行间隔的，用于控制运行频率
         self.animates = {}  # 保存缓存
@@ -63,6 +63,14 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         self.check_costume(self.config.global_game.costume_config)
         # 战斗次数相关
         self.current_count = 0  # 战斗次数
+
+    @property
+    def device(self) -> Device:
+        if self._device is None:
+            from module.device.device import Device
+            self._device = Device(config=self.config)
+            logger.info('[设备] 设备实例已加载 True')
+        return self._device
 
     def _burst(self) -> bool:
         """
@@ -942,7 +950,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             # self.push_notify(title=f"执行优先任务: {I18n.trans_zh_cn(first_priority_task)}", content=f"结束当前任务: {I18n.trans_zh_cn(current_task)}")
             from tasks.GameUi.game_ui import GameUi
             from tasks.GameUi.page import page_main
-            GameUi = GameUi(self.config, self.device)
+            GameUi = GameUi(self.config)
             GameUi.ui_get_current_page()
             GameUi.ui_goto(page_main)
             raise TaskEnd
