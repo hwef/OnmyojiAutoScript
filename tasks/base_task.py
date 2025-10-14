@@ -69,7 +69,8 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         if self._device is None:
             from module.device.device import Device
             self._device = Device(config=self.config)
-            logger.info('[设备] 设备实例已加载 True')
+            self.config.model.device_status = True
+            logger.warning('[设备] 设备实例已加载 True')
         return self._device
 
     def _burst(self) -> bool:

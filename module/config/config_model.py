@@ -94,6 +94,8 @@ from tasks.BackUp.config import BackUp
 class ConfigModel(ConfigBase):
     config_name: str = "oas"
     running_task: str = None
+    device_status: bool = False
+
     script: Script = Field(default_factory=Script)
     restart: Restart = Field(default_factory=Restart)
     global_game: GlobalGame = Field(default_factory=GlobalGame)
