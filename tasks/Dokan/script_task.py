@@ -628,7 +628,20 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             idx_selected = -1
             for idx, item in enumerate(bounty_list):
                 self.device.click_record_clear()
-                logger.hr(f"开始识别道馆： No.{idx} = {item}", 2)
+                # logger.hr(f"开始识别道馆： No.{idx} = {item}", 2)
+
+                self.O_DOKAN_RIGHTPAD_NAME.roi = self.position_offset(item, (-37, 29, 127, 0))
+                dokan_name = self.O_DOKAN_RIGHTPAD_NAME.ocr(self.device.image)
+                if dokan_name == "":
+                    continue
+                if dokan_name in self.welfare_names or "鑫鑫子" in dokan_name:
+                    self.dokan_quit = True
+                    self.open_welfare = True
+                else:
+                    # 如果是要开启福利寮，但是此寮不是福利寮，则跳过
+                    if welfare_flag:
+                        self.find_dokan_list.append(f"道馆: {dokan_name}, 不是福利寮")
+                        continue
 
                 # 点击使挑战按钮消失的区域(C_DOKAN_CANCEL_SELECT_DOKAN), 点击可能点击到其他寮,
                 # 因此需要在此处多点几次,直到挑战按钮消失,
@@ -638,36 +651,13 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                     self.click(self.C_DOKAN_CANCEL_SELECT_DOKAN, interval=1.5)
                     self.wait_animate_stable(self.C_DOKAN_CANCEL_SELECT_DOKAN_CHECK_ANIMATE, interval=0.5, timeout=1.5)
 
-                # 获取赏金金额
-                self.O_DOKAN_RIGHTPAD_BOUNTY.roi = self.position_offset(item, (0, 0, 100, 0))
-                bounty = self.O_DOKAN_RIGHTPAD_BOUNTY.ocr(self.device.image)
-                tmp = re.search(r'(\d+)', bounty)
-                if not tmp:
-                    logger.warning(f"can't find bounty,item = {item},ocr bounty={bounty}")
-                    continue
-                bounty = int(tmp.group())
                 # 扩大搜索区域,防止找不到
                 self.I_RIGHTPAD_POINT_BOUNTY.roi_back = self.position_offset(item, (-10, -10, 20, 20))
                 # Note: 道馆不可挑战时(被别的寮打了),8秒后跳过
-                if not self.ui_click_until_appear_or_timeout(self.I_RIGHTPAD_POINT_BOUNTY, self.I_CENTER_CHALLENGE, interval=1.5, timeout=8):
+                if not self.ui_click_until_appear_or_timeout(self.I_RIGHTPAD_POINT_BOUNTY, self.I_CENTER_CHALLENGE, interval=1.5, timeout=5):
                     logger.info(f"can't find challenge button,idx={idx} item={item}")
                     # 道馆不可挑战,挑战按钮不会弹出 ,直接进行下一个
                     continue
-
-                self.O_DOKAN_RIGHTPAD_NAME.roi = self.position_offset(item, (-37, 29, 127, 0))
-                dokan_name = self.O_DOKAN_RIGHTPAD_NAME.ocr(self.device.image)
-                if dokan_name == "":
-                    self.push_notify("道馆名称未识别")
-                    continue
-                if dokan_name in self.welfare_names or "鑫鑫子" in dokan_name:
-                    self.dokan_quit = True
-                    self.open_welfare = True
-                else:
-                    # 如果是要开启福利寮，但是此寮不是福利寮，则跳过
-                    if welfare_flag:
-                        self.find_dokan_list.append(f"道馆: 名称:{dokan_name},资金:{bounty}")
-                        logger.warning(f"道馆: 名称:{dokan_name},资金:{bounty} 不是福利寮")
-                        continue
 
                 # 获取防守人数
                 self.screenshot()
@@ -683,19 +673,28 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
                 p_num = int(tmp.group())
 
                 if p_num < con.min_people_num:
-                    self.find_dokan_list.append(f"道馆: 名称:{dokan_name},资金:{bounty},人数: {p_num}")
-                    logger.warning(f"人数{p_num}少于{con.min_people_num},不符合要求")
+                    self.find_dokan_list.append(f"道馆: {dokan_name},人数: {p_num}")
+                    logger.warning(f"道馆: {dokan_name}, 人数:{p_num}少于{con.min_people_num}, 不符合要求")
                     self.open_welfare = False
                     continue
 
                 # 如果是要开启福利寮，且此寮人数校验已经通过，直接确认此寮
                 if self.open_welfare:
-                    self.find_dokan_list.append(f"道馆: 名称:{dokan_name},资金:{bounty},人数: {p_num}")
-                    self.push_notify(content=f"✅ 开启福利道馆: 名称:{dokan_name},资金:{bounty},人数: {p_num}")
+                    self.find_dokan_list.append(f"道馆: {dokan_name}, 人数:{p_num}")
+                    self.push_notify(content=f"✅ 开启福利道馆: {dokan_name}, 人数:{p_num}")
                     return True
 
+                # 获取赏金金额
+                self.O_DOKAN_RIGHTPAD_BOUNTY.roi = self.position_offset(item, (0, 0, 100, 0))
+                bounty = self.O_DOKAN_RIGHTPAD_BOUNTY.ocr(self.device.image)
+                tmp = re.search(r'(\d+)', bounty)
+                if not tmp:
+                    logger.warning(f"can't find bounty,item = {item},ocr bounty={bounty}")
+                    continue
+                bounty = int(tmp.group())
+                
                 item_score = float(f"{bounty / p_num:.2f}")
-                dokan_info = (f"道馆: {dokan_name},资金: {bounty},人数: {p_num},系数: {item_score}")
+                dokan_info = (f"道馆: {dokan_name}, 资金: {bounty}, 人数: {p_num}, 系数: {item_score}")
                 self.find_dokan_list.append(dokan_info)
                 logger.info(f"========== {dokan_info} ==========")
 
@@ -933,10 +932,10 @@ if __name__ == "__main__":
     from module.device.device import Device
 
     config = Config('du')
-    device = Device(config)
-    t = ScriptTask(config, device)
+    t = ScriptTask(config)
     # t.save_image()
     t.run()
+    # t.find_dokan(config.dokan.welfare_config, True)
     # t.find_dokan()
 
     # welfare_names = t.welfare_name_str()
