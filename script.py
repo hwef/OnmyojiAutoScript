@@ -36,7 +36,6 @@ import sys
 
 class Script:
     def __init__(self, config_name: str = 'oas') -> None:
-        self.device = None
         self.device_status = False  # 模拟器状态 True:运行中，False:已关闭
         self.team_running = False
         self.server = None
@@ -63,18 +62,20 @@ class Script:
             logger.exception(e)
             exit(1)
 
-    # @cached_property
-    # def device(self) -> "Device":
-    #     try:
-    #         from module.device.device import Device
-    #         device = Device(config=self.config)
-    #         return device
-    #     except RequestHumanTakeover:
-    #         logger.critical('Request human takeover')
-    #         exit(1)
-    #     except Exception as e:
-    #         logger.exception(e)
-    #         exit(1)
+    @cached_property
+    def device(self) -> "Device":
+        try:
+            from module.device.device import Device
+            device = Device(config=self.config)
+            self.device_status = True
+            logger.info('[设备] 设备初始化成功')
+            return device
+        except RequestHumanTakeover:
+            logger.critical('Request human takeover')
+            exit(1)
+        except Exception as e:
+            logger.exception(e)
+            exit(1)
 
     @cached_property
     def checker(self):
@@ -110,13 +111,14 @@ class Script:
             logger.info(f"保存错误日志到: {error_log_path}")
             logger.info(f"保存错误截图到: {error_image_path}")
 
-            if hasattr(self.device, 'image') and self.device.image is not None:
+            # 确保设备已初始化后再使用
+            if self.device_status and hasattr(self.device, 'image') and self.device.image is not None:
                 try:
                     save_image(self.device.image, error_image_path)
                 except Exception as e:
                     logger.warning(f"保存错误截图失败: {str(e)}")
             else:
-                self.device.image = ""
+                logger.warning("设备未初始化或没有截图")
 
             with open(logger.log_file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
@@ -134,7 +136,7 @@ class Script:
                 name = con.account_name
                 logger.info(f"已开启小号任务，拼接[{name}]，发送通知")
                 task = f"{name}▪{I18n.trans_zh_cn(task)}"
-            self.config.notifier.send_push(f"❌ {I18n.trans_zh_cn(task)}", error_type, self.device.image, error_log_path)
+            self.config.notifier.send_push(f"❌ {I18n.trans_zh_cn(task)}", error_type, self.device.image if self.device_status and hasattr(self, 'device') else "", error_log_path)
 
     def init_server(self, port: int) -> int:
         """
@@ -219,6 +221,8 @@ class Script:
         获取给gui显示的镜像
         :return: cv2的对象将 numpy 数组转换为字节串。接下来MsgPack 进行序列化发送方将图像数据转换为字节串
         """
+        # 确保设备已初始化
+        # _ = self.device
         # return msgpack.packb(cv2.imencode('.jpg', self.device.screenshot())[1].tobytes())
         img = cv2.cvtColor(self.device.screenshot(), cv2.COLOR_RGB2BGR)
         self.device.stuck_record_clear()
@@ -477,12 +481,11 @@ class Script:
             logger.error(f'Invalid command `{command}`')
 
         try:
-            self.device.screenshot()
             module_name = 'script_task'
             module_path = str(Path.cwd() / 'tasks' / command / (module_name + '.py'))
             logger.info(f'module_path: {module_path}, module_name: {module_name}')
             task_module = load_module(module_name, module_path)
-            task_module.ScriptTask(config=self.config, device=self.device).run()
+            task_module.ScriptTask(config=self.config).run()
         except TaskEnd:
             return True
         except GameNotRunningError as e:
@@ -530,7 +533,6 @@ class Script:
         # 重置状态
         logger.info(f'[准备] 正在重置状态...')
         self.failure_record = {}
-        self.device = None
         self.device_status = False
         is_first_task = True
         stop_requested = False
@@ -563,25 +565,6 @@ class Script:
                             self.send_team_task("Restart")
                             self.start_websocket(script_name, 'start')
                         self.send_team_task(task)
-
-                    # ------------------------- 设备重连逻辑 -------------------------
-                    if not (self.device_status and self.device):
-                        logger.warning('[设备] 检测到设备断开，尝试重新连接')
-                        self.device = Device(self.config)
-                        self.device_status = True
-                        logger.info('[设备] 重连成功')
-
-                    # ------------------------- 执行前清理 -------------------------
-                    if self.device and self.device_status:
-                        self.device.stuck_record_clear()
-                        self.device.click_record_clear()
-
-                    # ------------------------- 游戏未启动设置重启任务 -------------------------
-                    if task != 'Restart' and not self.device.app_is_running():
-                        logger.warning(f'[任务] 检测到游戏未启动，设置重启任务')
-                        self.config.task_call('Restart')
-                        is_first_task = False
-                        continue
 
                     # ------------------------- 跳过首次重启任务 -------------------------
                     if is_first_task and task == 'Restart':
@@ -643,16 +626,21 @@ class Script:
                 finally:
                     if stop_requested:
                         logger.info('[资源] 开始释放设备资源')
-                        if self.device:
+                        if self.device_status and hasattr(self, 'device'):
                             self.device.release_during_wait()
-                            self.device = None
+                            # 重置设备状态
+                            self.device_status = False
+                            del_cached_property(self, 'device')
                             logger.info('[设备] 资源释放完成')
                         del_cached_property(self, 'config')
                         logger.info('[清理] 线程退出前的清理工作已完成')
         finally:
-            if self.device:
+            if self.device_status and hasattr(self, 'device'):
                 logger.warning('[安全] 最终资源清理')
                 self.device.release_during_wait()
+                # 重置设备状态
+                self.device_status = False
+                del_cached_property(self, 'device')
                 exit(1)
     
     def start_loop(self):
@@ -692,7 +680,7 @@ class Script:
 if __name__ == "__main__":
     # logger.info(f'✅ {res_type}卡确认成功，重置状态')
     # logger.warning(f'❌ {res_type}卡确认失败，重置状态')
-    script = Script("MI")
+    script = Script("wy")
     script.start_loop()
     # while 1:
     # script = Script("oas3")
