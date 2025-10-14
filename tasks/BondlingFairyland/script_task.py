@@ -358,11 +358,14 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
             # 如果没有石头了
             cu, res, total = self.O_B_STONE_NUMBER.ocr(self.device.image)
             if cu == 0 and cu + res == total:
+                self.push_notify("已经没有鸣契石召唤契灵了")
                 logger.warning(f'已经没有鸣契石召唤契灵了')
                 return False
             while 1:
                 self.screenshot()
                 if not self.appear(self.I_STONE_SURE):
+                    # 等待三秒召唤契灵有动画让它落到位置上，否则再次点击该位置会继续进来召唤契灵页面
+                    sleep(3)
                     return True
                 for i in range(3):
                     if self.appear_then_click(self.I_BUY_PLUS, interval=1):
