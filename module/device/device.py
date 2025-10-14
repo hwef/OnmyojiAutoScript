@@ -195,13 +195,18 @@ class Device(Platform, Screenshot, Control, AppControl):
         重新连接ADB设备
         """
         try:
-            # 断开连接
-            subprocess.run(['adb', 'disconnect', self.serial], 
-                          capture_output=True, timeout=5)
+            # 断开连接 - 使用隐藏窗口方式执行
+            startupinfo = None
+            if os.name == 'nt':  # Windows系统
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+            subprocess.run(['adb', 'disconnect', self.serial],
+                           capture_output=True, timeout=5, startupinfo=startupinfo)
             time.sleep(1)
-            # 重新连接
-            subprocess.run(['adb', 'connect', self.serial], 
-                          capture_output=True, timeout=10)
+            # 重新连接 - 使用隐藏窗口方式执行
+            subprocess.run(['adb', 'connect', self.serial],
+                           capture_output=True, timeout=10, startupinfo=startupinfo)
             time.sleep(2)
             logger.info(f'尝试重新连接ADB设备: {self.serial}')
         except Exception as e:
