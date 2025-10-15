@@ -194,6 +194,12 @@ class Device(Platform, Screenshot, Control, AppControl):
         """
         重新连接ADB设备
         """
+        # 先检查连接状态
+        if self.check_adb_connection():
+            logger.info(f'ADB设备 {self.serial} 连接正常，无需重连')
+            return
+            
+        logger.info(f'ADB设备 {self.serial} 连接异常，尝试重新连接')
         try:
             # 断开连接 - 使用隐藏窗口方式执行
             startupinfo = None
