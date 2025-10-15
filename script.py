@@ -66,6 +66,16 @@ class Script:
     def device(self) -> "Device":
         # 使用全局设备管理器获取共享设备实例
         return DeviceManager.get_device(config=self.config)
+    
+    @property
+    def device_status(self) -> bool:
+        # 使用全局设备管理器获取设备状态
+        return DeviceManager.get_device_status()
+    
+    @device_status.setter
+    def device_status(self, value: bool):
+        # 使用全局设备管理器设置设备状态
+        DeviceManager.set_device_status(value)
 
     @cached_property
     def checker(self):
@@ -330,14 +340,14 @@ class Script:
             if opt.do_noting:
                 logger.warning("不关闭游戏, 等待下一个任务")
             elif should_close_emu:
-                if self.config.model.device_status:
+                if self.device_status:
                     logger.info("模拟器关闭前, 等待30秒...")
                     time.sleep(30)
                     self.device.emulator_stop()
-                    self.config.model.device_status = False
+                    self.device_status = False
             elif should_close_game:
                 try:
-                    if self.config.model.device_status:
+                    if self.device_status:
                         logger.info("游戏关闭前, 等待10秒...")
                         time.sleep(10)
                         self.device.app_stop()
@@ -347,11 +357,11 @@ class Script:
                 logger.warning("不关闭游戏, 等待下一个任务")
 
             # 执行等待操作
-            logger.hr(f"模拟器状态 {self.config.model.device_status}", level=1)
+            logger.hr(f"模拟器状态 {self.device_status}", level=1)
             wait_info = f'{I18n.trans_zh_cn(task.command)}({task.next_run.strftime("%H:%M:%S")})'
             delta_str = str(task.next_run - now).split('.')[0]
             logger.info(f'🕒 等待任务 | {wait_info} | 剩余时长: {delta_str}')
-            if self.config.model.device_status:
+            if self.device_status:
                 self.device.release_during_wait()
             if not self.wait_until(task.next_run):
                 logger.warning("检测到配置变更，重新加载任务配置")
@@ -520,7 +530,7 @@ class Script:
         is_first_task = True
         stop_requested = False
         self.config.model.running_task = None
-        self.config.model.device_status = False
+        self.device_status = False
 
         team_list = []
         if self.config.script.team.team_task_Orochi:
