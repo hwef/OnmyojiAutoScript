@@ -236,9 +236,11 @@ class ConnectionAttr:
         #     if os.path.exists(file):
         #         return os.path.abspath(file)
 
-        # Try adb in python environment
+        # Try adb in python environment - 修复路径问题
         import sys
-        file = os.path.join(sys.executable, '../Lib/site-packages/adbutils/binaries/adb.exe')
+        # 使用项目自带的adb路径
+        file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 
+                           'toolkit/Lib/site-packages/adbutils/binaries/adb.exe')
         file = os.path.abspath(file).replace('\\', '/')
         if os.path.exists(file):
             logger.info(f'Using adb binary: {file}')

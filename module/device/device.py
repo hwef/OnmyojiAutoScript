@@ -146,10 +146,19 @@ class Device(Platform, Screenshot, Control, AppControl):
             if os.name == 'nt':  # Windows系统
                 startupinfo = subprocess.STARTUPINFO()
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            subprocess.run(['adb', 'kill-server'], capture_output=True, timeout=5, startupinfo=startupinfo)
-            time.sleep(1)
-            # 重新启动ADB服务 - 使用隐藏窗口方式执行
-            subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
+                
+            # 获取ADB二进制文件路径
+            adb_path = self.adb_binary
+            if adb_path and adb_path != 'adb':
+                subprocess.run([adb_path, 'kill-server'], capture_output=True, timeout=5, startupinfo=startupinfo)
+                time.sleep(1)
+                # 重新启动ADB服务 - 使用隐藏窗口方式执行
+                subprocess.run([adb_path, 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
+            else:
+                subprocess.run(['adb', 'kill-server'], capture_output=True, timeout=5, startupinfo=startupinfo)
+                time.sleep(1)
+                # 重新启动ADB服务 - 使用隐藏窗口方式执行
+                subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
             logger.info(f'已重置ADB连接: {self.serial}')
             time.sleep(3)
         except Exception as e:
@@ -179,12 +188,30 @@ class Device(Platform, Screenshot, Control, AppControl):
             bool: 连接是否正常
         """
         try:
-            result = subprocess.run(
-                ['adb', 'devices'], 
-                capture_output=True, 
-                text=True, 
-                timeout=10
-            )
+            # 获取ADB二进制文件路径
+            adb_path = self.adb_binary
+            # 使用隐藏窗口方式执行
+            startupinfo = None
+            if os.name == 'nt':  # Windows系统
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+            if adb_path and adb_path != 'adb':
+                result = subprocess.run(
+                    [adb_path, 'devices'], 
+                    capture_output=True, 
+                    text=True, 
+                    timeout=10,
+                    startupinfo=startupinfo
+                )
+            else:
+                result = subprocess.run(
+                    ['adb', 'devices'], 
+                    capture_output=True, 
+                    text=True, 
+                    timeout=10,
+                    startupinfo=startupinfo
+                )
             if self.serial in result.stdout:
                 return True
             else:
@@ -205,18 +232,28 @@ class Device(Platform, Screenshot, Control, AppControl):
             
         logger.info(f'ADB设备 {self.serial} 连接异常，尝试重新连接')
         try:
+            # 获取ADB二进制文件路径
+            adb_path = self.adb_binary
             # 断开连接 - 使用隐藏窗口方式执行
             startupinfo = None
             if os.name == 'nt':  # Windows系统
                 startupinfo = subprocess.STARTUPINFO()
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-            subprocess.run(['adb', 'disconnect', self.serial],
-                           capture_output=True, timeout=5, startupinfo=startupinfo)
+            if adb_path and adb_path != 'adb':
+                subprocess.run([adb_path, 'disconnect', self.serial],
+                               capture_output=True, timeout=5, startupinfo=startupinfo)
+            else:
+                subprocess.run(['adb', 'disconnect', self.serial],
+                               capture_output=True, timeout=5, startupinfo=startupinfo)
             time.sleep(1)
             # 重新连接 - 使用隐藏窗口方式执行
-            subprocess.run(['adb', 'connect', self.serial],
-                           capture_output=True, timeout=10, startupinfo=startupinfo)
+            if adb_path and adb_path != 'adb':
+                subprocess.run([adb_path, 'connect', self.serial],
+                               capture_output=True, timeout=10, startupinfo=startupinfo)
+            else:
+                subprocess.run(['adb', 'connect', self.serial],
+                               capture_output=True, timeout=10, startupinfo=startupinfo)
             time.sleep(2)
             logger.info(f'尝试重新连接ADB设备: {self.serial}')
         except Exception as e:
