@@ -77,6 +77,14 @@ class Script:
         # 使用全局设备管理器设置设备状态
         DeviceManager.set_device_status(value)
 
+    def reset_device(self):
+        """
+        重置共享设备实例
+        """
+        del_cached_property(self, 'config')
+        logger.info('[清理] config 清理工作已完成')
+        DeviceManager.reset_device()
+
     @cached_property
     def checker(self):
         """
@@ -361,8 +369,7 @@ class Script:
             wait_info = f'{I18n.trans_zh_cn(task.command)}({task.next_run.strftime("%H:%M:%S")})'
             delta_str = str(task.next_run - now).split('.')[0]
             logger.info(f'🕒 等待任务 | {wait_info} | 剩余时长: {delta_str}')
-            if self.device_status:
-                self.device.release_during_wait()
+            self.reset_device()
             if not self.wait_until(task.next_run):
                 logger.warning("检测到配置变更，重新加载任务配置")
                 del_cached_property(self, 'config')
@@ -623,19 +630,10 @@ class Script:
                     stop_requested = True
                 finally:
                     if stop_requested:
-                        logger.info('[资源] 开始释放设备资源')
-                        if self.device:
-                            self.device_status = False
-                            self.device.release_during_wait()
-                            logger.info('[设备] 资源释放完成')
-                        del_cached_property(self, 'config')
-                        logger.info('[清理] 线程退出前的清理工作已完成')
+                        self.reset_device()
         finally:
-            if self.device:
-                self.device_status = False
-                logger.warning('[安全] 最终资源清理')
-                self.device.release_during_wait()
-                exit(1)
+            self.reset_device()
+            exit(1)
     
     def start_loop(self):
 

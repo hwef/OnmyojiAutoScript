@@ -69,6 +69,7 @@ class DeviceManager:
             # 清理资源
             try:
                 cls._shared_device.release_during_wait()
+                logger.info('[设备] 设备资源释放完成')
             except Exception as e:
                 logger.warning(f'[设备] 释放设备资源时出错: {e}')
             cls._shared_device = None
