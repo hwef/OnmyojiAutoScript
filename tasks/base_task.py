@@ -25,6 +25,7 @@ from module.base.timer import Timer
 from module.config.config import Config
 from module.config.utils import convert_to_underscore
 from module.device.device import Device
+from module.device.device_manager import DeviceManager
 from module.exception import ScriptError
 from module.logger import logger, log_path, week_path, get_filename
 from module.ocr.base_ocr import OcrMode
@@ -66,12 +67,8 @@ class BaseTask(GlobalGameAssets, CostumeBase):
 
     @property
     def device(self) -> Device:
-        if self._device is None:
-            from module.device.device import Device
-            self._device = Device(config=self.config)
-            self.config.model.device_status = True
-            logger.warning('[设备] 设备实例已加载 True')
-        return self._device
+        # 使用全局设备管理器获取共享设备实例
+        return DeviceManager.get_device(config=self.config)
 
     def _burst(self) -> bool:
         """

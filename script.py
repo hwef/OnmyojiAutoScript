@@ -25,6 +25,7 @@ from module.base.utils import load_module
 from module.config.config import Config
 from module.config.utils import convert_to_underscore
 from module.device.device import Device
+from module.device.device_manager import DeviceManager
 from module.exception import *
 from module.logger import logger, error_path, get_filename
 from module.ocr.models import OCR_MODEL
@@ -61,18 +62,10 @@ class Script:
             logger.exception(e)
             exit(1)
 
-    @cached_property
+    @property
     def device(self) -> "Device":
-        try:
-            from module.device.device import Device
-            device = Device(config=self.config)
-            return device
-        except RequestHumanTakeover:
-            logger.critical('Request human takeover')
-            exit(1)
-        except Exception as e:
-            logger.exception(e)
-            exit(1)
+        # 使用全局设备管理器获取共享设备实例
+        return DeviceManager.get_device(config=self.config)
 
     @cached_property
     def checker(self):
