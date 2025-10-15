@@ -550,9 +550,13 @@ class Connection(ConnectionAttr):
         Returns:
             bool: If success
         """
-        # Ensure ADB server is running
+        # Ensure ADB server is running - 使用隐藏窗口方式执行
         try:
-            subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10)
+            startupinfo = None
+            if os.name == 'nt':  # Windows系统
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
             time.sleep(1)
         except Exception as e:
             logger.warning(f'Failed to start ADB server: {e}')
@@ -601,7 +605,11 @@ class Connection(ConnectionAttr):
                 logger.error(f"ADB binary not found: {e}")
                 logger.error("Trying to start ADB server again")
                 try:
-                    subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10)
+                    startupinfo = None
+                    if os.name == 'nt':  # Windows系统
+                        startupinfo = subprocess.STARTUPINFO()
+                        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
                     time.sleep(2)
                 except Exception as start_error:
                     logger.error(f"Failed to start ADB server: {start_error}")
@@ -734,11 +742,15 @@ class Connection(ConnectionAttr):
             except Exception as e:
                 logger.warning(f'断开ADB连接时出错: {e}')
             
-            # 重新启动ADB服务
+            # 重新启动ADB服务 - 使用隐藏窗口方式执行
             try:
-                subprocess.run(['adb', 'kill-server'], capture_output=True, timeout=5)
+                startupinfo = None
+                if os.name == 'nt':  # Windows系统
+                    startupinfo = subprocess.STARTUPINFO()
+                    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                subprocess.run(['adb', 'kill-server'], capture_output=True, timeout=5, startupinfo=startupinfo)
                 time.sleep(1)
-                subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10)
+                subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
                 time.sleep(2)
             except Exception as e:
                 logger.warning(f'重启ADB服务时出错: {e}')

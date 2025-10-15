@@ -272,9 +272,19 @@ class ConnectionAttr:
         try:
             adb_path = self.adb_binary
             if adb_path and adb_path != 'adb':
-                subprocess.run([adb_path, 'start-server'], capture_output=True, timeout=10)
+                # 隐藏CMD窗口执行ADB命令
+                startupinfo = None
+                if os.name == 'nt':  # Windows系统
+                    startupinfo = subprocess.STARTUPINFO()
+                    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                subprocess.run([adb_path, 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
             else:
-                subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10)
+                # 隐藏CMD窗口执行ADB命令
+                startupinfo = None
+                if os.name == 'nt':  # Windows系统
+                    startupinfo = subprocess.STARTUPINFO()
+                    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
             time.sleep(1)
         except Exception as e:
             logger.warning(f'Failed to start ADB server: {e}')

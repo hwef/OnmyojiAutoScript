@@ -141,11 +141,15 @@ class Device(Platform, Screenshot, Control, AppControl):
 
         # 改进ADB清理
         try:
-            # 先停止ADB服务
-            subprocess.run(['adb', 'kill-server'], capture_output=True, timeout=5)
+            # 先停止ADB服务 - 使用隐藏窗口方式执行
+            startupinfo = None
+            if os.name == 'nt':  # Windows系统
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            subprocess.run(['adb', 'kill-server'], capture_output=True, timeout=5, startupinfo=startupinfo)
             time.sleep(1)
-            # 重新启动ADB服务
-            subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10)
+            # 重新启动ADB服务 - 使用隐藏窗口方式执行
+            subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
             logger.info(f'已重置ADB连接: {self.serial}')
             time.sleep(3)
         except Exception as e:
