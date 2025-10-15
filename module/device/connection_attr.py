@@ -2,6 +2,8 @@
 # copy from alas
 import os
 import re
+import subprocess
+import time
 
 import adbutils
 import uiautomator2 as u2
