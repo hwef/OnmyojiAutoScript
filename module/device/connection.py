@@ -550,19 +550,9 @@ class Connection(ConnectionAttr):
         Returns:
             bool: If success
         """
-        # Ensure ADB server is running - 使用隐藏窗口方式执行
+        # Ensure ADB server is running
         try:
-            startupinfo = None
-            if os.name == 'nt':  # Windows系统
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                
-            # 获取ADB二进制文件路径
-            adb_path = self.adb_binary
-            if adb_path and adb_path != 'adb':
-                subprocess.run([adb_path, 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
-            else:
-                subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
+            self._execute_adb_command(['start-server'], timeout=10)
             time.sleep(1)
         except Exception as e:
             logger.warning(f'Failed to start ADB server: {e}')
@@ -611,17 +601,7 @@ class Connection(ConnectionAttr):
                 logger.error(f"ADB binary not found: {e}")
                 logger.error("Trying to start ADB server again")
                 try:
-                    startupinfo = None
-                    if os.name == 'nt':  # Windows系统
-                        startupinfo = subprocess.STARTUPINFO()
-                        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                        
-                    # 获取ADB二进制文件路径
-                    adb_path = self.adb_binary
-                    if adb_path and adb_path != 'adb':
-                        subprocess.run([adb_path, 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
-                    else:
-                        subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
+                    self._execute_adb_command(['start-server'], timeout=10)
                     time.sleep(2)
                 except Exception as start_error:
                     logger.error(f"Failed to start ADB server: {start_error}")
@@ -698,28 +678,49 @@ class Connection(ConnectionAttr):
 
         # 改进ADB清理
         try:
-            # 先停止ADB服务 - 使用隐藏窗口方式执行
-            startupinfo = None
-            if os.name == 'nt':  # Windows系统
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                
-            # 获取ADB二进制文件路径
-            adb_path = self.adb_binary
-            if adb_path and adb_path != 'adb':
-                subprocess.run([adb_path, 'kill-server'], capture_output=True, timeout=5, startupinfo=startupinfo)
-                time.sleep(1)
-                # 重新启动ADB服务 - 使用隐藏窗口方式执行
-                subprocess.run([adb_path, 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
-            else:
-                subprocess.run(['adb', 'kill-server'], capture_output=True, timeout=5, startupinfo=startupinfo)
-                time.sleep(1)
-                # 重新启动ADB服务 - 使用隐藏窗口方式执行
-                subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
+            # 重启ADB服务
+            self._execute_adb_command(['kill-server'], timeout=5)
+            time.sleep(1)
+            self._execute_adb_command(['start-server'], timeout=10)
             logger.info(f'已重置ADB连接: {self.serial}')
             time.sleep(3)
         except Exception as e:
             logger.error(f'ADB重置失败: {e}')
+
+    def _execute_adb_command(self, command, timeout=10, capture_output=True):
+        """
+        统一执行ADB命令的方法
+        
+        Args:
+            command (list): ADB命令参数列表
+            timeout (int): 超时时间
+            capture_output (bool): 是否捕获输出
+            
+        Returns:
+            subprocess.CompletedProcess: 命令执行结果
+        """
+        # 获取ADB二进制文件路径
+        adb_path = self.adb_binary
+        # 使用隐藏窗口方式执行
+        startupinfo = None
+        if os.name == 'nt':  # Windows系统
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+        # 构造完整命令
+        if adb_path and adb_path != 'adb':
+            full_command = [adb_path] + command
+        else:
+            full_command = ['adb'] + command
+
+        # 执行命令
+        return subprocess.run(
+            full_command,
+            capture_output=capture_output,
+            text=True if capture_output else False,
+            timeout=timeout,
+            startupinfo=startupinfo
+        )
 
     def get_port_from_serial(self):
         """
@@ -767,23 +768,11 @@ class Connection(ConnectionAttr):
             except Exception as e:
                 logger.warning(f'断开ADB连接时出错: {e}')
             
-            # 重新启动ADB服务 - 使用隐藏窗口方式执行
+            # 重新启动ADB服务
             try:
-                startupinfo = None
-                if os.name == 'nt':  # Windows系统
-                    startupinfo = subprocess.STARTUPINFO()
-                    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                    
-                # 获取ADB二进制文件路径
-                adb_path = self.adb_binary
-                if adb_path and adb_path != 'adb':
-                    subprocess.run([adb_path, 'kill-server'], capture_output=True, timeout=5, startupinfo=startupinfo)
-                    time.sleep(1)
-                    subprocess.run([adb_path, 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
-                else:
-                    subprocess.run(['adb', 'kill-server'], capture_output=True, timeout=5, startupinfo=startupinfo)
-                    time.sleep(1)
-                    subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
+                self._execute_adb_command(['kill-server'], timeout=5)
+                time.sleep(1)
+                self._execute_adb_command(['start-server'], timeout=10)
                 time.sleep(2)
             except Exception as e:
                 logger.warning(f'重启ADB服务时出错: {e}')

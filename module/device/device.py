@@ -141,24 +141,10 @@ class Device(Platform, Screenshot, Control, AppControl):
 
         # 改进ADB清理
         try:
-            # 先停止ADB服务 - 使用隐藏窗口方式执行
-            startupinfo = None
-            if os.name == 'nt':  # Windows系统
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                
-            # 获取ADB二进制文件路径
-            adb_path = self.adb_binary
-            if adb_path and adb_path != 'adb':
-                subprocess.run([adb_path, 'kill-server'], capture_output=True, timeout=5, startupinfo=startupinfo)
-                time.sleep(1)
-                # 重新启动ADB服务 - 使用隐藏窗口方式执行
-                subprocess.run([adb_path, 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
-            else:
-                subprocess.run(['adb', 'kill-server'], capture_output=True, timeout=5, startupinfo=startupinfo)
-                time.sleep(1)
-                # 重新启动ADB服务 - 使用隐藏窗口方式执行
-                subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
+            # 重启ADB服务
+            self._execute_adb_command(['kill-server'], timeout=5)
+            time.sleep(1)
+            self._execute_adb_command(['start-server'], timeout=10)
             logger.info(f'已重置ADB连接: {self.serial}')
             time.sleep(3)
         except Exception as e:
@@ -181,6 +167,41 @@ class Device(Platform, Screenshot, Control, AppControl):
             logger.error(f'端口号非数字: {port}')
             return None
 
+    def _execute_adb_command(self, command, timeout=10, capture_output=True):
+        """
+        统一执行ADB命令的方法
+        
+        Args:
+            command (list): ADB命令参数列表
+            timeout (int): 超时时间
+            capture_output (bool): 是否捕获输出
+            
+        Returns:
+            subprocess.CompletedProcess: 命令执行结果
+        """
+        # 获取ADB二进制文件路径
+        adb_path = self.adb_binary
+        # 使用隐藏窗口方式执行
+        startupinfo = None
+        if os.name == 'nt':  # Windows系统
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+        # 构造完整命令
+        if adb_path and adb_path != 'adb':
+            full_command = [adb_path] + command
+        else:
+            full_command = ['adb'] + command
+
+        # 执行命令
+        return subprocess.run(
+            full_command,
+            capture_output=capture_output,
+            text=True if capture_output else False,
+            timeout=timeout,
+            startupinfo=startupinfo
+        )
+
     def check_adb_connection(self):
         """
         检查ADB连接状态
@@ -188,30 +209,7 @@ class Device(Platform, Screenshot, Control, AppControl):
             bool: 连接是否正常
         """
         try:
-            # 获取ADB二进制文件路径
-            adb_path = self.adb_binary
-            # 使用隐藏窗口方式执行
-            startupinfo = None
-            if os.name == 'nt':  # Windows系统
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
-            if adb_path and adb_path != 'adb':
-                result = subprocess.run(
-                    [adb_path, 'devices'], 
-                    capture_output=True, 
-                    text=True, 
-                    timeout=10,
-                    startupinfo=startupinfo
-                )
-            else:
-                result = subprocess.run(
-                    ['adb', 'devices'], 
-                    capture_output=True, 
-                    text=True, 
-                    timeout=10,
-                    startupinfo=startupinfo
-                )
+            result = self._execute_adb_command(['devices'], timeout=10)
             if self.serial in result.stdout:
                 return True
             else:
@@ -232,28 +230,11 @@ class Device(Platform, Screenshot, Control, AppControl):
             
         logger.info(f'ADB设备 {self.serial} 连接异常，尝试重新连接')
         try:
-            # 获取ADB二进制文件路径
-            adb_path = self.adb_binary
-            # 断开连接 - 使用隐藏窗口方式执行
-            startupinfo = None
-            if os.name == 'nt':  # Windows系统
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
-            if adb_path and adb_path != 'adb':
-                subprocess.run([adb_path, 'disconnect', self.serial],
-                               capture_output=True, timeout=5, startupinfo=startupinfo)
-            else:
-                subprocess.run(['adb', 'disconnect', self.serial],
-                               capture_output=True, timeout=5, startupinfo=startupinfo)
+            # 断开连接
+            self._execute_adb_command(['disconnect', self.serial], timeout=5)
             time.sleep(1)
-            # 重新连接 - 使用隐藏窗口方式执行
-            if adb_path and adb_path != 'adb':
-                subprocess.run([adb_path, 'connect', self.serial],
-                               capture_output=True, timeout=10, startupinfo=startupinfo)
-            else:
-                subprocess.run(['adb', 'connect', self.serial],
-                               capture_output=True, timeout=10, startupinfo=startupinfo)
+            # 重新连接
+            self._execute_adb_command(['connect', self.serial], timeout=10)
             time.sleep(2)
             logger.info(f'尝试重新连接ADB设备: {self.serial}')
         except Exception as e:

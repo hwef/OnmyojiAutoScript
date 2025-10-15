@@ -272,27 +272,48 @@ class ConnectionAttr:
 
         # Ensure ADB server is running with the correct binary
         try:
-            adb_path = self.adb_binary
-            if adb_path and adb_path != 'adb':
-                # 隐藏CMD窗口执行ADB命令
-                startupinfo = None
-                if os.name == 'nt':  # Windows系统
-                    startupinfo = subprocess.STARTUPINFO()
-                    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                subprocess.run([adb_path, 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
-            else:
-                # 隐藏CMD窗口执行ADB命令
-                startupinfo = None
-                if os.name == 'nt':  # Windows系统
-                    startupinfo = subprocess.STARTUPINFO()
-                    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10, startupinfo=startupinfo)
+            self._execute_adb_command(['start-server'], timeout=10)
             time.sleep(1)
         except Exception as e:
             logger.warning(f'Failed to start ADB server: {e}')
 
         logger.attr('AdbClient', f'AdbClient({host}, {port})')
         return AdbClient(host, port)
+
+    def _execute_adb_command(self, command, timeout=10, capture_output=True):
+        """
+        统一执行ADB命令的方法
+        
+        Args:
+            command (list): ADB命令参数列表
+            timeout (int): 超时时间
+            capture_output (bool): 是否捕获输出
+            
+        Returns:
+            subprocess.CompletedProcess: 命令执行结果
+        """
+        # 获取ADB二进制文件路径
+        adb_path = self.adb_binary
+        # 使用隐藏窗口方式执行
+        startupinfo = None
+        if os.name == 'nt':  # Windows系统
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+        # 构造完整命令
+        if adb_path and adb_path != 'adb':
+            full_command = [adb_path] + command
+        else:
+            full_command = ['adb'] + command
+
+        # 执行命令
+        return subprocess.run(
+            full_command,
+            capture_output=capture_output,
+            text=True if capture_output else False,
+            timeout=timeout,
+            startupinfo=startupinfo
+        )
 
     @cached_property
     def adb(self) -> AdbDevice:
