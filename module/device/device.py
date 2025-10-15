@@ -309,7 +309,7 @@ class Device(Platform, Screenshot, Control, AppControl):
         try:
             super().screenshot()
         except RequestHumanTakeover as e:
-            raise RequestHumanTakeover
+            raise RequestHumanTakeover("screenshot error")
 
         if self.handle_night_commission():
             super().screenshot()

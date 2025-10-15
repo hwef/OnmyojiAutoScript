@@ -24,7 +24,7 @@ class DeviceManager:
         Returns:
             Device: 共享的设备实例
         """
-        if cls._shared_device is None:
+        if cls._shared_device is None or not cls._device_status:
             if config is None:
                 raise ValueError("首次创建设备实例时必须提供config参数")
             try:

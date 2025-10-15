@@ -506,6 +506,10 @@ class Script:
             elif isinstance(e, ScriptError):
                 logger.critical(e)
             elif isinstance(e, RequestHumanTakeover):
+                if "screenshot error" in str(e):
+                    logger.error("截图异常，模拟器可能未启动")
+                    self.device_status = False
+                    return False
                 logger.error(e)
                 logger.critical(e)
                 result = 'exit'
@@ -621,12 +625,14 @@ class Script:
                     if stop_requested:
                         logger.info('[资源] 开始释放设备资源')
                         if self.device:
+                            self.device_status = False
                             self.device.release_during_wait()
                             logger.info('[设备] 资源释放完成')
                         del_cached_property(self, 'config')
                         logger.info('[清理] 线程退出前的清理工作已完成')
         finally:
             if self.device:
+                self.device_status = False
                 logger.warning('[安全] 最终资源清理')
                 self.device.release_during_wait()
                 exit(1)
