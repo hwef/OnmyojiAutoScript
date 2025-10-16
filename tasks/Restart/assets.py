@@ -44,7 +44,7 @@ class RestartAssets:
 	# 点击随机御魂 
 	I_HARVEST_SOUL_1 = RuleImage(roi_front=(248,501,34,37), roi_back=(165,389,929,168), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_soul_1.png")
 	# 选择第一个御魂 
-	I_HARVEST_SOUL_2 = RuleImage(roi_front=(586,561,112,47), roi_back=(570,547,139,71), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_soul_2.png")
+	I_HARVEST_SOUL_2 = RuleImage(roi_front=(210,440,112,47), roi_back=(131,377,264,169), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_soul_2.png")
 	# description 
 	I_HARVEST_SOUL_3 = RuleImage(roi_front=(313,489,188,33), roi_back=(302,472,216,60), threshold=0.8, method="Template matching", file="./tasks/Restart/harvest/harvest_harvest_soul_3.png")
 	# 寮包 

@@ -146,8 +146,8 @@
   {
     "itemName": "harvest_soul_2",
     "imageName": "harvest_harvest_soul_2.png",
-    "roiFront": "586,561,112,47",
-    "roiBack": "570,547,139,71",
+    "roiFront": "210,440,112,47",
+    "roiBack": "131,377,264,169",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "选择第一个御魂"
