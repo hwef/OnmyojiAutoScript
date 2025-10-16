@@ -1025,7 +1025,7 @@ class DevTool(ctk.CTk):
             rgb_image = cv2.cvtColor(self.np_image, cv2.COLOR_BGR2RGB)
 
             # 执行模板匹配
-            match_result = template_rule.match(rgb_image)
+            match_result, max_val = template_rule.match_test(rgb_image)
 
             # 显示结果
             if match_result:
@@ -1039,12 +1039,12 @@ class DevTool(ctk.CTk):
                     canvas_x1, canvas_y1, canvas_x1 + canvas_x2, canvas_y1 + canvas_y2,
                     outline="green", width=1, tags="match_result"  # 使用不同颜色区分
                 )
-                self.log_print(f"RuleImage匹配成功: {roi}")
+                self.log_print(f"匹配成功 {roi} 置信度 [{max_val}]")
             else:
                 self.screen_canvas.delete("match_result")
-                self.log_print("RuleImage匹配失败", "error")
+                self.log_print(f"匹配失败 置信度 [{max_val}]", "error")
         except Exception as e:
-            self.log_print(f"RuleImage匹配执行出错: {str(e)}", "error")
+            self.log_print(f"匹配执行出错: {str(e)}", "error")
 
     def open_mask_generator(self):
         """打开蒙版生成器"""

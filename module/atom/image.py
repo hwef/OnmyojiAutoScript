@@ -240,9 +240,9 @@ class RuleImage:
             self.roi_front[0] = max_loc[0] + self.roi_back[0]
             self.roi_front[1] = max_loc[1] + self.roi_back[1]
             logger.attr(self.name, self.roi_front)
-            return True
+            return True, max_val
         else:
-            return False
+            return False, max_val
 
     def match_mask_test(self, image: np.array, threshold: float = 0.8, mask_path: str = None) -> bool:
         """
