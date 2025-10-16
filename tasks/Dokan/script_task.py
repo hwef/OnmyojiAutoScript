@@ -118,21 +118,22 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
         # 发送请求检查福利寮开启情况
         if cfg.welfare_config.enable_get_requests:
             json_response = self.get_requests(cfg.welfare_config.get_requests_url)
-
-            # 检查响应有效性
-            if not json_response or not json_response.get('est', False):
-                logger.warning(f"福利道馆未开启: {json_response}")
-                self.set_next_run(target=datetime.now() + timedelta(minutes=5))
-                raise TaskEnd
-
             # 解析时间戳并设置创建道馆时间
             timestamp = json_response['timestamp']
             # 解析时间戳获取时分秒
             timestamp_time = datetime.fromtimestamp(timestamp)
+            logger.info(f"福利道馆创建时间: {timestamp_time}")
+
+            # 检查响应有效性
+            if not json_response or not json_response.get('est', False):
+                logger.warning(f"福利道馆未开启: {json_response}")
+                self.set_next_run(target=datetime.combine(datetime.now().date(), timestamp_time.time()))
+                raise TaskEnd
+
             # 获取明天的日期，但使用timestamp的时分秒
             tomorrow_date = (datetime.now() + timedelta(days=1)).date()
             self.create_doukan_time = datetime.combine(tomorrow_date, timestamp_time.time())
-            logger.info(f"福利道馆创建时间: {self.create_doukan_time}")
+            logger.info(f"明天道馆执行时间: {self.create_doukan_time}")
 
         # 加载福利寮名单
         self.welfare_names = self.welfare_name_str()
