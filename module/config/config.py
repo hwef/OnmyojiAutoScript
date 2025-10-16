@@ -414,7 +414,10 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
                 logger.warning("state_queue 未设置，跳过广播")
 
         # 设置
-        logger.hr(f'设置任务（`{I18n.trans_zh_cn(task_name)}` | {next_run}）执行', 2)
+        try:
+            logger.hr(f'设置任务（`{I18n.trans_zh_cn(task_name)}` | {next_run}）执行', 2)
+        except Exception as e:
+            logger.warning(f"设置任务失败: {e}")
 
     # @cached_property
     # def notifier(self):
