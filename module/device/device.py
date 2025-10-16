@@ -223,22 +223,52 @@ class Device(Platform, Screenshot, Control, AppControl):
         """
         重新连接ADB设备
         """
-        # 先检查连接状态
-        if self.check_adb_connection():
-            logger.info(f'ADB设备 {self.serial} 连接正常，无需重连')
-            return
-            
         logger.info(f'ADB设备 {self.serial} 连接异常，尝试重新连接')
+        
         try:
             # 断开连接
             self._execute_adb_command(['disconnect', self.serial], timeout=5)
+        except Exception as e:
+            logger.warning(f'断开ADB连接失败: {e}')
+            
+        try:
+            # 重启ADB服务
+            self._execute_adb_command(['kill-server'], timeout=5)
             time.sleep(1)
-            # 重新连接
-            self._execute_adb_command(['connect', self.serial], timeout=10)
+            self._execute_adb_command(['start-server'], timeout=10)
             time.sleep(2)
+        except Exception as e:
+            logger.warning(f'重启ADB服务失败: {e}')
+            
+        try:
+            # 重新连接
+            self._execute_adb_command(['connect', self.serial], timeout=15)
+            time.sleep(3)
             logger.info(f'尝试重新连接ADB设备: {self.serial}')
         except Exception as e:
             logger.error(f'ADB重新连接失败: {e}')
+
+    def check_and_repair_adb_connection(self):
+        """
+        检查并修复ADB连接问题
+        """
+        logger.info("检查ADB连接状态")
+        try:
+            # 检查设备是否在列表中
+            result = self._execute_adb_command(['devices'], timeout=10)
+            if self.serial not in result.stdout:
+                logger.warning(f'设备 {self.serial} 未在ADB设备列表中')
+                self.reconnect_adb()
+                return False
+                
+            # 尝试执行一个简单命令验证连接
+            self._execute_adb_command(['-s', self.serial, 'shell', 'echo', 'test'], timeout=10)
+            logger.info("ADB连接正常")
+            return True
+        except Exception as e:
+            logger.error(f'ADB连接验证失败: {e}')
+            self.reconnect_adb()
+            return False
 
     def _validate_window_handle(self):
         """Windows平台专用句柄验证"""
@@ -310,6 +340,17 @@ class Device(Platform, Screenshot, Control, AppControl):
             super().screenshot()
         except RequestHumanTakeover as e:
             raise RequestHumanTakeover("screenshot error")
+        except ConnectionResetError as e:
+            logger.error(f"截图时遇到连接重置错误: {e}")
+            # 尝试修复连接并重试一次
+            if self.check_and_repair_adb_connection():
+                try:
+                    super().screenshot()
+                except Exception as retry_error:
+                    logger.error(f"重试截图失败: {retry_error}")
+                    raise RequestHumanTakeover("screenshot error after reconnect")
+            else:
+                raise RequestHumanTakeover("无法修复ADB连接")
 
         if self.handle_night_commission():
             super().screenshot()

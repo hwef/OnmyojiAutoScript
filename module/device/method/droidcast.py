@@ -41,7 +41,8 @@ def retry(func):
                 logger.error(e)
 
                 def init():
-                    self.adb_reconnect()
+                    # 使用更彻底的重连方法
+                    self.thorough_adb_reconnect()
             # AdbError
             except AdbError as e:
                 if handle_adb_error(e):
