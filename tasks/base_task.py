@@ -70,6 +70,11 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         # 使用全局设备管理器获取共享设备实例
         return DeviceManager.get_device(config=self.config)
 
+    @property
+    def device_status(self) -> bool:
+        # 使用全局设备管理器获取设备状态
+        return DeviceManager.get_device_status()
+
     def _burst(self) -> bool:
         """
         游戏界面突发异常检测
@@ -858,9 +863,10 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             title = f"{name}▪{I18n.trans_zh_cn(title)}"
 
         # 使用getattr同时检查属性和值，避免冗长的条件判断
-        if getattr(self.device, 'image', None) is None:
-            self.screenshot()
-        image = self.device.image
+        if self.device_status and getattr(self.device, 'image', None) is not None:
+            image = self.device.image
+        else:
+            image = ""
 
         # 发送邮件
         self.config.notifier.send_push(title=title, content=content, image=image)
