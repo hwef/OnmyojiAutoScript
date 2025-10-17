@@ -123,15 +123,18 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
             # 解析时间戳获取时分秒
             timestamp_time = datetime.fromtimestamp(timestamp)
             logger.info(f"福利道馆创建时间: {timestamp_time}")
-
+            datetime_now = datetime.now()
             # 检查响应有效性
             if not json_response or not json_response.get('est', False):
                 logger.warning(f"福利道馆未开启: {json_response}")
-                self.set_next_run(target=datetime.combine(datetime.now().date(), timestamp_time.time()))
+                if datetime_now.time() > timestamp_time.time():
+                    self.set_next_run(target=datetime_now + timedelta(minutes=3))
+                    raise TaskEnd
+                self.set_next_run(target=datetime.combine(datetime_now.date(), timestamp_time.time()))
                 raise TaskEnd
 
             # 获取明天的日期，但使用timestamp的时分秒
-            tomorrow_date = (datetime.now() + timedelta(days=1)).date()
+            tomorrow_date = (datetime_now + timedelta(days=1)).date()
             self.create_doukan_time = datetime.combine(tomorrow_date, timestamp_time.time())
             logger.info(f"明天道馆执行时间: {self.create_doukan_time}")
 
