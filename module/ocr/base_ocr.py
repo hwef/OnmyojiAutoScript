@@ -278,39 +278,45 @@ class BaseCor:
         :param boxed_results:
         :return:
         """
-        # 首先先将所有的ocr的str顺序拼接起来, 然后再进行匹配
-        result = None
         strings = [boxed_result.ocr_text for boxed_result in boxed_results]
-        concatenated_string = "".join(strings)
         if keyword is None:
             keyword = self.keyword
-        if keyword in concatenated_string:
-            result = [index for index, word in enumerate(strings) if keyword == word]
-        else:
-            result = None
+        result = [index for index, word in enumerate(strings) if keyword in word]
+        return result
 
-        if result is not None:
-            # logger.info("Filter result: %s" % result)
-            return result
-
-        # 如果适用顺序拼接还是没有匹配到，那可能是竖排的，使用单个字节的keyword进行匹配
-        indices = []
-        # 对于keyword中的每一个字符，都要在strings中进行匹配
-        # 如果这个字符在strings中的某一个string中，那么就记录这个string的index
-        max_index = len(strings) - 1
-        for index, char in enumerate(keyword):
-            for i, string in enumerate(strings):
-                if char not in string:
-                    continue
-                if i <= max_index:
-                    indices.append(i)
-                    break
-        if indices:
-            # 剔除掉重复的index
-            indices = list(set(indices))
-            return indices
-        else:
-            return None
+        # # 首先先将所有的ocr的str顺序拼接起来, 然后再进行匹配
+        # result = None
+        # strings = [boxed_result.ocr_text for boxed_result in boxed_results]
+        # concatenated_string = "".join(strings)
+        # if keyword is None:
+        #     keyword = self.keyword
+        # if keyword in concatenated_string:
+        #     result = [index for index, word in enumerate(strings) if keyword == word]
+        # else:
+        #     result = None
+        #
+        # if result is not None:
+        #     # logger.info("Filter result: %s" % result)
+        #     return result
+        #
+        # # 如果适用顺序拼接还是没有匹配到，那可能是竖排的，使用单个字节的keyword进行匹配
+        # indices = []
+        # # 对于keyword中的每一个字符，都要在strings中进行匹配
+        # # 如果这个字符在strings中的某一个string中，那么就记录这个string的index
+        # max_index = len(strings) - 1
+        # for index, char in enumerate(keyword):
+        #     for i, string in enumerate(strings):
+        #         if char not in string:
+        #             continue
+        #         if i <= max_index:
+        #             indices.append(i)
+        #             break
+        # if indices:
+        #     # 剔除掉重复的index
+        #     indices = list(set(indices))
+        #     return indices
+        # else:
+        #     return None
 
     def detect_text(self, image) -> str:
         """
