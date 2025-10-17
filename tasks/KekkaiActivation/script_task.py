@@ -258,8 +258,11 @@ class ScriptTask(KU, KekkaiActivationAssets):
                 while 1:
                     self.screenshot()
                     if not self.appear(self.I_A_EMPTY):
-                        self.config.kekkai_activation.activation_config.card_not_found_count = 0
-                        self.config.save()
+
+                        def update_config():
+                            self.config.kekkai_activation.activation_config.card_not_found_count = 0
+                        self.config.safe_save(update_config)
+
                         message = f'✅ 确认挂卡: {rule}'
                         self.save_image(content=message, push_flag=False, wait_time=0)
                         return

@@ -73,8 +73,10 @@ class ScriptTask(GameUi):
         sa = SwitchAccount(self.config, toAccount)
         login = sa.switchAccount()
         if login:
-            self.config.switch_account_config.config.account_name = account_info
-            self.config.save()
+            def update_config():
+                self.config.switch_account_config.config.account_name = account_info
+            self.config.safe_save(update_config)
+
             logger.info(f"[角色] {account_info}, 切换完成")
             loop_task = current_account_data.get("loop_task").split(",")
             loop_task.append(f"{self.config.task.command}")

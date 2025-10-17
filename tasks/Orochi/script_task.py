@@ -72,8 +72,10 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             case Plan.default:
                 logger.info('Orochi Plan default')
             case Plan.end:
-                self.config.orochi.next_day_orochi_config.plan = Plan.TEN30
-                self.config.save()
+                def update_config():
+                    self.config.orochi.next_day_orochi_config.plan = Plan.TEN30
+                self.config.safe_save(update_config)
+
                 start_time = self.config.orochi.next_day_orochi_config.start_time
                 next_run = parse_tomorrow_server(start_time)
                 self.set_next_run('Orochi', target=next_run)

@@ -156,9 +156,11 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
             sleep(0.5)
 
         logger.info("真蛇战斗结束")
+
         # 真蛇战斗完成，次数加一
-        conf.current_success += 1
-        self.config.save()
+        def update_config():
+            self.config.true_orochi.true_orochi_config.current_success += 1
+        self.config.safe_save(update_config)
 
         self.check_times(battle)
 
@@ -183,8 +185,10 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
 
         # 超过两次就说明这周打完了,设置下次运行时间为下周一，次数重置为0
         if conf.current_success >= 2:
-            conf.current_success = 0
-            self.config.save()
+            def update_config():
+                self.config.true_orochi.true_orochi_config.current_success = 0
+            self.config.safe_save(update_config)
+
             # 设置下一次运行时间是周一
             self.next_run_week(1)
         else:

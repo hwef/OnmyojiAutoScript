@@ -164,6 +164,20 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
     def reload(self):
         self.model = ConfigModel(config_name=self.config_name)
 
+    def safe_save(self, update_func=None):
+        """
+        安全保存配置，避免覆盖其他地方的修改
+        1.先重新加载配置 2.修改参数 3.保存配置
+        Args:
+            update_func: 可选的更新函数，在重新加载后执行特定更新操作
+        """
+        logger.info(f'safe save config {self.config_name}')
+        with self.lock_config:
+            self.reload()  # 确保数据最新
+            if update_func:
+                update_func()
+            self.save()
+
     def save(self) -> None:
         """
         保存配置文件

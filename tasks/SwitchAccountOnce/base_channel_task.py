@@ -45,8 +45,11 @@ class BaseChannelTask(GameUi):
         sa = SwitchAccount(self.config, toAccount)
         login = sa.switchAccount()
         if login:
-            self.config.switch_account_config.config.account_name = account_info
-            self.config.save()
+
+            def update_config():
+                self.config.switch_account_config.config.account_name = account_info
+            self.config.safe_save(update_config)
+
             logger.info(f"[角色] {account_info}, 切换完成")
         else:
             self.update_account_data(con.once_config.accounts_file, current_account_data, index, task_type)
@@ -83,8 +86,9 @@ class BaseChannelTask(GameUi):
             json.dump(all_accounts_data, file, ensure_ascii=False, indent=4)
 
     def set_wait_task_time(self):
-        self.config.switch_account_config.config.account_name = "未知角色"
-        self.config.save()
+        def update_config():
+            self.config.switch_account_config.config.account_name = "未知角色"
+        self.config.safe_save(update_config)
 
         target_time = datetime(2099, 1, 1)
         for task in self.config.waiting_task:

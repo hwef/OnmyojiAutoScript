@@ -125,8 +125,11 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
         return self.check_cm_number()
 
     def next_run_task(self):
-        self.config.collective_missions.missions_config.task_date = str(datetime.now().date())
-        self.config.save()
+
+        def update_config():
+            self.config.collective_missions.missions_config.task_date = str(datetime.now().date())
+        self.config.safe_save(update_config)
+
         self.set_next_run(task='CollectiveMissions', success=True, finish=True)
         raise TaskEnd('CollectiveMissions')
 
