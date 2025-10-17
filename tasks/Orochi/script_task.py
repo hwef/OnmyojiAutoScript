@@ -247,6 +247,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
             if not self.is_in_room(is_screenshot=False):
                 if self.is_room_dead():
                     logger.warning('Orochi task failed')
+                    self.save_image(wait_time=0, push_flag=True, image_type=True, content='Orochi task failed')
                     success = False
                     break
                 continue
