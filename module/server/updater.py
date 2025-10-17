@@ -64,14 +64,8 @@ class Updater(DeployConfig, GitManager, PipManager):
             return logs
 
     def current_branch(self) -> str:
-        current_branch: str = subprocess.run(
-            'git branch --show-current',
-            capture_output=True,
-            text=True,
-            encoding="utf8",
-            shell=True
-        ).stdout
-        return current_branch.replace('\n', '')
+        branch = self.execute_output(f'{self.git} branch --show-current')
+        return branch.strip()
 
     def current_commit(self) -> str:
         return self.get_commit()
