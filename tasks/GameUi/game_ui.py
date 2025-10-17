@@ -18,6 +18,7 @@ from module.logger import logger
 from module.exception import (GameNotRunningError, GamePageUnknownError, RequestHumanTakeover)
 from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
 from tasks.GlobalGame.assets import GlobalGameAssets
+from tasks.Component.GeneralInvite.assets import GeneralInviteAssets
 
 
 class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
@@ -37,13 +38,15 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
         page_shikigami_records, page_onmyodo, page_friends, page_daily, page_mall, page_guild, page_team,
         page_collection,
     ]
-    ui_close = [GameUiAssets.I_BACK_MALL,
+    ui_close = [GeneralInviteAssets.I_I_REJECT_1, GeneralInviteAssets.I_I_REJECT_2, GeneralInviteAssets.I_I_REJECT_3,
                 GeneralBattleAssets.I_EXIT_ENSURE, GeneralBattleAssets.I_EXIT_ENSURE1, GlobalGameAssets.I_UI_EXIT,
                 GeneralBattleAssets.I_REWARD, GeneralBattleAssets.I_FALSE, GeneralBattleAssets.I_WIN,
                 BaseTask.I_UI_BACK_RED, BaseTask.I_UI_BACK_YELLOW, BaseTask.I_UI_BACK_BLUE,
-                GameUiAssets.I_BACK_FRIENDS, GameUiAssets.I_BACK_DAILY,
+                GameUiAssets.I_BACK_MALL,
+                GameUiAssets.I_BACK_FRIENDS, GameUiAssets.I_BACK_DAILY, GameUiAssets.I_CHECK_GUILD_CLOSE,
                 GameUiAssets.I_REALM_RAID_GOTO_EXPLORATION,
-                GameUiAssets.I_SIX_GATES_GOTO_EXPLORATION, SixRealmsAssets.I_EXIT_SIXREALMS]
+                GameUiAssets.I_SIX_GATES_GOTO_EXPLORATION, SixRealmsAssets.I_EXIT_SIXREALMS,
+                ]
 
     def home_explore(self) -> bool:
         """
@@ -144,7 +147,7 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
                     return page
             # Try to close unknown page
             for close in self.ui_close:
-                if self.appear_then_click(close, interval=1.5):
+                if self.appear_then_click(close, interval=1):
                     time.sleep(0.5)
                     logger.info('Trying to switch to supported page')
                     timeout = Timer(10, count=20).start()
@@ -290,11 +293,9 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
     c = Config('du')
-    d = Device(c)
-    game = GameUi(config=c, device=d)
+    game = GameUi(config=c)
 
     game.screenshot()
     print(game.appear(game.I_CHECK_AREA_BOSS))
