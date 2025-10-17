@@ -740,11 +740,10 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
 if __name__ == "__main__":
     from module.config.config import Config
-    from module.device.device import Device
 
-    c = Config('switch')
-    d = Device(c)
-    t = ScriptTask(c, d)
+    c = Config('4399')
+    t = ScriptTask(c)
+    t.run()
     for i in range(10):
         t.perform_swipe_action()
     t.recive_guild_ap_or_assets()
