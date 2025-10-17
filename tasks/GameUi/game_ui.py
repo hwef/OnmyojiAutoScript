@@ -290,6 +290,16 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
             if self.appear_then_click(self.I_UI_EXIT, interval=1):
                 continue
 
+    def back_then_appear(self, target):
+        # 回到指定页面
+        while 1:
+            self.screenshot()
+            if self.appear(target):
+                break
+            for close in self.ui_close:
+                if self.appear_then_click(close, interval=1):
+                    break
+
 
 if __name__ == '__main__':
     from module.config.config import Config
