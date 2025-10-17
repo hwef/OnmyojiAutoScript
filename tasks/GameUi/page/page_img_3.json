@@ -126,6 +126,15 @@
     "description": "description"
   },
   {
+    "itemName": "check_guild_close",
+    "imageName": "page_check_guild_close.png",
+    "roiFront": "777,90,36,34",
+    "roiBack": "592,16,392,257",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "寮种树升级提示"
+  },
+  {
     "itemName": "check_team",
     "imageName": "page_check_team.png",
     "roiFront": "92,24,77,38",
