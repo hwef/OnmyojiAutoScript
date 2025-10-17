@@ -13,8 +13,7 @@ from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_shikigami_records
 from tasks.Restart.assets import RestartAssets
-from tasks.ActivityCommon.delegate import ScriptTask as Delegate
-
+from module.base.timer import Timer
 """ 活动通用 """
 
 
@@ -108,11 +107,13 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
 
         limit_time = config.limit_time
         enable = config.enable
+        each_limit_second = 0
         if enable:
             # 限制次数
             self.limit_count = config.limit_count
             # 限制时间
             self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute, seconds=limit_time.second)
+            each_limit_second = config.each_limit_second
 
         # 开始战斗
         logger.hr("已在挑战界面", 1)
@@ -121,8 +122,15 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
         last_clicked_file = None  # 记录上一次点击的文件名
         over_task = False
         challenge_clicked = False
+        run_timer = Timer(each_limit_second)
         while 1:
             self.screenshot()
+
+            if run_timer.reached() and each_limit_second > 0:
+                logger.info('本场战斗时间已到, 退出')
+                self.back_then_appear(challenge)
+                run_timer.reset()
+                continue
 
             if challenge_clicked and not self.appear(challenge):
                 self.current_count += 1
@@ -135,6 +143,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
 
             # 获得奖励
             if self.ui_reward_appear_click():
+                run_timer.reset()
                 continue
             # 误点聊天频道会自动关闭
             if self.appear_then_click(RestartAssets.I_HARVEST_CHAT_CLOSE):
@@ -171,6 +180,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                         challenge_clicked = True
 
                     if current_file == '赢（鼓）.png' or current_file == '御魂勾玉.png':
+                        run_timer.reset()
                         action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
                         self.click(action_click, interval=1)
 
@@ -185,6 +195,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
 
                     last_clicked_file = current_file  # 更新记录
                     if current_file == '挑战.png' or current_file == '准备.png':
+                        run_timer.start()
                         self.device.stuck_record_add('BATTLE_STATUS_S')
 
 
