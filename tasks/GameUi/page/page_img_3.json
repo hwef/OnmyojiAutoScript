@@ -196,5 +196,32 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"
+  },
+  {
+    "itemName": "back_act_list",
+    "imageName": "page_back_act_list.png",
+    "roiFront": "1165,65,51,47",
+    "roiBack": "1124,23,131,133",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "活动列表页返回庭院"
+  },
+  {
+    "itemName": "dlc_close",
+    "imageName": "store_dlc_close.png",
+    "roiFront": "916,147,24,25",
+    "roiBack": "916,147,24,25",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "下载拓展包弹窗"
+  },
+  {
+    "itemName": "back_battle",
+    "imageName": "page_back_battle.png",
+    "roiFront": "24,19,40,38",
+    "roiBack": "0,0,90,85",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "退出战斗按钮"
   }
 ]

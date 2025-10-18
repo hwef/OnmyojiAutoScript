@@ -131,16 +131,25 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             logger.warning(f"已忽略悬赏邀请")
         return True
 
-    def screenshot(self):
+    def screenshot(self, soft_skip: bool = False):
         """
         截图 引入中间函数的目的是 为了解决如协作的这类突发的事件
         :return:
         """
+        if not soft_skip or not self.exist_image():
+            self.device.screenshot()
         self.device.screenshot()
         # 判断勾协
         self._burst()
 
         return self.device.image
+
+    def exist_image(self) -> bool:
+        """
+        判断当前设备是否有图片
+        :return: 有返回True，没有返回False
+        """
+        return hasattr(self.device, 'image') and self.device.image is not None
 
     def appear(self,
                target: RuleImage,
@@ -495,6 +504,16 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 x1, y1, x2, y2 = target.swipe_pos(number=1, after=after)
                 self.device.swipe(p1=(x1, y1), p2=(x2, y2))
                 sleep(1)  # 等待滑动完成， 还没想好如何优化
+
+    def list_appear_click(self, target: RuleList) -> bool:
+        appear = self.list_find(target, name=target.array[0])
+        if not appear:
+            return False
+        if isinstance(appear, tuple):
+            x, y = appear
+            self.device.click(x, y)
+            return True
+        return False
 
     def set_next_run(self, task: str = None, finish: bool = False,
                      success: bool = True, server: bool = True, target: datetime = None) -> None:
