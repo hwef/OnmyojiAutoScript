@@ -128,7 +128,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
 
             if run_timer.reached() and each_limit_second > 0:
                 logger.info('本场战斗时间已到, 退出')
-                self.back_then_appear(challenge)
+                self.exit_battle()
                 run_timer.reset()
                 continue
 
