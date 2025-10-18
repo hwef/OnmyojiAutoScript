@@ -302,10 +302,7 @@ def retry(func):
                 logger.error(e)
 
                 def init():
-                    # 使用更彻底的重连方法
-                    self.thorough_adb_reconnect()
-                    # 重新初始化minitouch
-                    del_cached_property(self, 'minitouch_builder')
+                    self.adb_reconnect()
             # Emulator closed
             except ConnectionAbortedError as e:
                 logger.error(e)

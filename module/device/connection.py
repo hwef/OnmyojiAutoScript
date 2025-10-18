@@ -762,63 +762,23 @@ class Connection(ConnectionAttr):
             self.adb_connect(self.serial)
             self.detect_device()
         else:
-            # 执行更彻底的重连操作
-            self.thorough_adb_reconnect()
-
-    def thorough_adb_reconnect(self):
-        """
-        更彻底的ADB重连操作，清理所有相关缓存和连接
-        """
-        logger.info(f'执行彻底的ADB重连: {self.serial}')
-        
-        # 清理所有相关的缓存属性
-        del_cached_property(self, 'hermit_session')
-        del_cached_property(self, 'droidcast_session')
-        del_cached_property(self, 'minitouch_builder')
-        del_cached_property(self, 'reverse_server')
-        del_cached_property(self, 'u2')
-        
-        # 断开所有相关连接
-        try:
-            self.adb_disconnect(self.serial)
-        except Exception as e:
-            logger.warning(f'断开ADB连接时出错: {e}')
-        
-        # 清理所有端口转发
-        try:
-            forwards = self.adb.forward_list()
-            for forward in forwards:
-                if forward.serial == self.serial:
-                    try:
-                        self.adb_forward_remove(forward.local)
-                    except Exception as e:
-                        logger.warning(f'移除端口转发失败 {forward.local}: {e}')
-        except Exception as e:
-            logger.warning(f'清理端口转发时出错: {e}')
+            # 先尝试断开连接再重新连接
+            try:
+                self.adb_disconnect(self.serial)
+            except Exception as e:
+                logger.warning(f'断开ADB连接时出错: {e}')
             
-        # 清理所有反向连接
-        try:
-            reverses = self.adb.reverse_list()
-            for reverse in reverses:
-                try:
-                    self.adb_reverse_remove(reverse.remote)
-                except Exception as e:
-                    logger.warning(f'移除反向连接失败 {reverse.remote}: {e}')
-        except Exception as e:
-            logger.warning(f'清理反向连接时出错: {e}')
-        
-        # 重启ADB服务
-        try:
-            self._execute_adb_command(['kill-server'], timeout=5)
-            time.sleep(1)
-            self._execute_adb_command(['start-server'], timeout=10)
-            time.sleep(2)
-        except Exception as e:
-            logger.warning(f'重启ADB服务时出错: {e}')
-            
-        # 重新连接设备
-        self.adb_connect(self.serial)
-        self.detect_device()
+            # 重新启动ADB服务
+            try:
+                self._execute_adb_command(['kill-server'], timeout=5)
+                time.sleep(1)
+                self._execute_adb_command(['start-server'], timeout=10)
+                time.sleep(2)
+            except Exception as e:
+                logger.warning(f'重启ADB服务时出错: {e}')
+                
+            self.adb_connect(self.serial)
+            self.detect_device()
 
     @Config.when(DEVICE_OVER_HTTP=True)
     def adb_reconnect(self):
