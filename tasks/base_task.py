@@ -1011,12 +1011,29 @@ if __name__ == '__main__':
 
     c = Config('4399')
     d = Device(c)
-    t = BaseTask(c, d)
+    t = BaseTask(c)
     # t.next_run_week(2)
     # t.push_notify("123456", "123456",1)
     # t.next_run_week(c.duel.switch_week.next_week_day)
+    def load_image(file: str):
+        file = Path(file)
+        img = cv2.imdecode(fromfile(file, dtype=uint8), -1)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-    # t.screenshot()
+        # height, width, channels = img.shape
+        # if height != 720 or width != 1280:
+        #     logger.error(f'Image size is {height}x{width}, not 720x1280')
+        #     return None
+        return img
+    while True:
+        # t.screenshot()
+        t.device.image = load_image(r"D:\共享文件夹\Screenshots\MuMu12-20251019-000626.png")
+        I_PLANT_TREE_CLOSE = RuleImage(roi_front=(777,91,36,34), roi_back=(695,40,446,432), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/realm/realm_plant_tree_close.png")
+        result =(t.appear(I_PLANT_TREE_CLOSE, interval=2.5))
+        if result:
+            logger.info(f"✅ {result}")
+
+
     t.save_image(push_flag=True, content='成功保存截图')
     # I_E_AUTO_ROTATE_OFF = RuleImage(roi_front=(108,650,150,46), roi_back=(108,650,150,46), threshold=0.85, method="Template matching", file="./tasks/Exploration/res/res_e_auto_rotate_off.png")
     # t.appear_rgb(I_E_AUTO_ROTATE_OFF)
