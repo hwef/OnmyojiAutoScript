@@ -1,7 +1,7 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-
+import time
 from module.device.device import Device
 from module.logger import logger
 from module.exception import RequestHumanTakeover
@@ -25,20 +25,32 @@ class DeviceManager:
         Returns:
             Device: 共享的设备实例
         """
-        if cls._shared_device is None or not cls._device_status:
-            if config is None:
-                raise ValueError("首次创建设备实例时必须提供config参数")
-            try:
-                cls._shared_device = Device(config=config)
-                cls._device_status = True  # 设置设备状态为已启动
-                logger.info('[设备] 创建新的共享设备实例')
-                logger.hr(f'Device', level=1)
-            except RequestHumanTakeover:
-                logger.critical('[设备] 设备初始化需要人工接管')
-                raise
-            except Exception as e:
-                logger.exception(f'[设备] 创建设备实例时出错: {e}')
-                raise
+        max_retries = 3
+        retry_count = 0
+        while retry_count < max_retries:
+            if cls._shared_device is None or not cls._device_status:
+                try:
+                    cls._shared_device = Device(config=config)
+                    cls._device_status = True  # 设置设备状态为已启动
+                    logger.hr(f'Device True', level=1)
+                    return cls._shared_device
+                except RequestHumanTakeover:
+                    logger.critical('[设备] 设备初始化需要人工接管')
+                    raise
+                except ConnectionResetError as e:
+                    retry_count += 1
+                    logger.warning(f'[设备] 连接被重置，正在进行第{retry_count}次重试: {e}')
+                    if retry_count >= max_retries:
+                        logger.error(f'[设备] 重试{max_retries}次后仍无法连接')
+                        raise
+                    # 等待一段时间再重试
+                    time.sleep(2)
+                except Exception as e:
+                    logger.exception(f'[设备] 创建设备实例时出错: {e}')
+                    raise
+            else:
+                return cls._shared_device
+
         return cls._shared_device
     
     @classmethod
@@ -70,9 +82,9 @@ class DeviceManager:
             # 清理资源
             try:
                 cls._shared_device.release_during_wait()
-                logger.info('[设备] 设备资源释放完成')
+                logger.debug('[设备] 设备资源释放完成')
             except Exception as e:
                 logger.warning(f'[设备] 释放设备资源时出错: {e}')
             cls._shared_device = None
             cls._device_status = False
-            logger.info('[设备] 重置共享设备实例')
+            logger.debug('[设备] 重置共享设备实例')

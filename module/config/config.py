@@ -325,11 +325,10 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
 
         task_enable = self.model.deep_get(self.model, keys=f'{task}.scheduler.enable')
         if force_call or task_enable:
-            logger.warning(f"Task call: {task}")
             next_run = datetime.now().replace(
                 microsecond=0
             )
-            logger.warning(f"回调任务: [{task}], 回调时间: [{next_run}]")
+            logger.info(f"回调任务: [{task}]")
             self.model.deep_set(self.model, keys=f'{task}.scheduler.next_run', value=next_run)
             self.save()
             return True

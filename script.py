@@ -72,7 +72,7 @@ class Script:
     def reset_device(self):
         # 重置共享设备实例
         del_cached_property(self, 'config')
-        logger.info('[清理] config 清理工作已完成')
+        logger.debug('[清理] config 清理工作已完成')
         DeviceManager.reset_device()
 
     @cached_property
