@@ -179,7 +179,7 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
                     if current_file == '挑战.png':
                         challenge_clicked = True
 
-                    if current_file == '赢（鼓）.png' or current_file == '御魂勾玉.png':
+                    if current_file == '赢（鼓）.png' or '御魂勾玉' in current_file:
                         run_timer.reset()
                         action_click = random.choice([self.C_REWARD_1, self.C_REWARD_2, self.C_REWARD_3])
                         self.click(action_click, interval=1)
