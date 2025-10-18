@@ -36,7 +36,7 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
         page_secret_zones, page_area_boss, page_heian_kitan, page_six_gates, page_bondling_fairyland,
         page_kekkai_toppa,
         # 町中的
-        page_duel, page_demon_encounter, page_hunt, page_hunt_kirin, page_draft_duel, page_hyakkisen,
+        page_duel, page_demon_encounter, page_kirin, page_netherworld, page_draft_duel, page_hyakkisen,
         # 庭院里面的
         page_shikigami_records, page_onmyodo, page_friends, page_daily, page_mall, page_guild, page_team,
         page_collection, page_act_list,
@@ -109,7 +109,11 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
             if self.ui_page_appear(page, skip_first_screenshot):
                 return True
             skip_first_screenshot = False
-            interval_timer.wait().reset()
+            result = interval_timer.wait()
+            if result is not None:
+                result.reset()
+            else:
+                interval_timer.reset()
         return False
 
     def ensure_scroll_open(self):
