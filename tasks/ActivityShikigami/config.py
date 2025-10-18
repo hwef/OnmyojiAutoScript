@@ -1,7 +1,11 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from pydantic import BaseModel, Field, model_validator
+try:
+    from pydantic import BaseModel, Field, model_validator
+except ImportError:
+    from pydantic import BaseModel, Field
+    from pydantic import validator as model_validator
 
 from tasks.Component.GeneralBattle.config_general_battle import GreenMarkType
 from tasks.Component.config_scheduler import Scheduler
