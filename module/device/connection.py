@@ -47,14 +47,12 @@ def retry(func):
                 break
             # When adb server was killed
             except ConnectionResetError as e:
-                logger.error(f"[Retry] ConnectionResetError in {func.__name__}: {e}")
-                logger.error(f"[Retry] ADB connection was reset, attempting to reconnect...")
+                logger.error(e)
 
                 def init():
                     self.adb_reconnect()
             # AdbError
             except AdbError as e:
-                logger.error(f"[Retry] AdbError in {func.__name__}: {e}")
                 if handle_adb_error(e):
                     def init():
                         self.adb_reconnect()
@@ -62,13 +60,13 @@ def retry(func):
                     break
             # Package not installed
             except PackageNotInstalled as e:
-                logger.error(f"[Retry] PackageNotInstalled in {func.__name__}: {e}")
+                logger.error(e)
 
                 def init():
                     self.detect_package()
             # Handle FileNotFoundError which may occur when adb binary is not found
             except FileNotFoundError as e:
-                logger.error(f"[Retry] FileNotFoundError in {func.__name__}: {e}")
+                logger.error(f"FileNotFoundError in retry wrapper: {e}")
                 logger.error("This may be due to ADB binary not being found. Trying to restart ADB server.")
                 
                 def init():
@@ -81,7 +79,7 @@ def retry(func):
                         self.adb_reconnect()
             # Unknown, probably a trucked image
             except Exception as e:
-                logger.exception(f"[Retry] Unexpected error in {func.__name__}: {e}")
+                logger.exception(e)
 
                 def init():
                     pass
@@ -197,36 +195,19 @@ class Connection(ConnectionAttr):
         if not isinstance(cmd, str):
             cmd = list(map(str, cmd))
 
-        cmd_display = ' '.join(cmd) if isinstance(cmd, list) else cmd
-        logger.info(f"[ADB Shell] Executing command: {cmd_display}")
-        try:
-            logger.info(f"[ADB Shell] About to execute command on device {self.serial}")
-            if stream:
-                logger.info(f"[ADB Shell] Creating stream connection")
-                result = self.adb.shell(cmd, stream=stream, timeout=timeout, rstrip=rstrip)
-                if recvall:
-                    # bytes
-                    logger.info(f"[ADB Shell] Receiving all data from stream")
-                    return recv_all(result)
-                else:
-                    # socket
-                    logger.info(f"[ADB Shell] Returning socket connection")
-                    return result
+        if stream:
+            result = self.adb.shell(cmd, stream=stream, timeout=timeout, rstrip=rstrip)
+            if recvall:
+                # bytes
+                return recv_all(result)
             else:
-                logger.info(f"[ADB Shell] Executing non-stream command")
-                result = self.adb.shell(cmd, stream=stream, timeout=timeout, rstrip=rstrip)
-                result = remove_shell_warning(result)
-                logger.info(f"[ADB Shell] Command executed successfully")
-                # str
+                # socket
                 return result
-        except ConnectionResetError as e:
-            cmd_display = ' '.join(cmd) if isinstance(cmd, list) else cmd
-            logger.error(f"[ADB Shell] ConnectionResetError when executing command {cmd_display} on device {self.serial}: {e}")
-            raise
-        except Exception as e:
-            cmd_display = ' '.join(cmd) if isinstance(cmd, list) else cmd
-            logger.error(f"[ADB Shell] Error executing command {cmd_display}: {e}")
-            raise
+        else:
+            result = self.adb.shell(cmd, stream=stream, timeout=timeout, rstrip=rstrip)
+            result = remove_shell_warning(result)
+            # str
+            return result
 
     @Config.when(DEVICE_OVER_HTTP=True)
     def adb_shell(self, cmd, stream=False, recvall=True, timeout=10, rstrip=True):
@@ -247,24 +228,19 @@ class Connection(ConnectionAttr):
         if not isinstance(cmd, str):
             cmd = list(map(str, cmd))
 
-        logger.info(f"[ADB Shell HTTP] Executing command: {cmd}")
-        try:
-            if stream:
-                result = self.u2.shell(cmd, stream=stream, timeout=timeout)
-                # Already received all, so `recvall` is ignored
-                result = remove_shell_warning(result.content)
-                # bytes
-                return result
-            else:
-                result = self.u2.shell(cmd, stream=stream, timeout=timeout).output
-                if rstrip:
-                    result = result.rstrip()
-                result = remove_shell_warning(result)
-                # str
-                return result
-        except Exception as e:
-            logger.error(f"[ADB Shell HTTP] Error executing command {cmd}: {e}")
-            raise
+        if stream:
+            result = self.u2.shell(cmd, stream=stream, timeout=timeout)
+            # Already received all, so `recvall` is ignored
+            result = remove_shell_warning(result.content)
+            # bytes
+            return result
+        else:
+            result = self.u2.shell(cmd, stream=stream, timeout=timeout).output
+            if rstrip:
+                result = result.rstrip()
+            result = remove_shell_warning(result)
+            # str
+            return result
     
     def adb_getprop(self, name):
         """
@@ -574,17 +550,14 @@ class Connection(ConnectionAttr):
         Returns:
             bool: If success
         """
-        logger.info(f"[ADB Connect] Attempting to connect to device: {serial}")
         # Ensure ADB server is running
         try:
-            logger.info(f"[ADB Connect] Starting ADB server")
             self._execute_adb_command(['start-server'], timeout=10)
             time.sleep(1)
         except Exception as e:
-            logger.warning(f'[ADB Connect] Failed to start ADB server: {e}')
+            logger.warning(f'Failed to start ADB server: {e}')
 
         # Disconnect offline device before connecting
-        logger.info(f"[ADB Connect] Checking for offline devices")
         for device in self.list_device():
             if device.status == 'offline':
                 logger.warning(f'Device {serial} is offline, disconnect it before connecting')
@@ -605,15 +578,13 @@ class Connection(ConnectionAttr):
             return True
 
         # Try to connect
-        for attempt in range(3):
-            logger.info(f"[ADB Connect] Connection attempt {attempt + 1}/3")
+        for _ in range(3):
             try:
                 msg = self.adb_client.connect(serial)
                 logger.info(msg)
                 if 'connected' in msg:
                     # Connected to 127.0.0.1:59865
                     # Already connected to 127.0.0.1:59865
-                    logger.info(f"[ADB Connect] Successfully connected to {serial}")
                     return True
                 elif 'bad port' in msg:
                     # bad port number '598265' in '127.0.0.1:598265'
@@ -626,15 +597,6 @@ class Connection(ConnectionAttr):
                     logger.info(msg)
                     logger.warning('No such device exists, please restart the emulator or set a correct serial')
                     raise EmulatorNotRunningError
-            except ConnectionResetError as e:
-                logger.error(f"[ADB Connect] ConnectionResetError on attempt {attempt + 1}: {e}")
-                if attempt < 2:  # Not the last attempt
-                    logger.info("[ADB Connect] Will retry connection")
-                    time.sleep(2)
-                    continue
-                else:
-                    logger.error("[ADB Connect] Final attempt failed with ConnectionResetError")
-                    raise
             except FileNotFoundError as e:
                 logger.error(f"ADB binary not found: {e}")
                 logger.error("Trying to start ADB server again")
@@ -653,11 +615,9 @@ class Connection(ConnectionAttr):
     @Config.when(DEVICE_OVER_HTTP=True)
     def adb_connect(self, serial):
         # No adb connect if over http
-        logger.info(f"[ADB Connect HTTP] Skipping ADB connect for HTTP device: {serial}")
         return True
 
     def adb_disconnect(self, serial):
-        logger.info(f"[ADB Disconnect] Disconnecting device: {serial}")
         msg = self.adb_client.disconnect(serial)
         if msg:
             logger.info(msg)
@@ -753,7 +713,6 @@ class Connection(ConnectionAttr):
         else:
             full_command = ['adb'] + command
 
-        logger.info(f"[Execute ADB Command] Running: {' '.join(full_command)}")
         # 执行命令
         return subprocess.run(
             full_command,
@@ -784,13 +743,10 @@ class Connection(ConnectionAttr):
             Reboot adb client
         """
         logger.info('Restart adb')
-        logger.info('Killing current ADB server')
         # Kill current client
         self.adb_client.server_kill()
         # Init adb client
-        logger.info('Removing cached ADB client property')
         del_cached_property(self, 'adb_client')
-        logger.info('Getting new ADB client instance')
         _ = self.adb_client
 
     @Config.when(DEVICE_OVER_HTTP=False)
@@ -798,11 +754,9 @@ class Connection(ConnectionAttr):
         """
            Reboot adb client if no device found, otherwise try reconnecting device.
         """
-        logger.info(f"[ADB Reconnect] Attempting to reconnect ADB for device: {self.serial}")
         # if self.config.Emulator_AdbRestart and len(self.list_device()) == 0:
         if self.config.script.device.adb_restart and len(self.list_device()) == 0:
             # Restart Adb
-            logger.info("[ADB Reconnect] No devices found, restarting ADB server")
             self.adb_restart()
             # Connect to device
             self.adb_connect(self.serial)
@@ -810,14 +764,12 @@ class Connection(ConnectionAttr):
         else:
             # 先尝试断开连接再重新连接
             try:
-                logger.info("[ADB Reconnect] Disconnecting current device")
                 self.adb_disconnect(self.serial)
             except Exception as e:
                 logger.warning(f'断开ADB连接时出错: {e}')
             
             # 重新启动ADB服务
             try:
-                logger.info("[ADB Reconnect] Restarting ADB server")
                 self._execute_adb_command(['kill-server'], timeout=5)
                 time.sleep(1)
                 self._execute_adb_command(['start-server'], timeout=10)
@@ -934,15 +886,11 @@ class Connection(ConnectionAttr):
         """
         devices = []
         try:
-            logger.info("[List Device] Attempting to connect to ADB server")
             with self.adb_client._connect() as c:
-                logger.info("[List Device] Sending 'host:devices' command")
                 c.send_command("host:devices")
-                logger.info("[List Device] Checking ADB response")
                 c.check_okay()
-                logger.info("[List Device] Reading device list")
                 output = c.read_string_block()
-                logger.info(f"[List Device] ADB devices output: {output}")
+                logger.debug(output)
                 for line in output.splitlines():
                     parts = line.strip().split("\t")
                     if len(parts) != 2:
@@ -950,9 +898,6 @@ class Connection(ConnectionAttr):
                     device = AdbDeviceWithStatus(self.adb_client, parts[0], parts[1])
                     devices.append(device)
         except ConnectionResetError as e:
-            logger.error(f"[List Device] ConnectionResetError when listing devices: {e}")
-            raise
-        except Exception as e:
             # Happens only on CN users.
             # ConnectionResetError: [WinError 10054] 远程主机强迫关闭了一个现有的连接。
             logger.error(e)
