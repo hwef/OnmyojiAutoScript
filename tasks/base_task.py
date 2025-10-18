@@ -138,7 +138,6 @@ class BaseTask(GlobalGameAssets, CostumeBase):
         """
         if not soft_skip or not self.exist_image():
             self.device.screenshot()
-        self.device.screenshot()
         # 判断勾协
         self._burst()
 
