@@ -57,17 +57,17 @@ class Device(Platform, Screenshot, Control, AppControl):
             except (EmulatorNotRunningError, pywintypes.error) as e:
                 last_exception = e
                 # ------------------------- 异常处理分支 -------------------------
-                # (1) 窗口句柄无效错误 (Windows API error 1400)
+                # 窗口句柄无效错误 (Windows API error 1400)
                 if isinstance(e, pywintypes.error) and e.winerror == 1400:
                     logger.warning(f"窗口句柄无效，清理残留进程 (第{trial}次重试/共{max_retries}次)")
                     self.force_cleanup()
 
-                # (2) 模拟器未运行错误
+                # 模拟器未运行错误
                 elif isinstance(e, EmulatorNotRunningError):
                     logger.warning(f"模拟器未运行，尝试启动 (第{trial}次重试/共{max_retries}次)")
                     self.emulator_start()
 
-                # (3) 其他已知异常
+                # 其他已知异常
                 else:
                     self.config.notifier.push(title=self.config.task, content=f"遇到异常 [{type(e).__name__}]，准备重试 (第{trial}次/共{max_retries}次)")
                     logger.warning(f"遇到异常 [{type(e).__name__}]，准备重试 (第{trial}次/共{max_retries}次)")
@@ -90,6 +90,8 @@ class Device(Platform, Screenshot, Control, AppControl):
         # Auto-select the fastest screenshot method
         if self.config.script.device.screenshot_method == 'auto':
             self.run_simple_screenshot_benchmark()
+
+        logger.info('模拟器启动完成 True')
 
     def force_cleanup(self):
         """精准终止当前模拟器实例关联进程"""

@@ -6,6 +6,7 @@ from module.device.device import Device
 from module.logger import logger
 from module.exception import RequestHumanTakeover
 
+
 class DeviceManager:
     """
     全局设备，用于在Script和BaseTask类之间共享设备实例
