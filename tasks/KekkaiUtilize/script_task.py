@@ -98,8 +98,6 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 logger.info('Utilize failed, exit')
             # 开始执行寄养
             if self.run_utilize(con.select_friend_list, con.shikigami_class, con.shikigami_order):
-                # 退出寮结界
-                self.back_guild()
                 # 进入寮结界
                 self.ui_get_current_page()
                 self.ui_goto(page_realm)
