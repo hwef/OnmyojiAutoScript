@@ -39,7 +39,7 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
         page_collection,
     ]
     ui_close = [GeneralInviteAssets.I_I_REJECT_1, GeneralInviteAssets.I_I_REJECT_2, GeneralInviteAssets.I_I_REJECT_3,
-                GeneralBattleAssets.I_EXIT_ENSURE, GeneralBattleAssets.I_EXIT_ENSURE1, GlobalGameAssets.I_UI_EXIT,
+                GeneralBattleAssets.I_EXIT_ENSURE, GeneralBattleAssets.I_EXIT_ENSURE1, GlobalGameAssets.I_UI_EXIT,GeneralBattleAssets.I_EXIT,
                 GeneralBattleAssets.I_REWARD, GeneralBattleAssets.I_FALSE, GeneralBattleAssets.I_WIN,
                 BaseTask.I_UI_BACK_RED, BaseTask.I_UI_BACK_YELLOW, BaseTask.I_UI_BACK_BLUE,
                 GameUiAssets.I_BACK_MALL,
