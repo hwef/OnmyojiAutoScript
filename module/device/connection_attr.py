@@ -38,6 +38,7 @@ class ConnectionAttr:
 
         # Init adb client
         logger.attr('AdbBinary', self.adb_binary)
+        logger.info(f"[ConnectionAttr] Initializing with ADB binary: {self.adb_binary}")
         # Monkey patch to custom adb
         adbutils.adb_path = lambda: self.adb_binary
         # Remove global proxies, or uiautomator2 will go through it
@@ -63,32 +64,39 @@ class ConnectionAttr:
                     print(k, v)
                     su.__setattr__(k[0], chr(8) + v)
         # Cache adb_client
+        logger.info("[ConnectionAttr] Initializing adb_client")
         _ = self.adb_client
 
         # Parse custom serial
         # self.serial = str(self.config.Emulator_Serial)
         self.serial = str(self.config.script.device.serial)
+        logger.info(f"[ConnectionAttr] Using device serial: {self.serial}")
         self.serial_check()
         self.config.DEVICE_OVER_HTTP = self.is_over_http
+        logger.info(f"[ConnectionAttr] Initialization completed")
 
     def serial_check(self):
         """
         serial check
         """
+        logger.info(f"[Serial Check] Checking serial: {self.serial}")
         # Chinese colon
         if '：' in self.serial:
             self.serial = self.serial.replace('：', ':')
             logger.warning(f'Serial {self.config.Emulator_Serial} is revised to {self.serial}')
             self.config.Emulator_Serial = self.serial
         if self.is_bluestacks4_hyperv:
+            logger.info("[Serial Check] Handling BlueStacks4 Hyper-V")
             self.serial = self.find_bluestacks4_hyperv(self.serial)
         if self.is_bluestacks5_hyperv:
+            logger.info("[Serial Check] Handling BlueStacks5 Hyper-V")
             self.serial = self.find_bluestacks5_hyperv(self.serial)
         if "127.0.0.1:58526" in self.serial:
             logger.warning('Serial 127.0.0.1:58526 seems to be WSA, '
                            'please use "wsa-0" or others instead')
             raise RequestHumanTakeover
         if self.is_wsa:
+            logger.info("[Serial Check] Handling WSA device")
             self.serial = '127.0.0.1:58526'
             if self.config.script.device.screenshot_method != 'uiautomator2' \
                     or self.config.script.device.control_method != 'uiautomator2':
@@ -96,6 +104,7 @@ class ConnectionAttr:
                     self.config.script.device.screenshot_method = 'uiautomator2'
                     self.config.script.device.control_method = 'uiautomator2'
         if self.is_over_http:
+            logger.info("[Serial Check] Handling HTTP connection")
             if self.config.script.device.screenshot_method not in ["ADB", "uiautomator2", "aScreenCap"] \
                     or self.config.script.device.control_method not in ["ADB", "uiautomator2", "minitouch"]:
                 logger.warning(
@@ -104,6 +113,7 @@ class ConnectionAttr:
                     f'ControlMethod can only use ["ADB", "uiautomator2", "minitouch"]'
                 )
                 raise RequestHumanTakeover
+        logger.info(f"[Serial Check] Serial check completed. Final serial: {self.serial}")
 
     @cached_property
     def is_bluestacks4_hyperv(self):
@@ -265,18 +275,24 @@ class ConnectionAttr:
         if env is not None:
             try:
                 port = int(env)
+                logger.info(f"[ADB Client] Using ADB port from environment: {port}")
             except ValueError:
                 logger.warning(f'Invalid environ variable ANDROID_ADB_SERVER_PORT={port}, using default port')
 
         # Ensure ADB server is running with the correct binary
+        logger.info("[ADB Client] Ensuring ADB server is running")
         try:
             self._execute_adb_command(['start-server'], timeout=10)
             time.sleep(1)
+            logger.info("[ADB Client] ADB server started successfully")
         except Exception as e:
-            logger.warning(f'Failed to start ADB server: {e}')
+            logger.warning(f'[ADB Client] Failed to start ADB server: {e}')
 
         logger.attr('AdbClient', f'AdbClient({host}, {port})')
-        return AdbClient(host, port)
+        logger.info(f"[ADB Client] Creating AdbClient instance with host={host}, port={port}")
+        client = AdbClient(host, port)
+        logger.info(f"[ADB Client] AdbClient instance created successfully")
+        return client
 
     def _execute_adb_command(self, command, timeout=10, capture_output=True):
         """
@@ -292,6 +308,7 @@ class ConnectionAttr:
         """
         # 获取ADB二进制文件路径
         adb_path = self.adb_binary
+        logger.info(f"[Execute ADB Command] ADB binary path: {adb_path}")
         # 使用隐藏窗口方式执行
         startupinfo = None
         if os.name == 'nt':  # Windows系统
@@ -304,35 +321,60 @@ class ConnectionAttr:
         else:
             full_command = ['adb'] + command
 
-        # 执行命令
-        return subprocess.run(
-            full_command,
-            capture_output=capture_output,
-            text=True if capture_output else False,
-            timeout=timeout,
-            startupinfo=startupinfo
-        )
+        cmd_display = ' '.join(full_command)
+        logger.info(f"[Execute ADB Command] Running: {cmd_display}")
+        try:
+            # 执行命令
+            result = subprocess.run(
+                full_command,
+                capture_output=capture_output,
+                text=True if capture_output else False,
+                timeout=timeout,
+                startupinfo=startupinfo
+            )
+            logger.info(f"[Execute ADB Command] Command finished with return code: {result.returncode}")
+            if capture_output and result.stdout:
+                logger.info(f"[Execute ADB Command] Command stdout: {result.stdout}")
+            if capture_output and result.stderr:
+                logger.info(f"[Execute ADB Command] Command stderr: {result.stderr}")
+            return result
+        except subprocess.TimeoutExpired as e:
+            logger.error(f"[Execute ADB Command] Command timeout: {cmd_display}")
+            raise
+        except Exception as e:
+            logger.error(f"[Execute ADB Command] Error executing command {cmd_display}: {e}")
+            raise
 
     @cached_property
     def adb(self) -> AdbDevice:
-        return AdbDevice(self.adb_client, self.serial)
+        logger.info(f"[ADB Device] Creating AdbDevice instance for serial: {self.serial}")
+        device = AdbDevice(self.adb_client, self.serial)
+        logger.info(f"[ADB Device] AdbDevice instance created successfully")
+        return device
 
     @cached_property
     def u2(self) -> u2.Device:
+        logger.info(f"[u2 Device] Creating u2.Device instance for serial: {self.serial}")
+        logger.info(f"[u2 Device] Connection type: {'HTTP' if self.is_over_http else 'USB/Network'}")
         if self.is_over_http:
             # Using uiautomator2_http
+            logger.info(f"[u2 Device] Connecting over HTTP: {self.serial}")
             device = u2.connect(self.serial)
         else:
             # Normal uiautomator2
             if self.serial.startswith('emulator-') or self.serial.startswith('127.0.0.1:'):
+                logger.info(f"[u2 Device] Connecting via USB with serial: {self.serial}")
                 device = u2.connect_usb(self.serial)
             else:
+                logger.info(f"[u2 Device] Connecting via network with serial: {self.serial}")
                 device = u2.connect(self.serial)
 
         # Stay alive
+        logger.info("[u2 Device] Setting new command timeout to 604800 seconds")
         device.set_new_command_timeout(604800)
 
         logger.attr('u2.Device', f'Device(atx_agent_url={device._get_atx_agent_url()})')
+        logger.info(f"[u2 Device] u2.Device instance created successfully")
         return device
 
 

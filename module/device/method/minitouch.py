@@ -299,19 +299,20 @@ def retry(func):
                 break
             # When adb server was killed
             except ConnectionResetError as e:
-                logger.error(e)
+                logger.error(f"[Minitouch Retry] ConnectionResetError in {func.__name__}: {e}")
+                logger.error(f"[Minitouch Retry] ADB connection was reset, attempting to reconnect...")
 
                 def init():
                     self.adb_reconnect()
             # Emulator closed
             except ConnectionAbortedError as e:
-                logger.error(e)
+                logger.error(f"[Minitouch Retry] ConnectionAbortedError in {func.__name__}: {e}")
 
                 def init():
                     self.adb_reconnect()
             # MinitouchNotInstalledError: Received empty data from minitouch
             except MinitouchNotInstalledError as e:
-                logger.error(e)
+                logger.error(f"[Minitouch Retry] MinitouchNotInstalledError in {func.__name__}: {e}")
 
                 def init():
                     self.install_uiautomator2()
@@ -320,7 +321,7 @@ def retry(func):
                     del_cached_property(self, 'minitouch_builder')
             # MinitouchOccupiedError: Timeout when connecting to minitouch
             except MinitouchOccupiedError as e:
-                logger.error(e)
+                logger.error(f"[Minitouch Retry] MinitouchOccupiedError in {func.__name__}: {e}")
 
                 def init():
                     self.restart_atx()
@@ -329,19 +330,20 @@ def retry(func):
                     del_cached_property(self, 'minitouch_builder')
             # AdbError
             except AdbError as e:
+                logger.error(f"[Minitouch Retry] AdbError in {func.__name__}: {e}")
                 if handle_adb_error(e):
                     def init():
                         self.adb_reconnect()
                 else:
                     break
             except BrokenPipeError as e:
-                logger.error(e)
+                logger.error(f"[Minitouch Retry] BrokenPipeError in {func.__name__}: {e}")
 
                 def init():
                     del_cached_property(self, 'minitouch_builder')
             # Unknown, probably a trucked image
             except Exception as e:
-                logger.exception(e)
+                logger.exception(f"[Minitouch Retry] Unexpected error in {func.__name__}: {e}")
 
                 def init():
                     pass
@@ -368,41 +370,55 @@ class Minitouch(Connection):
     @Config.when(DEVICE_OVER_HTTP=False)
     def minitouch_init(self):
         logger.hr('MiniTouch init')
+        logger.info(f"[Minitouch Init] Initializing minitouch for device {self.serial}")
         max_x, max_y = 1280, 720
         max_contacts = 2
         max_pressure = 50
         self.get_orientation()
 
+        logger.info(f"[Minitouch Init] Setting up ADB forward for minitouch")
         self._minitouch_port = self.adb_forward("localabstract:minitouch")
+        logger.info(f"[Minitouch Init] Forwarded minitouch to port: {self._minitouch_port}")
 
         # No need, minitouch already started by uiautomator2
         # self.adb_shell([self.config.MINITOUCH_FILEPATH_REMOTE])
 
         retry_timeout = Timer(2).start()
         while 1:
+            logger.info(f"[Minitouch Init] Attempting to connect to minitouch")
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client.settimeout(1)
-            client.connect(('127.0.0.1', self._minitouch_port))
-            self._minitouch_client = client
+            try:
+                client.connect(('127.0.0.1', self._minitouch_port))
+                self._minitouch_client = client
+                logger.info(f"[Minitouch Init] Connected to minitouch on port {self._minitouch_port}")
+            except Exception as e:
+                logger.error(f"[Minitouch Init] Failed to connect to minitouch: {e}")
+                client.close()
+                raise MinitouchOccupiedError(
+                    'Timeout when connecting to minitouch, '
+                    'probably because another connection has been established'
+                )
 
             # get minitouch server info
+            logger.info(f"[Minitouch Init] Reading minitouch server info")
             socket_out = client.makefile()
 
             # v <version>
             # protocol version, usually it is 1. needn't use this
             try:
                 out = socket_out.readline().replace("\n", "").replace("\r", "")
+                logger.info(f"[Minitouch Init] Version info: {out}")
             except socket.timeout:
                 client.close()
                 raise MinitouchOccupiedError(
                     'Timeout when connecting to minitouch, '
                     'probably because another connection has been established'
                 )
-            logger.info(out)
 
             # ^ <max-contacts> <max-x> <max-y> <max-pressure>
             out = socket_out.readline().replace("\n", "").replace("\r", "")
-            logger.info(out)
+            logger.info(f"[Minitouch Init] Device info: {out}")
             try:
                 _, max_contacts, max_x, max_y, max_pressure, *_ = out.split(" ")
                 break
@@ -425,7 +441,7 @@ class Minitouch(Connection):
 
         # $ <pid>
         out = socket_out.readline().replace("\n", "").replace("\r", "")
-        logger.info(out)
+        logger.info(f"[Minitouch Init] PID info: {out}")
         _, pid = out.split(" ")
         self._minitouch_pid = pid
 
@@ -441,12 +457,24 @@ class Minitouch(Connection):
     @Config.when(DEVICE_OVER_HTTP=False)
     def minitouch_send(self):
         content = self.minitouch_builder.to_minitouch()
-        # logger.info("send operation: {}".format(content.replace("\n", "\\n")))
-        byte_content = content.encode('utf-8')
-        self._minitouch_client.sendall(byte_content)
-        self._minitouch_client.recv(0)
-        time.sleep(self.minitouch_builder.delay / 1000 + self.minitouch_builder.DEFAULT_DELAY)
-        self.minitouch_builder.clear()
+        content_display = content.replace('\n', '\\n')
+        logger.info(f"[Minitouch Send] Sending operation: {content_display}")
+        try:
+            byte_content = content.encode('utf-8')
+            logger.info(f"[Minitouch Send] About to send {len(byte_content)} bytes to minitouch")
+            self._minitouch_client.sendall(byte_content)
+            logger.info(f"[Minitouch Send] Data sent, waiting for response")
+            self._minitouch_client.recv(0)
+            logger.info(f"[Minitouch Send] Response received")
+            time.sleep(self.minitouch_builder.delay / 1000 + self.minitouch_builder.DEFAULT_DELAY)
+            self.minitouch_builder.clear()
+        except ConnectionResetError as e:
+            logger.error(f"[Minitouch Send] ConnectionResetError when sending minitouch command: {e}")
+            logger.error(f"[Minitouch Send] This usually means the minitouch connection was dropped")
+            raise
+        except Exception as e:
+            logger.error(f"[Minitouch Send] Error sending minitouch command: {e}")
+            raise
 
     @cached_property
     def _minitouch_loop(self):
@@ -474,6 +502,7 @@ class Minitouch(Connection):
     @Config.when(DEVICE_OVER_HTTP=True)
     def minitouch_init(self):
         logger.hr('MiniTouch init')
+        logger.info(f"[Minitouch Init HTTP] Initializing minitouch over HTTP for device {self.serial}")
         self.max_x, self.max_y = 1280, 720
         self.get_orientation()
 
@@ -509,6 +538,7 @@ class Minitouch(Connection):
     @Config.when(DEVICE_OVER_HTTP=True)
     def minitouch_send(self):
         content = self.minitouch_builder.to_atx_agent()
+        logger.info(f"[Minitouch Send HTTP] Sending operations: {content}")
 
         async def send():
             for row in content:
@@ -521,67 +551,124 @@ class Minitouch(Connection):
 
     @retry
     def click_minitouch(self, x, y):
-        builder = self.minitouch_builder
-        builder.down(x, y).commit()
-        builder.up().commit()
-        self.minitouch_send()
+        logger.info(f"[Click Minitouch] Clicking at ({x}, {y})")
+        try:
+            builder = self.minitouch_builder
+            logger.info(f"[Click Minitouch] Building down command")
+            builder.down(x, y).commit()
+            logger.info(f"[Click Minitouch] Sending down command")
+            self.minitouch_send()
+            logger.info(f"[Click Minitouch] Building up command")
+            builder.up().commit()
+            logger.info(f"[Click Minitouch] Sending up command")
+            self.minitouch_send()
+            logger.info(f"[Click Minitouch] Click completed")
+        except ConnectionResetError as e:
+            logger.error(f"[Click Minitouch] ConnectionResetError during click at ({x}, {y}): {e}")
+            raise
+        except Exception as e:
+            logger.error(f"[Click Minitouch] Error during click at ({x}, {y}): {e}")
+            raise
 
     @retry
     def long_click_minitouch(self, x, y, duration=1.0):
-        duration = int(duration * 1000)
-        builder = self.minitouch_builder
-        builder.down(x, y).commit().wait(duration)
-        builder.up().commit()
-        self.minitouch_send()
+        logger.info(f"[Long Click Minitouch] Long clicking at ({x}, {y}) for {duration}s")
+        try:
+            duration = int(duration * 1000)
+            builder = self.minitouch_builder
+            logger.info(f"[Long Click Minitouch] Building down command with duration {duration}ms")
+            builder.down(x, y).commit().wait(duration)
+            logger.info(f"[Long Click Minitouch] Sending down command")
+            self.minitouch_send()
+            logger.info(f"[Long Click Minitouch] Building up command")
+            builder.up().commit()
+            logger.info(f"[Long Click Minitouch] Sending up command")
+            self.minitouch_send()
+            logger.info(f"[Long Click Minitouch] Long click completed")
+        except ConnectionResetError as e:
+            logger.error(f"[Long Click Minitouch] ConnectionResetError during long click at ({x}, {y}) for {duration}ms: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"[Long Click Minitouch] Error during long click at ({x}, {y}) for {duration}ms: {e}")
+            raise
 
     @retry
     def swipe_minitouch(self, p1, p2, duration, wait_up_time=0):
-        points = insert_swipe(p0=p1, p3=p2)
-        builder = self.minitouch_builder
+        logger.info(f"[Swipe Minitouch] Swiping from {p1} to {p2} in {duration}s")
+        try:
+            points = insert_swipe(p0=p1, p3=p2)
+            builder = self.minitouch_builder
 
-        # 计算每个点之间的等待时间，使总时间等于duration
-        total_duration_ms = int(duration * 1000)
-        if len(points) > 1:
-            wait_time_per_point = max(1, total_duration_ms // (len(points) - 1))
-        else:
-            wait_time_per_point = 10
+            # 计算每个点之间的等待时间，使总时间等于duration
+            total_duration_ms = int(duration * 1000)
+            if len(points) > 1:
+                wait_time_per_point = max(1, total_duration_ms // (len(points) - 1))
+            else:
+                wait_time_per_point = 10
 
-        # 按住起始点
-        builder.down(*points[0]).commit()
-        self.minitouch_send()
+            # 按住起始点
+            logger.info(f"[Swipe Minitouch] Building down command for swipe from {p1} to {p2}")
+            builder.down(*points[0]).commit()
+            logger.info(f"[Swipe Minitouch] Sending down command")
+            self.minitouch_send()
 
-        # 滑动到目标点
-        for point in points[1:]:
-            builder.move(*point).commit().wait(wait_time_per_point)
-        self.minitouch_send()
+            # 滑动到目标点
+            logger.info(f"[Swipe Minitouch] Moving through {len(points)-1} intermediate points")
+            for point in points[1:]:
+                builder.move(*point).commit().wait(wait_time_per_point)
+            logger.info(f"[Swipe Minitouch] Sending move commands")
+            self.minitouch_send()
 
-        # 等待1秒后再释放
-        builder.wait(wait_up_time * 1000).up().commit()  # 添加1秒（1000毫秒）的等待时间
-        self.minitouch_send()
-
-
+            # 等待1秒后再释放
+            logger.info(f"[Swipe Minitouch] Waiting {wait_up_time}s before releasing")
+            builder.wait(wait_up_time * 1000).up().commit()  # 添加1秒（1000毫秒）的等待时间
+            logger.info(f"[Swipe Minitouch] Sending up command")
+            self.minitouch_send()
+            logger.info(f"[Swipe Minitouch] Swipe completed")
+        except ConnectionResetError as e:
+            logger.error(f"[Swipe Minitouch] ConnectionResetError during swipe from {p1} to {p2}: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"[Swipe Minitouch] Error during swipe from {p1} to {p2}: {e}")
+            raise
 
     @retry
     def drag_minitouch(self, p1, p2, point_random=(-10, -10, 10, 10)):
-        p1 = np.array(p1) - random_rectangle_point(point_random)
-        p2 = np.array(p2) - random_rectangle_point(point_random)
-        points = insert_swipe(p0=p1, p3=p2, speed=20)
-        builder = self.minitouch_builder
+        logger.info(f"[Drag Minitouch] Dragging from {p1} to {p2}")
+        try:
+            p1 = np.array(p1) - random_rectangle_point(point_random)
+            p2 = np.array(p2) - random_rectangle_point(point_random)
+            points = insert_swipe(p0=p1, p3=p2, speed=20)
+            builder = self.minitouch_builder
 
-        builder.down(*points[0]).commit()
-        self.minitouch_send()
+            logger.info(f"[Drag Minitouch] Building down command")
+            builder.down(*points[0]).commit()
+            logger.info(f"[Drag Minitouch] Sending down command")
+            self.minitouch_send()
 
-        for point in points[1:]:
-            builder.move(*point).commit().wait(10)
-        self.minitouch_send()
+            logger.info(f"[Drag Minitouch] Moving through {len(points)-1} points")
+            for point in points[1:]:
+                builder.move(*point).commit().wait(10)
+            logger.info(f"[Drag Minitouch] Sending move commands")
+            self.minitouch_send()
 
-        builder.move(*p2).commit().wait(140)
-        builder.move(*p2).commit().wait(140)
-        self.minitouch_send()
+            logger.info(f"[Drag Minitouch] Finalizing drag")
+            builder.move(*p2).commit().wait(140)
+            builder.move(*p2).commit().wait(140)
+            logger.info(f"[Drag Minitouch] Sending final move commands")
+            self.minitouch_send()
 
-        builder.up().commit()
-        self.minitouch_send()
-
+            logger.info(f"[Drag Minitouch] Building up command")
+            builder.up().commit()
+            logger.info(f"[Drag Minitouch] Sending up command")
+            self.minitouch_send()
+            logger.info(f"[Drag Minitouch] Drag completed")
+        except ConnectionResetError as e:
+            logger.error(f"[Drag Minitouch] ConnectionResetError during drag from {p1} to {p2}: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"[Drag Minitouch] Error during drag from {p1} to {p2}: {e}")
+            raise
 if __name__ == '__main__':
     mm = Minitouch(config='oas1')
     mm.click_minitouch(200, 150)

@@ -211,8 +211,11 @@ class Device(Platform, Screenshot, Control, AppControl):
             bool: 连接是否正常
         """
         try:
+            logger.info('检查ADB设备连接状态')
             result = self._execute_adb_command(['devices'], timeout=10)
+            logger.info(f'ADB devices命令输出: {result.stdout}')
             if self.serial in result.stdout:
+                logger.info(f'设备 {self.serial} 在ADB设备列表中')
                 return True
             else:
                 logger.warning(f'设备 {self.serial} 未在ADB设备列表中')
@@ -233,9 +236,11 @@ class Device(Platform, Screenshot, Control, AppControl):
         logger.info(f'ADB设备 {self.serial} 连接异常，尝试重新连接')
         try:
             # 断开连接
+            logger.info(f'断开ADB设备 {self.serial} 的连接')
             self._execute_adb_command(['disconnect', self.serial], timeout=5)
             time.sleep(1)
             # 重新连接
+            logger.info(f'重新连接ADB设备 {self.serial}')
             self._execute_adb_command(['connect', self.serial], timeout=10)
             time.sleep(2)
             logger.info(f'尝试重新连接ADB设备: {self.serial}')
