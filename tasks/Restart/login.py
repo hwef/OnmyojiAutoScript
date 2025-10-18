@@ -239,13 +239,13 @@ class LoginHandler(LoginBase, RestartAssets, GeneralBuff):
                 timer_harvest.reset()
                 continue
             # 自选御魂
-            if self.appear(self.I_HARVEST_SOUL_1):
-                logger.info('Select soul 1')
-                self.ui_click(self.I_HARVEST_SOUL_1, stop=self.I_HARVEST_SOUL_2)
-                self.ui_click(self.I_HARVEST_SOUL_2, stop=self.I_HARVEST_SOUL_3, interval=3)
-                self.ui_click_until_disappear(click=self.I_HARVEST_SOUL_3)
-                timer_harvest.reset()
-                continue
+            # if self.appear(self.I_HARVEST_SOUL_1):
+            #     logger.info('Select soul 1')
+            #     self.ui_click(self.I_HARVEST_SOUL_1, stop=self.I_HARVEST_SOUL_2)
+            #     self.ui_click(self.I_HARVEST_SOUL_2, stop=self.I_HARVEST_SOUL_3, interval=3)
+            #     self.ui_click_until_disappear(click=self.I_HARVEST_SOUL_3)
+            #     timer_harvest.reset()
+            #     continue
 
             # 邮件
             # 判断是否勾选了收取邮件（不收取邮件可以查看每日收获）
