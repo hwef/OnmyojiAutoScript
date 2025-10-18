@@ -17,7 +17,7 @@ from tasks.KekkaiUtilize.assets import KekkaiUtilizeAssets
 from tasks.KekkaiUtilize.config import UtilizeRule, SelectFriendList
 from tasks.KekkaiUtilize.utils import CardClass, target_to_card_class
 from tasks.Component.ReplaceShikigami.replace_shikigami import ReplaceShikigami
-from tasks.GameUi.page import page_main, page_guild
+from tasks.GameUi.page import page_main, page_guild, page_realm
 from module.base.utils import point2str
 import random
 
@@ -34,10 +34,10 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     def run(self):
         con = self.config.kekkai_utilize.utilize_config
         self.ui_get_current_page()
-        self.ui_goto(page_guild)
+        self.ui_goto(page_realm)
 
         # 进入寮结界
-        self.goto_realm()
+        # self.goto_realm()
         # 育成界面去蹭卡
         if con.utilize_enable:
             self.check_utilize_add()
@@ -101,7 +101,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 # 退出寮结界
                 self.back_guild()
                 # 进入寮结界
-                self.goto_realm()
+                self.ui_get_current_page()
+                self.ui_goto(page_realm)
             else:
                 self.back_realm()
 

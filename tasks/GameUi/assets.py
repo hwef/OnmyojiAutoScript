@@ -167,6 +167,8 @@ class GameUiAssets:
 	I_CHECK_MALL = RuleImage(roi_front=(239,502,100,100), roi_back=(239,502,100,100), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_mall.png")
 	# description 
 	I_CHECK_GUILD = RuleImage(roi_front=(1072,630,49,46), roi_back=(1072,630,49,46), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_guild.png")
+	# 结界界面 
+	I_CHECK_REALM_SHIN = RuleImage(roi_front=(175,460,54,58), roi_back=(22,380,393,308), threshold=0.9, method="Template matching", file="./tasks/GameUi/page/page_realm_shin.png")
 	# 寮种树升级提示 
 	I_CHECK_GUILD_CLOSE = RuleImage(roi_front=(777,90,36,34), roi_back=(592,16,392,257), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_guild_close.png")
 	# description 

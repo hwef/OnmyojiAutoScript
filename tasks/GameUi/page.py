@@ -164,6 +164,11 @@ page_guild = Page(G.I_CHECK_GUILD)
 page_guild.additional = [KekkaiUtilizeAssets.I_PLANT_TREE_CLOSE]
 page_guild.link(button=G.I_BACK_Y, destination=page_main)
 page_main.link(button=G.I_MAIN_GOTO_GUILD, destination=page_guild)
+# 结界
+page_realm = Page(G.I_CHECK_REALM_SHIN)
+page_realm.additional = [KekkaiUtilizeAssets.I_PLANT_TREE_CLOSE]
+page_realm.link(button=G.I_BACK_BLUE, destination=page_guild)
+page_guild.link(button=G.I_CHECK_GUILD, destination=page_realm)
 # 组队 team
 page_team = Page(G.I_CHECK_TEAM)
 page_team.link(button=G.I_BACK_Y, destination=page_main)
