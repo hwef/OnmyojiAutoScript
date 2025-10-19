@@ -27,7 +27,7 @@ class Optimization(BaseModel):
                                           description='task_hoarding_duration_help')
     # when_task_queue_empty: WhenTaskQueueEmpty = Field(default=WhenTaskQueueEmpty.GOTO_MAIN,description='when_task_queue_empty_help')
     do_noting: bool = Field(default=True, description='不关闭游戏')
-    close_game_time: Time = Field(default=Time(minute=10), description='超过下个任务时间, 关闭游戏, 00:00:00表示不开启功能, 全不开启默认回庭院')
+    close_game_time: Time = Field(default=Time(minute=5), description='超过下个任务时间, 关闭游戏, 00:00:00表示不开启功能, 全不开启默认回庭院')
     close_emulator_time: Time = Field(default=Time(minute=30), description='超过下个任务时间, 关闭模拟器')
 
 # schedule_rule: ScheduleRule = Field(default=ScheduleRule.FILTER, description='schedule_rule_help')
