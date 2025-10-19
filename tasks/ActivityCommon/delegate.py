@@ -2,24 +2,21 @@
 # @author runhey
 # github https://github.com/runhey
 
-import os
-import random
 import time
-from datetime import datetime, timedelta
+
+import os
 from module.atom.click import RuleClick
-from module.atom.image import RuleImage
 from module.exception import TaskEnd
 from module.logger import logger
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_shikigami_records
+from tasks.GameUi.page import page_main
 from tasks.Restart.assets import RestartAssets
 
 """ 活动通用委派 """
 
 
-class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
+class ScriptTask(SwitchSoul, GeneralBattle):
     last_img = None
 
     def run(self):

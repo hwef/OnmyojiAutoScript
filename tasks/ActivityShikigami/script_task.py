@@ -82,7 +82,7 @@ class Status(Enum):
     NO_TICKETS = auto()  # 没有票数
 
 
-class ScriptTask(GameUi, BaseActivity, SwitchSoul, ActivityShikigamiAssets):
+class ScriptTask(BaseActivity, SwitchSoul, ActivityShikigamiAssets):
     _check_map = None
     _count_map = None
 

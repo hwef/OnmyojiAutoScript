@@ -12,7 +12,7 @@ from tasks.Pets.assets import PetsAssets
 from tasks.base_task import BaseTask
 from module.logger import logger
 
-class ScriptTask(GeneralBattle, GameUi, SwitchSoul, PetsAssets, ):
+class ScriptTask(GeneralBattle, SwitchSoul, PetsAssets, ):
 
     def run(self):
         # 町中测试

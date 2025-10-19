@@ -2,24 +2,16 @@
 # @author runhey
 # github https://github.com/runhey
 
-import os
-import random
-from datetime import datetime, timedelta, time
-from module.atom.image import RuleImage
 from module.exception import TaskEnd
-from module.logger import logger
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_shikigami_records
-from tasks.Restart.assets import RestartAssets
 from tasks.ActivityCommon.challenge import ScriptTask as Battle
 from tasks.ActivityCommon.delegate import ScriptTask as Delegate
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 
 """ 活动通用 """
 
 
-class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
+class ScriptTask(SwitchSoul, GeneralBattle):
     def __init__(self, config):
         super().__init__(config)
         self.Battle = Battle(self.config)
