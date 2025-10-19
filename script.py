@@ -109,11 +109,6 @@ class Script:
             logger.info(f"保存错误日志到: {error_log_path}")
             logger.info(f"保存错误截图到: {error_image_path}")
 
-            try:
-                save_image(self.device.image, error_image_path)
-            except Exception as e:
-                logger.warning(f"保存错误截图失败: {str(e)}")
-
             with open(logger.log_file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 start = 0
@@ -125,12 +120,22 @@ class Script:
                 lines = handle_sensitive_logs(lines)
             with open(error_log_path, 'w', encoding='utf-8') as f:
                 f.writelines(lines)
+
+            image = ''
+            if self.device_status:
+                if hasattr(self.device, 'image') and self.device.image is not None:
+                    try:
+                        save_image(self.device.image, error_image_path)
+                        image = self.device.image
+                    except Exception as e:
+                        logger.warning(f"保存错误截图失败: {str(e)}")
+
             # asyncio.run(self.config.pushtg.telegram_send(title, error_path_image, error_path_log))
             if con.enable:
                 name = con.account_name
                 logger.info(f"已开启小号任务，拼接[{name}]，发送通知")
                 task = f"{name}▪{I18n.trans_zh_cn(task)}"
-            self.config.notifier.send_push(f"❌ {I18n.trans_zh_cn(task)}", error_type, self.device.image, error_log_path)
+            self.config.notifier.send_push(f"❌ {I18n.trans_zh_cn(task)}", error_type, image, error_log_path)
 
     def init_server(self, port: int) -> int:
         """
@@ -549,7 +554,7 @@ class Script:
 if __name__ == "__main__":
     # logger.info(f'✅ {res_type}卡确认成功，重置状态')
     # logger.warning(f'❌ {res_type}卡确认失败，重置状态')
-    script = Script("MI")
+    script = Script("du")
     script.start_loop()
     # while 1:
     # script = Script("oas3")
