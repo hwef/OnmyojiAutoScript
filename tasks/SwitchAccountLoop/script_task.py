@@ -78,10 +78,11 @@ class ScriptTask(GameUi):
             self.config.safe_save(update_config)
 
             logger.info(f"[角色] {account_info}, 切换完成")
-            loop_task = current_account_data.get("loop_task").split(",")
-            loop_task.append(f"{self.config.task.command}")
-            for task in loop_task:
-                self.set_next_run(task=task, target=datetime.now())
+            loop_tasks = current_account_data.get("loop_tasks").split(",")
+            for loop_task in loop_tasks:
+                self.set_next_run(task=loop_task, target=datetime.now())
+            # 本次任务设置为一分钟后
+            self.set_next_run(target=datetime.now() + timedelta(minutes=1))
             self.BaseChannelTask.update_account_data(con.loop_config.accounts_file, current_account_data, index, task_type, None)
             raise TaskEnd
         else:

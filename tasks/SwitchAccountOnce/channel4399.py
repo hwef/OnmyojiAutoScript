@@ -16,7 +16,7 @@ class ScriptTask(BaseChannelTask):
     # 周任务只在周一 运行
     week_task = ['RichMan', 'WeeklyTrifles']
     # 限时任务 晚上7点后运行
-    limit_task = ['Hunt', 'DemonEncounter', 'CollectiveMissions']
+    limit_task = ['Hunt', 'DemonEncounter', 'Duel', 'AreaBoss', 'CollectiveMissions']
     # 协站50运行的任务
     assist50_run_task = ['DailyTrifles', 'EvoZone']
     # 总是运行的任务

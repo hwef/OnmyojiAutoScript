@@ -21,7 +21,7 @@ class ScriptTask(BaseChannelTask):
     # 周任务只在周一 运行
     week_task = ['RichMan', 'WeeklyTrifles']
     # 限时任务 晚上7点后运行
-    limit_task = ['Hunt', 'DemonEncounter', 'CollectiveMissions']
+    limit_task = ['Hunt', 'DemonEncounter', 'Duel', 'AreaBoss', 'CollectiveMissions']
     # 协站50运行的任务
     assist50_run_task = ['DailyTrifles', 'EvoZone']
     # 总是运行的任务
@@ -63,6 +63,7 @@ class ScriptTask(BaseChannelTask):
         logger.info(f"[角色] {self.account_info}, 上次 [{self.task_type_name}] 完成时间: {taskCompleteTime}")
         self.switch_account(con, current_account_data, index, task_type)
         self.set_task(con, current_account_data, index, task_type)
+        # 本次任务设置为一分钟后
         self.set_next_run(target=datetime.now() + timedelta(minutes=1))
         raise TaskEnd
 
