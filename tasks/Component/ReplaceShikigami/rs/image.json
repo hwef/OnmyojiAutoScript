@@ -142,5 +142,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "智能放入"
+  },
+  {
+    "itemName": "rs_no_suggest",
+    "imageName": "rs_rs_no_suggest.png",
+    "roiFront": "531,338,48,43",
+    "roiBack": "531,338,48,43",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "不再提示"
   }
 ]

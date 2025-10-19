@@ -69,6 +69,8 @@ class ReplaceShikigamiAssets:
 	I_RS_LEVEL_MAX = RuleImage(roi_front=(52,238,1118,37), roi_back=(52,238,1118,37), threshold=0.6, method="Template matching", file="./tasks/Component/ReplaceShikigami/rs/rs_rs_level_max.png")
 	# 智能放入 
 	I_RS_SMART_EXCHANGE = RuleImage(roi_front=(1150,507,40,44), roi_back=(1128,488,86,162), threshold=0.8, method="Template matching", file="./tasks/Component/ReplaceShikigami/rs/rs_rs_smart_exchange.png")
+	# 不再提示 
+	I_RS_NO_SUGGEST = RuleImage(roi_front=(531,338,48,43), roi_back=(531,338,48,43), threshold=0.8, method="Template matching", file="./tasks/Component/ReplaceShikigami/rs/rs_rs_no_suggest.png")
 
 
 	# Image Rule Assets

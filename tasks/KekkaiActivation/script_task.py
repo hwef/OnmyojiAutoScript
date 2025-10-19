@@ -8,22 +8,17 @@ import re
 from cached_property import cached_property
 from datetime import datetime, timedelta
 from module.atom.click import RuleClick
-
-from module.base.timer import Timer
 from module.atom.image_grid import ImageGrid
-from module.atom.image import RuleImage
 from module.base.utils import point2str
-from module.logger import logger
 from module.exception import TaskEnd, GameStuckError
-
+from module.logger import logger
+from tasks.GameUi.page import page_main, page_realm
+from tasks.KekkaiActivation.assets import KekkaiActivationAssets
+from tasks.KekkaiActivation.config import ActivationConfig
+from tasks.KekkaiActivation.config import CardType
 from tasks.KekkaiUtilize.script_task import ScriptTask as KU
 from tasks.KekkaiUtilize.utils import CardClass
-from tasks.KekkaiActivation.assets import KekkaiActivationAssets
-from tasks.KekkaiActivation.utils import parse_rule
-from tasks.KekkaiActivation.config import ActivationConfig
 from tasks.Utils.config_enum import ShikigamiClass
-from tasks.GameUi.page import page_main, page_guild, page_realm
-from tasks.KekkaiActivation.config import CardType
 
 """ 结界挂卡 """
 class ScriptTask(KU, KekkaiActivationAssets):
@@ -355,38 +350,6 @@ class ScriptTask(KU, KekkaiActivationAssets):
         self.set_next_run("KekkaiActivation", success=True, finish=True, target=next_run)
         raise TaskEnd
 
-    def check_max_lv(self, shikigami_class: ShikigamiClass = ShikigamiClass.N):
-        """
-        在结界界面，进入式神育成，检查是否有满级的，如果有就换下一个
-        退出的时候还是结界界面
-        :return:
-        """
-        self.realm_goto_grown()
-        if self.appear(self.I_RS_LEVEL_MAX):
-            # 存在满级的式神
-            logger.info('Exist max level shikigami and replace it')
-            self.unset_shikigami_max_lv()
-            self.switch_shikigami_class(shikigami_class)
-            self.set_shikigami(shikigami_order=7, stop_image=self.I_RS_NO_ADD)
-        else:
-            logger.info('No max level shikigami')
-        if self.detect_no_shikigami():
-            logger.warning('There are no any shikigami grow room')
-            self.switch_shikigami_class(shikigami_class)
-            self.set_shikigami(shikigami_order=7, stop_image=self.I_RS_NO_ADD)
-
-        # 回到结界界面
-        while 1:
-            self.screenshot()
-
-            if self.appear(self.I_REALM_SHIN) and self.appear(self.I_SHI_GROWN):
-                self.screenshot()
-                if not self.appear(self.I_REALM_SHIN):
-                    continue
-                break
-            if self.appear_then_click(self.I_UI_BACK_BLUE, interval=2.5):
-                continue
-
     def harvest_card(self):
         """
         收卡的经验
@@ -404,12 +367,9 @@ class ScriptTask(KU, KekkaiActivationAssets):
 
 if __name__ == "__main__":
     from module.config.config import Config
-    from module.device.device import Device
-    import cv2
 
     c = Config('switch')
-    d = Device(c)
 
-    t = ScriptTask(c, d)
+    t = ScriptTask(c)
     t.check_card_num()
     # t.run_activation(t.config.kekkai_activation.activation_config)

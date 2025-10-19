@@ -1,25 +1,22 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-import re
 import time
+
+import re
 from cached_property import cached_property
 from datetime import timedelta, datetime
-
-from module.base.timer import Timer
 from module.atom.image_grid import ImageGrid
-from module.logger import logger
+from module.base.timer import Timer
 from module.exception import TaskEnd
-
+from module.logger import logger
+from tasks.Component.ReplaceShikigami.replace_shikigami import ReplaceShikigami
 from tasks.GameUi.game_ui import GameUi
-from tasks.Utils.config_enum import ShikigamiClass
+from tasks.GameUi.page import page_main, page_guild, page_realm
 from tasks.KekkaiUtilize.assets import KekkaiUtilizeAssets
 from tasks.KekkaiUtilize.config import UtilizeRule, SelectFriendList
-from tasks.KekkaiUtilize.utils import CardClass, target_to_card_class
-from tasks.Component.ReplaceShikigami.replace_shikigami import ReplaceShikigami
-from tasks.GameUi.page import page_main, page_guild, page_realm
-from module.base.utils import point2str
-import random
+from tasks.KekkaiUtilize.utils import CardClass
+from tasks.Utils.config_enum import ShikigamiClass
 
 """ 结界蹭卡 """
 
@@ -111,18 +108,19 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         :return:
         """
         self.realm_goto_grown()
-        if self.appear(self.I_RS_LEVEL_MAX):
-            # 存在满级的式神
-            logger.info('Exist max level shikigami and replace it')
-            self.unset_shikigami_max_lv()
-            self.switch_shikigami_class(shikigami_class)
-            self.set_shikigami(shikigami_order=7, stop_image=self.I_RS_NO_ADD)
-        else:
-            logger.info('No max level shikigami')
-        if self.detect_no_shikigami():
-            logger.warning('There are no any shikigami grow room')
-            self.switch_shikigami_class(shikigami_class)
-            self.set_shikigami(shikigami_order=7, stop_image=self.I_RS_NO_ADD)
+        self.ui_click_until_disappear(self.I_RS_SMART_EXCHANGE)
+        # if self.appear(self.I_RS_LEVEL_MAX):
+        #     # 存在满级的式神
+        #     logger.info('Exist max level shikigami and replace it')
+        #     self.unset_shikigami_max_lv()
+        #     self.switch_shikigami_class(shikigami_class)
+        #     self.set_shikigami(shikigami_order=7, stop_image=self.I_RS_NO_ADD)
+        # else:
+        #     logger.info('No max level shikigami')
+        # if self.detect_no_shikigami():
+        #     logger.warning('There are no any shikigami grow room')
+        #     self.switch_shikigami_class(shikigami_class)
+        #     self.set_shikigami(shikigami_order=7, stop_image=self.I_RS_NO_ADD)
 
         # 回到结界界面
         while 1:
