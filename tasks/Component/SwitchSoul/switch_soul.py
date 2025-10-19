@@ -2,17 +2,16 @@
 # @author runhey
 # github https://github.com/runhey
 from time import sleep
-from typing import Union
 
 from module.atom.click import RuleClick
 from module.atom.long_click import RuleLongClick
 from module.atom.ocr import RuleOcr
-from module.base.timer import Timer
-from tasks.base_task import BaseTask
-from tasks.Component.GeneralInvite.assets import GeneralInviteAssets
-from tasks.Component.GeneralInvite.config_invite import InviteConfig, InviteNumber, FindMode
-from tasks.Component.SwitchSoul.assets import SwitchSoulAssets
 from module.logger import logger
+from tasks.Component.SwitchSoul.assets import SwitchSoulAssets
+from tasks.GameUi.game_ui import GameUi
+from tasks.GameUi.page import page_shikigami_records
+from tasks.base_task import BaseTask
+from typing import Union
 
 
 def switch_parser(switch_str: str) -> tuple:
@@ -22,13 +21,16 @@ def switch_parser(switch_str: str) -> tuple:
     return int(switch_list[0]), int(switch_list[1])
 
 
-class SwitchSoul(BaseTask, SwitchSoulAssets):
+class SwitchSoul(GameUi, SwitchSoulAssets):
 
     def run_switch_soul(self, target: tuple or list[tuple]):
         """
         保证在式神录的界面
         :return:
         """
+        self.ui_get_current_page()
+        self.ui_goto(page_shikigami_records)
+
         if isinstance(target, str):
             try:
                 target = switch_parser(target)
@@ -188,6 +190,8 @@ class SwitchSoul(BaseTask, SwitchSoulAssets):
         保证在式神录的界面
         :return:
         """
+        self.ui_get_current_page()
+        self.ui_goto(page_shikigami_records)
         if isinstance(groupName, str) and isinstance(teamName, str):
             self.click_preset()
             self.switch_soul_by_name(groupName, teamName)
