@@ -131,11 +131,9 @@ class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, 
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
-    c = Config('du')
-    d = Device(c)
-    t = ScriptTask(c, d)
+    c = Config('4399')
+    t = ScriptTask(c)
     t.screenshot()
 
     t.run()
