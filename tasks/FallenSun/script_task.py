@@ -2,35 +2,29 @@
 # @author runhey
 # github https://github.com/runhey
 from time import sleep
-from datetime import time, datetime, timedelta
 
+from datetime import datetime, timedelta
+from module.exception import TaskEnd
+from module.logger import logger
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.GeneralInvite.general_invite import GeneralInvite
 from tasks.Component.GeneralBuff.general_buff import GeneralBuff
+from tasks.Component.GeneralInvite.general_invite import GeneralInvite
 from tasks.Component.GeneralRoom.general_room import GeneralRoom
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_soul_zones, page_shikigami_records
 from tasks.FallenSun.assets import FallenSunAssets
 from tasks.FallenSun.config import FallenSun, UserStatus
-from module.logger import logger
-from module.exception import TaskEnd
-
+from tasks.GameUi.page import page_main, page_soul_zones
 
 """ 日陨 """
-class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi, SwitchSoul, FallenSunAssets):
+class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchSoul, FallenSunAssets):
 
     def run(self) -> bool:
         # 御魂切换方式一
         if self.config.fallen_sun.switch_soul.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(self.config.fallen_sun.switch_soul.switch_group_team)
 
         # 御魂切换方式二
         if self.config.fallen_sun.switch_soul.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(self.config.fallen_sun.switch_soul.group_name,
                                          self.config.fallen_sun.switch_soul.team_name)
 

@@ -1,21 +1,19 @@
 # This Python file uses the following encoding: utf-8
 # @author ohspecial
 # github https://github.com/ohspecial
-from datetime import datetime ,timedelta
-from enum import Enum
 import time
 
+from datetime import datetime, timedelta
+from enum import Enum
+from module.base.timer import Timer
 from module.exception import TaskEnd
 from module.logger import logger
-from module.base.timer import Timer
-
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_guild, page_main, page_secret_zones
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.GameUi.page import page_guild
+from tasks.GameUi.page import page_secret_zones
 from tasks.GuildBanquet.assets import GuildBanquetAssets
 from tasks.Secret.assets import SecretAssets
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.GameUi.page import page_main, page_secret_zones, page_shikigami_records
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 
 WEEKDAYDICT = {
     0: '星期一',
@@ -36,7 +34,7 @@ class Weekday(str,Enum):
     Saturday: str = "星期六"
     Sunday: str = "星期日"
     
-class ScriptTask(GameUi, GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAssets):
+class ScriptTask(GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAssets):
 
     def run(self):
         self.run_time = self.config.guild_banquet.guild_banquet_time
@@ -118,13 +116,10 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAs
     def goto_sercet_hc(self):
         con = self.config.guild_banquet
         if con.switch_soul.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(con.switch_soul.switch_group_team)
         if con.switch_soul.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(con.switch_soul.group_name, con.switch_soul.team_name)
+
         self.ui_get_current_page()
         self.ui_goto(page_secret_zones)
 

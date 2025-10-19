@@ -1,35 +1,26 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from time import sleep
-from datetime import time, datetime, timedelta
 
-from module.logger import logger
-from module.exception import TaskEnd
 from module.base.timer import Timer
-
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_team, page_shikigami_records
+from module.exception import TaskEnd
+from module.logger import logger
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.GeneralRoom.general_room import GeneralRoom
 from tasks.Component.GeneralInvite.general_invite import GeneralInvite
+from tasks.Component.GeneralRoom.general_room import GeneralRoom
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.GameUi.page import page_main, page_team
 
 """石距 喷怒的石距"""
-class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul):
+class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul):
 
     def run(self):
         conf = self.config.tako
         if conf.switch_soul.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(conf.switch_soul.switch_group_team)
 
         if conf.switch_soul.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
-            self.run_switch_soul_by_name(conf.switch_soul.group_name,
-                                         conf.switch_soul.team_name)
+            self.run_switch_soul_by_name(conf.switch_soul.group_name, conf.switch_soul.team_name)
         # 加成
         conf_buff = conf.tako_config
         if conf_buff.enable:

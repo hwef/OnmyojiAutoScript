@@ -1,41 +1,29 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-import time
 
-import os
 import random
-
-from module.atom.image import RuleImage
+from datetime import datetime, timedelta
+from module.base.timer import Timer
 from module.exception import TaskEnd
 from module.logger import logger
-from module.base.timer import Timer
-
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.ActivityShikigami.assets import ActivityShikigamiAssets
 from tasks.AutoCake.assets import AutoCakeAssets
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_shikigami_records
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Restart.assets import RestartAssets
-from datetime import datetime, timedelta
-import time
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.GameUi.page import page_main
 
 """ 活动挂饼 """
 
 
-class ScriptTask(GameUi, SwitchSoul, GeneralBattle,  AutoCakeAssets, ActivityShikigamiAssets):
+class ScriptTask(SwitchSoul, GeneralBattle,  AutoCakeAssets, ActivityShikigamiAssets):
     def run(self) -> None:
         self.start_time = datetime.now()
         config = self.config.auto_cake
         # 切换御魂
         if config.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(config.switch_soul_config.switch_group_team)
         if config.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(
                 config.switch_soul_config.group_name,
                 config.switch_soul_config.team_name

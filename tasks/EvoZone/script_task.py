@@ -2,23 +2,21 @@
 # @author runhey
 # github https://github.com/runhey
 from time import sleep
-from datetime import time, datetime, timedelta
 
+from datetime import datetime, timedelta
+from module.exception import TaskEnd
+from module.logger import logger
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.GeneralInvite.general_invite import GeneralInvite
 from tasks.Component.GeneralBuff.general_buff import GeneralBuff
+from tasks.Component.GeneralInvite.general_invite import GeneralInvite
 from tasks.Component.GeneralRoom.general_room import GeneralRoom
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_awake_zones, page_shikigami_records
 from tasks.EvoZone.assets import EvoZoneAssets
 from tasks.EvoZone.config import EvoZone, UserStatus, KirinType
-from module.logger import logger
-from module.exception import TaskEnd
-
+from tasks.GameUi.page import page_main, page_awake_zones
 
 """ 觉醒 """
-class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi, EvoZoneAssets, SwitchSoul):
+class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, EvoZoneAssets, SwitchSoul):
 
     def run(self) -> bool:
 
@@ -30,12 +28,8 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                                                seconds=limit_time.second)
         con = self.config.evo_zone
         if con.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(con.switch_soul_config.switch_group_team)
         if con.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(con.switch_soul_config.group_name, con.switch_soul_config.team_name)
 
         self.ui_get_current_page()
@@ -341,4 +335,3 @@ if __name__ == '__main__':
 
     # t.check_layer('悲')
 
-    from module.base.timer import timer

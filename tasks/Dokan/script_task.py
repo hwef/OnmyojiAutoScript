@@ -63,7 +63,7 @@ class DokanScene(Enum):
         return self.name.title()
 
 
-class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
+class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
     team_switched: bool = False
     # 战斗次数
     battle_count: int = 0
@@ -145,23 +145,14 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, DokanAssets, RichManAssets):
 
         # 自动换御魂
         if cfg.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(cfg.switch_soul_config.switch_group_team)
         if cfg.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(cfg.switch_soul_config.group_name, cfg.switch_soul_config.team_name)
 
-        # 自动换御魂2
+        # 自动换御魂 福利寮
         if cfg.switch_soul_config2.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(cfg.switch_soul_config2.switch_group_team)
         if cfg.switch_soul_config2.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
-            self.run_switch_soul_by_name(cfg.switch_soul_config2.group_name, cfg.switch_soul_config2.team_name)
             self.run_switch_soul_by_name(cfg.switch_soul_config2.group_name, cfg.switch_soul_config2.team_name)
 
         # 开始道馆流程

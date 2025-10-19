@@ -8,17 +8,16 @@ from datetime import datetime, timedelta, time
 from module.atom.image import RuleImage
 from module.exception import TaskEnd
 from module.logger import logger
+from tasks.ActivityCommon.delegate import ScriptTask as Delegate
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_shikigami_records
+from tasks.GameUi.page import page_main
 from tasks.Restart.assets import RestartAssets
-from tasks.ActivityCommon.delegate import ScriptTask as Delegate
 
 """ 活动通用 """
 
 
-class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
+class ScriptTask(SwitchSoul, GeneralBattle):
     SoulsFUll = False
 
     def run(self):
@@ -49,12 +48,8 @@ class ScriptTask(GameUi, SwitchSoul, GeneralBattle):
 
         # 切换御魂
         if config.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(config.switch_soul_config.switch_group_team)
         if config.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(
                 config.switch_soul_config.group_name,
                 config.switch_soul_config.team_name

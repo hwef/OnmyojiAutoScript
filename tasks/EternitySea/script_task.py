@@ -1,30 +1,27 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from datetime import datetime, timedelta
+from time import sleep
 
+import random
+from datetime import datetime, timedelta
+from module.exception import RequestHumanTakeover
 from module.exception import TaskEnd
 from module.logger import logger
-
-from tasks.GameUi.game_ui import GameUi, Page
-from tasks.GameUi.page import page_soul_zones, page_shikigami_records
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.GeneralRoom.general_room import GeneralRoom
 from tasks.Component.GeneralInvite.general_invite import GeneralInvite
+from tasks.Component.GeneralRoom.general_room import GeneralRoom
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.EternitySea.assets import EternitySeaAssets
-from tasks.Orochi.config import UserStatus
 from tasks.EternitySea.config import EternitySea
-from module.exception import RequestHumanTakeover
-from tasks.GameUi.page import page_main, page_soul_zones, page_shikigami_records
-from time import sleep
-import random
-
+from tasks.GameUi.game_ui import Page
+from tasks.GameUi.page import page_main, page_soul_zones
+from tasks.Orochi.config import UserStatus
 
 """ 永生之海 """
 
 
-class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, EternitySeaAssets):
+class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, EternitySeaAssets):
     soul_full_push = True
 
     @property
@@ -33,13 +30,9 @@ class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, 
 
     def _two_teams_switch_sous(self, config):
         if config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(config.switch_group_team)
 
         if config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(config.group_name, config.team_name)
 
     def run(self) -> None:

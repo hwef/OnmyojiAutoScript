@@ -1,23 +1,18 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from time import sleep
-from datetime import time, datetime, timedelta
-from random import randint
-
-from module.logger import logger
+from datetime import datetime, timedelta
 from module.exception import TaskEnd
-
+from module.logger import logger
+from random import randint
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_shikigami_records, page_goryou_realm
-from tasks.GoryouRealm.config import GoryouClass
+from tasks.GameUi.page import page_goryou_realm
 from tasks.GoryouRealm.assets import GoryouRealmAssets
-
+from tasks.GoryouRealm.config import GoryouClass
 
 """ 御灵 """
-class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
+class ScriptTask(GeneralBattle, SwitchSoul, GoryouRealmAssets):
 
     def run(self):
         con = self.config.goryou_realm
@@ -26,9 +21,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, GoryouRealmAssets):
         self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute,
                                                seconds=limit_time.second)
         if con.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(con.switch_soul_config.switch_group_team)
+
         self.ui_get_current_page()
         self.ui_goto(page_goryou_realm)
 

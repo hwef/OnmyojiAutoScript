@@ -2,30 +2,24 @@
 # @author runhey
 # github https://github.com/runhey
 import time
+
 import numpy as np
-import random
-from enum import Enum
 from cached_property import cached_property
 from datetime import timedelta, datetime
+from enum import Enum
 from module.atom.click import RuleClick
-
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.Component.GeneralRoom.general_room import GeneralRoom
-from tasks.Component.GeneralInvite.general_invite import GeneralInvite
-from tasks.Component.ReplaceShikigami.replace_shikigami import ReplaceShikigami
-from tasks.Exploration.assets import ExplorationAssets
-from tasks.Exploration.config import ChooseRarity, AutoRotate, AttackNumber, UpType
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_exploration, page_shikigami_records, page_main
-from tasks.RealmRaid.script_task import ScriptTask as RealmRaidScriptTask
-from tasks.Utils.config_enum import ShikigamiClass
-
+from module.exception import TaskEnd
 from module.logger import logger
-from module.exception import RequestHumanTakeover, TaskEnd
-from module.atom.image_grid import ImageGrid
-from module.base.utils import load_image
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.Component.GeneralInvite.general_invite import GeneralInvite
+from tasks.Component.GeneralRoom.general_room import GeneralRoom
+from tasks.Component.ReplaceShikigami.replace_shikigami import ReplaceShikigami
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.Exploration.assets import ExplorationAssets
+from tasks.Exploration.config import ChooseRarity, UpType
 from tasks.Exploration.config import ExplorationLevel
+from tasks.GameUi.page import page_exploration, page_main
+from tasks.Utils.config_enum import ShikigamiClass
 
 
 class Scene(Enum):
@@ -38,7 +32,7 @@ class Scene(Enum):
     TEAM = 6  # 组队
 
 
-class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigami, GameUi, SwitchSoul, ExplorationAssets):
+class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigami, SwitchSoul, ExplorationAssets):
     last_scene_log = None  # 新增：用于缓存上一次的日志内容
 
     @cached_property
@@ -95,13 +89,9 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
     def pre_process(self):
         explorationConfig = self._config
         if explorationConfig.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(explorationConfig.switch_soul_config.switch_group_team)
 
         if explorationConfig.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(explorationConfig.switch_soul_config.group_name,
                                          explorationConfig.switch_soul_config.team_name)
 
@@ -469,6 +459,5 @@ if __name__ == "__main__":
         t.screenshot()
         print(t.I_UP_DARUMA.test_match(t.device.image))
         time.sleep(0.2)
-    from PIL import Image
     # Image.fromarray(t.device.image.astype(np.uint8)).show()
 

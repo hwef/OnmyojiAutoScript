@@ -2,27 +2,23 @@
 # @author runhey
 # github https://github.com/runhey
 import time
+
 import re
 from cached_property import cached_property
-
-from tasks.base_task import BaseTask
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_realm_raid, page_main, page_shikigami_records
-from tasks.RealmRaid.assets import RealmRaidAssets
-from tasks.RealmRaid.config import RealmRaid, RaidMode, AttackNumber, WhenAttackFail
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-
-
-from module.logger import logger
-from module.exception import TaskEnd
-from module.atom.image_grid import ImageGrid
-from module.atom.image import RuleImage
 from module.atom.click import RuleClick
+from module.atom.image import RuleImage
+from module.atom.image_grid import ImageGrid
+from module.exception import TaskEnd
+from module.logger import logger
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.GameUi.page import page_realm_raid, page_main
+from tasks.RealmRaid.assets import RealmRaidAssets
+from tasks.RealmRaid.config import WhenAttackFail
 
 """个人突破"""
 
-class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
+class ScriptTask(GeneralBattle, SwitchSoul, RealmRaidAssets):
     medal_grid: ImageGrid = None
 
     def run(self):
@@ -104,12 +100,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RealmRaidAssets):
     def run_2(self):
         con = self.config.realm_raid
         if con.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(con.switch_soul_config.switch_group_team)
         if con.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(con.switch_soul_config.group_name, con.switch_soul_config.team_name)
 
         self.ui_get_current_page()

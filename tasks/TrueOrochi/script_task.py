@@ -2,22 +2,14 @@
 # @author runhey
 # github https://github.com/runhey
 from time import sleep
-from datetime import datetime, time, timedelta, date
-from module.config.utils import convert_to_underscore
 
-from module.logger import logger
-from module.exception import TaskEnd
 from module.base.timer import Timer
-
-from tasks.GameUi.game_ui import GameUi
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.GeneralInvite.general_invite import GeneralInvite
-from tasks.Component.GeneralRoom.general_room import GeneralRoom
-from tasks.Orochi.script_task import ScriptTask as OrochiScriptTask
+from module.exception import TaskEnd
+from module.logger import logger
+from tasks.GameUi.page import page_soul_zones
 from tasks.Orochi.config import Layer
-from tasks.GameUi.page import page_main, page_soul_zones, page_shikigami_records
+from tasks.Orochi.script_task import ScriptTask as OrochiScriptTask
 from tasks.TrueOrochi.assets import TrueOrochiAssets
-from tasks.base_task import Time
 
 """ 真八岐大蛇 """
 
@@ -30,15 +22,10 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
 
         # 御魂切换方式一
         if self.config.true_orochi.switch_soul.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(self.config.true_orochi.switch_soul.switch_group_team)
         # 御魂切换方式二
         if self.config.true_orochi.switch_soul.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
-            self.run_switch_soul_by_name(self.config.true_orochi.switch_soul.group_name,
-                                         self.config.true_orochi.switch_soul.team_name)
+            self.run_switch_soul_by_name(self.config.true_orochi.switch_soul.group_name, self.config.true_orochi.switch_soul.team_name)
 
         self.ui_get_current_page()
         self.ui_goto(page_soul_zones)

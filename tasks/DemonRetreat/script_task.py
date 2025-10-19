@@ -2,24 +2,21 @@
 # @author runhey
 # github https://github.com/runhey
 from time import sleep
-from datetime import timedelta, datetime, time
-from cached_property import cached_property
 
+from datetime import datetime
+from module.base.timer import Timer
 from module.exception import TaskEnd
 from module.logger import logger
-from module.base.timer import Timer
-
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_shikigami_records, page_guild
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.AbyssShadows.assets import AbyssShadowsAssets
 from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
-from tasks.Component.GeneralInvite.general_invite import GeneralInvite
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.DemonRetreat.assets import DemonRetreatAssets
-from tasks.AbyssShadows.assets import AbyssShadowsAssets
 from tasks.DemonRetreat.config import DemonRetreat
+from tasks.GameUi.page import page_main, page_guild
 
-class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssShadowsAssets):
+
+class ScriptTask(GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssShadowsAssets):
 
     def run(self):
         """
@@ -49,12 +46,8 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssSha
             raise TaskEnd
 
         if cfg.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(cfg.switch_soul_config.switch_group_team)
         if cfg.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(cfg.switch_soul_config.group_name, cfg.switch_soul_config.team_name)
 
         # 进入妖怪退治

@@ -2,23 +2,19 @@
 # @author runhey
 # github https://github.com/runhey
 import time
-from datetime import datetime, timedelta
+
 import random
-
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.RyouToppa.assets import RyouToppaAssets
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.config_base import ConfigBase, Time
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_realm_raid, page_main, page_kekkai_toppa, page_shikigami_records
-from tasks.RealmRaid.assets import RealmRaidAssets
-
-from module.logger import logger
-from module.exception import TaskEnd
+from datetime import datetime, timedelta
 from module.atom.image_grid import ImageGrid
 from module.base.utils import point2str
-from module.base.timer import Timer
-from module.exception import GamePageUnknownError
+from module.exception import TaskEnd
+from module.logger import logger
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.Component.config_base import Time
+from tasks.GameUi.page import page_kekkai_toppa
+from tasks.RealmRaid.assets import RealmRaidAssets
+from tasks.RyouToppa.assets import RyouToppaAssets
 
 """ 寮突破 """
 
@@ -74,7 +70,7 @@ def random_delay(min_value: float = 1.0, max_value: float = 2.0, decimal: int = 
     return (round(random_float_in_range, decimal))
 
 
-class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
+class ScriptTask(GeneralBattle, SwitchSoul, RyouToppaAssets):
     medal_grid: ImageGrid = None
     area_index = 0
 
@@ -90,13 +86,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, RyouToppaAssets):
                                      RealmRaidAssets.I_MEDAL_2, RealmRaidAssets.I_MEDAL_1, RealmRaidAssets.I_MEDAL_0])
 
         if ryou_config.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(ryou_config.switch_soul_config.switch_group_team)
 
         if ryou_config.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(ryou_config.switch_soul_config.group_name, ryou_config.switch_soul_config.team_name)
 
         self.ui_get_current_page()

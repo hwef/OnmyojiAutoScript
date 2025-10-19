@@ -1,29 +1,17 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from cached_property import cached_property
 
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_soul_zones, page_shikigami_records
-from module.logger import logger
 from module.exception import TaskEnd
 
-from time import sleep
-from datetime import time, datetime, timedelta
-
-from tasks.Sougenbi.assets import SougenbiAssets
-from tasks.Sougenbi.config import SougenbiConfig, SougenbiClass
-
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_six_gates
+from tasks.GameUi.page import page_six_gates
 from tasks.SixRealms.moon_sea.moon_sea import MoonSea
-from module.logger import logger
 
 """ 六道之门 """
 
 
-class ScriptTask(GameUi, SwitchSoul, MoonSea):
+class ScriptTask(SwitchSoul, MoonSea):
 
     @property
     def _config(self):
@@ -31,8 +19,6 @@ class ScriptTask(GameUi, SwitchSoul, MoonSea):
 
     def run(self):
         if self.config.six_realms.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(self.config.six_realms.switch_soul_config.one_switch)
             self.run_switch_soul(self.config.six_realms.switch_soul_config.two_switch)
 

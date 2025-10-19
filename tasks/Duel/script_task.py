@@ -2,26 +2,25 @@
 # @author runhey
 # github https://github.com/runhey
 from time import sleep
-from datetime import time, datetime, timedelta
 
-from module.logger import logger
-from module.exception import TaskEnd, RequestHumanTakeover
-from module.base.timer import Timer
-
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.GeneralBattle.config_general_battle import GreenMarkType
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_duel
-from tasks.Duel.config import Duel, Onmyoji
-from tasks.Duel.assets import DuelAssets
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.page import page_main, page_team, page_shikigami_records
 import os
+from datetime import time, datetime, timedelta
 from module.atom.image import RuleImage
+from module.base.timer import Timer
+from module.exception import TaskEnd
+from module.logger import logger
+from tasks.Component.GeneralBattle.config_general_battle import GreenMarkType
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.Duel.assets import DuelAssets
+from tasks.Duel.config import Onmyoji
+from tasks.GameUi.page import page_duel
+from tasks.GameUi.page import page_main
+
 """ 斗技 """
 
 
-class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
+class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
     battle_count = 0
     battle_win_count = 0
     battle_lose_count = 0
@@ -36,13 +35,9 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, DuelAssets):
         con = self.config.duel
         # 切换御魂
         if con.switch_soul.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(con.switch_soul.switch_group_team)
 
         if con.switch_soul.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(con.switch_soul.group_name,con.switch_soul.team_name)
 
         con = self.config.duel.duel_config

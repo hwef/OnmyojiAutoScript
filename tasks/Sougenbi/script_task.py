@@ -2,19 +2,18 @@
 # @author runhey
 # github https://github.com/runhey
 from time import sleep
-from datetime import time, datetime, timedelta
 
-from tasks.Sougenbi.assets import SougenbiAssets
-from tasks.Sougenbi.config import SougenbiConfig, SougenbiClass
+from datetime import datetime, timedelta
+from module.exception import TaskEnd
+from module.logger import logger
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_soul_zones, page_shikigami_records
-from module.logger import logger
-from module.exception import TaskEnd
+from tasks.GameUi.page import page_main, page_soul_zones
+from tasks.Sougenbi.assets import SougenbiAssets
+from tasks.Sougenbi.config import SougenbiConfig, SougenbiClass
 
 """ 业原火 """
-class ScriptTask(GeneralBattle, GameUi, SwitchSoul, SougenbiAssets):
+class ScriptTask(GeneralBattle, SwitchSoul, SougenbiAssets):
 
     def run(self):
         con = self.config.sougenbi
@@ -25,12 +24,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, SougenbiAssets):
                                                seconds=limit_time.second)
 
         if con.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(con.switch_soul_config.switch_group_team)
         if con.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(con.switch_soul_config.group_name, con.switch_soul_config.team_name)
 
         if s_con.buff_enable:

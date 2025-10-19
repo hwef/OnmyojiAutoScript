@@ -2,16 +2,14 @@
 # @author runhey
 # github https://github.com/runhey
 import random
+from datetime import datetime
 from module.exception import TaskEnd
 from module.logger import logger
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_shikigami_records, page_soul_zones
+from tasks.GameUi.page import page_main, page_soul_zones
 from tasks.Orochi.config import Layer
 from tasks.Orochi.script_task import ScriptTask as OrochiScriptTask
 from tasks.Pets.assets import PetsAssets
 from tasks.Pets.config import PetsConfig
-from datetime import datetime, time
-from tasks.base_task import Time
 
 """喂宠物 猫咪"""
 class ScriptTask(OrochiScriptTask, PetsAssets):
@@ -58,8 +56,6 @@ class ScriptTask(OrochiScriptTask, PetsAssets):
     def orochi_ten(self):
         # 御魂切换方式一
         if self.config.true_orochi.switch_soul.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             # 换上真蛇御魂
             self.run_switch_soul(self.config.true_orochi.switch_soul.switch_group_team)
 

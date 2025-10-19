@@ -3,23 +3,20 @@
 # github https://github.com/runhey
 import time
 
-from enum import Enum
 from cached_property import cached_property
 from datetime import datetime, timedelta
-
-from module.logger import logger
-from module.exception import TaskEnd
+from enum import Enum
 from module.base.timer import Timer
+from module.exception import TaskEnd
+from module.logger import logger
 from module.server.i18n import I18n
-
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_demon_encounter, page_shikigami_records
-from tasks.DemonEncounter.assets import DemonEncounterAssets
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
-from tasks.DemonEncounter.data.answer import Answer
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.GeneralBuff.config_buff import BuffClass
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.DemonEncounter.assets import DemonEncounterAssets
+from tasks.DemonEncounter.data.answer import Answer
+from tasks.GameUi.page import page_demon_encounter, page_shikigami_records
 
 
 class LanternClass(Enum):
@@ -32,7 +29,7 @@ class LanternClass(Enum):
     BOSS = 6  # 大鬼王
 
 
-class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
+class ScriptTask(GeneralBattle, DemonEncounterAssets, SwitchSoul):
 
     def run(self):
         if not self.check_time():
@@ -42,8 +39,6 @@ class ScriptTask(GameUi, GeneralBattle, DemonEncounterAssets, SwitchSoul):
 
         # 切换通用御魂
         if self.config.demon_encounter.switch_soul.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(self.config.demon_encounter.switch_soul.switch_group_team)
 
         # 根据周几切换指定御魂

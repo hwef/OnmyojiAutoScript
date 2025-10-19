@@ -1,21 +1,18 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from datetime import datetime, timedelta, time
 import random  # type: ignore
-
-from tasks.Component.BaseActivity.base_activity import BaseActivity
-from tasks.HeroTest.assets import HeroTestAssets
-from tasks.GameUi.page import page_main, page_shikigami_records
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_exploration
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-
-from module.logger import logger
+from datetime import datetime, timedelta, time
 from module.exception import TaskEnd
+from module.logger import logger
+from tasks.Component.BaseActivity.base_activity import BaseActivity
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.GameUi.page import page_exploration
+from tasks.GameUi.page import page_main
+from tasks.HeroTest.assets import HeroTestAssets
 
 
-class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
+class ScriptTask(BaseActivity, HeroTestAssets, SwitchSoul):
 
     is_update = False
     is_skill = False
@@ -28,12 +25,8 @@ class ScriptTask(GameUi, BaseActivity, HeroTestAssets, SwitchSoul):
 
         # 自动换御魂
         if config.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(config.switch_soul_config.switch_group_team)
         if config.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(config.switch_soul_config.group_name, config.switch_soul_config.team_name)
 
         if config.herotest.layer.value == "鬼兵演武":

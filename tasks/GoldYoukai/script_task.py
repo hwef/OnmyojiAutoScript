@@ -1,36 +1,27 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from cached_property import cached_property
 
+from module.base.timer import Timer
 from module.exception import TaskEnd
 from module.logger import logger
-from module.base.timer import Timer
-
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_team, page_shikigami_records
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
-from tasks.Component.GeneralRoom.general_room import GeneralRoom
 from tasks.Component.GeneralInvite.general_invite import GeneralInvite
+from tasks.Component.GeneralRoom.general_room import GeneralRoom
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.GameUi.page import page_main, page_team
 from tasks.GoldYoukai.assets import GoldYoukaiAssets
 from tasks.Restart.assets import RestartAssets
 
-
 """ 金币妖怪 """
-class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, GoldYoukaiAssets):
+class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, GoldYoukaiAssets):
 
     def run(self):
         # 切换御魂
         if self.config.gold_youkai.switch_soul.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(self.config.gold_youkai.switch_soul.switch_group_team)
 
         if self.config.gold_youkai.switch_soul.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(self.config.gold_youkai.switch_soul.group_name,
                                          self.config.gold_youkai.switch_soul.team_name)
 

@@ -18,9 +18,8 @@ from tasks.BondlingFairyland.general_invite import GeneralInvite
 from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
 from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
 from tasks.Component.GeneralRoom.general_room import GeneralRoom
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul, switch_parser
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_bondling_fairyland, page_shikigami_records, page_mall
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.GameUi.page import page_main, page_bondling_fairyland, page_mall
 from tasks.RichMan.assets import RichManAssets
 
 
@@ -31,7 +30,7 @@ class BondlingNumberMax(Exception):
 """ 契灵 """
 
 
-class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, BondlingFairylandAssets, RichManAssets):
+class ScriptTask(GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, BondlingFairylandAssets, RichManAssets):
     ball_pos_list = [None, None, None, None, None]  # 用于记录每一个位置的球是否出现
     first_catch = True  # 用于记录是否是第一次捕捉
 
@@ -64,13 +63,9 @@ class ScriptTask(GameUi, GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul,
         logger.hr('第二步, 切换御魂', 2)
         # 御魂切换方式一
         if cong.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(cong.switch_soul_config.switch_group_team)
         # 御魂切换方式二
         if cong.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(cong.switch_soul_config.group_name, cong.switch_soul_config.team_name)
 
         logger.hr('第三步, 前往契灵主界面', 2)

@@ -13,13 +13,10 @@ from module.logger import logger
 from tasks.Component.Costume.config import MainType
 from tasks.Component.GeneralInvite.general_invite import GeneralInvite
 from tasks.GameUi.page import page_main, page_exploration
-from tasks.GameUi.page import page_shikigami_records
 from tasks.Secret.script_task import ScriptTask as SecretScriptTask
 from tasks.WantedQuests.assets import WantedQuestsAssets
 from tasks.WantedQuests.config import CooperationType, CooperationSelectMask
 from typing import List
-from module.ocr.models import OCR_MODEL
-
 
 """ 悬赏封印 """
 
@@ -34,12 +31,8 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
 
         con = self.config.wanted_quests
         if con.switch_soul.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(con.switch_soul.switch_group_team)
         if con.switch_soul.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(con.switch_soul.group_name, con.switch_soul.team_name)
 
         while 1:

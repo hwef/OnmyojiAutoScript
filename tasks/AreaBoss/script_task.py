@@ -2,10 +2,10 @@
 # @author runhey
 # github https://github.com/runhey
 import time
-from datetime import datetime
+
 import random
 import re
-
+from datetime import datetime
 from module.atom.image import RuleImage
 from module.exception import TaskEnd
 from module.logger import logger
@@ -13,13 +13,12 @@ from tasks.AreaBoss.assets import AreaBossAssets
 from tasks.AreaBoss.config_boss import AreaBossFloor
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_area_boss, page_shikigami_records
+from tasks.GameUi.page import page_area_boss
 
 """ 地域鬼王 """
 
 
-class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
+class ScriptTask(GeneralBattle, SwitchSoul, AreaBossAssets):
 
     def run(self) -> bool:
         """
@@ -38,13 +37,9 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         con = self.config.area_boss.boss
 
         if self.config.area_boss.switch_soul.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(self.config.area_boss.switch_soul.switch_group_team)
 
         if self.config.area_boss.switch_soul.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(self.config.area_boss.switch_soul.group_name,
                                          self.config.area_boss.switch_soul.team_name)
 

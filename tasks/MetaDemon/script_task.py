@@ -1,41 +1,32 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from cached_property import cached_property
-from datetime import datetime
 from time import sleep
 
-from tasks.Component.config_base import ConfigBase, TimeDelta, DateTime, Time
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_shikigami_records
-from tasks.MetaDemon.config import MetaDemon
-from tasks.MetaDemon.assets import MetaDemonAssets
-
-from module.logger import logger
-from module.exception import TaskEnd
-from tasks.Restart.assets import RestartAssets
-from tasks.ActivityShikigami.assets import ActivityShikigamiAssets
+from cached_property import cached_property
 from module.base.timer import Timer
+from module.exception import TaskEnd
+from module.logger import logger
+from tasks.ActivityShikigami.assets import ActivityShikigamiAssets
+from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.GameUi.page import page_main
+from tasks.MetaDemon.assets import MetaDemonAssets
+from tasks.MetaDemon.config import MetaDemon
+from tasks.Restart.assets import RestartAssets
 
 """超鬼王"""
 
 
-class ScriptTask(GeneralBattle, SwitchSoul, GameUi, MetaDemonAssets):
+class ScriptTask(GeneralBattle, SwitchSoul, MetaDemonAssets):
 
     def run(self):
 
-
         if self.config.meta_demon.switch_soul.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(self.config.meta_demon.switch_soul.switch_group_team)
 
         if self.config.meta_demon.switch_soul.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(self.config.meta_demon.switch_soul.group_name,
                                          self.config.meta_demon.switch_soul.team_name)
         self.ui_get_current_page()

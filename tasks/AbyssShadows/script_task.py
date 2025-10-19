@@ -4,30 +4,20 @@
 # @note     draft version without full test
 # github    https://github.com/roarhill/oas
 
-from datetime import datetime, timedelta
-import random
-import numpy as np
-from enum import Enum
-from cached_property import cached_property
 from time import sleep
 
-from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.config_base import ConfigBase, Time
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_kekkai_toppa, page_shikigami_records, page_guild
-from tasks.RealmRaid.assets import RealmRaidAssets
-
-from module.logger import logger
-from module.exception import TaskEnd
-from module.atom.image_grid import ImageGrid
-from module.base.utils import point2str
+from cached_property import cached_property
+from datetime import datetime
+from enum import Enum
 from module.base.timer import Timer
-from module.exception import GamePageUnknownError
+from module.exception import TaskEnd
+from module.logger import logger
 from pathlib import Path
-from tasks.AbyssShadows.config import AbyssShadows
 from tasks.AbyssShadows.assets import AbyssShadowsAssets
+from tasks.AbyssShadows.config import AbyssShadows
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.GameUi.page import page_main, page_guild
 
 """ 狭间暗域 """
 
@@ -83,7 +73,7 @@ class CilckArea:
     __repr__ = __str__
 
 
-class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AbyssShadowsAssets):
+class ScriptTask(GeneralBattle, SwitchSoul, AbyssShadowsAssets):
     boss_fight_count = 0  # 首领战斗次数
     general_fight_count = 0  # 副将战斗次数
     elite_fight_count = 0  # 精英战斗次数
@@ -123,12 +113,8 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AbyssShadowsAssets):
         cfg: AbyssShadows = self.config.abyss_shadows
 
         if cfg.switch_soul_config.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(cfg.switch_soul_config.switch_group_team)
         if cfg.switch_soul_config.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(cfg.switch_soul_config.group_name, cfg.switch_soul_config.team_name)
 
         # 进入狭间

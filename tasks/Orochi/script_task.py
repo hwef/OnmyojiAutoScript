@@ -1,28 +1,27 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-import random
 from time import sleep
-from datetime import time, datetime, timedelta
+
+import random
+from datetime import datetime, timedelta
 from module.base.timer import Timer
 from module.config.utils import parse_tomorrow_server
-
+from module.exception import TaskEnd
+from module.logger import logger
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
-from tasks.Component.GeneralInvite.general_invite import GeneralInvite
 from tasks.Component.GeneralBuff.general_buff import GeneralBuff
+from tasks.Component.GeneralInvite.general_invite import GeneralInvite
 from tasks.Component.GeneralRoom.general_room import GeneralRoom
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_soul_zones, page_shikigami_records
+from tasks.GameUi.page import page_main, page_soul_zones
 from tasks.Orochi.assets import OrochiAssets
 from tasks.Orochi.config import Orochi, UserStatus, Layer, Plan
-from module.logger import logger
-from module.exception import TaskEnd
 
 """八岐大蛇"""
 
 
-class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi, SwitchSoul, OrochiAssets):
+class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchSoul, OrochiAssets):
     soul_full_push = True
 
     def run(self):
@@ -95,8 +94,6 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, GameUi,
                     case Layer.TWELVE:
                         group_team = orochi_switch_soul.twelve_switch
 
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(group_team)
 
         limit_time = self.config.orochi.orochi_config.limit_time

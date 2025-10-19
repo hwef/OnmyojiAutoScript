@@ -2,26 +2,23 @@
 # @author runhey
 # github https://github.com/runhey
 import time
-from cached_property import cached_property
 
+from cached_property import cached_property
+from module.atom.ocr import RuleOcr
 from module.exception import TaskEnd
 from module.logger import logger
-from module.base.timer import Timer
-from module.atom.ocr import RuleOcr
-
-from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_secret_zones, page_shikigami_records
-from tasks.Secret.config import SecretConfig, Secret
-from tasks.Secret.assets import SecretAssets
-from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
-from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.GeneralBuff.config_buff import BuffClass
-from tasks.WeeklyTrifles.assets import WeeklyTriflesAssets
+from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
+from tasks.GameUi.page import page_main, page_secret_zones
 from tasks.Restart.assets import RestartAssets
+from tasks.Secret.assets import SecretAssets
+from tasks.Secret.config import Secret
+from tasks.WeeklyTrifles.assets import WeeklyTriflesAssets
 
 """ 秘闻 """
-class ScriptTask(GameUi, GeneralBattle, SwitchSoul, SecretAssets):
+class ScriptTask(GeneralBattle, SwitchSoul, SecretAssets):
     lay_list = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', '拾']
 
     @cached_property
@@ -42,12 +39,8 @@ class ScriptTask(GameUi, GeneralBattle, SwitchSoul, SecretAssets):
         secret: Secret = self.config.secret
         con = secret.secret_config
         if secret.switch_soul.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul(secret.switch_soul.switch_group_team)
         if secret.switch_soul.enable_switch_by_name:
-            self.ui_get_current_page()
-            self.ui_goto(page_shikigami_records)
             self.run_switch_soul_by_name(secret.switch_soul.group_name, secret.switch_soul.team_name)
         self.ui_get_current_page()
         self.ui_goto(page_secret_zones)
