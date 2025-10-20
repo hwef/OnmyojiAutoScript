@@ -225,7 +225,7 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
         sorted_paths = sorted(paths.items(), key=lambda kv: len(kv[1]))
         return sorted_paths
 
-    def ui_goto(self, destination: Page, confirm_wait=0, skip_first_screenshot=True, timeout: int = 60):
+    def ui_goto(self, destination: Page, confirm_wait=0, skip_first_screenshot=True, timeout: int = 30):
         """
         Args:
             destination (Page):

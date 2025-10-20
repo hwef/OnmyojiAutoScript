@@ -7,5 +7,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"
+  },
+  {
+    "itemName": "check_login_enter_the_game",
+    "imageName": "page_check_login_enter_the_game.png",
+    "roiFront": "548,565,184,64",
+    "roiBack": "352,461,570,190",
+    "method": "Template matching mask",
+    "threshold": 0.8,
+    "description": "登陆界面进入游戏"
   }
 ]
