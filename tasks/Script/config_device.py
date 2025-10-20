@@ -63,28 +63,16 @@ class EmulatorInfoType(str, Enum):
 
 
 class Device(BaseModel):
-    serial: str = Field(default="auto",
-                        description='serial_help')
-    handle: str = Field(default='',
-                        description='handle_help')
-    package_name: PackageName = Field(title='Package Name',
-                                      default=PackageName.AUTO,
-                                      description='package_name_help')
-    screenshot_method: ScreenshotMethod = Field(default=ScreenshotMethod.AUTO,
-                                                description='screenshot_method_help')
-    control_method: ControlMethod = Field(default=ControlMethod.MINITOUCH,
-                                          description='control_method_help')
-    adb_restart: bool = Field(default=False,
-                              description='adb_restart_help')
-    emulatorinfo_type: Union[EmulatorInfoType, str] = Field(default=EmulatorInfoType.AUTO,
-                                                            description='emulatorinfo_type_help')
-    emulatorinfo_name: str = Field(default='',
-                                   description='emulatorinfo_name_help')
-    emulatorinfo_path: str = Field(default='',
-                                   description='emulatorinfo_path_help')
-
-    emulator_window: EmulatorWindow = Field(default=EmulatorWindow.default,
-                                            description='模拟器静默启动后窗口如何显示')
+    serial: str = Field(default="auto", description='serial_help')
+    handle: str = Field(default='', description='handle_help')
+    package_name: PackageName = Field(title='Package Name', default=PackageName.AUTO, description='package_name_help')
+    screenshot_method: ScreenshotMethod = Field(default=ScreenshotMethod.AUTO, description='screenshot_method_help')
+    control_method: ControlMethod = Field(default=ControlMethod.MINITOUCH, description='control_method_help')
+    adb_restart: bool = Field(default=False, description='adb_restart_help')
+    emulatorinfo_type: Union[EmulatorInfoType, str] = Field(default=EmulatorInfoType.AUTO, description='emulatorinfo_type_help')
+    emulatorinfo_name: str = Field(default='', description='emulatorinfo_name_help')
+    emulatorinfo_path: str = Field(default='', description='emulatorinfo_path_help')
+    emulator_window: EmulatorWindow = Field(default=EmulatorWindow.default, description='模拟器静默启动后窗口如何显示')
 
 
 if __name__ == '__main__':
