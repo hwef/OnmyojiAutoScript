@@ -320,8 +320,6 @@ class EmulatorManager:
         return is_running
         
 
-
-# 使用示例
 if __name__ == "__main__":
     from module.config.config import Config
 

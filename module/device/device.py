@@ -26,10 +26,10 @@ from module.exception import (GameNotRunningError,
                               RequestHumanTakeover,
                               EmulatorNotRunningError)
 from module.logger import logger
+from module.device.emulator_manager import EmulatorManager
 
 
-
-class Device(Platform, Screenshot, Control, AppControl):
+class Device(EmulatorManager, Screenshot, Control):
     _screen_size_checked = False
     detect_record = set()
     click_record = deque(maxlen=15)
@@ -38,21 +38,26 @@ class Device(Platform, Screenshot, Control, AppControl):
     stuck_long_wait_list = ['BATTLE_STATUS_S', 'PAUSE', 'LOGIN_CHECK']
 
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         max_retries = 3
         success = False
         last_exception = None
 
         for trial in range(1, max_retries + 1):
             try:
-                # 在初始化前检查ADB连接
-                if trial > 1:  # 重试时检查ADB连接
-                    self.reconnect_adb()
-                    
-                super().__init__(*args, **kwargs)
-                if IS_WINDOWS:
-                    self._validate_window_handle()
-                success = True
-                break
+
+                if not self.is_emulator_running():
+                    self.emulator_start()
+                    time.sleep(10)
+                else:
+                    success = True
+                    break
+                # # 在初始化前检查ADB连接
+                # if trial > 1:  # 重试时检查ADB连接
+                #     self.reconnect_adb()
+                # if IS_WINDOWS:
+                #     self._validate_window_handle()
 
             except (EmulatorNotRunningError, pywintypes.error) as e:
                 last_exception = e
@@ -60,30 +65,30 @@ class Device(Platform, Screenshot, Control, AppControl):
                 # 窗口句柄无效错误 (Windows API error 1400)
                 if isinstance(e, pywintypes.error) and e.winerror == 1400:
                     logger.warning(f"窗口句柄无效，清理残留进程 (第{trial}次重试/共{max_retries}次)")
-                    self.force_cleanup()
+                    self.stop_emulator()
 
                 # 模拟器未运行错误
                 elif isinstance(e, EmulatorNotRunningError):
                     logger.warning(f"模拟器未运行，尝试启动 (第{trial}次重试/共{max_retries}次)")
-                    self.emulator_start()
+                    self.start_emulator()
 
                 # 其他已知异常
                 else:
                     self.config.notifier.push(title=self.config.task, content=f"遇到异常 [{type(e).__name__}]，准备重试 (第{trial}次/共{max_retries}次)")
                     logger.warning(f"遇到异常 [{type(e).__name__}]，准备重试 (第{trial}次/共{max_retries}次)")
-                    self.force_cleanup()
+                    self.stop_emulator()
 
         # ------------------------- 最终状态判断 -------------------------
         if not success:
             logger.critical(f"模拟器启动失败，已达最大重试次数 {max_retries} 次，最后一次错误: {last_exception}")
             self.config.notifier.push(title=self.config.task, content=f"模拟器启动失败{max_retries}次，错误类型: {type(last_exception).__name__}")
-            self.force_cleanup()
+            self.stop_emulator()
             # 抛出异常时携带原始错误栈信息
             raise RequestHumanTakeover("设备初始化失败") from last_exception
 
-        # Auto-fill emulator info
-        if IS_WINDOWS and self.config.script.device.emulatorinfo_type == 'auto':
-            _ = self.emulator_instance
+        # # Auto-fill emulator info
+        # if IS_WINDOWS and self.config.script.device.emulatorinfo_type == 'auto':
+        #     _ = self.emulator_instance
 
         self.screenshot_interval_set()
 
@@ -93,175 +98,175 @@ class Device(Platform, Screenshot, Control, AppControl):
 
         logger.info('模拟器启动完成 True')
 
-    def force_cleanup(self):
-        """精准终止当前模拟器实例关联进程"""
-        logger.info('尝试清理模拟器进程')
-        port = self.get_port_from_serial()
-        if port is None:
-            logger.error('无法获取有效端口号，跳过清理')
-            return
-
-        # 获取监听该端口的进程
-        listeners = []
-        try:
-            for conn in psutil.net_connections(kind='tcp'):
-                if conn.status == 'LISTEN' and conn.laddr.port == port:
-                    listeners.append(conn.pid)
-        except Exception as e:
-            logger.warning(f'获取网络连接信息失败: {e}')
-
-        if not listeners:
-            logger.info(f'端口 {port} 无监听进程')
-            return
-
-        # 终止进程树
-        killed = []
-        for pid in listeners:
-            try:
-                proc = psutil.Process(pid)
-                # 终止子进程
-                for child in proc.children(recursive=True):
-                    try:
-                        child.kill()
-                        killed.append(f"{child.name()}({child.pid})")
-                    except (psutil.NoSuchProcess, psutil.AccessDenied):
-                        pass
-                # 终止主进程
-                try:
-                    proc.kill()
-                    killed.append(f"{proc.name()}({proc.pid})")
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
-                    pass
-            except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
-                logger.warning(f'进程终止失败: {e}')
-
-        # 日志输出
-        if killed:
-            logger.info(f'已清理端口 {port} 进程: {", ".join(killed)}')
-        else:
-            logger.warning(f'端口 {port} 无权限终止进程')
-
-        # 改进ADB清理
-        try:
-            # 重启ADB服务
-            self._execute_adb_command(['kill-server'], timeout=5)
-            time.sleep(1)
-            self._execute_adb_command(['start-server'], timeout=10)
-            logger.info(f'已重置ADB连接: {self.serial}')
-            time.sleep(3)
-        except Exception as e:
-            logger.error(f'ADB重置失败: {e}')
-
-    def get_port_from_serial(self):
-        """
-        从serial中提取端口号
-        Returns:
-            int: 端口号，提取失败返回None
-        """
-        if ':' not in self.serial:
-            logger.warning(f'Serial格式异常，无端口号: {self.serial}')
-            return None
-
-        try:
-            _, port = self.serial.split(':', 1)
-            return int(port)
-        except ValueError:
-            logger.error(f'端口号非数字: {port}')
-            return None
-
-    def _execute_adb_command(self, command, timeout=10, capture_output=True):
-        """
-        统一执行ADB命令的方法
-        
-        Args:
-            command (list): ADB命令参数列表
-            timeout (int): 超时时间
-            capture_output (bool): 是否捕获输出
-            
-        Returns:
-            subprocess.CompletedProcess: 命令执行结果
-        """
-        # 获取ADB二进制文件路径
-        adb_path = self.adb_binary
-        # 使用隐藏窗口方式执行
-        startupinfo = None
-        if os.name == 'nt':  # Windows系统
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
-        # 构造完整命令
-        if adb_path and adb_path != 'adb':
-            full_command = [adb_path] + command
-        else:
-            full_command = ['adb'] + command
-
-        # 执行命令
-        return subprocess.run(
-            full_command,
-            capture_output=capture_output,
-            text=True if capture_output else False,
-            timeout=timeout,
-            startupinfo=startupinfo
-        )
-
-    def check_adb_connection(self):
-        """
-        检查ADB连接状态
-        Returns:
-            bool: 连接是否正常
-        """
-        try:
-            result = self._execute_adb_command(['devices'], timeout=10)
-            if self.serial in result.stdout:
-                return True
-            else:
-                logger.warning(f'设备 {self.serial} 未在ADB设备列表中')
-                return False
-        except Exception as e:
-            logger.error(f'ADB连接检查失败: {e}')
-            return False
-
-    def reconnect_adb(self):
-        """
-        重新连接ADB设备
-        """
-        # 先检查连接状态
-        if self.check_adb_connection():
-            logger.info(f'ADB设备 {self.serial} 连接正常，无需重连')
-            return
-            
-        logger.info(f'ADB设备 {self.serial} 连接异常，尝试重新连接')
-        try:
-            # 断开连接
-            self._execute_adb_command(['disconnect', self.serial], timeout=5)
-            time.sleep(1)
-            # 重新连接
-            self._execute_adb_command(['connect', self.serial], timeout=10)
-            time.sleep(2)
-            logger.info(f'尝试重新连接ADB设备: {self.serial}')
-        except Exception as e:
-            logger.error(f'ADB重新连接失败: {e}')
-
-    def _validate_window_handle(self):
-        """Windows平台专用句柄验证"""
-        # 添加快速检查
-        if hasattr(self, '_screenshot_handle_num') and not IsWindow(getattr(self, '_screenshot_handle_num', 0)):
-            # 检查是否是ADB连接问题
-            if not self.check_adb_connection():
-                logger.warning("ADB连接异常，尝试重新连接")
-                self.reconnect_adb()
-            raise pywintypes.error(1400, "GetWindowRect", "无效窗口句柄")
-        try:
-            # 触发窗口属性检查
-            _ = self.screenshot_size
-        except pywintypes.error as e:
-            if e.winerror == 1400:
-                logger.error("窗口句柄验证失败")
-                # 检查ADB连接
-                if not self.check_adb_connection():
-                    self.reconnect_adb()
-                raise pywintypes.error(e.args)  # 重新抛出给上层捕获
-            raise
+    # def force_cleanup(self):
+    #     """精准终止当前模拟器实例关联进程"""
+    #     logger.info('尝试清理模拟器进程')
+    #     port = self.get_port_from_serial()
+    #     if port is None:
+    #         logger.error('无法获取有效端口号，跳过清理')
+    #         return
+    #
+    #     # 获取监听该端口的进程
+    #     listeners = []
+    #     try:
+    #         for conn in psutil.net_connections(kind='tcp'):
+    #             if conn.status == 'LISTEN' and conn.laddr.port == port:
+    #                 listeners.append(conn.pid)
+    #     except Exception as e:
+    #         logger.warning(f'获取网络连接信息失败: {e}')
+    #
+    #     if not listeners:
+    #         logger.info(f'端口 {port} 无监听进程')
+    #         return
+    #
+    #     # 终止进程树
+    #     killed = []
+    #     for pid in listeners:
+    #         try:
+    #             proc = psutil.Process(pid)
+    #             # 终止子进程
+    #             for child in proc.children(recursive=True):
+    #                 try:
+    #                     child.kill()
+    #                     killed.append(f"{child.name()}({child.pid})")
+    #                 except (psutil.NoSuchProcess, psutil.AccessDenied):
+    #                     pass
+    #             # 终止主进程
+    #             try:
+    #                 proc.kill()
+    #                 killed.append(f"{proc.name()}({proc.pid})")
+    #             except (psutil.NoSuchProcess, psutil.AccessDenied):
+    #                 pass
+    #         except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
+    #             logger.warning(f'进程终止失败: {e}')
+    #
+    #     # 日志输出
+    #     if killed:
+    #         logger.info(f'已清理端口 {port} 进程: {", ".join(killed)}')
+    #     else:
+    #         logger.warning(f'端口 {port} 无权限终止进程')
+    #
+    #     # 改进ADB清理
+    #     try:
+    #         # 重启ADB服务
+    #         self._execute_adb_command(['kill-server'], timeout=5)
+    #         time.sleep(1)
+    #         self._execute_adb_command(['start-server'], timeout=10)
+    #         logger.info(f'已重置ADB连接: {self.serial}')
+    #         time.sleep(3)
+    #     except Exception as e:
+    #         logger.error(f'ADB重置失败: {e}')
+    #
+    # def get_port_from_serial(self):
+    #     """
+    #     从serial中提取端口号
+    #     Returns:
+    #         int: 端口号，提取失败返回None
+    #     """
+    #     if ':' not in self.serial:
+    #         logger.warning(f'Serial格式异常，无端口号: {self.serial}')
+    #         return None
+    #
+    #     try:
+    #         _, port = self.serial.split(':', 1)
+    #         return int(port)
+    #     except ValueError:
+    #         logger.error(f'端口号非数字: {port}')
+    #         return None
+    #
+    # def _execute_adb_command(self, command, timeout=10, capture_output=True):
+    #     """
+    #     统一执行ADB命令的方法
+    #
+    #     Args:
+    #         command (list): ADB命令参数列表
+    #         timeout (int): 超时时间
+    #         capture_output (bool): 是否捕获输出
+    #
+    #     Returns:
+    #         subprocess.CompletedProcess: 命令执行结果
+    #     """
+    #     # 获取ADB二进制文件路径
+    #     adb_path = self.adb_binary
+    #     # 使用隐藏窗口方式执行
+    #     startupinfo = None
+    #     if os.name == 'nt':  # Windows系统
+    #         startupinfo = subprocess.STARTUPINFO()
+    #         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    #
+    #     # 构造完整命令
+    #     if adb_path and adb_path != 'adb':
+    #         full_command = [adb_path] + command
+    #     else:
+    #         full_command = ['adb'] + command
+    #
+    #     # 执行命令
+    #     return subprocess.run(
+    #         full_command,
+    #         capture_output=capture_output,
+    #         text=True if capture_output else False,
+    #         timeout=timeout,
+    #         startupinfo=startupinfo
+    #     )
+    #
+    # def check_adb_connection(self):
+    #     """
+    #     检查ADB连接状态
+    #     Returns:
+    #         bool: 连接是否正常
+    #     """
+    #     try:
+    #         result = self._execute_adb_command(['devices'], timeout=10)
+    #         if self.serial in result.stdout:
+    #             return True
+    #         else:
+    #             logger.warning(f'设备 {self.serial} 未在ADB设备列表中')
+    #             return False
+    #     except Exception as e:
+    #         logger.error(f'ADB连接检查失败: {e}')
+    #         return False
+    #
+    # def reconnect_adb(self):
+    #     """
+    #     重新连接ADB设备
+    #     """
+    #     # 先检查连接状态
+    #     if self.check_adb_connection():
+    #         logger.info(f'ADB设备 {self.serial} 连接正常，无需重连')
+    #         return
+    #
+    #     logger.info(f'ADB设备 {self.serial} 连接异常，尝试重新连接')
+    #     try:
+    #         # 断开连接
+    #         self._execute_adb_command(['disconnect', self.serial], timeout=5)
+    #         time.sleep(1)
+    #         # 重新连接
+    #         self._execute_adb_command(['connect', self.serial], timeout=10)
+    #         time.sleep(2)
+    #         logger.info(f'尝试重新连接ADB设备: {self.serial}')
+    #     except Exception as e:
+    #         logger.error(f'ADB重新连接失败: {e}')
+    #
+    # def _validate_window_handle(self):
+    #     """Windows平台专用句柄验证"""
+    #     # 添加快速检查
+    #     if hasattr(self, '_screenshot_handle_num') and not IsWindow(getattr(self, '_screenshot_handle_num', 0)):
+    #         # 检查是否是ADB连接问题
+    #         if not self.check_adb_connection():
+    #             logger.warning("ADB连接异常，尝试重新连接")
+    #             self.reconnect_adb()
+    #         raise pywintypes.error(1400, "GetWindowRect", "无效窗口句柄")
+    #     try:
+    #         # 触发窗口属性检查
+    #         _ = self.screenshot_size
+    #     except pywintypes.error as e:
+    #         if e.winerror == 1400:
+    #             logger.error("窗口句柄验证失败")
+    #             # 检查ADB连接
+    #             if not self.check_adb_connection():
+    #                 self.reconnect_adb()
+    #             raise pywintypes.error(e.args)  # 重新抛出给上层捕获
+    #         raise
 
     def run_simple_screenshot_benchmark(self):
         """
@@ -361,7 +366,7 @@ class Device(Platform, Screenshot, Control, AppControl):
         logger.warning(f'Waiting for {self.detect_record}')
         self.stuck_record_clear()
 
-        if self.app_is_running():
+        if self.is_game_running():
             raise GameWaitTooLongError(f'Wait too long')
         else:
             raise GameNotRunningError('Game died')
@@ -435,7 +440,7 @@ class Device(Platform, Screenshot, Control, AppControl):
             logger.critical('No app stop/start, because HandleError disabled')
             logger.critical('Please enable Alas.Error.HandleError or manually login to AzurLane')
             raise RequestHumanTakeover
-        super().app_start()
+        super().start_emulator(True)
         self.stuck_record_clear()
         self.click_record_clear()
 
@@ -444,9 +449,15 @@ class Device(Platform, Screenshot, Control, AppControl):
             logger.critical('No app stop/start, because HandleError disabled')
             logger.critical('Please enable Alas.Error.HandleError or manually login to AzurLane')
             raise RequestHumanTakeover
-        super().app_stop()
+        super().close_game()
         self.stuck_record_clear()
         self.click_record_clear()
+
+    def emulator_start(self):
+        super().start_emulator()
+
+    def emulator_stop(self):
+        super().stop_emulator()
 
 
 if __name__ == "__main__":
