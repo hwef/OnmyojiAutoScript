@@ -47,9 +47,6 @@ class ScriptTask(GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
                 config.lock_team_enable = False
             self.run_general_battle(config)
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
-
         self.set_next_run(task='Hunt', success=True, finish=True)
         raise TaskEnd('Hunt')
 
