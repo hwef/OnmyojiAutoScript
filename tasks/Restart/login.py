@@ -4,11 +4,12 @@
 
 from module.base.timer import Timer
 from module.exception import RequestHumanTakeover, GameTooManyClickError, GameStuckError
+from module.exception import TaskEnd
 from module.logger import logger
-from tasks.Restart.assets import RestartAssets
-from tasks.base_task import BaseTask
-from tasks.Component.LoginHarvest.login_base import LoginBase
 from tasks.Component.GeneralBuff.general_buff import GeneralBuff
+from tasks.Component.LoginHarvest.login_base import LoginBase
+from tasks.Component.SwitchAccount.assets import SwitchAccountAssets
+from tasks.Restart.assets import RestartAssets
 
 
 class LoginHandler(LoginBase, RestartAssets, GeneralBuff):
@@ -33,6 +34,9 @@ class LoginHandler(LoginBase, RestartAssets, GeneralBuff):
         login_success = False
 
         while 1:
+            if self.appear(SwitchAccountAssets.I_QD_READ_AND_AGREED):
+                self.set_next_run()
+                raise TaskEnd
             # Watch device rotation
             if not login_success and orientation_timer.reached():
                 # Screen may rotate after starting an app
