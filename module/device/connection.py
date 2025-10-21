@@ -1,7 +1,4 @@
 # This Python file uses the following encoding: utf-8
-import os
-import psutil
-
 import ipaddress
 import logging
 import platform
@@ -64,19 +61,6 @@ def retry(func):
 
                 def init():
                     self.detect_package()
-            # Handle FileNotFoundError which may occur when adb binary is not found
-            except FileNotFoundError as e:
-                logger.error(f"FileNotFoundError in retry wrapper: {e}")
-                logger.error("This may be due to ADB binary not being found. Trying to restart ADB server.")
-                
-                def init():
-                    try:
-                        # Try to start ADB server
-                        subprocess.run(['adb', 'start-server'], capture_output=True, timeout=10)
-                        time.sleep(2)
-                    except Exception as start_error:
-                        logger.error(f"Failed to start ADB server: {start_error}")
-                        self.adb_reconnect()
             # Unknown, probably a trucked image
             except Exception as e:
                 logger.exception(e)
@@ -85,7 +69,6 @@ def retry(func):
                     pass
 
         logger.critical(f'Retry {func.__name__}() failed')
-        self.force_cleanup()
         raise RequestHumanTakeover
 
     return retry_wrapper
@@ -153,13 +136,7 @@ class Connection(ConnectionAttr):
         # To disable it, edit gooey/gui/util/taskkill.py
 
         # No gooey anymore, just shell=False
-        # 隐藏CMD窗口执行ADB命令
-        startupinfo = None
-        if os.name == 'nt':  # Windows系统
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=False, startupinfo=startupinfo)
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=False)
         try:
             stdout, stderr = process.communicate(timeout=timeout)
         except subprocess.TimeoutExpired:
@@ -550,13 +527,6 @@ class Connection(ConnectionAttr):
         Returns:
             bool: If success
         """
-        # Ensure ADB server is running
-        try:
-            self._execute_adb_command(['start-server'], timeout=10)
-            time.sleep(1)
-        except Exception as e:
-            logger.warning(f'Failed to start ADB server: {e}')
-
         # Disconnect offline device before connecting
         for device in self.list_device():
             if device.status == 'offline':
@@ -579,33 +549,23 @@ class Connection(ConnectionAttr):
 
         # Try to connect
         for _ in range(3):
-            try:
-                msg = self.adb_client.connect(serial)
+            msg = self.adb_client.connect(serial)
+            logger.info(msg)
+            if 'connected' in msg:
+                # Connected to 127.0.0.1:59865
+                # Already connected to 127.0.0.1:59865
+                return True
+            elif 'bad port' in msg:
+                # bad port number '598265' in '127.0.0.1:598265'
+                logger.error(msg)
+                possible_reasons('Serial incorrect, might be a typo')
+                raise RequestHumanTakeover
+            elif '(10061)' in msg:
+                # cannot connect to 127.0.0.1:55555:
+                # No connection could be made because the target machine actively refused it. (10061)
                 logger.info(msg)
-                if 'connected' in msg:
-                    # Connected to 127.0.0.1:59865
-                    # Already connected to 127.0.0.1:59865
-                    return True
-                elif 'bad port' in msg:
-                    # bad port number '598265' in '127.0.0.1:598265'
-                    logger.error(msg)
-                    possible_reasons('Serial incorrect, might be a typo')
-                    raise RequestHumanTakeover
-                elif '(10061)' in msg:
-                    # cannot connect to 127.0.0.1:55555:
-                    # No connection could be made because the target machine actively refused it. (10061)
-                    logger.info(msg)
-                    logger.warning('No such device exists, please restart the emulator or set a correct serial')
-                    raise EmulatorNotRunningError
-            except FileNotFoundError as e:
-                logger.error(f"ADB binary not found: {e}")
-                logger.error("Trying to start ADB server again")
-                try:
-                    self._execute_adb_command(['start-server'], timeout=10)
-                    time.sleep(2)
-                except Exception as start_error:
-                    logger.error(f"Failed to start ADB server: {start_error}")
-                continue
+                logger.warning('No such device exists, please restart the emulator or set a correct serial')
+                raise EmulatorNotRunningError
 
         # Failed to connect
         logger.warning(f'Failed to connect {serial} after 3 trial, assume connected')
@@ -626,118 +586,7 @@ class Connection(ConnectionAttr):
         del_cached_property(self, 'droidcast_session')
         del_cached_property(self, 'minitouch_builder')
         del_cached_property(self, 'reverse_server')
-        # self.force_cleanup()
 
-    def force_cleanup(self):
-        """精准终止当前模拟器实例关联进程"""
-        logger.info('尝试清理模拟器进程')
-        port = self.get_port_from_serial()
-        if port is None:
-            logger.error('无法获取有效端口号，跳过清理')
-            return
-
-        # 获取监听该端口的进程
-        listeners = []
-        try:
-            for conn in psutil.net_connections(kind='tcp'):
-                if conn.status == 'LISTEN' and conn.laddr.port == port:
-                    listeners.append(conn.pid)
-        except Exception as e:
-            logger.warning(f'获取网络连接信息失败: {e}')
-
-        if not listeners:
-            logger.info(f'端口 {port} 无监听进程')
-            return
-
-        # 终止进程树
-        killed = []
-        for pid in listeners:
-            try:
-                proc = psutil.Process(pid)
-                # 终止子进程
-                for child in proc.children(recursive=True):
-                    try:
-                        child.kill()
-                        killed.append(f"{child.name()}({child.pid})")
-                    except (psutil.NoSuchProcess, psutil.AccessDenied):
-                        pass
-                # 终止主进程
-                try:
-                    proc.kill()
-                    killed.append(f"{proc.name()}({proc.pid})")
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
-                    pass
-            except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
-                logger.warning(f'进程终止失败: {e}')
-
-        # 日志输出
-        if killed:
-            logger.info(f'已清理端口 {port} 进程: {", ".join(killed)}')
-        else:
-            logger.warning(f'端口 {port} 无权限终止进程')
-
-        # 改进ADB清理
-        try:
-            # 重启ADB服务
-            self._execute_adb_command(['kill-server'], timeout=5)
-            time.sleep(1)
-            self._execute_adb_command(['start-server'], timeout=10)
-            logger.info(f'已重置ADB连接: {self.serial}')
-            time.sleep(3)
-        except Exception as e:
-            logger.error(f'ADB重置失败: {e}')
-
-    def _execute_adb_command(self, command, timeout=10, capture_output=True):
-        """
-        统一执行ADB命令的方法
-        
-        Args:
-            command (list): ADB命令参数列表
-            timeout (int): 超时时间
-            capture_output (bool): 是否捕获输出
-            
-        Returns:
-            subprocess.CompletedProcess: 命令执行结果
-        """
-        # 获取ADB二进制文件路径
-        adb_path = self.adb_binary
-        # 使用隐藏窗口方式执行
-        startupinfo = None
-        if os.name == 'nt':  # Windows系统
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
-        # 构造完整命令
-        if adb_path and adb_path != 'adb':
-            full_command = [adb_path] + command
-        else:
-            full_command = ['adb'] + command
-
-        # 执行命令
-        return subprocess.run(
-            full_command,
-            capture_output=capture_output,
-            text=True if capture_output else False,
-            timeout=timeout,
-            startupinfo=startupinfo
-        )
-
-    def get_port_from_serial(self):
-        """
-        从serial中提取端口号
-        Returns:
-            int: 端口号，提取失败返回None
-        """
-        if ':' not in self.serial:
-            logger.warning(f'Serial格式异常，无端口号: {self.serial}')
-            return None
-
-        try:
-            _, port = self.serial.split(':', 1)
-            return int(port)
-        except ValueError:
-            logger.error(f'端口号非数字: {port}')
-            return None
     def adb_restart(self):
         """
             Reboot adb client
@@ -762,21 +611,7 @@ class Connection(ConnectionAttr):
             self.adb_connect(self.serial)
             self.detect_device()
         else:
-            # 先尝试断开连接再重新连接
-            try:
-                self.adb_disconnect(self.serial)
-            except Exception as e:
-                logger.warning(f'断开ADB连接时出错: {e}')
-            
-            # 重新启动ADB服务
-            try:
-                self._execute_adb_command(['kill-server'], timeout=5)
-                time.sleep(1)
-                self._execute_adb_command(['start-server'], timeout=10)
-                time.sleep(2)
-            except Exception as e:
-                logger.warning(f'重启ADB服务时出错: {e}')
-                
+            self.adb_disconnect(self.serial)
             self.adb_connect(self.serial)
             self.detect_device()
 

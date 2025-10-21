@@ -2,8 +2,6 @@
 # copy from alas
 import os
 import re
-import subprocess
-import time
 
 import adbutils
 import uiautomator2 as u2
@@ -236,23 +234,15 @@ class ConnectionAttr:
         #     if os.path.exists(file):
         #         return os.path.abspath(file)
 
-        # Try adb in python environment - 修复路径问题
+        # Try adb in python environment
         import sys
         file = os.path.join(sys.executable, '../Lib/site-packages/adbutils/binaries/adb.exe')
         file = os.path.abspath(file).replace('\\', '/')
         if os.path.exists(file):
-            logger.info(f'Using adb binary: {file}')
             return file
-
-        # Try existing adb.exe in common paths
-        for path in self.adb_binary_list:
-            if os.path.exists(path):
-                logger.info(f'Using adb binary: {os.path.abspath(path)}')
-                return os.path.abspath(path)
 
         # Use adb in system PATH
         file = 'adb'
-        logger.info('Using adb from system PATH')
         return file
 
     @cached_property
@@ -268,50 +258,8 @@ class ConnectionAttr:
             except ValueError:
                 logger.warning(f'Invalid environ variable ANDROID_ADB_SERVER_PORT={port}, using default port')
 
-        # Ensure ADB server is running with the correct binary
-        try:
-            self._execute_adb_command(['start-server'], timeout=10)
-            time.sleep(1)
-        except Exception as e:
-            logger.warning(f'Failed to start ADB server: {e}')
-
         logger.attr('AdbClient', f'AdbClient({host}, {port})')
         return AdbClient(host, port)
-
-    def _execute_adb_command(self, command, timeout=10, capture_output=True):
-        """
-        统一执行ADB命令的方法
-        
-        Args:
-            command (list): ADB命令参数列表
-            timeout (int): 超时时间
-            capture_output (bool): 是否捕获输出
-            
-        Returns:
-            subprocess.CompletedProcess: 命令执行结果
-        """
-        # 获取ADB二进制文件路径
-        adb_path = self.adb_binary
-        # 使用隐藏窗口方式执行
-        startupinfo = None
-        if os.name == 'nt':  # Windows系统
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
-        # 构造完整命令
-        if adb_path and adb_path != 'adb':
-            full_command = [adb_path] + command
-        else:
-            full_command = ['adb'] + command
-
-        # 执行命令
-        return subprocess.run(
-            full_command,
-            capture_output=capture_output,
-            text=True if capture_output else False,
-            timeout=timeout,
-            startupinfo=startupinfo
-        )
 
     @cached_property
     def adb(self) -> AdbDevice:
