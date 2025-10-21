@@ -5,10 +5,13 @@
 """
 from time import sleep
 
+import ctypes
 import json
 import os
 import subprocess
+from ctypes import wintypes
 from module.logger import logger
+from tasks.Script.config_device import EmulatorWindow
 from tasks.Script.config_device import PackageName
 
 
@@ -33,7 +36,7 @@ class EmulatorManager:
         # 获取模拟器启动启动后窗口操作
         self.emulator_window = config.script.device.emulator_window
 
-    def _execute_cmd(self, command, show_window=True):
+    def _execute_cmd(self, command):
         # logger.info(f'执行命令: {command}')
         # 隐藏CMD窗口执行命令
         startupinfo = None
@@ -56,7 +59,7 @@ class EmulatorManager:
         """
         获取模拟器信息
         """
-        cmd = [self.manager_path, "info", "-v", vmindex]
+        cmd = [self.manager_path, "info", "-v", str(vmindex)]
         return self._execute_cmd(cmd)
 
     def get_package_name(self):
@@ -94,20 +97,17 @@ class EmulatorManager:
         启动模拟器并进入游戏
         only_game (bool): 是否只启动游戏而不启动模拟器
         """
-        cmd = [self.manager_path, "control", "-v", self.vmindex, "launch"]
-        result = self._execute_cmd(cmd)
+        if self.emulator_window == EmulatorWindow.default:
+            show_window = True
+        else:
+            show_window = False
+
+        cmd = [self.config.script.device.emulatorinfo_path, "control", "-v", self.vmindex, "launch"]
+        result = self.execute(cmd, show_window)
         if result:
             logger.info("模拟器开始启动")
         else:
             logger.error("模拟器启动失败")
-
-        # 根据配置处理窗口显示
-        if self.emulator_window == "min" or self.emulator_window == "最小化":
-            self.hide_window()
-        elif self.emulator_window == "background" or self.emulator_window == "隐藏":
-            self.hide_window()
-
-        return result
 
     def stop_emulator(self):
         """
@@ -237,6 +237,62 @@ class EmulatorManager:
         else:
             logger.error("模拟器窗口显示失败")
 
+    def min_window_by_name(self, window_name, convert_hidden=True):
+        """
+        按名称处理窗口状态
+        Args:
+            window_name (str): 窗口名称（支持部分匹配）
+            convert_hidden (bool): 是否将隐藏窗口改为最小化
+        """
+
+        def callback(hwnd, lParam):
+            title = self.get_window_title(hwnd)
+
+            if window_name.lower() == title.lower():
+                # 检查窗口当前状态
+                is_visible = ctypes.windll.user32.IsWindowVisible(hwnd)
+                if is_visible:
+                    # 可见窗口 → 最小化
+                    ctypes.windll.user32.ShowWindow(hwnd, 6)
+                elif convert_hidden:
+                    # 隐藏窗口 → 改为最小化不激活
+                    ctypes.windll.user32.ShowWindow(hwnd, 6)  # SW_SHOWMINNOACTIVE
+            return True
+
+        WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, wintypes.HWND, ctypes.POINTER(ctypes.c_int))
+        ctypes.windll.user32.EnumWindows(WNDENUMPROC(callback), None)
+
+    def get_window_title(self, hwnd):
+        """Returns the window title as a string."""
+        text_len_in_characters = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
+        string_buffer = ctypes.create_unicode_buffer(
+            text_len_in_characters + 1)  # +1 for the \0 at the end of the null-terminated string.
+        ctypes.windll.user32.GetWindowTextW(hwnd, string_buffer, text_len_in_characters + 1)
+        return string_buffer.value
+
+    def execute(self, command, show_window=True):
+
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+        if not show_window:
+            startupinfo.wShowWindow = 0  # SW_MINIMIZE - 不显示窗口
+        else:
+            startupinfo.wShowWindow = 1  # SW_SHOWNORMAL - 正常显示
+        # 添加CREATE_NO_WINDOW标志以防止创建新窗口
+        creationflags = subprocess.CREATE_NO_WINDOW
+
+        # logger.info(f'Execute: {command}')
+        return subprocess.Popen(
+            command,
+            close_fds=True,
+            startupinfo=startupinfo,
+            creationflags=creationflags,
+            # 重定向标准输出和标准错误以防止弹窗
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+
 
 if __name__ == "__main__":
     from module.config.config import Config
@@ -246,13 +302,11 @@ if __name__ == "__main__":
     manager = EmulatorManager(config)
 
     # # 检查模拟器状态
-    # if manager.is_emulator_running():
-    #     print("模拟器正在运行")
-    #     manager.get_game_status()
-    #     manager.restart_game()
-    #     manager.hide_window()
-    #     # manager.stop_emulator()
-    # else:
-    #     print("模拟器未运行")
-    #     # 启动模拟器
-    #     manager.start_emulator()
+    if manager.is_emulator_running():
+        print("模拟器正在运行")
+        # manager.get_app_status()
+        # manager.get_emulator_info(1)
+        # manager.hide_window()
+        manager.min_window_by_name("du")
+    else:
+        print("模拟器未运行")

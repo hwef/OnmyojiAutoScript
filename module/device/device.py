@@ -27,6 +27,7 @@ from module.exception import (GameNotRunningError,
                               EmulatorNotRunningError)
 from module.logger import logger
 from module.device.emulator_manager import EmulatorManager
+from tasks.Script.config_device import EmulatorWindow
 
 
 class Device(EmulatorManager, Screenshot, Control):
@@ -95,6 +96,18 @@ class Device(EmulatorManager, Screenshot, Control):
         # Auto-select the fastest screenshot method
         if self.config.script.device.screenshot_method == 'auto':
             self.run_simple_screenshot_benchmark()
+
+        if self.emulator_window == EmulatorWindow.front:
+            self.show_window()
+            logger.info(f'前台显示窗口: {self.handle}')
+        elif self.emulator_window == EmulatorWindow.min:
+            self.min_window_by_name(self.handle)
+            logger.info(f'最小化窗口: {self.handle}')
+        elif self.emulator_window == EmulatorWindow.background:
+            self.hide_window()
+            logger.info(f'隐藏窗口: {self.handle}')
+        else:
+            logger.info(f'默认窗口: {self.handle}')
 
         logger.hr('模拟器状态 True', level=1)
 
