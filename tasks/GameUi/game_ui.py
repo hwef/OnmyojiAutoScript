@@ -139,7 +139,7 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
 
         @run_once
         def app_check():
-            if not self.device.is_game_running():
+            if not self.device.is_app_running():
                 raise GameNotRunningError("Game not running")
 
         @run_once

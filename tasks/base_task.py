@@ -896,7 +896,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             title = f"{name}▪{I18n.trans_zh_cn(title)}"
 
         # 使用getattr同时检查属性和值，避免冗长的条件判断
-        if self.device_status and getattr(self.device, 'image', None) is not None:
+        if self.device.is_emulator_running() and getattr(self.device, 'image', None) is not None:
             image = self.device.image
         else:
             image = ""

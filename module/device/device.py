@@ -48,7 +48,7 @@ class Device(EmulatorManager, Screenshot, Control):
             try:
 
                 if not self.is_emulator_running():
-                    self.emulator_start()
+                    self.start_emulator()
                     time.sleep(10)
                 else:
                     success = True
@@ -366,7 +366,7 @@ class Device(EmulatorManager, Screenshot, Control):
         logger.warning(f'Waiting for {self.detect_record}')
         self.stuck_record_clear()
 
-        if self.is_game_running():
+        if self.is_app_running():
             raise GameWaitTooLongError(f'Wait too long')
         else:
             raise GameNotRunningError('Game died')
@@ -440,7 +440,7 @@ class Device(EmulatorManager, Screenshot, Control):
             logger.critical('No app stop/start, because HandleError disabled')
             logger.critical('Please enable Alas.Error.HandleError or manually login to AzurLane')
             raise RequestHumanTakeover
-        super().start_emulator(True)
+        super().app_start()
         self.stuck_record_clear()
         self.click_record_clear()
 
@@ -449,7 +449,7 @@ class Device(EmulatorManager, Screenshot, Control):
             logger.critical('No app stop/start, because HandleError disabled')
             logger.critical('Please enable Alas.Error.HandleError or manually login to AzurLane')
             raise RequestHumanTakeover
-        super().close_game()
+        super().app_stop()
         self.stuck_record_clear()
         self.click_record_clear()
 
@@ -458,6 +458,12 @@ class Device(EmulatorManager, Screenshot, Control):
 
     def emulator_stop(self):
         super().stop_emulator()
+
+    def is_emulator_running(self):
+        return super().is_emulator_running()
+
+    def is_app_running(self):
+        return super().is_app_running()
 
 
 if __name__ == "__main__":

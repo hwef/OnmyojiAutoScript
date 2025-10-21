@@ -25,6 +25,7 @@ from pathlib import Path
 from pydantic import ValidationError
 from threading import Thread
 from typing import Callable
+from module.device.emulator_manager import EmulatorManager
 
 
 class Script:
@@ -55,10 +56,14 @@ class Script:
             exit(1)
 
     @property
+    def emulator(self) -> "EmulatorManager":
+        return EmulatorManager(config=self.config)
+
+    @property
     def device(self) -> "Device":
         # 使用全局设备管理器获取共享设备实例
         return DeviceManager.get_device(config=self.config)
-    
+
     @property
     def device_status(self) -> bool:
         # 使用全局设备管理器获取设备状态
@@ -122,7 +127,7 @@ class Script:
                 f.writelines(lines)
 
             image = ''
-            if self.device_status:
+            if self.emulator.is_emulator_running():
                 if hasattr(self.device, 'image') and self.device.image is not None:
                     try:
                         save_image(self.device.image, error_image_path)
@@ -334,18 +339,21 @@ class Script:
             should_close_emu = close_emu_delta and wait_duration > close_emu_delta
             should_close_game = close_game_delta and wait_duration > close_game_delta
 
+            is_emulator_running = self.emulator.is_emulator_running()
+            is_app_running = self.emulator.is_app_running()
+
             # 执行等待策略
             if opt.do_noting:
                 logger.warning("不关闭游戏, 等待下一个任务")
             elif should_close_emu:
-                if self.device_status:
+                if is_emulator_running:
                     logger.info("模拟器关闭前, 等待30秒...")
                     time.sleep(30)
                     self.device.emulator_stop()
                     self.device_status = False
             elif should_close_game:
                 try:
-                    if self.device_status:
+                    if is_app_running:
                         logger.info("游戏关闭前, 等待10秒...")
                         time.sleep(10)
                         self.device.app_stop()
@@ -355,13 +363,13 @@ class Script:
                 logger.warning("不关闭游戏, 等待下一个任务")
 
             # 执行等待操作
-            logger.hr(f"模拟器状态 {self.device_status}", level=1)
+            logger.hr(f"模拟器状态 {is_emulator_running}", level=1)
             wait_info = f'{I18n.trans_zh_cn(task.command)}({task.next_run.strftime("%H:%M:%S")})'
             delta_str = str(task.next_run - now).split('.')[0]
             logger.info(f'🕒 等待任务 | {wait_info} | 剩余时长: {delta_str}')
 
             # 清理状态
-            if self.device_status:
+            if is_emulator_running:
                 self.device.release_during_wait()
 
             # 等待下个任务循环5秒检查一次
@@ -416,7 +424,6 @@ class Script:
             elif isinstance(e, RequestHumanTakeover):
                 if "screenshot error" in str(e):
                     logger.error("截图异常，模拟器可能未启动")
-                    self.device_status = False
                     return False
                 logger.error(e)
                 logger.critical(e)
@@ -554,7 +561,7 @@ class Script:
 if __name__ == "__main__":
     # logger.info(f'✅ {res_type}卡确认成功，重置状态')
     # logger.warning(f'❌ {res_type}卡确认失败，重置状态')
-    script = Script("du")
+    script = Script("4399")
     script.start_loop()
     # while 1:
     # script = Script("oas3")
