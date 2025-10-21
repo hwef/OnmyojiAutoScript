@@ -225,7 +225,7 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
         sorted_paths = sorted(paths.items(), key=lambda kv: len(kv[1]))
         return sorted_paths
 
-    def ui_goto(self, destination: Page, confirm_wait=0, skip_first_screenshot=True, timeout: int = 30):
+    def ui_goto(self, destination: Page, confirm_wait=0, skip_first_screenshot=True, timeout: int = 60):
         """
         Args:
             destination (Page):
@@ -313,7 +313,7 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
                 if self.appear_then_operate(button, interval=0.8, skip_first_screenshot=False):
                     break
                 logger.warning(f"[{max_wait_timer.current():.1f}s]Failed click {button} on {current_page}, retry...")
-                sleep(0.8)
+                sleep(0.5)
             else:
                 self.ui_get_current_page(skip_first_screenshot=False)
                 # 当前页面不是对应路径的页面, 则尝试下一个页面

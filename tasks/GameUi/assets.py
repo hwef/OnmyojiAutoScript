@@ -197,7 +197,7 @@ class GameUiAssets:
 	# description 
 	I_CHECK_LOGIN_FORM = RuleImage(roi_front=(178,572,53,60), roi_back=(1,500,400,150), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_login_form.png")
 	# 登陆界面进入游戏 
-	I_CHECK_LOGIN_ENTER_THE_GAME = RuleImage(roi_front=(548,565,184,64), roi_back=(352,461,570,190), threshold=0.8, method="Template matching mask", file="./tasks/GameUi/page/page_check_login_enter_the_game.png")
+	I_CHECK_LOGIN_ENTER_THE_GAME = RuleImage(roi_front=(548,565,184,64), roi_back=(352,461,570,190), threshold=0.65, method="Template matching mask", file="./tasks/GameUi/page/page_check_login_enter_the_game.png")
 
 
 	# Image Rule Assets

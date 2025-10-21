@@ -14,7 +14,7 @@
     "roiFront": "548,565,184,64",
     "roiBack": "352,461,570,190",
     "method": "Template matching mask",
-    "threshold": 0.8,
+    "threshold": 0.65,
     "description": "登陆界面进入游戏"
   }
 ]
