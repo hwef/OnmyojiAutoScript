@@ -32,7 +32,6 @@ class DeviceManager:
                 try:
                     cls._shared_device = Device(config=config)
                     cls._device_status = True  # 设置设备状态为已启动
-                    logger.hr(f'Device True', level=1)
                     return cls._shared_device
                 except RequestHumanTakeover:
                     logger.critical('[设备] 设备初始化需要人工接管')

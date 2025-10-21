@@ -340,21 +340,21 @@ class Script:
             should_close_game = close_game_delta and wait_duration > close_game_delta
 
             is_emulator_running = self.emulator.is_emulator_running()
-            is_app_running = self.emulator.is_app_running()
 
             # 执行等待策略
             if opt.do_noting:
                 logger.warning("不关闭游戏, 等待下一个任务")
             elif should_close_emu:
                 if is_emulator_running:
-                    logger.info("模拟器关闭前, 等待30秒...")
+                    logger.warning("模拟器关闭前, 等待30秒...")
                     time.sleep(30)
                     self.device.emulator_stop()
-                    self.device_status = False
+                    is_emulator_running = False
+                    DeviceManager.reset_device()
             elif should_close_game:
                 try:
-                    if is_app_running:
-                        logger.info("游戏关闭前, 等待10秒...")
+                    if is_emulator_running and self.emulator.is_app_running():
+                        logger.warning("游戏关闭前, 等待10秒...")
                         time.sleep(10)
                         self.device.app_stop()
                 except Exception as e:
@@ -449,7 +449,6 @@ class Script:
         is_first_task = True
         stop_requested = False
         self.config.model.running_task = None
-        self.device_status = False
 
         logger.info(f'[启动] 调度器循环开始 | 配置: {self.config_name}')
         try:
@@ -561,7 +560,7 @@ class Script:
 if __name__ == "__main__":
     # logger.info(f'✅ {res_type}卡确认成功，重置状态')
     # logger.warning(f'❌ {res_type}卡确认失败，重置状态')
-    script = Script("4399")
+    script = Script("mi")
     script.start_loop()
     # while 1:
     # script = Script("oas3")

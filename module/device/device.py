@@ -96,7 +96,7 @@ class Device(EmulatorManager, Screenshot, Control):
         if self.config.script.device.screenshot_method == 'auto':
             self.run_simple_screenshot_benchmark()
 
-        logger.info('模拟器启动完成 True')
+        logger.hr('模拟器状态 True', level=1)
 
     # def force_cleanup(self):
     #     """精准终止当前模拟器实例关联进程"""
