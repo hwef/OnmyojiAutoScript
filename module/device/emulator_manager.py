@@ -94,8 +94,7 @@ class EmulatorManager:
         启动模拟器并进入游戏
         only_game (bool): 是否只启动游戏而不启动模拟器
         """
-        package = self.get_package_name()
-        cmd = [self.manager_path, "control", "-v", self.vmindex, "launch", "-pkg", package]
+        cmd = [self.manager_path, "control", "-v", self.vmindex, "launch"]
         result = self._execute_cmd(cmd)
         if result:
             logger.info("模拟器开始启动")
@@ -117,7 +116,6 @@ class EmulatorManager:
         if not self.is_emulator_running():
             logger.info("无需关闭模拟器")
         else:
-            logger.info("正在关闭模拟器")
             cmd = [self.manager_path, "control", "-v", self.vmindex, "shutdown"]
             result = self._execute_cmd(cmd)
             if result:
@@ -138,8 +136,6 @@ class EmulatorManager:
         else:
             logger.error(f"{package}启动失败 {result}")
 
-        return result
-
     def app_stop(self):
         """
         关闭游戏
@@ -151,7 +147,6 @@ class EmulatorManager:
             logger.info("游戏关闭成功")
         else:
             logger.error("游戏关闭失败")
-        return result
 
     def get_app_status(self):
         """
@@ -230,7 +225,6 @@ class EmulatorManager:
             logger.info("模拟器窗口已隐藏")
         else:
             logger.error("模拟器窗口隐藏失败")
-        return result
 
     def show_window(self):
         """
@@ -242,7 +236,6 @@ class EmulatorManager:
             logger.info("模拟器窗口已显示")
         else:
             logger.error("模拟器窗口显示失败")
-        return result
 
 
 if __name__ == "__main__":
