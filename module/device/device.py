@@ -46,13 +46,17 @@ class Device(EmulatorManager, Screenshot, Control):
 
         for trial in range(1, max_retries + 1):
             try:
-
-                if not self.is_emulator_running():
-                    self.start_emulator()
-                    time.sleep(10)
-                else:
+                if self.is_app_running():
                     success = True
                     break
+                else:
+                    if not self.is_emulator_running():
+                        self.start_emulator()
+                        time.sleep(10)
+                    else:
+                        self.app_start()
+                        time.sleep(5)
+
                 # # 在初始化前检查ADB连接
                 # if trial > 1:  # 重试时检查ADB连接
                 #     self.reconnect_adb()

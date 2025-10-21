@@ -357,6 +357,7 @@ class Script:
                         logger.warning("游戏关闭前, 等待10秒...")
                         time.sleep(10)
                         self.device.app_stop()
+                        DeviceManager.reset_device()
                 except Exception as e:
                     logger.error(f"关闭游戏出错: {str(e)}")
             else:
@@ -367,10 +368,6 @@ class Script:
             wait_info = f'{I18n.trans_zh_cn(task.command)}({task.next_run.strftime("%H:%M:%S")})'
             delta_str = str(task.next_run - now).split('.')[0]
             logger.info(f'🕒 等待任务 | {wait_info} | 剩余时长: {delta_str}')
-
-            # 清理状态
-            if is_emulator_running:
-                self.device.release_during_wait()
 
             # 等待下个任务循环5秒检查一次
             if not self.wait_until(task.next_run):
