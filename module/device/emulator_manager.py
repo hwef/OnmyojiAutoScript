@@ -95,6 +95,8 @@ class EmulatorManager:
     def start_emulator(self):
         """
         启动模拟器
+        MuMuPlayer.exe  可以隐藏窗口启动
+        MuMuManager.exe 不能隐藏窗口启动
         """
         if self.emulator_window == EmulatorWindow.default:
             show_window = True
@@ -203,39 +205,6 @@ class EmulatorManager:
         else:
             logger.error("模拟器窗口显示失败")
 
-    def min_window_by_name(self, window_name, convert_hidden=True):
-        """
-        按名称处理窗口状态
-        Args:
-            window_name (str): 窗口名称（支持部分匹配）
-            convert_hidden (bool): 是否将隐藏窗口改为最小化
-        """
-
-        def callback(hwnd, lParam):
-            title = self.get_window_title(hwnd)
-
-            if window_name.lower() == title.lower():
-                # 检查窗口当前状态
-                is_visible = ctypes.windll.user32.IsWindowVisible(hwnd)
-                if is_visible:
-                    # 可见窗口 → 最小化
-                    ctypes.windll.user32.ShowWindow(hwnd, 6)
-                elif convert_hidden:
-                    # 隐藏窗口 → 改为最小化不激活
-                    ctypes.windll.user32.ShowWindow(hwnd, 6)  # SW_SHOWMINNOACTIVE
-            return True
-
-        WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, wintypes.HWND, ctypes.POINTER(ctypes.c_int))
-        ctypes.windll.user32.EnumWindows(WNDENUMPROC(callback), None)
-
-    def get_window_title(self, hwnd):
-        """Returns the window title as a string."""
-        text_len_in_characters = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
-        string_buffer = ctypes.create_unicode_buffer(
-            text_len_in_characters + 1)  # +1 for the \0 at the end of the null-terminated string.
-        ctypes.windll.user32.GetWindowTextW(hwnd, string_buffer, text_len_in_characters + 1)
-        return string_buffer.value
-
     def execute(self, command, show_window=True):
 
         startupinfo = subprocess.STARTUPINFO()
@@ -273,6 +242,5 @@ if __name__ == "__main__":
         # manager.get_app_status()
         # manager.get_emulator_info(1)
         # manager.hide_window()
-        manager.min_window_by_name("du")
     else:
         print("模拟器未运行")

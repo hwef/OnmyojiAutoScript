@@ -19,6 +19,7 @@ from module.exception import (GameNotRunningError,
 from module.logger import logger
 from module.device.emulator_manager import EmulatorManager
 from tasks.Script.config_device import EmulatorWindow
+from module.device.platform2.platform_windows import minimize_by_name,show_window_by_name,show_hide_by_name
 
 
 class Device(EmulatorManager, Screenshot, Control):
@@ -48,13 +49,13 @@ class Device(EmulatorManager, Screenshot, Control):
             self.run_simple_screenshot_benchmark()
 
         if self.emulator_window == EmulatorWindow.front:
-            self.show_window()
+            show_window_by_name(self.handle)
             logger.info(f'前台显示窗口: {self.handle}')
         elif self.emulator_window == EmulatorWindow.min:
-            self.min_window_by_name(self.handle)
+            minimize_by_name(self.handle)
             logger.info(f'最小化窗口: {self.handle}')
         elif self.emulator_window == EmulatorWindow.background:
-            self.hide_window()
+            show_hide_by_name(self.handle)
             logger.info(f'隐藏窗口: {self.handle}')
         else:
             logger.info(f'默认窗口: {self.handle}')
