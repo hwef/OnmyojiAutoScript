@@ -95,11 +95,10 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('switch')
-    device = Device(config)
-    s = ScriptTask(config, device)
+    config = Config('wy')
+    s = ScriptTask(config)
     # s.run()
-    s.app_start()
+    s.harvest()
     # task.config.update_scheduler()
     # task.delay_pending_tasks()
     # task.app_restart()

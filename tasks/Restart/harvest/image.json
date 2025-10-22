@@ -56,11 +56,11 @@
   {
     "itemName": "harvest_mail_all",
     "imageName": "harvest_harvest_mail_all.png",
-    "roiFront": "80,622,75,64",
-    "roiBack": "80,622,75,64",
+    "roiFront": "78,597,48,39",
+    "roiBack": "16,543,166,147",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "全部收取"
+    "description": "一键领取"
   },
   {
     "itemName": "harvest_mail_open",
@@ -93,10 +93,10 @@
     "itemName": "harvest_mail_title",
     "imageName": "harvest_harvest_mail_title.png",
     "roiFront": "520,48,245,41",
-    "roiBack": "520,48,245,41",
+    "roiBack": "517,36,284,81",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "description"
+    "description": "邮箱页面标头"
   },
   {
     "itemName": "harvest_ap",
