@@ -7,5 +7,23 @@
     "method": "Default",
     "keyword": "",
     "description": "商店Special购买体力所需勾玉数量，roiBack为动态调整，故此设置为0，0，0，0"
+  },
+  {
+    "itemName": "store_free_sign",
+    "roiFront": "136,173,414,204",
+    "roiBack": "136,173,414,204",
+    "mode": "Full",
+    "method": "Default",
+    "keyword": "免费",
+    "description": "商店每日免费签到"
+  },
+  {
+    "itemName": "store_daily",
+    "roiFront": "1183,73,51,484",
+    "roiBack": "1183,73,51,484",
+    "mode": "Full",
+    "method": "Default",
+    "keyword": "日常",
+    "description": "商店签到页面（日常）"
   }
 ]

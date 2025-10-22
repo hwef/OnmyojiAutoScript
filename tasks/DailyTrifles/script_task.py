@@ -217,6 +217,23 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
         self.ui_goto(page_main)
 
     def run_store_sign(self):
+        # timer = Timer(5)
+        # while 1:
+        #     if timer.started() and timer.reached():
+        #         self.save_image(content="每日签到超时", push_flag=True, wait_time=0, image_type=True)
+        #         return
+        #     self.screenshot()
+        #     self.reject_invite()
+        #     if self.ui_reward_appear_click():
+        #         logger.info('Get reward of gift sign')
+        #         break
+        #     if self.ocr_appear_click(self.O_STORE_FREE_SIGN, interval=1):
+        #         continue
+        #     if self.appear_then_click(self.I_GIFT_RECOMMEND, interval=1):
+        #         timer.start()
+        #         continue
+        #     if self.appear_then_click(self.I_ROOM_GIFT, interval=1):
+        #         continue
 
         while 1:
             self.screenshot()
@@ -232,7 +249,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
                 return
             self.reject_invite()
             self.screenshot()
-            if self.appear(self.I_GIFT_SIGN):
+            if self.ocr_appear(self.O_STORE_FREE_SIGN):
                 break
             if self.appear_then_click(self.I_GIFT_RECOMMEND, interval=1):
                 continue
@@ -240,12 +257,12 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
         sleep(1)  # 等个动画
         self.reject_invite()
         self.screenshot()
-        if not self.appear(self.I_GIFT_SIGN):
+        if not self.ocr_appear(self.O_STORE_FREE_SIGN):
             logger.warning('There is no gift sign')
             self.save_image(content="未发现每日签到", push_flag=True, wait_time=0, image_type=True)
             return
 
-        if self.ui_get_reward(self.I_GIFT_SIGN, click_interval=2.5):
+        if self.ui_get_reward(self.O_STORE_FREE_SIGN, click_interval=2.5):
             logger.info('Get reward of gift sign')
 
     def run_buy_sushi(self):
@@ -405,10 +422,8 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
-    c = Config('switch')
-    d = Device(c)
-    t = ScriptTask(c, d)
+    c = Config('4399')
+    t = ScriptTask(c)
 
-    t.run_recruit_members()
+    t.run_store_sign()

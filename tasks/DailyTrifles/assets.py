@@ -68,7 +68,7 @@ class DailyTriflesAssets:
 	# 礼包屋 
 	I_ROOM_GIFT = RuleImage(roi_front=(1138,658,52,40), roi_back=(1119,621,103,94), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/store/store_room_gift.png")
 	# description 
-	I_GIFT_RECOMMEND = RuleImage(roi_front=(1183,454,53,64), roi_back=(1162,77,98,457), threshold=0.7, method="Template matching", file="./tasks/DailyTrifles/store/store_gift_recommend.png")
+	I_GIFT_RECOMMEND = RuleImage(roi_front=(1183,454,53,64), roi_back=(1161,74,105,484), threshold=0.7, method="Template matching", file="./tasks/DailyTrifles/store/store_gift_recommend.png")
 	# 免费一抽领黑蛋 
 	I_GIFT_SIGN = RuleImage(roi_front=(629,192,129,149), roi_back=(130,129,891,473), threshold=0.8, method="Template matching", file="./tasks/DailyTrifles/store/store_gift_sign.png")
 	# 体力 
@@ -80,6 +80,10 @@ class DailyTriflesAssets:
 	# Ocr Rule Assets
 	# 商店Special购买体力所需勾玉数量，roiBack为动态调整，故此设置为0，0，0，0 
 	O_STORE_SUSHI_PRICE = RuleOcr(roi=(0,0,0,0), area=(0,0,0,0), mode="Digit", method="Default", keyword="", name="store_sushi_price")
+	# 商店每日免费签到 
+	O_STORE_FREE_SIGN = RuleOcr(roi=(136,173,414,204), area=(136,173,414,204), mode="Full", method="Default", keyword="免费", name="store_free_sign")
+	# 商店签到页面（日常） 
+	O_STORE_DAILY = RuleOcr(roi=(1183,73,51,484), area=(1183,73,51,484), mode="Full", method="Default", keyword="日常", name="store_daily")
 
 
 	# Image Rule Assets
