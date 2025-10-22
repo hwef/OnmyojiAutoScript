@@ -81,6 +81,8 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
     welfare_names = None
     # 福利寮创建时间
     create_doukan_time = None
+    # 记录开启道馆时间,两次道馆要间隔15分钟
+    first_open_dokan_time = None
 
     def welfare_name_str(self):
         """
@@ -182,6 +184,21 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
 
             # 如果当前不在道馆，或者被人工操作退出道馆了，重新尝试进入道馆
             if not in_dokan:
+                try:
+                    # 计算道馆战斗时间
+                    if self.first_open_dokan_time is not None:
+                        MIN_DOKAN_TIME = timedelta(minutes=15)
+                        dakan_time = datetime.now() - self.first_open_dokan_time
+                        logger.info(f"道馆持续时间: {dakan_time}")
+                        if dakan_time < MIN_DOKAN_TIME:
+                            next_run_time = self.first_open_dokan_time + MIN_DOKAN_TIME
+                            logger.info(f"道馆战斗时间不足15分钟，设置下次运行时间: {next_run_time}")
+                            self.set_next_run(target=next_run_time)
+                            raise TaskEnd
+                except Exception as e:
+                    logger.error(f"道馆流程异常: {e}")
+                    self.save_image(image_type='png', push_flag=True, content=f"道馆流程异常: {e}")
+
                 # 重置换阵容和是否为福利寮
                 self.team_switched = False
                 self.open_welfare = False
@@ -791,6 +808,9 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
             dokan_config = self.config.dokan.dokan_config
             self.find_dokan(dokan_config, welfare_flag=False)
             logger.info("已找到普通道馆")
+
+        # 记录第一次开启道馆时间
+        self.first_open_dokan_time = datetime.now()
 
         # 道馆数量
         filtered_list = [item for item in self.find_dokan_list if "刷新列表" not in item]
