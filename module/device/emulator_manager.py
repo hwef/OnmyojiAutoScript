@@ -31,7 +31,7 @@ class EmulatorManager:
         # 获取模拟器实例ID
         self.vmindex = self.get_vmindex_by_name(self.handle)
         # 获取模拟器启动的app
-        self.package_name = config.script.device.package_name
+        self.package_name = self.get_package_name()
 
         # 获取模拟器启动启动后窗口操作
         self.emulator_window = config.script.device.emulator_window
@@ -66,8 +66,8 @@ class EmulatorManager:
         """
         获取正确的包名
         """
-        package = self.package_name
-        if package == "auto" or package == PackageName.AUTO:
+        package = self.config.script.device.package_name
+        if package == PackageName.AUTO:
             package = "com.netease.onmyoji.wyzymnqsd_cps"  # 默认包名
         elif isinstance(package, PackageName):
             package = package.value
@@ -94,8 +94,7 @@ class EmulatorManager:
 
     def start_emulator(self):
         """
-        启动模拟器并进入游戏
-        only_game (bool): 是否只启动游戏而不启动模拟器
+        启动模拟器
         """
         if self.emulator_window == EmulatorWindow.default:
             show_window = True
@@ -128,20 +127,18 @@ class EmulatorManager:
         启动app
         """
         mode = ["app", "launch"]
-        package = self.get_package_name()
-        cmd = [self.manager_path, "control", "-v", self.vmindex, *mode, "-pkg", package]
+        cmd = [self.manager_path, "control", "-v", self.vmindex, *mode, "-pkg", self.package_name]
         result = self._execute_cmd(cmd)
         if result:
-            logger.info(f"{package}启动成功")
+            logger.info(f"{self.package_name}启动成功")
         else:
-            logger.error(f"{package}启动失败 {result}")
+            logger.error(f"{self.package_name}启动失败 {result}")
 
     def app_stop(self):
         """
         关闭游戏
         """
-        package = self.get_package_name()
-        cmd = [self.manager_path, "control", "-v", self.vmindex, "app", "close", "-pkg", package]
+        cmd = [self.manager_path, "control", "-v", self.vmindex, "app", "close", "-pkg", self.package_name]
         result = self._execute_cmd(cmd)
         if result:
             logger.info("游戏关闭成功")
@@ -152,8 +149,7 @@ class EmulatorManager:
         """
         获取游戏状态
         """
-        package = self.get_package_name()
-        cmd = [self.manager_path, "control", "-v", self.vmindex, "app", "info", "-pkg", package]
+        cmd = [self.manager_path, "control", "-v", self.vmindex, "app", "info", "-pkg", self.package_name]
         result = self._execute_cmd(cmd)
         if result:
             game_state = result.get("state", None)
@@ -162,45 +158,13 @@ class EmulatorManager:
             logger.error(f"获取游戏状态失败 {result}")
             return None
 
-    def restart_emulator(self):
-        """
-        重启整个模拟器
-        """
-        logger.info("正在重启模拟器")
-
-        # 先关闭模拟器
-        self.stop_emulator()
-        sleep(5)
-
-        # 再启动模拟器
-        self.start_emulator()
-        logger.info("模拟器重启完成")
-
-    def restart_app(self):
-        """
-        重启游戏
-        """
-        logger.info("正在重启游戏")
-
-        if self.is_app_running():
-            self.app_stop()
-
-        sleep(1)
-        self.app_start()
-        sleep(12)
-
-        if self.is_app_running():
-            logger.info("游戏重启完成")
-        else:
-            logger.error(f"游戏启动失败")
-
     def is_app_running(self):
         """
         检查游戏是否已启动
         """
         state = self.get_app_status()
         is_running = state == "running"
-        logger.info(f"游戏运行状态: {is_running}")
+        # logger.info(f"游戏运行状态: {is_running}")
         return is_running
 
     def is_emulator_running(self):
@@ -210,10 +174,12 @@ class EmulatorManager:
         res = self.get_emulator_info(self.vmindex)
         if res is None:
             return False
-
-        is_process_started = res.get("is_process_started", False)
+        player_state = res.get("player_state", False)
+        is_start_finished = player_state == "start_finished"
+        return is_start_finished
+        # is_process_started = res.get("is_process_started", False)
         # logger.info(f"模拟器运行状态: {is_process_started}")
-        return bool(is_process_started)
+        # return bool(is_process_started)
 
     def hide_window(self):
         """
