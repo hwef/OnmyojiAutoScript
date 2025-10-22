@@ -348,7 +348,7 @@ class Script:
                 if is_emulator_running:
                     logger.warning("模拟器关闭前, 等待30秒...")
                     time.sleep(30)
-                    self.device.emulator_stop()
+                    self.emulator.stop_emulator()
                     is_emulator_running = False
                     DeviceManager.reset_device()
             elif should_close_game:
@@ -356,7 +356,7 @@ class Script:
                     if is_emulator_running and self.emulator.is_app_running():
                         logger.warning("游戏关闭前, 等待10秒...")
                         time.sleep(10)
-                        self.device.app_stop()
+                        self.emulator.app_stop()
                         DeviceManager.reset_device()
                 except Exception as e:
                     logger.error(f"关闭游戏出错: {str(e)}")
@@ -413,7 +413,7 @@ class Script:
                 logger.error(e)
                 logger.warning(f'{error_type}, Game will be restarted in 10 seconds')
                 self.save_error_log(task=command, error_type=error_type)
-                self.device.sleep(10)
+                time.sleep(10)
                 self.config.task_call('Restart')
                 return result
             elif isinstance(e, ScriptError):
