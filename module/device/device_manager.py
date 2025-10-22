@@ -56,7 +56,6 @@ class DeviceManager:
     def get_device_status(cls) -> bool:
         """
         获取设备状态
-        
         Returns:
             bool: 设备状态，False表示未启动，True表示已启动
         """

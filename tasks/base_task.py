@@ -10,6 +10,7 @@ from fuzzywuzzy import fuzz
 import cv2
 from datetime import datetime, timedelta
 from module.config.config_model import ConfigModel
+from module.device.emulator_manager import EmulatorManager
 from numpy import uint8, fromfile
 from pathlib import Path
 from typing import Union
@@ -53,7 +54,6 @@ class BaseTask(GlobalGameAssets, CostumeBase):
 
     def __init__(self, config: Config) -> None:
         """
-
         :rtype: object
         """
         self.config = config
@@ -70,6 +70,10 @@ class BaseTask(GlobalGameAssets, CostumeBase):
     def device(self) -> Device:
         # 使用全局设备管理器获取共享设备实例
         return DeviceManager.get_device(config=self.config)
+
+    @property
+    def emulator(self) -> "EmulatorManager":
+        return EmulatorManager(config=self.config)
 
     @property
     def device_status(self) -> bool:
@@ -896,7 +900,7 @@ class BaseTask(GlobalGameAssets, CostumeBase):
             title = f"{name}▪{I18n.trans_zh_cn(title)}"
 
         # 使用getattr同时检查属性和值，避免冗长的条件判断
-        if self.device.is_emulator_running() and getattr(self.device, 'image', None) is not None:
+        if self.emulator.is_emulator_running() and getattr(self.device, 'image', None) is not None:
             image = self.device.image
         else:
             image = ""
