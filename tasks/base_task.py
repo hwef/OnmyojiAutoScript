@@ -797,6 +797,19 @@ class BaseTask(GlobalGameAssets, CostumeBase):
 
     def save_image(self, task_name=None, content=None, wait_time=2, image_type=False, push_flag=False):
         try:
+            # 小号配置检查
+            con = self.config.switch_account_config.config
+            if con.enable:
+                if not con.enable_save_image:
+                    if content:
+                        logger.info(content)
+                    logger.warning(f"未启用账号截图保存")
+                    return
+                name = con.account_name
+                filename = get_filename(name)
+            else:
+                filename = get_filename(self.config.config_name.upper())
+
             # 获取任务名称
             if task_name is None:
                 task_name = "task_name"
@@ -813,19 +826,6 @@ class BaseTask(GlobalGameAssets, CostumeBase):
                 self.screenshot()
 
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
-
-            # 小号配置检查
-            con = self.config.switch_account_config.config
-            if con.enable:
-                if not con.enable_save_image:
-                    if content:
-                        logger.info(content)
-                    logger.warning(f"未启用账号截图保存")
-                    return
-                name = con.account_name
-                filename = get_filename(name)
-            else:
-                filename = get_filename(self.config.config_name.upper())
 
             # 设置保存图像的文件夹
             WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms', 'TrueOrochi']
