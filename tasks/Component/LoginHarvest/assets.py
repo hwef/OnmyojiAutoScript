@@ -16,7 +16,7 @@ class LoginHarvestAssets:
 	# 望月幽庭签到 
 	I_HARVEST_SIGN_10 = RuleImage(roi_front=(422,532,21,27), roi_back=(422,532,21,27), threshold=0.9, method="Template matching", file="./tasks/Component/LoginHarvest/main10/harvest_harvest_sign_10.png")
 	# 望月幽庭福袋 
-	I_HARVEST_SIGN_999_10 = RuleImage(roi_front=(419,538,25,26), roi_back=(419,538,25,26), threshold=0.9, method="Template matching", file="./tasks/Component/LoginHarvest/main10/harvest_harvest_sign_999_10.png")
+	I_HARVEST_SIGN_999_10 = RuleImage(roi_front=(407,521,46,40), roi_back=(190,479,404,135), threshold=0.9, method="Template matching mask", file="./tasks/Component/LoginHarvest/main10/harvest_harvest_sign_999_10.png")
 	# 望月幽庭食盒 
 	I_HARVEST_AP_10 = RuleImage(roi_front=(508,531,25,24), roi_back=(508,531,25,24), threshold=0.9, method="Template matching", file="./tasks/Component/LoginHarvest/main10/harvest_harvest_ap_10.png")
 	# 望月幽庭自选御魂 

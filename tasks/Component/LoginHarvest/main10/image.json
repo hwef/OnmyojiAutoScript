@@ -20,9 +20,9 @@
   {
     "itemName": "harvest_sign_999_10",
     "imageName": "harvest_harvest_sign_999_10.png",
-    "roiFront": "419,538,25,26",
-    "roiBack": "419,538,25,26",
-    "method": "Template matching",
+    "roiFront": "407,521,46,40",
+    "roiBack": "190,479,404,135",
+    "method": "Template matching mask",
     "threshold": 0.9,
     "description": "望月幽庭福袋"
   },
