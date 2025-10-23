@@ -195,8 +195,11 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
                             logger.info(f"道馆战斗时间不足15分钟，设置下次运行时间: {next_run_time}")
                             self.set_next_run(target=next_run_time)
                             raise TaskEnd
+                except TaskEnd:
+                    # 重新抛出TaskEnd异常，这是正常的流程控制
+                    raise TaskEnd
                 except Exception as e:
-                    logger.error(f"道馆流程异常: {e}")
+                    logger.error(f"道馆流程异常: {e}", exc_info=True)
                     self.save_image(image_type='png', push_flag=True, content=f"道馆流程异常: {e}")
 
                 # 重置换阵容和是否为福利寮
