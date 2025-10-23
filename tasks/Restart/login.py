@@ -34,16 +34,17 @@ class LoginHandler(LoginBase, RestartAssets, GeneralBuff):
         login_success = False
 
         while 1:
-            if self.appear(SwitchAccountAssets.I_QD_READ_AND_AGREED):
-                self.set_next_run()
-                raise TaskEnd
-            # Watch device rotation
             if not login_success and orientation_timer.reached():
                 # Screen may rotate after starting an app
                 self.device.get_orientation()
                 orientation_timer.reset()
 
             self.screenshot()
+            # 渠道服登陆页面
+            if self.appear(SwitchAccountAssets.I_QD_READ_AND_AGREED):
+                self.set_next_run()
+                raise TaskEnd
+
             # 是否继续刚才的战斗？-点击取消
             if self.appear_then_click(self.I_LOGIN_CANCEL_BATTLE):
                 logger.info('是否继续刚才的战斗？-点击取消')
