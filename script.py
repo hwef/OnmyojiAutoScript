@@ -347,7 +347,8 @@ class Script:
             elif should_close_emu:
                 if is_emulator_running:
                     logger.warning("模拟器关闭前, 等待30秒...")
-                    time.sleep(30)
+                    if not self.check_wait_until(datetime.now() + timedelta(seconds=30)):
+                        continue
                     self.emulator.stop_emulator()
                     is_emulator_running = False
                     DeviceManager.reset_device()
@@ -355,7 +356,8 @@ class Script:
                 try:
                     if is_emulator_running and self.emulator.is_app_running():
                         logger.warning("游戏关闭前, 等待10秒...")
-                        time.sleep(10)
+                        if not self.check_wait_until(datetime.now() + timedelta(seconds=10)):
+                            continue
                         self.emulator.app_stop()
                         DeviceManager.reset_device()
                 except Exception as e:
@@ -370,12 +372,18 @@ class Script:
             logger.info(f'🕒 等待任务 | {wait_info} | 剩余时长: {delta_str}')
 
             # 等待下个任务循环5秒检查一次
-            if not self.wait_until(task.next_run):
-                logger.warning("检测到配置变更，重新加载任务配置")
-                del_cached_property(self, 'config')
+            if not self.check_wait_until(task.next_run):
                 continue
 
         return task.command
+
+    def check_wait_until(self, future_time):
+        if self.wait_until(future_time):
+            return True
+        else:
+            logger.warning("检测到配置变更，重新加载任务配置")
+            del_cached_property(self, 'config')
+            return False
 
     def run(self, command: str) -> bool:
         """
