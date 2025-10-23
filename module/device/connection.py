@@ -606,11 +606,13 @@ class Connection(ConnectionAttr):
         # if self.config.Emulator_AdbRestart and len(self.list_device()) == 0:
         if self.config.script.device.adb_restart and len(self.list_device()) == 0:
             # Restart Adb
+            logger.warning('重启整个ADB服务')
             self.adb_restart()
             # Connect to device
             self.adb_connect(self.serial)
             self.detect_device()
         else:
+            logger.warning('重连当前设备ADB')
             self.adb_disconnect(self.serial)
             self.adb_connect(self.serial)
             self.detect_device()

@@ -125,6 +125,7 @@ class Device(EmulatorManager, Screenshot, Control):
             self._scrcpy_server_stop()
         if self.config.Emulator_ScreenshotMethod == 'nemu_ipc':
             self.nemu_ipc_release()
+        self.adb_disconnect(self.serial)
 
     def stuck_record_add(self, button):
         """
