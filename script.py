@@ -353,17 +353,12 @@ class Script:
                     is_emulator_running = False
                     DeviceManager.reset_device()
             elif should_close_game:
-                try:
-                    if is_emulator_running and self.emulator.is_app_running():
-                        logger.warning("游戏关闭前, 等待10秒...")
-                        if not self.check_wait_until(datetime.now() + timedelta(seconds=10)):
-                            continue
-                        self.emulator.app_stop()
-                        DeviceManager.reset_device()
-                except Exception as e:
-                    logger.error(f"关闭游戏出错: {str(e)}")
-            else:
-                logger.warning("不关闭游戏, 等待下一个任务")
+                if is_emulator_running and self.emulator.is_app_running():
+                    logger.warning("游戏关闭前, 等待10秒...")
+                    if not self.check_wait_until(datetime.now() + timedelta(seconds=10)):
+                        continue
+                    self.emulator.app_stop()
+                    DeviceManager.reset_device()
 
             # 执行等待操作
             logger.hr(f"模拟器状态 {is_emulator_running}", level=1)
@@ -387,14 +382,9 @@ class Script:
 
     def run(self, command: str) -> bool:
         """
-
         :param command:  大写驼峰命名的任务名字
         :return:
         """
-
-        if command == 'start' or command == 'goto_main':
-            logger.error(f'Invalid command `{command}`')
-
         try:
             module_name = 'script_task'
             module_path = str(Path.cwd() / 'tasks' / command / (module_name + '.py'))
@@ -508,7 +498,7 @@ class Script:
                             # scheduler.enable = False
                             # self.config.save()
 
-                            self.config.notifier.push(title=f"❌ {task_chinese_name}", content=f"任务连续失败{failed}次, 按照任务成功处理")
+                            self.config.notifier.push(title=f"❌❌❌ {task_chinese_name}", content=f"任务连续失败{failed}次, 按照任务成功处理")
                             # 任务连续失败, 按照执行成功处理
                             self.config.task_delay(task, success=True, server=True)
 
@@ -519,7 +509,7 @@ class Script:
                 except Exception as e:
                     error_type = type(e).__name__  # 获取异常类型名称
                     logger.error(f'[异常] 循环运行崩溃: {error_type} | {str(e)}', exc_info=True)
-                    self.config.notifier.push(title="❌ 循环崩溃", content=str(e))
+                    self.config.notifier.push(title="❌❌❌ 循环崩溃", content=str(e))
                     stop_requested = True
                 finally:
                     if stop_requested:
@@ -529,7 +519,6 @@ class Script:
             exit(1)
     
     def start_loop(self):
-
         """
         循环启动控制器
         """
@@ -557,7 +546,7 @@ class Script:
 
         # 达到最大启动次数后的处理
         logger.error('[终止] 达到最大启动次数，系统退出')
-        self.config.notifier.push(title='❌ 系统退出',content=f"[终止] 达到最大启动次数，系统退出")
+        self.config.notifier.push(title='❌❌❌ 系统退出',content=f"[终止] 达到最大启动次数，系统退出")
         time.sleep(5)
         exit(1)
 
