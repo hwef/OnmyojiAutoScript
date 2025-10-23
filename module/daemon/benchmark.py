@@ -173,7 +173,7 @@ class Benchmark(DaemonBase):
         device = self.config.Benchmark_DeviceType
         # device == 'emulator'
         screenshot = ['ADB', 'ADB_nc', 'uiautomator2', 'DroidCast_raw', 'DroidCast', 'window_background']
-        click = ['ADB', 'uiautomator2', 'minitouch', 'window_message']
+        click = ['ADB', 'uiautomator2', 'minitouch', 'window_message', 'nemu_ipc']
 
         def remove(*args):
             return [l for l in screenshot if l not in args]
@@ -239,9 +239,12 @@ class Benchmark(DaemonBase):
 
 
 if __name__ == '__main__':
-    config = Config('oas1')
+    config = Config('4399')
     device = Device(config)
-    b = Benchmark(config=config, device=device)
-    print(b.run_simple_screenshot_benchmark())
+    b = Benchmark(config=config)
+    screenshot, click = b.get_test_methods()
+    b.benchmark(click=click)
+    # b.benchmark(
+    # print(b.run_simple_screenshot_benchmark())
     # screenshot, click = b.get_test_methods()
     # b.benchmark(set(), click)

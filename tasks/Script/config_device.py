@@ -35,6 +35,7 @@ class ControlMethod(str, Enum):
     UIAUTOMATOR2 = 'uiautomator2'
     MINITOUCH = 'minitouch'
     WINDOW_MESSAGE = 'window_message'
+    NEMU_IPC = "nemu_ipc"
 
 
 class EmulatorWindow(str, Enum):

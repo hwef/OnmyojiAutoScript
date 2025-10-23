@@ -4,6 +4,7 @@ from module.base.timer import Timer
 from module.base.utils import *
 # from module.device.method.hermit import Hermit
 # from module.device.method.maatouch import MaaTouch
+from module.device.method.nemu_ipc import NemuIpc
 from module.device.method.minitouch import Minitouch
 from module.device.method.adb import Adb
 from module.device.method.scrcpy import Scrcpy
@@ -11,7 +12,7 @@ from module.device.method.window import Window
 from module.logger import logger
 
 
-class Control(Minitouch, Adb, Scrcpy, Window):
+class Control(Minitouch, Adb, Scrcpy, Window, NemuIpc):
     def handle_control_check(self, button):
         # Will be overridden in Device
         pass
@@ -22,7 +23,8 @@ class Control(Minitouch, Adb, Scrcpy, Window):
             'ADB': self.click_adb,
             'uiautomator2': self.click_uiautomator2,
             'minitouch': self.click_minitouch,
-            'window_message': self.click_window_message
+            'window_message': self.click_window_message,
+            'nemu_ipc': self.click_nemu_ipc,
             # 'Hermit': self.click_hermit,
             # 'MaaTouch': self.click_maatouch,
         }
@@ -34,7 +36,8 @@ class Control(Minitouch, Adb, Scrcpy, Window):
             'uiautomator2': self.long_click_uiautomator2,
             'minitouch': self.long_click_minitouch,
             'window_message': self.long_click_window_message,
-            'scrcpy': self.long_click_scrcpy
+            'scrcpy': self.long_click_scrcpy,
+            'nemu_ipc': self.long_click_nemu_ipc,
             # 'Hermit': self.click_hermit,
             # 'MaaTouch': self.click_maatouch,
         }
@@ -79,7 +82,6 @@ class Control(Minitouch, Adb, Scrcpy, Window):
             self.click_adb
         )
         method(x, y)
-
 
     def multi_click(self, button, n, interval=(0.1, 0.2)):
         """
@@ -164,6 +166,8 @@ class Control(Minitouch, Adb, Scrcpy, Window):
             logger.info('Swipe %s -> %s' % (point2str(*p1), point2str(*p2)))
         # elif method == 'MaaTouch':
         #     logger.info('Swipe %s -> %s' % (point2str(*p1), point2str(*p2)))
+        elif method == 'nemu_ipc':
+            logger.info('Swipe %s -> %s, %s ' % (point2str(*p1), point2str(*p2), duration))
         else:
             # ADB needs to be slow, or swipe doesn't work
             duration *= 2.5
@@ -191,6 +195,8 @@ class Control(Minitouch, Adb, Scrcpy, Window):
             self.swipe_uiautomator2(p1, p2, duration=duration)
         elif method == 'scrcpy':
             self.swipe_scrcpy(p1, p2)
+        elif method == 'nemu_ipc':
+            self.swipe_nemu_ipc(p1, p2, duration=duration, wait_up_time=wait_up_time)
         # elif method == 'MaaTouch':
         #     self.swipe_maatouch(p1, p2)
         else:
@@ -240,6 +246,8 @@ class Control(Minitouch, Adb, Scrcpy, Window):
                 swipe_duration=swipe_duration, shake_duration=shake_duration)
         elif method == 'scrcpy':
             self.drag_scrcpy(p1, p2, point_random=point_random)
+        elif method == 'nemu_ipc':
+            self.drag_nemu_ipc(p1, p2, point_random=point_random)
         # elif method == 'MaaTouch':
         #     self.drag_maatouch(p1, p2, point_random=point_random)
         else:

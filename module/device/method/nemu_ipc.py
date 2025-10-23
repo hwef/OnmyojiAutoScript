@@ -10,6 +10,7 @@ import numpy as np
 
 from module.base.decorator import cached_property, del_cached_property, has_cached_property
 from module.base.utils import ensure_time
+from module.device.connection import Connection
 from module.device.method.minitouch import insert_swipe, random_rectangle_point
 from module.device.method.utils import RETRY_TRIES, retry_sleep
 from module.exception import RequestHumanTakeover
@@ -403,8 +404,6 @@ class NemuIpcImpl:
         if self.height == 0:
             self.get_resolution()
 
-        x, y = self.convert_xy(x, y)
-
         ret = self.ev_run_sync(
             self.lib.nemu_input_event_touch_down,
             self.connect_id, self.display_id, x, y
@@ -449,7 +448,7 @@ def serial_to_id(serial: str):
         return None
 
 
-class NemuIpc():
+class NemuIpc(Connection):
     @cached_property
     def nemu_ipc(self) -> NemuIpcImpl:
         """
@@ -458,7 +457,7 @@ class NemuIpc():
         # Try existing settings first
         if self.config.script.device.emulatorinfo_path:
             folder = str(Path(self.config.script.device.emulatorinfo_path).parent.parent)
-            index = serial_to_id(self.serial)
+            index = serial_to_id(self.config.script.device.serial)
             if index is not None:
                 try:
                     return NemuIpcImpl(
@@ -524,13 +523,34 @@ class NemuIpc():
         self.nemu_ipc.up()
         self.sleep(0.050)
 
-    def swipe_nemu_ipc(self, p1, p2):
+    def swipe_nemu_ipc(self, p1, p2, duration, wait_up_time=0):
+        """
+        Args:
+            p1: 起始点坐标 (x, y)
+            p2: 结束点坐标 (x, y)
+            duration: 滑动持续时间（秒），默认为 0.2 秒
+            wait_up_time: 滑动结束后的等待时间（秒），默认为 0 秒
+        """
         points = insert_swipe(p0=p1, p3=p2)
 
-        for point in points:
-            self.nemu_ipc.down(*point)
-            self.sleep(0.010)
+        # 计算每个点之间的等待时间，使总时间等于duration
+        total_duration_ms = int(duration * 1000)
+        if len(points) > 1:
+            wait_time_per_point = max(1, total_duration_ms // (len(points) - 1))
+        else:
+            wait_time_per_point = 10
 
+        # 按住起始点
+        self.nemu_ipc.down(*points[0])
+
+        # 滑动到目标点
+        for point in points[1:]:
+            self.nemu_ipc.down(*point)
+            self.sleep(wait_time_per_point / 1000.0)
+
+        # 等待后再释放
+        if wait_up_time > 0:
+            self.sleep(wait_up_time)
         self.nemu_ipc.up()
         self.sleep(0.050)
 
