@@ -3,13 +3,10 @@
 用于管理模拟器的模块，不依赖ADB连接
 通过模拟器管理器直接控制模拟器的启动、关闭等操作
 """
-from time import sleep
 
-import ctypes
 import json
 import os
 import subprocess
-from ctypes import wintypes
 from module.logger import logger
 from tasks.Script.config_device import EmulatorWindow
 from tasks.Script.config_device import PackageName
