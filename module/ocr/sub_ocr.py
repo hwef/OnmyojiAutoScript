@@ -2,18 +2,13 @@
 # @author runhey
 # github https://github.com/runhey
 
-import cv2
-import re
 import cn2an
 import numpy as np
+import re
 from datetime import timedelta
-
-from module.ocr.ppocr import TextSystem
-from module.exception import ScriptError
-from module.base.utils import area_pad, crop, float2str
-from module.ocr.base_ocr import BaseCor, OcrMode, OcrMethod
-from module.ocr.utils import merge_area
 from module.logger import logger
+from module.ocr.base_ocr import BaseCor
+from module.ocr.utils import merge_area
 
 
 class Full(BaseCor):

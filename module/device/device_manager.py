@@ -60,9 +60,11 @@ class DeviceManager:
             # 清理资源
             try:
                 cls._shared_device.release_during_wait()
-                logger.debug('[设备] 设备资源释放完成')
+                logger.info('[设备] 设备资源释放完成')
             except Exception as e:
                 logger.warning(f'[设备] 释放设备资源时出错: {e}')
             cls._shared_device = None
             cls._device_status = False
-            logger.debug('[设备] 重置共享设备实例')
+            logger.info('[设备] 重置共享设备实例')
+        else:
+            logger.info('[设备] 共享设备实例不存在，无需重置')
