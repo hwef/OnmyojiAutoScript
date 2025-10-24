@@ -59,6 +59,9 @@ class DeviceManager:
         if cls._shared_device is not None:
             # 清理资源
             try:
+                from module.ocr.rpc import ModelProxy
+                ModelProxy.close()
+
                 cls._shared_device.release_during_wait()
                 logger.info('[设备] 设备资源释放完成')
             except Exception as e:

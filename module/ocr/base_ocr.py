@@ -104,7 +104,7 @@ class BaseCor:
         self.area: list = list(area)
         self.keyword = keyword if keyword else ""
 
-    @cached_property
+    @property
     def model(self):
         """
         获取当前语言的OCR模型

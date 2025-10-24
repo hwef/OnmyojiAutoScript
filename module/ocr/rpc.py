@@ -16,25 +16,25 @@ class ModelProxy:
     def init(cls, address=State.deploy_config.OcrClientAddress):
         import zerorpc
 
-        logger.warning(f"Connecting to OCR server {address}")
+        logger.info(f"Connecting to OCR server {address}")
         cls.client = zerorpc.Client(timeout=30)
         cls.client.connect(f"tcp://{address}")
         try:
             cls.client.hello()
-            logger.warning("Successfully connected to OCR server")
+            logger.info("Connected to OCR server True")
+            cls.online = True  # 确保设置为True
         except:
             cls.online = False
-            logger.warning("Ocr server not running")
+            logger.warning("Ocr server not running False")
 
     @classmethod
     def close(cls):
         if cls.client is not None:
-            logger.warning('Disconnect to OCR server')
             cls.client.close()
-            logger.warning('Successfully disconnected to OCR server')
+            logger.info('Disconnect to OCR server True')
             cls.client = None
         else:
-            logger.warning('Ocr server not connected')
+            logger.warning('Ocr server not connected False')
 
     def __init__(self, lang) -> None:
         self.lang = lang
@@ -97,10 +97,21 @@ class ModelProxy:
 
 
 class ModelProxyFactory:
-    def __getattribute__(self, __name='ch'):
-        if ModelProxy.client is None:
-            ModelProxy.init(address=State.deploy_config.OcrClientAddress)
-        return ModelProxy
+    def __getattribute__(self, __name: str) -> ModelProxy:
+        if __name in ["ch"]:
+            # 处理属性访问 OCR_MODEL.ch
+            if ModelProxy.client is None:
+                ModelProxy.init(address=State.deploy_config.OcrClientAddress)
+            return ModelProxy(lang=__name)
+        elif __name == "_get_model":
+            # 处理方法调用 OCR_MODEL._get_model('ch')
+            def _get_model_func(lang):
+                if ModelProxy.client is None:
+                    ModelProxy.init(address=State.deploy_config.OcrClientAddress)
+                return ModelProxy(lang=lang)
+            return _get_model_func
+        else:
+            return super().__getattribute__(__name)
 
     def close(self):
         ModelProxy.close()
