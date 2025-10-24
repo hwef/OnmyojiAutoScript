@@ -60,6 +60,7 @@ class Device(EmulatorManager, Screenshot, Control):
         else:
             logger.info(f'默认窗口: {self.handle}')
 
+        self.start_ocr_server()
         logger.hr('模拟器状态 True', level=1)
 
     def run_simple_screenshot_benchmark(self):

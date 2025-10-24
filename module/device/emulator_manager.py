@@ -10,6 +10,9 @@ import subprocess
 from module.logger import logger
 from tasks.Script.config_device import EmulatorWindow
 from tasks.Script.config_device import PackageName
+from module.server.setting import State
+from deploy.process import ProcessManager
+import socket
 
 
 class EmulatorManager:
@@ -118,8 +121,30 @@ class EmulatorManager:
             result = self._execute_cmd(cmd)
             if result:
                 logger.info("模拟器关闭成功")
+                self.stop_ocr_server()
             else:
                 logger.error(f"模拟器关闭失败 {result}")
+
+    def stop_ocr_server(self):
+        """
+        所有模拟器关闭的情况下,关闭OCR服务
+        """
+        if State.deploy_config.UseOcrServer:
+            cmd = [self.manager_path, "info", "-v", "all"]
+            all_emulators_info = self._execute_cmd(cmd)
+
+            for index, emulator_data in all_emulators_info.items():
+                # 跳过非模拟器信息的条目
+                if isinstance(emulator_data, dict):
+                    is_process_started = emulator_data.get("is_process_started", False)
+                    name = emulator_data.get("name", f"模拟器{index}")
+                    # logger.info(f"模拟器 {name} 状态: {is_process_started}")
+                    if is_process_started:
+                        return
+            logger.info("所有模拟器已关闭, 关闭OCR服务")
+            port = State.deploy_config.OcrServerPort
+            process_manager = ProcessManager()
+            process_manager.kill_by_port(port=port)
 
     def app_start(self):
         """
@@ -217,13 +242,59 @@ class EmulatorManager:
         # logger.info(f'Execute: {command}')
         return subprocess.Popen(
             command,
-            close_fds=True,
+            # close_fds=True, 会造成在python进程中出现木木模拟器
             startupinfo=startupinfo,
             creationflags=creationflags,
             # 重定向标准输出和标准错误以防止弹窗
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL
         )
+
+    def start_ocr_server(self):
+
+        if State.deploy_config.UseOcrServer:
+            port = State.deploy_config.OcrServerPort
+        else:
+            logger.info("OCR 服务未启用")
+            return
+
+        def is_ocr_server_running(port=22268):
+            """检测OCR服务器是否已在运行"""
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                result = sock.connect_ex(('localhost', port))
+                return result == 0
+
+        if is_ocr_server_running(port):
+            logger.info("OCR 服务已运行")
+            return
+
+        # 构建 OCR 服务启动命令
+        # ocr_script_path = os.path.join(os.path.dirname(__file__), '..', '..', 'deploy', 'OcrServer.py')
+        # ocr_script_path = os.path.abspath(ocr_script_path)
+        # pythonw_path = os.path.join(os.path.dirname(__file__), '..', '..', 'toolkit', 'pythonw.exe')
+        # pythonw_path = os.path.abspath(pythonw_path)
+        # cmd = [pythonw_path, ocr_script_path, '--port', str(State.deploy_config.OcrServerPort)]
+
+        # 构建bat文件路径
+        bat_file_path = os.path.join(os.path.dirname(__file__), '..', '..', 'start_OCR.bat')
+        bat_file_path = os.path.abspath(bat_file_path)
+        cmd = [bat_file_path]
+        logger.info(f"启动OCR服务: {cmd}")
+        self.execute(cmd)
+        # 隐藏CMD窗口执行命令
+        # startupinfo = None
+        # if os.name == 'nt':  # Windows系统
+        #     startupinfo = subprocess.STARTUPINFO()
+        #     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        #
+        # result = subprocess.run(
+        #     cmd,
+        #     capture_output=True,
+        #     text=True,
+        #     timeout=10,
+        #     startupinfo=startupinfo,
+        #     encoding='utf-8'  # 明确指定编码
+        # )
 
 
 if __name__ == "__main__":
@@ -232,12 +303,13 @@ if __name__ == "__main__":
     config = Config('4399-2')
     # 创建模拟器管理器实例
     manager = EmulatorManager(config)
+    manager.start_ocr_server()
 
     # # 检查模拟器状态
-    if manager.is_emulator_running():
-        print("模拟器正在运行")
-        # manager.get_app_status()
-        # manager.get_emulator_info(1)
-        # manager.hide_window()
-    else:
-        print("模拟器未运行")
+    # if manager.is_emulator_running():
+    #     print("模拟器正在运行")
+    #     manager.stop_ocr_server()
+    #     # manager.get_emulator_info(1)
+    #     # manager.hide_window()
+    # else:
+    #     print("模拟器未运行")
