@@ -189,12 +189,14 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
                     if self.first_open_dokan_time is not None:
                         MIN_DOKAN_TIME = timedelta(minutes=15)
                         dakan_time = datetime.now() - self.first_open_dokan_time
-                        logger.info(f"道馆持续时间: {dakan_time}")
+                        logger.warning(f"道馆持续时间: {dakan_time}")
                         if dakan_time < MIN_DOKAN_TIME:
                             next_run_time = self.first_open_dokan_time + MIN_DOKAN_TIME
-                            logger.info(f"道馆战斗时间不足15分钟，设置下次运行时间: {next_run_time}")
+                            logger.warning(f"道馆战斗时间不足15分钟，设置下次运行时间: {next_run_time}")
                             self.set_next_run(target=next_run_time)
                             raise TaskEnd
+                        else:
+                            logger.warning(f"道馆持续时间超过15分钟,直接进行下一次道馆")
                 except TaskEnd:
                     # 重新抛出TaskEnd异常，这是正常的流程控制
                     raise TaskEnd
