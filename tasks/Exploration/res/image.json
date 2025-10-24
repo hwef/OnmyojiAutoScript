@@ -201,7 +201,7 @@
     "itemName": "map_box_click",
     "imageName": "res_treasure_box_click.png",
     "roiFront": "680,203,100,100",
-    "roiBack": "680,203,100,100",
+    "roiBack": "192,46,822,551",
     "method": "Template matching",
     "threshold": 0.6,
     "description": "地图宝箱"
