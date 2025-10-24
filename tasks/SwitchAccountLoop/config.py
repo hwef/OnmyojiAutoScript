@@ -9,6 +9,7 @@ class LoopConfig(BaseModel):
     task_start_time: Time = Field(default=Time(0, 0, 0), description='任务开始时间')
     task_end_time: Time = Field(default=Time(23, 59, 59), description='任务结束时间')
     task_interval: Time = Field(default=Time(1, 0, 0), description='间隔时间')
+    task_loop_interval: Time = Field(default=Time(0, 5, 0), description='每个账号循环任务间隔时间')
 
 
 class SwitchAccountLoop(ConfigBase):
