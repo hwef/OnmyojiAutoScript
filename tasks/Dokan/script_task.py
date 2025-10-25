@@ -83,6 +83,8 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
     create_doukan_time = None
     # 记录开启道馆时间,两次道馆要间隔15分钟
     first_open_dokan_time = None
+    # 道馆可战斗次数
+    dokan_battle_number = 0
 
     def welfare_name_str(self):
         """
@@ -186,7 +188,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
             if not in_dokan:
                 try:
                     # 计算道馆战斗时间
-                    if self.first_open_dokan_time is not None:
+                    if self.first_open_dokan_time is not None and self.dokan_battle_number == 2:
                         MIN_DOKAN_TIME = timedelta(minutes=15)
                         dakan_time = datetime.now() - self.first_open_dokan_time
                         logger.warning(f"道馆持续时间: {dakan_time}")
@@ -207,6 +209,8 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
                 # 重置换阵容和是否为福利寮
                 self.team_switched = False
                 self.open_welfare = False
+
+                # 重新尝试进入道馆
                 self.goto_dokan()
                 continue
 
@@ -515,6 +519,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
                 break
 
         if '挑战成功' in dokan_status_str or '0次' in dokan_status_str:
+            self.dokan_battle_number = 0
             self.goto_main()
             # self.check_current_weekday(True)
             if self.create_doukan_time:
@@ -526,11 +531,14 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
             # 寮成员进入道馆
             self.dokan_quit = True
             self.goto_dokan_click()
+            self.dokan_battle_number = 0
         else:
             if '2次' in dokan_status_str:
                 self.dokan_quit = True
+                self.dokan_battle_number = 2
             else:
                 self.dokan_quit = False
+                self.dokan_battle_number = 1
             # 管理开道馆
             if self.config.dokan.dokan_config.dokan_enable:
                 self.open_dokan()
@@ -622,24 +630,17 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
             @rtype:
             """
             restore_roi()
-            find_bounty_count = 0
-            while find_bounty_count < 3:
-                self.screenshot()
-                # bounty_list = self.find_all_element(self.I_RIGHTPAD_POINT_BOUNTY, (0, 0, 0, 50))
-                # logger.info(f'find elements list:{bounty_list}')
-                # 获取所有匹配结果并直接转换为所需格式
-                raw_matches = self.I_RIGHTPAD_POINT_BOUNTY.match_all_any(image=self.device.image, roi=[1095,33,82,569])
-                # 直接从匹配结果中提取坐标信息并按y坐标排序
-                bounty_list = sorted(
-                    [[x, y, w, h] for (sc, x, y, w, h) in raw_matches],
-                    key=lambda item: item[1]  # 按y坐标排序
-                )
-                logger.info(f'find elements list:{bounty_list}')
-                if len(bounty_list) < 4:
-                    self.save_image(task_name='搜索到的道馆少于4个', image_type=True, wait_time=0, push_flag=True, content='搜索到的道馆少于4个')
-                    find_bounty_count += 1
-                else:
-                    break
+            self.screenshot()
+            # 获取所有匹配结果并直接转换为所需格式
+            raw_matches = self.I_RIGHTPAD_POINT_BOUNTY.match_all_any(image=self.device.image, roi=[1095,33,82,569])
+            # 直接从匹配结果中提取坐标信息并按y坐标排序
+            bounty_list = sorted(
+                [[x, y, w, h] for (sc, x, y, w, h) in raw_matches],
+                key=lambda item: item[1]  # 按y坐标排序
+            )
+            logger.info(f'find elements list:{bounty_list}')
+            if len(bounty_list) < 4:
+                self.save_image(task_name='搜索到的道馆少于4个', image_type=True, wait_time=0, push_flag=True, content='搜索到的道馆少于4个')
             # 默认最小分数
             min_score = 10
             idx_selected = -1
