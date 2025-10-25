@@ -612,7 +612,7 @@ class Connection(ConnectionAttr):
             self.adb_connect(self.serial)
             self.detect_device()
         else:
-            logger.warning('重连当前设备ADB')
+            # logger.warning('重连当前设备ADB')
             self.adb_disconnect(self.serial)
             self.adb_connect(self.serial)
             self.detect_device()

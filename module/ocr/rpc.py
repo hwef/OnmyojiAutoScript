@@ -31,7 +31,7 @@ class ModelProxy:
     def close(cls):
         if cls.client is not None:
             cls.client.close()
-            logger.info('Disconnect to OCR server True')
+            logger.info('Disconnect to OCR server')
             cls.client = None
         else:
             logger.warning('Ocr server not connected False')

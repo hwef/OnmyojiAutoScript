@@ -121,7 +121,7 @@ def handle_adb_error(e):
         # When you call `adb disconnect <serial>`
         # Or when adb server was killed (low possibility)
         # AdbError(device '127.0.0.1:59865' not found)
-        logger.error(e)
+        logger.warning(e)
         return True
     elif 'timeout' in text:
         # AdbTimeout(adb read timeout)
