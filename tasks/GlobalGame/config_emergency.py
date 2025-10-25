@@ -24,7 +24,7 @@ class WhenNetworkError(str, Enum):
 
 class Emergency(BaseModel):
     # accept_now: bool = Field(default=True, description='accept_now')
-    friend_invitation: FriendInvitation = Field(default=FriendInvitation.ACCEPT,description='friend_invitation_help')
+    friend_invitation: FriendInvitation = Field(default=FriendInvitation.IGNORE,description='friend_invitation_help')
     # invitation_detect_interval: int = Field(default=5, description='invitation_detect_interval_help')
     # when_network_abnormal: WhenNetworkAbnormal = Field(default=WhenNetworkAbnormal.WAIT_10S, description='when_network_abnormal_help')
     # when_network_error: WhenNetworkError = Field(default=WhenNetworkError.RESTART, description='when_network_error_help')
