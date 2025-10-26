@@ -10,10 +10,8 @@ import signal
 from asyncio.tasks import Task
 from module.config.config import Config
 from module.logger import logger
-from module.ocr.rpc import stop_ocr_server_process
 from module.server.config_manager import ConfigManager
 from module.server.script_process import ScriptProcess, ScriptState
-from module.server.setting import State
 from threading import Thread
 
 
@@ -77,8 +75,6 @@ class MainManager(ConfigManager):
                 logger.info('Kill all server')
                 for script_p in self.script_process.values():
                     await script_p.stop()
-                if State.deploy_config and State.deploy_config.UseOcrServer:
-                    stop_ocr_server_process()
                 logger.info('Kill push data thread')
                 sys.exit(0)
             # logger.info(asyncio.all_tasks())
