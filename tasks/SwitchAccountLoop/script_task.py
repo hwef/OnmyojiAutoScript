@@ -44,6 +44,7 @@ class ScriptTask(GameUi):
         # 所有角色任务均已完成
         self.BaseChannelTask.set_wait_task_time()
         self.set_next_run(task=self.config.task.command, target=self.get_next_execution_times())
+        self.push_notify("✅ 本轮循环任务结束")
         self.BaseChannelTask.update_all_account_data(accounts_file, all_accounts_data,  task_type, "未执行")
         raise TaskEnd
 
