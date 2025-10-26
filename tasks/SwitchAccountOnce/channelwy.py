@@ -71,9 +71,8 @@ class ScriptTask(BaseChannelTask):
         logger.info(f"[角色] {self.account_info}, 开始调起任务")
 
         # 开启蹭卡
-        def update_config():
-            self.config.kekkai_utilize.utilize_config.utilize_enable = True
-        self.config.safe_save(update_config)
+        if not self.config.kekkai_utilize.utilize_config.utilize_enable:
+            self._update_utilize_config(True)
 
         target_time = datetime(2000, 1, 1)
         match task_type:
@@ -94,9 +93,8 @@ class ScriptTask(BaseChannelTask):
                 self._set_batch_tasks(self.assist50_run_task, target_time)
 
                 # 只做协站关闭蹭卡
-                def update_config_1():
-                    self.config.kekkai_utilize.utilize_config.utilize_enable = False
-                self.config.safe_save(update_config_1)
+                if self.config.kekkai_utilize.utilize_config.utilize_enable:
+                    self._update_utilize_config(False)
 
         # 设置总是运行的任务
         self._set_batch_tasks(self.always_run_task, target_time)
@@ -104,3 +102,8 @@ class ScriptTask(BaseChannelTask):
         # 更新数据和通知
         self.update_account_data(con.once_config.accounts_file, current_account_data, index, task_type)
         # self.push_notify(content=f"{self.account_info} [{self.task_type_name}]创建")
+
+    def _update_utilize_config(self, enable: bool):
+        def update_config():
+            self.config.kekkai_utilize.utilize_config.utilize_enable = enable
+        self.config.safe_save(update_config)
