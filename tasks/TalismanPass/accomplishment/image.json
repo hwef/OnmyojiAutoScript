@@ -1,0 +1,29 @@
+[
+  {
+    "itemName": "accomplishments_1",
+    "imageName": "accomplishments_1.png",
+    "roiFront": "1085,644,45,54",
+    "roiBack": "1085,644,45,54",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "accomplishments_1"
+  },
+  {
+    "itemName": "accomplishments_2",
+    "imageName": "accomplishments_2.png",
+    "roiFront": "102,21,72,42",
+    "roiBack": "102,21,72,42",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "accomplishments_2"
+  },
+  {
+    "itemName": "accomplishments_3",
+    "imageName": "accomplishments_3.png",
+    "roiFront": "1077,423,36,42",
+    "roiBack": "1077,423,36,42",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "accomplishments_3"
+  }
+]

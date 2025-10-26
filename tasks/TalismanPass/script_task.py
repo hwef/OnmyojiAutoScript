@@ -2,17 +2,17 @@
 # @author runhey
 # github https://github.com/runhey
 import time
-
+from module.logger import logger
+from module.base.timer import Timer
+from module.exception import TaskEnd
 from tasks.GameUi.game_ui import GameUi
-from tasks.GameUi.page import page_main, page_daily
+from tasks.GameUi.page import page_main
 from tasks.TalismanPass.assets import TalismanPassAssets
 from tasks.TalismanPass.config import TalismanConfig, LevelReward
 
-from module.logger import logger
-from module.exception import TaskEnd
-from module.base.timer import Timer
-
 """ 花合战 """
+
+
 class ScriptTask(GameUi, TalismanPassAssets):
 
     def run(self):
@@ -26,6 +26,9 @@ class ScriptTask(GameUi, TalismanPassAssets):
             self.get_all()
         # 收取花合战等级奖励
         self.get_flower(con.level_reward)
+
+        if con.get_accomplishments:
+            self.get_accomplishment()
 
         self.ui_get_current_page()
         self.ui_goto(page_main)
@@ -43,6 +46,29 @@ class ScriptTask(GameUi, TalismanPassAssets):
         self.ui_get_reward(self.I_TP_GET_ALL)
         logger.info('Get all reward')
         time.sleep(0.5)
+
+    def get_accomplishment(self):
+        """
+        获取任务完成奖励
+        :return:
+        """
+        self.ui_click(self.I_ACCOMPLISHMENTS_1, self.I_ACCOMPLISHMENTS_2)
+        timer = Timer(10)
+        timer.start()
+        while 1:
+            self.screenshot()
+            if timer.reached():
+                logger.info('Get accomplishment reward time out')
+                break
+            if self.appear(self.I_ACCOMPLISHMENTS_3, interval=1):
+                logger.info('Get accomplishment reward over')
+                break
+            if self.ui_reward_appear_click():
+                timer.reset()
+                continue
+            if self.click(self.C_ACCOMPLISHMENTS_3_CLICK, interval=1):
+                timer.reset()
+                continue
 
     def get_flower(self, level: LevelReward = LevelReward.TWO):
         """
@@ -67,8 +93,7 @@ class ScriptTask(GameUi, TalismanPassAssets):
             self.screenshot()
             if self.appear_then_click(match_level[level], interval=0.8):
                 logger.info(f'Select {level} reward')
-                if self.appear_then_click(self.I_OVERFLOW_CONFIRME):
-                    pass
+                self.appear_then_click(self.I_OVERFLOW_CONFIRME)
                 check_timer.reset()
                 continue
 
@@ -125,17 +150,9 @@ class ScriptTask(GameUi, TalismanPassAssets):
         return
 
 
-import os
-
 import cv2
-import numpy as np
-
-from numpy import float32, int32, uint8, fromfile
+from numpy import uint8, fromfile
 from pathlib import Path
-
-from module.logger import logger
-from module.atom.image import RuleImage
-from module.atom.ocr import RuleOcr
 
 def load_image(file: str):
     file = Path(file)
@@ -152,11 +169,11 @@ def load_image(file: str):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
-    c = Config('switch')
-    d = Device(c)
-    t = ScriptTask(c, d)
-    # t.screenshot()
-    d.image = load_image(r"D:\共享文件夹\Screenshots\花合战\1 (1).png")
-    t.main_goto_daily()
-    t.run()
 
+    c = Config('4399')
+    d = Device(c)
+    t = ScriptTask(c)
+    # t.screenshot()
+    # d.image = load_image(r"D:\共享文件夹\Screenshots\花合战\1 (1).png")
+    # t.main_goto_daily()
+    t.get_accomplishment()

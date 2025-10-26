@@ -19,6 +19,8 @@ class LevelReward(str, Enum):
 
 class TalismanConfig(BaseModel):
     level_reward: LevelReward = Field(default=LevelReward.TWO)
+    # 领取成就奖励
+    get_accomplishments: bool = Field(default=False, description='是否领取成就奖励')
 
 class TalismanPass(ConfigBase):
     scheduler: Scheduler = Field(default_factory=Scheduler)

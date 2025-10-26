@@ -11,6 +11,20 @@ class TalismanPassAssets:
 
 
 	# Click Rule Assets
+	# 成就奖励领取点击区域 
+	C_ACCOMPLISHMENTS_3_CLICK = RuleClick(roi_front=(1077,423,36,42), roi_back=(1077,423,36,42), name="accomplishments_3_click")
+
+
+	# Image Rule Assets
+	# accomplishments_1 
+	I_ACCOMPLISHMENTS_1 = RuleImage(roi_front=(1085,644,45,54), roi_back=(1085,644,45,54), threshold=0.8, method="Template matching", file="./tasks/TalismanPass/accomplishment/accomplishments_1.png")
+	# accomplishments_2 
+	I_ACCOMPLISHMENTS_2 = RuleImage(roi_front=(102,21,72,42), roi_back=(102,21,72,42), threshold=0.8, method="Template matching", file="./tasks/TalismanPass/accomplishment/accomplishments_2.png")
+	# accomplishments_3 
+	I_ACCOMPLISHMENTS_3 = RuleImage(roi_front=(1077,423,36,42), roi_back=(1077,423,36,42), threshold=0.8, method="Template matching", file="./tasks/TalismanPass/accomplishment/accomplishments_3.png")
+
+
+	# Click Rule Assets
 	# 花合战需要点击的空白区域 
 	C_CLICK_AREA = RuleClick(roi_front=(1197,565,43,44), roi_back=(1197,565,43,44), name="click_area")
 
