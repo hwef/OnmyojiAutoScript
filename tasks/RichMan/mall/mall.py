@@ -41,4 +41,4 @@ class Mall(Medal, Charisma, Honor, Consignment, Scales, Bondlings):
         self.execute_charisma()
 
         # 退出
-        self.back_mall()
+        # self.back_mall()
