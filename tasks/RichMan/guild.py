@@ -42,7 +42,9 @@ class Guild(Buy, GameUi, RichManAssets):
         if con.guild_fl:
             # 经验手札
             self._guild_exp()
-        self.save_image()
+        if con.guild_yuhun:
+            # 御魂
+            self._guild_yuhun()
 
         # while 1:
         #     self.screenshot()
@@ -65,9 +67,6 @@ class Guild(Buy, GameUi, RichManAssets):
         if con.skin_ticket:
             # 皮肤券
             self._guild_skin_ticket(con.skin_ticket)
-        if con.guild_yuhun:
-            # 御魂
-            self._guild_yuhun()
         self.save_image()
 
         # 回去
@@ -241,9 +240,9 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('DU')
-    d = Device(c)
-    t = Guild(c, d)
+    c = Config('du')
+    # d = Device(c)
+    t = Guild(c)
 
     # t._guild_skin_ticket(5)
     t.execute_guild(con=c.rich_man.guild_store)
