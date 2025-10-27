@@ -69,7 +69,8 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
                 self.back_cm_main()
                 self.goto_cm_main()
                 self.select_gr(target_1)
-                self._donate_all(0, target_1, 3, remain)
+                if not self._donate_all(0, target_1, 3, remain):
+                    self.save_image(wait_time=0, push_flag=True, content=f'⚠️{target_1.value} 材料不足')
 
         self.ui_get_current_page()
         self.ui_goto(page_main)
@@ -199,7 +200,6 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
             logger.info(f'{target.value} 需要数量: {num * incomplete_num}')
             self.screenshot()
             if total_number < num * incomplete_num:
-                self.save_image(wait_time=0, push_flag=True, content=f'⚠️{target.value} 材料不足，总量剩余{total_number}')
                 return False
             else:
                 logger.info(f'{target.value} 总量剩余{total_number}')
