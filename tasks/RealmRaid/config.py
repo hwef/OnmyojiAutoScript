@@ -28,7 +28,7 @@ class RaidConfig(BaseModel):
     # attack_number: AttackNumber = Field(title='Attack Number', default=AttackNumber.ALL,
     #                                     description='')
 
-    number_attack: int = Field(title='Number Attack', default=30, le=30, ge=1, description='number_attack_help')
+    number_attack: int = Field(title='Number Attack', default=30, description='number_attack_help')
     number_base: int = Field(title='Number Base', default=0, description='number_base_help')
     exit_four: bool = Field(title='Exit Four', default=True, description='exit_four_help')
     order_attack: str = Field(title='Order Attack', default='5 > 4 > 3 > 2 > 1 > 0', description='order_attack_help')

@@ -99,6 +99,9 @@ class ScriptTask(GeneralBattle, SwitchSoul, RealmRaidAssets):
     # ------------------------------------------------------------------------------------------------------------------
     def run_2(self):
         con = self.config.realm_raid
+        max_success_count = con.raid_config.number_attack
+        success_count = 0
+        faile_count = 0
         if con.switch_soul_config.enable:
             self.run_switch_soul(con.switch_soul_config.switch_group_team)
         if con.switch_soul_config.enable_switch_by_name:
@@ -135,8 +138,8 @@ class ScriptTask(GeneralBattle, SwitchSoul, RealmRaidAssets):
             if not self.check_ticket(con.raid_config.number_base):
                 break
             # 挑战次数
-            if self.current_count >= con.raid_config.number_attack:
-                logger.info(f'Current count {self.current_count}, max count {con.raid_config.number_attack}')
+            if success_count >= max_success_count:
+                logger.info(f'Success count: {success_count}, Max Success count: {max_success_count}')
                 break
             # ----------------------------------------开始进攻
             medal, index = self.find_one(False)
@@ -177,6 +180,12 @@ class ScriptTask(GeneralBattle, SwitchSoul, RealmRaidAssets):
                 con.general_battle_config.lock_team_enable = False
             self.fire(index)
             last_battle = self.run_general_battle(con.general_battle_config)
+            if last_battle:
+                success_count += 1
+            else:
+                faile_count += 1
+            logger.info(f'Success count: {success_count}, fail count: {faile_count}, Total count: {self.current_count}')
+
             if lock_before:
                 con.general_battle_config.lock_team_enable = lock_before
             # 检查是否每三次领一个奖励
