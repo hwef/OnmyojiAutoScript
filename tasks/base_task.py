@@ -133,7 +133,7 @@ class BaseTask(BaseTaskParent):
             # 设置保存图像的文件夹
             WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms',
                           'TrueOrochi']
-            path = f"{self.config.config_name.upper()}/{I18n.trans_zh_cn(task_name)}"
+            path = f"{I18n.trans_zh_cn(task_name)}/{self.config.config_name.upper()}"
             if task_name in WeeklyTask:
                 folder_name = f'{week_path}/{path}'
             else:

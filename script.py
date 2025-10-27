@@ -105,7 +105,7 @@ class Script:
                 name = con.account_name
                 config_name = f"{config_name}_{name}"
 
-            folder = f'{error_path}/{config_name}/{task}/{error_type}'
+            folder = f'{error_path}/{error_type}/{task}/{config_name}'
             filename = get_filename(config_name)
             error_path_base = f'{folder}/{filename}'
             error_log_path = f'{error_path_base}.log'
