@@ -132,7 +132,7 @@ class Notifier:
             logger.exception("Push notify failed")
             return False
         except SMTPResponseException:
-            logger.warning("Appear SMTPResponseException")
+            # logger.warning("Appear SMTPResponseException")
             pass
         except Exception as e:
             logger.exception(e)
