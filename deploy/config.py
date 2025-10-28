@@ -1,5 +1,7 @@
 # This Python file uses the following encoding: utf-8
 # copy from alas https://github.com/LmeSzinc/AzurLaneAutoScript
+import subprocess
+
 import copy
 from typing import Optional, Union
 
@@ -129,21 +131,31 @@ class DeployConfig(ConfigModel):
         )
 
     def execute(self, command, allow_failure=False, output=True):
-        """
-        Args:
-            command (str):
-            allow_failure (bool):
-            output(bool):
-
-        Returns:
-            bool: If success.
-                Terminate installation if failed to execute and not allow_failure.
-        """
         command = command.replace(r"\\", "/").replace("\\", "/").replace('"', '"')
         if not output:
-            command = command + ' >nul 2>nul'
-        logger.info(command)
-        error_code = os.system(command)
+            # 隐藏窗口执行
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = subprocess.SW_HIDE
+
+            try:
+                result = subprocess.run(
+                    command,
+                    shell=True,
+                    startupinfo=startupinfo,
+                    stdout=subprocess.DEVNULL if not output else None,
+                    stderr=subprocess.DEVNULL if not output else None
+                )
+                error_code = result.returncode
+            except Exception as e:
+                logger.error(f"subprocess.run 异常：{e}")
+                logger.warning("使用 os.system 执行")
+                command = command + ' >nul 2>nul'
+                logger.info(command)
+                error_code = os.system(command)
+        else:
+            error_code = os.system(command)
+
         if error_code:
             if allow_failure:
                 logger.info(f"[ allowed failure ], error_code: {error_code}")
