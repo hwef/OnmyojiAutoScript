@@ -3,13 +3,13 @@
 # 脚本进程
 # github https://github.com/runhey
 import multiprocessing
-import os
-from asyncio import QueueEmpty, CancelledError, sleep
+import queue
+from asyncio import CancelledError, sleep
 from enum import Enum
-
 from module.logger import logger
-
 from module.server.script_websocket import ScriptWSManager
+from test.test_asyncgen import asyncio
+
 
 class ScriptState(int, Enum):
     INACTIVE = 0
@@ -17,32 +17,19 @@ class ScriptState(int, Enum):
     WARNING = 2
     UPDATING = 3
 
+
 class ScriptProcess(ScriptWSManager):
 
     def __init__(self, config_name: str) -> None:
         super().__init__()
         self.config_name = config_name  # config_name
-        self.log_pipe_out, self.log_pipe_in = multiprocessing.Pipe(False)
+        self.log_queue = multiprocessing.Queue()
         self.state_queue = multiprocessing.Queue()
         self.state: ScriptState = ScriptState.INACTIVE
         self._process = None
 
     async def start(self):
         self.state = ScriptState.RUNNING
-
-        try:
-            # 关闭旧的管道连接
-            if hasattr(self, 'log_pipe_out') and self.log_pipe_out:
-                self.log_pipe_out.close()
-            if hasattr(self, 'log_pipe_in') and self.log_pipe_in:
-                self.log_pipe_in.close()
-
-            # 创建新的管道
-            self.log_pipe_out, self.log_pipe_in = multiprocessing.Pipe(False)
-
-            logger.info("[启动前] 已重建管道，彻底清空残留数据")
-        except Exception as e:
-            logger.warning(f"[启动前] 重建管道出错: {e}")
 
         # logger.info(f'[启动] 启动脚本 {self.config_name}')
         await self.broadcast_state({"state": self.state})
@@ -52,7 +39,7 @@ class ScriptProcess(ScriptWSManager):
             logger.warning(f'Script {self.config_name} is already running and first stop it')
             self.stop()
         self._process = multiprocessing.Process(target=func,
-                                                args=(self.config_name, self.state_queue, self.log_pipe_in,),
+                                                args=(self.config_name, self.state_queue, self.log_queue),
                                                 name=self.config_name,
                                                 daemon=True)
         self._process.start()
@@ -74,82 +61,73 @@ class ScriptProcess(ScriptWSManager):
 
     async def coroutine_broadcast_state(self):
         try:
-            while 1:
+            while True:
                 if self.state == ScriptState.INACTIVE:
                     await sleep(1)
                     continue
-                await sleep(0.1)
                 try:
-                    if self.state_queue.empty():
-                        await sleep(1)
-                        continue
-                    data = self.state_queue.get_nowait()
-                    if not data:
-                        await sleep(0.5)
-                        continue
-                    if 'state' in data and data['state'] == ScriptState.WARNING:
-                        self.state = ScriptState.WARNING
-                    await self.broadcast_state(data)
-                except QueueEmpty as e:
-                    logger.warning(f'QueueEmpty: {e}')
-                    await sleep(0.5)
+                    # 使用短超时的阻塞获取，避免频繁轮询
+                    data = await asyncio.get_event_loop().run_in_executor(
+                        None, self.state_queue.get, True, 1
+                    )
+                    if data:
+                        if 'state' in data and data['state'] == ScriptState.WARNING:
+                            self.state = ScriptState.WARNING
+                        await self.broadcast_state(data)
+
+                except queue.Empty:
+                    # 超时继续循环，保持响应性
                     continue
                 except Exception as e:
                     logger.error(f'Error: {e}')
-                    continue
-        except CancelledError as e:
+
+        except CancelledError:
             logger.warning(f'{self.config_name} state coroutine is cancelled')
             return
 
     async def coroutine_broadcast_log(self):
         try:
-            while 1:
+            while True:
                 if self.state == ScriptState.INACTIVE:
-                    await sleep(0.05)
+                    await sleep(0.5)
                     continue
-                await sleep(0.01)
                 try:
-                    if not self.log_pipe_out.poll():
-                        await sleep(0.03)
-                        continue
-                    log = self.log_pipe_out.recv()
-                    if not log:
-                        await sleep(0.05)
-                        continue
-                    await self.broadcast_log(log)
-                except EOFError as e:
-                    await sleep(0.05)
-                    logger.warning(f'EOFError: {e}')
+                    # 使用短超时的阻塞获取，避免频繁轮询
+                    log = await asyncio.get_event_loop().run_in_executor(
+                        None, self.log_queue.get, True, 0.5
+                    )
+                    if log:
+                        await self.broadcast_log(log)
+
+                except queue.Empty:
+                    # 超时继续循环，保持响应性
                     continue
                 except Exception as e:
                     logger.error(f'Log Error: {e}')
-                    continue
-        except CancelledError as e:
+
+        except CancelledError:
             logger.warning(f'{self.config_name} log coroutine is cancelled')
             return
 
 
-def func(config: str, state_queue: multiprocessing.Queue, log_pipe_in) -> None:
+def func(config: str, state_queue: multiprocessing.Queue, log_queue) -> None:
     # 添加最开始的调试信息
     logger.info(f"[DEBUG] 子进程启动，配置: {config}")
-    logger.info(f"[DEBUG] state_queue: {state_queue}")
-    logger.info(f"[DEBUG] PID: {os.getpid()}")
+
     def start_log() -> None:
         try:
             from module.logger import set_file_logger, set_func_logger
             set_file_logger(name=config)
-            set_func_logger(log_pipe_in.send)
+            # 使用Queue的put方法替代Pipe的send
+            set_func_logger(log_queue.put)
         except Exception as e:
             logger.exception(f'Start log error')
             logger.error(f'Error: {e}')
             raise
+
     start_log()
     import time
     try:
-        # while 1:
-        #     time.sleep(1)
-        #     logger.info(f'Script {config} is running')
-        #     state_queue.put({"state": ScriptState.RUNNING})
         from script import Script
         script = Script(config_name=config)
         script.state_queue = state_queue
@@ -171,7 +149,6 @@ if __name__ == '__main__':
     p = ScriptProcess('oas1')
     p.start()
     from time import sleep
+
     sleep(10)
     logger.info(p._process.exitcode)
-
-
