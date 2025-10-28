@@ -1,7 +1,8 @@
 # This Python file uses the following encoding: utf-8
 # Copy from https://github.com/LmeSzinc/AzurLaneAutoScript/gui.py
-import threading
 
+import threading
+from deploy.killOAS import KillOAS
 from module.logger import logger
 from module.server.setting import State
 
@@ -50,11 +51,11 @@ def fun(ev: threading.Event):
     host = args.host or State.deploy_config.WebuiHost or "0.0.0.0"
     port = args.port or int(State.deploy_config.WebuiPort) or 22270
 
+
     logger.hr("Launcher config")
     logger.attr("Host", host)
     logger.attr("Port", port)
     logger.attr("Reload", ev is not None)
-
 
     uvicorn.run("module.server.app:fastapi_app",
                 host=host,
@@ -62,6 +63,7 @@ def fun(ev: threading.Event):
                 factory=True)
 
 
-
 if __name__ == "__main__":
+    killOAS = KillOAS()
+    killOAS.install()
     fun(None)
