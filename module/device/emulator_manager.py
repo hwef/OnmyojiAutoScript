@@ -258,22 +258,15 @@ class EmulatorManager:
             logger.info("OCR 服务未启用")
             return
 
-        def is_ocr_server_running(port=22268):
+        def is_ocr_server_running(ocr_port):
             """检测OCR服务器是否已在运行"""
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                result = sock.connect_ex(('localhost', port))
+                result = sock.connect_ex(('localhost', ocr_port))
                 return result == 0
 
         if is_ocr_server_running(port):
             logger.info("OCR 服务已运行")
             return
-
-        # 构建 OCR 服务启动命令
-        # ocr_script_path = os.path.join(os.path.dirname(__file__), '..', '..', 'deploy', 'OcrServer.py')
-        # ocr_script_path = os.path.abspath(ocr_script_path)
-        # pythonw_path = os.path.join(os.path.dirname(__file__), '..', '..', 'toolkit', 'pythonw.exe')
-        # pythonw_path = os.path.abspath(pythonw_path)
-        # cmd = [pythonw_path, ocr_script_path, '--port', str(State.deploy_config.OcrServerPort)]
 
         # 构建bat文件路径
         bat_file_path = os.path.join(os.path.dirname(__file__), '..', '..', 'start_OCR.bat')
@@ -281,20 +274,6 @@ class EmulatorManager:
         cmd = [bat_file_path]
         logger.info(f"启动OCR服务: {cmd}")
         self.execute(cmd)
-        # 隐藏CMD窗口执行命令
-        # startupinfo = None
-        # if os.name == 'nt':  # Windows系统
-        #     startupinfo = subprocess.STARTUPINFO()
-        #     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        #
-        # result = subprocess.run(
-        #     cmd,
-        #     capture_output=True,
-        #     text=True,
-        #     timeout=10,
-        #     startupinfo=startupinfo,
-        #     encoding='utf-8'  # 明确指定编码
-        # )
 
 
 if __name__ == "__main__":

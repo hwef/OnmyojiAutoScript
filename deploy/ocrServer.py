@@ -1,4 +1,5 @@
 from deploy.patch import pre_checks
+
 #
 pre_checks()
 
@@ -6,6 +7,8 @@ import pickle
 from deploy.logger import logger
 from module.server.setting import State
 import socket
+
+
 class OcrServer():
 
     def start_ocr_server(self):
