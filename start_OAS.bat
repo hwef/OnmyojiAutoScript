@@ -16,14 +16,17 @@ if "%1" == "h" goto begin
 mshta vbscript:createobject("wscript.shell").run("%~nx0 h",0)(window.close)&&exit
 :begin
 
-python -m deploy.installer
-timeout /t 5
+@REM python -m deploy.installer
+@REM timeout /t 5
 
 start /B python server.py
 timeout /t 5
 
 start  python -m dev_tools.start_script DU
 start  python -m dev_tools.start_script MI
+start  python -m dev_tools.start_script WY
+start  python -m dev_tools.start_script 4399
+
 @REM start  python -m dev_tools.start_script "阴阳师副本"
 
 exit /B
