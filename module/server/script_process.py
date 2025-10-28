@@ -23,7 +23,7 @@ class ScriptProcess(ScriptWSManager):
     def __init__(self, config_name: str) -> None:
         super().__init__()
         self.config_name = config_name  # config_name
-        self.log_queue = multiprocessing.Queue()
+        self.log_pipe_out, self.log_pipe_in = multiprocessing.Pipe(False)
         self.state_queue = multiprocessing.Queue()
         self.state: ScriptState = ScriptState.INACTIVE
         self._process = None
@@ -39,7 +39,7 @@ class ScriptProcess(ScriptWSManager):
             logger.warning(f'Script {self.config_name} is already running and first stop it')
             self.stop()
         self._process = multiprocessing.Process(target=func,
-                                                args=(self.config_name, self.state_queue, self.log_queue),
+                                                args=(self.config_name, self.state_queue, self.log_pipe_in,),
                                                 name=self.config_name,
                                                 daemon=True)
         self._process.start()
@@ -94,7 +94,7 @@ class ScriptProcess(ScriptWSManager):
                 try:
                     # 使用短超时的阻塞获取，避免频繁轮询
                     log = await asyncio.get_event_loop().run_in_executor(
-                        None, self.log_queue.get, True, 0.5
+                        None, self.log_pipe_out.recv
                     )
                     if log:
                         await self.broadcast_log(log)
@@ -110,7 +110,7 @@ class ScriptProcess(ScriptWSManager):
             return
 
 
-def func(config: str, state_queue: multiprocessing.Queue, log_queue) -> None:
+def func(config: str, state_queue: multiprocessing.Queue, log_pipe_in) -> None:
     # 添加最开始的调试信息
     logger.info(f"[DEBUG] 子进程启动，配置: {config}")
 
@@ -118,8 +118,7 @@ def func(config: str, state_queue: multiprocessing.Queue, log_queue) -> None:
         try:
             from module.logger import set_file_logger, set_func_logger
             set_file_logger(name=config)
-            # 使用Queue的put方法替代Pipe的send
-            set_func_logger(log_queue.put)
+            set_func_logger(log_pipe_in.send)
         except Exception as e:
             logger.exception(f'Start log error')
             logger.error(f'Error: {e}')
