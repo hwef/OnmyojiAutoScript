@@ -217,26 +217,8 @@ async def script_task_log(script_name: str):
     return response
 
 # -------------------------------------- websocket --------------------------------------
-# 全局连接时间记录
-last_connections = defaultdict(float)
 @script_app.websocket("/ws/{script_name}")
 async def websocket_endpoint(websocket: WebSocket, script_name: str):
-
-    client_host = websocket.client.host if websocket.client else "unknown"
-    client_key = f"{client_host}:{script_name}"
-
-    # 检查连接频率 - 每秒最多一次连接
-    current_time = time.time()
-    last_connect_time = last_connections[client_key]
-
-    if current_time - last_connect_time < 1.0:
-        logger.warning(f'[{script_name}] 连接频率过高，拒绝连接请求 from {client_host}')
-
-        await websocket.close(code=1008, reason="Connection rate limit exceeded (1 per second)")
-        return
-
-    # 更新最后连接时间
-    last_connections[client_key] = current_time
 
     if script_name not in mm.script_process:
         mm.script_process[script_name] = ScriptProcess(script_name)
