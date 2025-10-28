@@ -119,7 +119,7 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
             self.screenshot()
             if self.appear(self.I_GREED_GHOST):
                 sleep(0.7)
-                self.save_image(wait_time=5, push_flag=True, content='真蛇战斗结束')
+                self.save_image(wait_time=5, push_flag=False, content='真蛇战斗结束')
                 self.screenshot()
                 if not self.appear(self.I_GREED_GHOST):
                     continue
