@@ -37,7 +37,7 @@ class Page:
 page_login = Page(G.I_CHECK_LOGIN_FORM)
 # Main Home 主页
 page_main = Page(G.I_CHECK_MAIN)
-page_login.link(button=G.I_CHECK_LOGIN_ENTER_THE_GAME, destination=page_main)
+page_login.link(button=RestartAssets.O_LOGIN_ENTER_GAME, destination=page_main)
 page_main.additional = [G.I_AD_CLOSE_RED, G.I_BACK_FRIENDS, RestartAssets.I_LOGIN_SCROOLL_CLOSE]
 # 召唤summon
 page_summon = Page(G.I_CHECK_SUMMON)
