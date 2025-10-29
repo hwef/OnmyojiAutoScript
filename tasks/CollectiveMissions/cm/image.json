@@ -29,11 +29,11 @@
   {
     "itemName": "cm_records",
     "imageName": "cm_cm_records.png",
-    "roiFront": "1034,627,54,63",
-    "roiBack": "1034,627,54,63",
+    "roiFront": "550,39,134,53",
+    "roiBack": "550,39,134,53",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "判断是否到达"
+    "description": "集体任务界面"
   },
   {
     "itemName": "cm_matter",

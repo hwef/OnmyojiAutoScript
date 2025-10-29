@@ -66,8 +66,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
         self.select_gr(target)
         if not self._donate_all(0, target, 1, remain):
             if target_1:
-                self.back_cm_main()
-                self.goto_cm_main()
+                self.ui_click(self.I_UI_BACK_RED, self.I_CM_RECORDS)
                 self.select_gr(target_1)
                 if not self._donate_all(0, target_1, 3, remain):
                     self.save_image(wait_time=0, push_flag=True, content=f'⚠️{target_1.value} 材料不足')
@@ -104,17 +103,6 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
             self.next_run_task()
         else:
             return remain
-
-    def back_cm_main(self):
-        # 退出
-        while 1:
-            self.screenshot()
-            if self.appear(self.I_CM_SHRINE) or self.appear(self.I_CHECK_MAIN):
-                break
-            if self.appear_then_click(self.I_UI_BACK_RED, interval=1):
-                continue
-            if self.appear_then_click(self.I_UI_BACK_YELLOW, interval=1):
-                continue
 
     def goto_cm_main(self):
         self.ui_get_current_page()
