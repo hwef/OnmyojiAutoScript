@@ -59,11 +59,10 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             # 在寮的主界面 检查是否有收取体力或者是收取寮资金
             if self.check_guild_ap_or_assets():
                 logger.warning(f'第[{i}]次检查寮收获,成功')
-                self.ui_goto(page_main)
-                break
+                return
             else:
                 logger.warning(f'第[{i}]次检查寮收获寮收获,失败')
-            self.ui_goto(page_main)
+                self.ui_goto(page_main)
 
     def check_utilize_add(self):
         con = self.config.kekkai_utilize.utilize_config
