@@ -91,7 +91,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, RyouToppaAssets):
         if ryou_config.switch_soul_config.enable_switch_by_name:
             self.run_switch_soul_by_name(ryou_config.switch_soul_config.group_name, ryou_config.switch_soul_config.team_name)
 
-        self.ui_get_current_page()
         self.ui_goto_page(page_kekkai_toppa)
         ryou_toppa_start_flag = True
         ryou_toppa_success_penetration = False

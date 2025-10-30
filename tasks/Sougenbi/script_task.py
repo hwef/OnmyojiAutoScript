@@ -29,7 +29,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, SougenbiAssets):
             self.run_switch_soul_by_name(con.switch_soul_config.group_name, con.switch_soul_config.team_name)
 
         if s_con.buff_enable:
-            self.ui_get_current_page()
             self.ui_goto_page(page_main)
             self.open_buff()
             if s_con.buff_gold_50_click:
@@ -42,7 +41,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, SougenbiAssets):
                 self.exp_100(True)
             self.close_buff()
 
-        self.ui_get_current_page()
         self.ui_goto_page(page_soul_zones)
         while 1:
             self.screenshot()
@@ -120,7 +118,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, SougenbiAssets):
         logger.info('Back to exploration')
 
         if s_con.buff_enable:
-            self.ui_get_current_page()
             self.ui_goto_page(page_main)
             self.open_buff()
             if s_con.buff_gold_50_click:

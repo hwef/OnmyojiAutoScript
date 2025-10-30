@@ -23,7 +23,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, GoryouRealmAssets):
         if con.switch_soul_config.enable:
             self.run_switch_soul(con.switch_soul_config.switch_group_team)
 
-        self.ui_get_current_page()
         self.ui_goto_page(page_goryou_realm)
 
         match_click = {

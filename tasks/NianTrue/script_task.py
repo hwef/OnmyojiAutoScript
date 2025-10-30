@@ -28,7 +28,6 @@ class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, NianTrueAsse
 
         while 1:
 
-            self.ui_get_current_page()
             self.ui_goto_page(page_team)
 
             count = 0

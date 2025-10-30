@@ -45,7 +45,6 @@ class ScriptTask(BaseActivity, HeroTestAssets, SwitchSoul):
             )
         self.limit_count = config.herotest.limit_count
 
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
 
         # 启动经验加成
@@ -312,7 +311,6 @@ class ScriptTask(BaseActivity, HeroTestAssets, SwitchSoul):
                 continue
             if self.appear_then_click(self.I_GBB_BACK, interval=2):
                 continue
-            self.ui_get_current_page()
             self.ui_goto_page(page_main)
             if is_update:
                 # 关闭经验加成

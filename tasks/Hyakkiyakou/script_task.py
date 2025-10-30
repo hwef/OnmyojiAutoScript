@@ -124,7 +124,6 @@ class ScriptTask(GameUi, HyaSlave):
         limit_time = self._config.hyakkiyakou_config.hya_limit_time
         self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute,
                                                seconds=limit_time.second)
-        self.ui_get_current_page()
         self.ui_goto_page(page_hyakkiyakou)
 
 

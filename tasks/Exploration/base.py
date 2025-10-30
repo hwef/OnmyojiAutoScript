@@ -73,7 +73,6 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         elif self.appear(self.I_BUFF_1):
             scene = Scene.UNKNOWN
             log_message = "在庭院中"
-            self.ui_get_current_page()
             # 探索页面
             self.ui_goto_page(page_exploration)
         else:
@@ -98,7 +97,6 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         # 开启加成
         con = self.config.exploration.exploration_config
         if con.buff_gold_50_click or con.buff_gold_100_click or con.buff_exp_50_click or con.buff_exp_100_click:
-            self.ui_get_current_page()
             self.ui_goto_page(page_main)
             self.open_buff()
             if con.buff_gold_50_click:
@@ -113,7 +111,6 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
 
     def post_process(self):
         self.wait_until_stable(self.I_UI_BACK_RED)
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
         con = self._config.exploration_config
         if con.buff_gold_50_click or con.buff_gold_100_click or con.buff_exp_50_click or con.buff_exp_100_click:

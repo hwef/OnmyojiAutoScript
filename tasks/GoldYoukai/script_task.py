@@ -28,7 +28,6 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, GoldYouk
         # 开启加成
         con = self.config.gold_youkai.gold_youkai
         if con.buff_gold_50_click or con.buff_gold_100_click:
-            self.ui_get_current_page()
             self.ui_goto_page(page_main)
             self.open_buff()
             if con.buff_gold_50_click:
@@ -38,7 +37,6 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, GoldYouk
             self.close_buff()
         count = 0
         while count < 2:
-            self.ui_get_current_page()
             self.ui_goto_page(page_team)
             self.check_zones('金币妖怪')
             # 开始
@@ -106,7 +104,6 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, GoldYouk
                 return False
 
     def gold_exit(self, con):
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
         if con.buff_gold_50_click or con.buff_gold_100_click:
             self.open_buff()

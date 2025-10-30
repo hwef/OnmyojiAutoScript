@@ -52,7 +52,6 @@ class ScriptTask(GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
 
     def kirin(self):
         logger.hr('麒麟', 2)
-        self.ui_get_current_page()
         self.ui_goto_page(page_kirin)
         while 1:
             self.screenshot()
@@ -71,7 +70,6 @@ class ScriptTask(GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
 
     def netherworld(self):
         logger.hr('阴界之门', 2)
-        self.ui_get_current_page()
         self.ui_goto_page(page_netherworld)
         while 1:
             self.screenshot()

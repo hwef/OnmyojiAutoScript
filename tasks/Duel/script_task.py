@@ -47,7 +47,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
 
         # 切换阴阳师
         if con.switch_enabled:
-            self.ui_get_current_page()
             self.ui_goto_page(page_main)
             # 清明
             if con.switch_onmyoji == Onmyoji.Qm:
@@ -65,7 +64,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
             elif con.switch_onmyoji == Onmyoji.Ylg:
                 self.switch_yorimitsu()
 
-        self.ui_get_current_page()
         self.ui_goto_page(page_duel)
         # 切换御魂
         if con.switch_all_soul:
@@ -220,7 +218,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
                 click_count += 1
                 continue
         logger.info(f'切换阴阳师{con.switch_onmyoji}')
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
 
     def switch_yorimitsu(self):
@@ -245,7 +242,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
                 click_count += 1
                 continue
         logger.info('切换英杰源赖光')
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
 
     def check_honor(self) -> bool:

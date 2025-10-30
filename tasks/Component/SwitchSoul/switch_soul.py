@@ -28,7 +28,6 @@ class SwitchSoul(GameUi, SwitchSoulAssets):
         保证在式神录的界面
         :return:
         """
-        self.ui_get_current_page()
         self.ui_goto_page(page_shikigami_records)
 
         if isinstance(target, str):
@@ -190,7 +189,6 @@ class SwitchSoul(GameUi, SwitchSoulAssets):
         保证在式神录的界面
         :return:
         """
-        self.ui_get_current_page()
         self.ui_goto_page(page_shikigami_records)
         if isinstance(groupName, str) and isinstance(teamName, str):
             self.click_preset()

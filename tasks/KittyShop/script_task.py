@@ -23,7 +23,6 @@ class ScriptTask(GameUi, ActivityShikigamiAssets, KittyShopAssets):
                        KittyShopAssets.I_MAIN_BUSY_5]
 
     def run(self) -> None:
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
         while 1:
             self.screenshot()

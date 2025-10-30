@@ -29,7 +29,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, MetaDemonAssets):
         if self.config.meta_demon.switch_soul.enable_switch_by_name:
             self.run_switch_soul_by_name(self.config.meta_demon.switch_soul.group_name,
                                          self.config.meta_demon.switch_soul.team_name)
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
 
         boss_timer = Timer(200)

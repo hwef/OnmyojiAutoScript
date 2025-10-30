@@ -27,7 +27,6 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
         if self.config.true_orochi.switch_soul.enable_switch_by_name:
             self.run_switch_soul_by_name(self.config.true_orochi.switch_soul.group_name, self.config.true_orochi.switch_soul.team_name)
 
-        self.ui_get_current_page()
         self.ui_goto_page(page_soul_zones)
         self.orochi_enter()
         # 检查是否出现真蛇

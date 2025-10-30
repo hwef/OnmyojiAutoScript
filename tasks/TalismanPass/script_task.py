@@ -16,7 +16,6 @@ from tasks.TalismanPass.config import TalismanConfig, LevelReward
 class ScriptTask(GameUi, TalismanPassAssets):
 
     def run(self):
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
         self.main_goto_daily()
         con: TalismanConfig = self.config.talisman_pass.talisman
@@ -30,8 +29,6 @@ class ScriptTask(GameUi, TalismanPassAssets):
         if con.get_accomplishments:
             self.get_accomplishment()
 
-        self.ui_get_current_page()
-        self.ui_goto_page(page_main)
         self.set_next_run(task='TalismanPass', success=True, finish=True)
         raise TaskEnd('TalismanPass')
 

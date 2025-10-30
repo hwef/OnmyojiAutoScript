@@ -495,7 +495,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
             return True
 
         # 进入选择寮界面
-        self.ui_get_current_page()
         self.ui_goto_page(page_guild)
 
         while 1:
@@ -520,7 +519,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
 
         if '挑战成功' in dokan_status_str or '0次' in dokan_status_str:
             self.dokan_battle_number = 0
-            self.goto_main()
             # self.check_current_weekday(True)
             if self.create_doukan_time:
                 self.set_next_run(target=self.create_doukan_time)
@@ -549,7 +547,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
                 time.sleep(wait_time)
                 if self.goto_dokan_num >= 15:
                     logger.info(f"寮成员{self.goto_dokan_num}次未进入道馆, 结束任务!")
-                    self.goto_main()
                     # self.check_current_weekday(True)
                     if self.create_doukan_time:
                         self.set_next_run(target=self.create_doukan_time)
@@ -832,20 +829,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
             logger.info(f"Item {i}: {item}")
             i += 1
         self.find_dokan_list = []
-
-    def goto_main(self):
-        while 1:
-            self.screenshot()
-            if self.appear_then_click(GeneralBattle.I_EXIT, interval=1):
-                continue
-            # 点了后EXIT后，可能无确认框
-            if self.appear_then_click(self.I_RYOU_DOKAN_EXIT_ENSURE, interval=1):
-                continue
-            if self.appear(self.I_FANGSHOU, interval=1):
-                break
-
-        self.ui_get_current_page()
-        self.ui_goto_page(page_main)
 
     def appear_rgb(self, target, image=None, difference: int = 10):
         """

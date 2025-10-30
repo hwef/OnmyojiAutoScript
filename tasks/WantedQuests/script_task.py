@@ -133,7 +133,6 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
         :return:
         """
         self.play_count += 1
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
         done_timer = Timer(5)
         if self.play_count >= 3:

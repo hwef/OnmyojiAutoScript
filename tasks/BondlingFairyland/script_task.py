@@ -89,7 +89,6 @@ class ScriptTask(GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, Bondlin
                 self.limit_count //= 2
                 self.run_member()
                 self.current_count = 0
-                self.ui_get_current_page()
                 self.ui_goto_page(page_bondling_fairyland)
                 self.switch_ball()
             case UserStatus.LEADER | UserStatus.ALONE:

@@ -42,7 +42,6 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, Eternity
 
         self._two_teams_switch_sous(self._task_config.switch_soul_config_1)
         self._two_teams_switch_sous(self._task_config.switch_soul_config_2)
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
         match self._task_config.eternity_sea_config.user_status:
             case UserStatus.LEADER: success = self.run_leader()
@@ -137,7 +136,6 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, Eternity
         if self.exit_team():
             pass
 
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
 
         if not success:
@@ -147,8 +145,6 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, Eternity
     def run_member(self):
         logger.info('Start run member')
         self.ui_get_current_page()
-        # self.orochi_enter()
-        # self.check_lock(self.config.orochi.general_battle_config.lock_team_enable)
 
         # 进入战斗流程
         self.device.stuck_record_add('BATTLE_STATUS_S')
@@ -188,10 +184,8 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, Eternity
             if self.exit_battle():
                 pass
 
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
         return True
-
 
     def run_alone(self) -> bool:
         logger.info("Start run alone")
@@ -269,12 +263,7 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, Eternity
                 continue
 
     def _navigate_to_soul_zones(self) -> None:
-        self.ui_get_current_page()
         self.ui_goto_page(page_soul_zones)
-
-    def _navigate_to_game_page(self, destination: Page) -> None:
-        self.ui_get_current_page()
-        self.ui_goto_page(destination)
 
     @property
     def _task_config(self) -> EternitySea:

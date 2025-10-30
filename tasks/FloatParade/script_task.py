@@ -13,12 +13,12 @@ from module.logger import logger
 from module.exception import TaskEnd
 from module.base.timer import Timer
 
-
 """ 花车 巡游 """
+
+
 class ScriptTask(GameUi, FloatParadeAssets, TalismanPassAssets):
 
     def run(self):
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
         con: FloatParadeConfig = self.config.float_parade.float_parade
 
@@ -33,14 +33,12 @@ class ScriptTask(GameUi, FloatParadeAssets, TalismanPassAssets):
                 continue
         logger.info('Goback to float parade main page')
         # 收取花车等级奖励
-        self.get_flower(con.level_reward1, con.level_reward2) # 第一种
+        self.get_flower(con.level_reward1, con.level_reward2)  # 第一种
         # main page
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
 
         self.set_next_run(task='FloatParade', success=True, finish=True)
         raise TaskEnd('FloatParade')
-
 
     def get_all(self):
         """
@@ -126,6 +124,7 @@ class ScriptTask(GameUi, FloatParadeAssets, TalismanPassAssets):
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
+
     c = Config('du')
     d = Device(c)
     t = ScriptTask(c, d)

@@ -71,8 +71,6 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
                 if not self._donate_all(0, target_1, 3, remain):
                     self.save_image(wait_time=0, push_flag=True, content=f'⚠️{target_1.value} 材料不足')
 
-        self.ui_get_current_page()
-        self.ui_goto_page(page_main)
         # 设置任务结束
         self.next_run_task()
 
@@ -97,15 +95,12 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
                 if check_timer.reached():
                     break
 
-            self.ui_get_current_page()
-            self.ui_goto_page(page_main)
             # 设置任务结束
             self.next_run_task()
         else:
             return remain
 
     def goto_cm_main(self):
-        self.ui_get_current_page()
         self.ui_goto_page(page_guild)
         time.sleep(1)
         self.ui_click(self.I_CM_SHRINE, self.I_CM_CM)

@@ -20,7 +20,6 @@ class Guild(Buy, GameUi, RichManAssets):
         if not con.enable:
             return
         logger.hr('Start guild', 1)
-        self.ui_get_current_page()
         self.ui_goto_page(page_guild)
         while 1:
             self.screenshot()

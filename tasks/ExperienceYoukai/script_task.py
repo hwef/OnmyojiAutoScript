@@ -27,7 +27,6 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, Experien
         # 开启加成
         con = self.config.experience_youkai.experience_youkai
         if con.buff_exp_50_click or con.buff_exp_100_click:
-            self.ui_get_current_page()
             self.ui_goto_page(page_main)
             self.open_buff()
             if con.buff_exp_50_click:
@@ -37,7 +36,6 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, Experien
             self.close_buff()
         count = 0
         while count < 2:
-            self.ui_get_current_page()
             self.ui_goto_page(page_team)
             self.check_zones('经验妖怪')
             # 开始
@@ -95,7 +93,6 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, Experien
                 return False
 
     def experience_exit(self, con):
-        self.ui_get_current_page()
         self.ui_goto_page(page_main)
         if con.buff_exp_50_click or con.buff_exp_100_click:
             self.open_buff()

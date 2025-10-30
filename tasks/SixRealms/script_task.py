@@ -22,7 +22,6 @@ class ScriptTask(SwitchSoul, MoonSea):
             self.run_switch_soul(self.config.six_realms.switch_soul_config.one_switch)
             self.run_switch_soul(self.config.six_realms.switch_soul_config.two_switch)
 
-        self.ui_get_current_page()
         self.ui_goto_page(page_six_gates)
         self.run_moon_sea()
 

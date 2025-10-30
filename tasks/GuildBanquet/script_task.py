@@ -46,7 +46,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAssets):
         self.banquet_day_2 = self.get_key_from_value(WEEKDAYDICT, self.run_time.day_2.value)
         self.banquet_day_2_start_time = self.run_time.run_time_2
 
-        self.ui_get_current_page()
         self.ui_goto_page(page_guild)
 
         wait_timer = Timer(230)
@@ -120,7 +119,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAssets):
         if con.switch_soul.enable_switch_by_name:
             self.run_switch_soul_by_name(con.switch_soul.group_name, con.switch_soul.team_name)
 
-        self.ui_get_current_page()
         self.ui_goto_page(page_secret_zones)
 
         while 1:
