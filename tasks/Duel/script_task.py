@@ -75,9 +75,13 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
         duel_week_over = False
         while 1:
             self.screenshot()
+            if self.appear_then_click(self.I_D_VICTORY, interval=0.6):
+                continue
+            if self.appear_then_click(self.I_WIN, interval=0.6):
+                continue
             if self.appear_then_click(self.I_REWARD, interval=0.6):
                 continue
-            if self.appear_then_click(self.I_DUEL_CANCEL):
+            if self.appear_then_click(self.I_DUEL_CANCEL, interval=0.6):
                 continue
             if not self.duel_main():
                 continue
