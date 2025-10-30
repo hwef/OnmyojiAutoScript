@@ -268,6 +268,9 @@ class RuleImage:
 
         # 执行模板匹配
         if mask is not None:
+            # cv2.imwrite("source_debug.png", cv2.cvtColor(source, cv2.COLOR_RGB2BGR))
+            # cv2.imwrite("template_debug.png", cv2.cvtColor(template, cv2.COLOR_RGB2BGR))
+            # cv2.imwrite("mask_debug.png", mask)
             res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
         else:
             res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
@@ -277,7 +280,7 @@ class RuleImage:
         if not np.isfinite(max_val):
             # logger.warning(f"匹配结果无效 {self.name}: {max_val}")
             # 处理无效值情况
-            return False
+            return False, max_val
         # 根据阈值判断匹配结果
         if max_val > threshold:
             # 更新ROI坐标
