@@ -2,15 +2,9 @@
 # @author runhey
 # github https://github.com/runhey
 import time
-
-import importlib
-import pkgutil
-from pathlib import Path
-
-from datetime import datetime
 from time import sleep
 
-import random
+import importlib
 from collections import deque
 from module.atom.click import RuleClick
 from module.atom.gif import RuleGif
@@ -21,14 +15,14 @@ from module.base.decorator import run_once
 from module.base.timer import Timer
 from module.exception import (GameNotRunningError, GamePageUnknownError)
 from module.logger import logger
+from pathlib import Path
+from tasks.ActivityShikigami.assets import ActivityShikigamiAssets
 from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
 from tasks.GameUi.assets import GameUiAssets
 from tasks.GameUi.page import Page, PageRegistry, page_main
 from tasks.Restart.assets import RestartAssets
 from tasks.SixRealms.assets import SixRealmsAssets
 from tasks.base_task import BaseTask
-from tasks.ActivityShikigami.assets import ActivityShikigamiAssets
-from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
 
 
 class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
@@ -196,6 +190,50 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
         logger.critical("Please switch to a supported page before starting oas")
         raise GamePageUnknownError
 
+    def ui_goto(self, destination: Page, confirm_wait=0, skip_first_screenshot=True, timeout: int = 60):
+        """
+        Args:
+            destination (Page):
+            confirm_wait:
+            skip_first_screenshot:
+        :return: find destination page or timeout reached
+        """
+        logger.hr(f"UI goto {destination}")
+        # 初始化
+        timeout_timer = Timer(timeout).start()
+        confirm_timer = Timer(confirm_wait, count=int(confirm_wait // 0.5)).start()
+        close_unknown_timer = Timer(3).start()
+        # 构建路径映射
+        path_dict = self.build_reverse_path_dict(destination)
+
+        found = False
+        while not timeout_timer.reached():
+            if found:
+                confirm_timer.wait()
+                return True
+            confirm_timer.reset()
+            path = path_dict.get(self.ui_current, None)
+            # 找不到路径则重新获取页面重试
+            if not path:
+                self.ui_get_current_page(skip_first_screenshot)
+                continue
+            skip_first_screenshot = False
+            logger.info(f"Current page: {self.ui_current}")
+            show_paths: str = ' -> '.join([p.name for p in path])
+            logger.info(f"{show_paths}")
+            # 遍历路径
+            found = self._execute_path(path, timeout_timer)
+            if not found:
+                if close_unknown_timer.reached_and_reset():
+                    self.try_close_unknown_page(skip_screenshot=False)
+        else:
+            logger.error(f'Cannot goto page[{destination}], timeout[{timeout}s] reached')
+        return False
+
+    def ui_goto_page(self, page: Page, confirm_wait=0, skip_first_screenshot=True, timeout: int = 60):
+        self.ui_get_current_page()
+        self.ui_goto_page(page, confirm_wait, skip_first_screenshot, timeout)
+
     def ui_button_interval_reset(self, button):
         """
         Reset interval of some button to avoid mistaken clicks
@@ -236,46 +274,6 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
         # 转换成列表并按路径长度排序, 短到长
         sorted_paths = sorted(paths.items(), key=lambda kv: len(kv[1]))
         return sorted_paths
-
-    def ui_goto(self, destination: Page, confirm_wait=0, skip_first_screenshot=True, timeout: int = 60):
-        """
-        Args:
-            destination (Page):
-            confirm_wait:
-            skip_first_screenshot:
-        :return: find destination page or timeout reached
-        """
-        logger.hr(f"UI goto {destination}")
-        # 初始化
-        timeout_timer = Timer(timeout).start()
-        confirm_timer = Timer(confirm_wait, count=int(confirm_wait // 0.5)).start()
-        close_unknown_timer = Timer(3).start()
-        # 构建路径映射
-        path_dict = self.build_reverse_path_dict(destination)
-
-        found = False
-        while not timeout_timer.reached():
-            if found:
-                confirm_timer.wait()
-                return True
-            confirm_timer.reset()
-            path = path_dict.get(self.ui_current, None)
-            # 找不到路径则重新获取页面重试
-            if not path:
-                self.ui_get_current_page(skip_first_screenshot)
-                continue
-            skip_first_screenshot = False
-            logger.info(f"Current page: {self.ui_current}")
-            show_paths: str = ' -> '.join([p.name for p in path])
-            logger.info(f"{show_paths}")
-            # 遍历路径
-            found = self._execute_path(path, timeout_timer)
-            if not found:
-                if close_unknown_timer.reached_and_reset():
-                    self.try_close_unknown_page(skip_screenshot=False)
-        else:
-            logger.error(f'Cannot goto page[{destination}], timeout[{timeout}s] reached')
-        return False
 
     def try_close_unknown_page(self, skip_screenshot: bool = True):
         """

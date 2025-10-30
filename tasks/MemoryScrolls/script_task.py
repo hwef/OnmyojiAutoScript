@@ -19,14 +19,14 @@ class ScriptTask(GameUi, MemoryScrollsAssets):
 
     def run(self):        
         self.ui_get_current_page()
-        self.ui_goto(page_summon)
+        self.ui_goto_page(page_summon)
 
         con = self.config.memory_scrolls.memory_scrolls_config
         # 进入绘卷主界面
         self.goto_memoryscrolls_main(con)
 
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         # 设置下一次运行时间
         self.set_next_run(task='MemoryScrolls', success=True)

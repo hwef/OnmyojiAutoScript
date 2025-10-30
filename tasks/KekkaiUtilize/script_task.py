@@ -31,7 +31,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     def run(self):
         con = self.config.kekkai_utilize.utilize_config
         self.ui_get_current_page()
-        self.ui_goto(page_realm)
+        self.ui_goto_page(page_realm)
 
         # 进入寮结界
         # self.goto_realm()
@@ -55,14 +55,14 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     def recive_guild_ap_or_assets(self):
         for i in range(1, 5):
             self.ui_get_current_page()
-            self.ui_goto(page_guild)
+            self.ui_goto_page(page_guild)
             # 在寮的主界面 检查是否有收取体力或者是收取寮资金
             if self.check_guild_ap_or_assets():
                 logger.warning(f'第[{i}]次检查寮收获,成功')
                 return
             else:
                 logger.warning(f'第[{i}]次检查寮收获寮收获,失败')
-                self.ui_goto(page_main)
+                self.ui_goto_page(page_main)
 
     def check_utilize_add(self):
         con = self.config.kekkai_utilize.utilize_config
@@ -96,7 +96,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             self.run_utilize(con.select_friend_list, con.shikigami_class, con.shikigami_order)
             # 进入寮结界
             self.ui_get_current_page()
-            self.ui_goto(page_realm)
+            self.ui_goto_page(page_realm)
 
     def check_max_lv(self, shikigami_class: ShikigamiClass = ShikigamiClass.N):
         """
@@ -121,7 +121,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
         # 进入寮结界
         self.ui_get_current_page()
-        self.ui_goto(page_realm)
+        self.ui_goto_page(page_realm)
 
     def check_guild_ap_or_assets(self, ap_enable: bool = True, assets_enable: bool = True) -> bool:
         """

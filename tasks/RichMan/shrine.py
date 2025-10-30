@@ -19,7 +19,7 @@ class Shrine(GameUi, RichManAssets):
             logger.info('Shrine is disabled')
             return
         self.ui_get_current_page()
-        self.ui_goto(page_summon)
+        self.ui_goto_page(page_summon)
 
         while 1:
             self.screenshot()

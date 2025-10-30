@@ -27,7 +27,7 @@ class ScriptTask(FriendshipPoints, MysteryShopAssets, GeneralInvite):
             logger.warning('Today is not MysteryShop day')
             self.next_time(False)
         self.ui_get_current_page()
-        self.ui_goto(page_mall)
+        self.ui_goto_page(page_mall)
         self.ui_click(self.I_ME_ENTER, self.I_MS_SHARE)
         logger.info('Enter MysteryShop')
         con = self.config.mystery_shop

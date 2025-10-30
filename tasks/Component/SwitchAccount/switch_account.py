@@ -38,7 +38,7 @@ class SwitchAccount(LoginAccount, ExitGame, GameUi, SwitchAccountAssets):
         curPage = self.ui_get_current_page()
 
         if curPage != page_login and curPage != page_main:
-            self.ui_goto(page_main)
+            self.ui_goto_page(page_main)
             curPage = self.ui_get_current_page()
         if curPage == page_main:
             self.exitGame()

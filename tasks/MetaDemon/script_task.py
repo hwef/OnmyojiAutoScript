@@ -30,7 +30,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, MetaDemonAssets):
             self.run_switch_soul_by_name(self.config.meta_demon.switch_soul.group_name,
                                          self.config.meta_demon.switch_soul.team_name)
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         boss_timer = Timer(200)
         boss_timer.start()

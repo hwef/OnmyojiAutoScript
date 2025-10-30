@@ -55,8 +55,7 @@ class ScriptTask(SwitchSoul, GeneralBattle):
                 config.switch_soul_config.team_name
             )
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         # 进入挑战页面
         self.goto_challenge(goto_challenge_templates)
@@ -65,8 +64,7 @@ class ScriptTask(SwitchSoul, GeneralBattle):
         battle_result = self.start_battle(config.activity_common_config, battle_templates, challenge)
 
         # 回到庭院
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         if config.activity_common_config.active_souls_clean:
             self.set_next_run(task='SoulsTidy', success=False, finish=False, target=datetime.now())

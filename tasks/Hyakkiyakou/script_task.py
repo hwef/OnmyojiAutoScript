@@ -125,7 +125,7 @@ class ScriptTask(GameUi, HyaSlave):
         self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute,
                                                seconds=limit_time.second)
         self.ui_get_current_page()
-        self.ui_goto(page_hyakkiyakou)
+        self.ui_goto_page(page_hyakkiyakou)
 
 
         while 1:

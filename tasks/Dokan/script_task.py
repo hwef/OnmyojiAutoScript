@@ -496,7 +496,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
 
         # 进入选择寮界面
         self.ui_get_current_page()
-        self.ui_goto(page_guild)
+        self.ui_goto_page(page_guild)
 
         while 1:
             self.screenshot()
@@ -845,7 +845,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
                 break
 
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
     def appear_rgb(self, target, image=None, difference: int = 10):
         """

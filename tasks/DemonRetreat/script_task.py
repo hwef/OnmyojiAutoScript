@@ -98,7 +98,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssShadowsAsse
         cfg: DemonRetreat = self.config.demon_retreat
         self.ui_get_current_page()
         logger.info("Entering demon_retreat")
-        self.ui_goto(page_guild)
+        self.ui_goto_page(page_guild)
 
         goto_demon_retreat_num = 0
         while 1:
@@ -262,7 +262,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssShadowsAsse
         '''
         self.ui_get_current_page()
         logger.info("Exiting DemonRetreat")
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
 
 

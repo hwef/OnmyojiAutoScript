@@ -32,12 +32,12 @@ class ScriptTask(GameUi, GeneralBattle, GeneralRoom, GeneralInvite, NianAssets):
             raise TaskEnd('Nian')
 
         self.ui_get_current_page()
-        self.ui_goto(page_team)
+        self.ui_goto_page(page_team)
         con = self.config.nian.nian_config
 
         # 进入
         self.ui_get_current_page()
-        self.ui_goto(page_team)
+        self.ui_goto_page(page_team)
         self.check_zones('年兽')
         cd = self.check_cd()
         if cd:

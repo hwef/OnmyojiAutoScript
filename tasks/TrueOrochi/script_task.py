@@ -28,7 +28,7 @@ class ScriptTask(OrochiScriptTask, TrueOrochiAssets):
             self.run_switch_soul_by_name(self.config.true_orochi.switch_soul.group_name, self.config.true_orochi.switch_soul.team_name)
 
         self.ui_get_current_page()
-        self.ui_goto(page_soul_zones)
+        self.ui_goto_page(page_soul_zones)
         self.orochi_enter()
         # 检查是否出现真蛇
         battle = self.check_true_orochi(True)

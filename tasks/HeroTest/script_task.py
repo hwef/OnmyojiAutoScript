@@ -46,7 +46,7 @@ class ScriptTask(BaseActivity, HeroTestAssets, SwitchSoul):
         self.limit_count = config.herotest.limit_count
 
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         # 启动经验加成
         exp_50_buff_enable = config.herotest.exp_50_buff_enable_help
@@ -57,7 +57,7 @@ class ScriptTask(BaseActivity, HeroTestAssets, SwitchSoul):
             self.exp_50(exp_50_buff_enable)
             self.close_buff()
 
-        self.ui_goto(page_exploration)
+        self.ui_goto_page(page_exploration)
         self.home_main()
         # 设定是否锁定阵容
         if is_update:
@@ -313,7 +313,7 @@ class ScriptTask(BaseActivity, HeroTestAssets, SwitchSoul):
             if self.appear_then_click(self.I_GBB_BACK, interval=2):
                 continue
             self.ui_get_current_page()
-            self.ui_goto(page_main)
+            self.ui_goto_page(page_main)
             if is_update:
                 # 关闭经验加成
                 self.open_buff()

@@ -19,7 +19,7 @@ class ScriptTask(GameUi, DelegationAssets):
 
     def run(self):
         self.ui_get_current_page()
-        self.ui_goto(page_delegation)
+        self.ui_goto_page(page_delegation)
         self.check_reward()
         con: DelegationConfig = self.config.delegation.delegation_config
         if con.miyoshino_painting:

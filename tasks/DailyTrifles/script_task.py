@@ -52,7 +52,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 
     def run_one_summon(self):
         self.ui_get_current_page()
-        self.ui_goto(page_summon)
+        self.ui_goto_page(page_summon)
         if self.config.daily_trifles.trifles_config.summon_type == SummonType.default:
             self.summon_one()
         elif self.config.daily_trifles.trifles_config.summon_type == SummonType.recall:
@@ -73,7 +73,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
             for i in range(len(list)):
                 sleep(1)
                 self.ui_get_current_page()
-                self.ui_goto(page_summon)
+                self.ui_goto_page(page_summon)
                 self.appear_then_click(self.I_UI_BACK_RED, interval=1)
                 x, y = list[i].coord()
                 self.device.click(x, y)
@@ -143,7 +143,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 
     def run_luck_msg(self):
         self.ui_get_current_page()
-        self.ui_goto(page_friends)
+        self.ui_goto_page(page_friends)
         while 1:
             self.screenshot()
             if self.appear(self.I_LUCK_TITLE):
@@ -174,7 +174,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 
     def run_friend_love(self):
         self.ui_get_current_page()
-        self.ui_goto(page_friends)
+        self.ui_goto_page(page_friends)
         while 1:
             self.screenshot()
             if self.appear(self.I_L_LOVE):
@@ -205,7 +205,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 
     def run_store(self):
         self.ui_get_current_page()
-        self.ui_goto(page_mall, confirm_wait=3)
+        self.ui_goto_page(page_mall, confirm_wait=3)
 
         if self.config.daily_trifles.trifles_config.store_sign:
             self.run_store_sign()
@@ -214,7 +214,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 
         self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_MALL)
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
     def run_store_sign(self):
         # timer = Timer(5)
@@ -326,7 +326,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 
     def run_recruit_members(self):
         self.ui_get_current_page()
-        self.ui_goto(page_guild)
+        self.ui_goto_page(page_guild)
         flush_count = 0
         timer = Timer(5)
         timer.start()
@@ -380,7 +380,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 
         logger.hr('Broken amulet')
         self.ui_get_current_page()
-        self.ui_goto(page_summon)
+        self.ui_goto_page(page_summon)
         self.screenshot()
         number = self.O_BA_AMOUNT_1.ocr(self.device.image)
         if number == 0:

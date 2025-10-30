@@ -237,17 +237,15 @@ class ScriptTask(GeneralBattle, SwitchSoul, AbyssShadowsAssets):
     def goto_main(self):
         """ 保持好习惯，一个任务结束了就返回庭院，方便下一任务的开始或者是出错重启
         """
-        self.ui_get_current_page()
         logger.info("退出狭间暗域")
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
     def goto_abyss_shadows(self) -> bool:
         """ 进入狭间
         :return bool
         """
         logger.info("准备进入狭间暗域")
-        self.ui_get_current_page()
-        self.ui_goto(page_guild)
+        self.ui_goto_page(page_guild)
 
         while 1:
             self.screenshot()

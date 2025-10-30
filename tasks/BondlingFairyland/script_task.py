@@ -40,8 +40,7 @@ class ScriptTask(GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, Bondlin
 
         if cong.bondling_check.check_enable:
             logger.hr('第一步, 检查契忆数量', 2)
-            self.ui_get_current_page()
-            self.ui_goto(page_mall, confirm_wait=2.5)
+            self.ui_goto_page(page_mall, confirm_wait=2.5)
             self.ui_click(self.I_MALL_SCCALES, self.I_MALL_SCCALES_CHECK)
             self.ui_click(self.I_MALL_BONDLINGS_SURE, self.I_MALL_BONDLINGS_ON)
 
@@ -52,8 +51,7 @@ class ScriptTask(GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, Bondlin
             if cu >= MAX_COUNT:
                 message = f'契忆数量: {cu} 大于 {MAX_COUNT}'
                 self.save_image(content=message, push_flag=True)
-                self.ui_get_current_page()
-                self.ui_goto(page_main)
+                self.ui_goto_page(page_main)
                 self.next_run_week(next_run_week)
                 raise TaskEnd
 
@@ -69,16 +67,14 @@ class ScriptTask(GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, Bondlin
             self.run_switch_soul_by_name(cong.switch_soul_config.group_name, cong.switch_soul_config.team_name)
 
         logger.hr('第三步, 前往契灵主界面', 2)
-        self.ui_get_current_page()
-        self.ui_goto(page_bondling_fairyland)
+        self.ui_goto_page(page_bondling_fairyland)
 
         while 1:
             self.screenshot()
             if self.appear(self.I_CHECK_BONDLING_FAIRYLAND, interval=1):
                 break
             if self.appear(self.I_BALL_HELP, interval=1):
-                self.ui_get_current_page()
-                self.ui_goto(page_bondling_fairyland)
+                self.ui_goto_page(page_bondling_fairyland)
                 continue
 
         logger.hr('第四步, 开始战斗准备', 2)
@@ -94,7 +90,7 @@ class ScriptTask(GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, Bondlin
                 self.run_member()
                 self.current_count = 0
                 self.ui_get_current_page()
-                self.ui_goto(page_bondling_fairyland)
+                self.ui_goto_page(page_bondling_fairyland)
                 self.switch_ball()
             case UserStatus.LEADER | UserStatus.ALONE:
                 self.switch_ball()
@@ -195,14 +191,12 @@ class ScriptTask(GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, Bondlin
         if self.exit_team():
             pass
 
-        self.ui_get_current_page()
-        self.ui_goto(page_bondling_fairyland)
+        self.ui_goto_page(page_bondling_fairyland)
         # 引用配置
         if UserStatus.handoff1 == self.config.bondling_fairyland.bondling_config.user_status:
             self.current_count = 0
             self.run_member()
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         self.set_next_run(task='BondlingFairyland', finish=True, success=True)
         raise TaskEnd
 
@@ -265,8 +259,7 @@ class ScriptTask(GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, Bondlin
                 pass
                 # 引用配置
         if UserStatus.MEMBER == self.config.bondling_fairyland.bondling_config.user_status:
-            self.ui_get_current_page()
-            self.ui_goto(page_main)
+            self.ui_goto_page(page_main)
             self.set_next_run(task='BondlingFairyland', finish=True, success=True)
             raise TaskEnd
 
@@ -294,8 +287,7 @@ class ScriptTask(GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, Bondlin
         while 1:
 
             if not self.in_search_ui(screenshot=True):
-                self.ui_get_current_page()
-                self.ui_goto(page_bondling_fairyland)
+                self.ui_goto_page(page_bondling_fairyland)
                 continue
 
             if bondling_config.bondling_mode != BondlingMode.MODE1:
@@ -330,8 +322,7 @@ class ScriptTask(GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, Bondlin
                 self.appear_then_click(self.I_BACK_Y, interval=1)
         logger.info('BondlingFairyland task finished')
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         self.set_next_run(task='BondlingFairyland', finish=True, success=True)
         raise TaskEnd
 

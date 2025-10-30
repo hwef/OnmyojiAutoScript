@@ -29,7 +29,7 @@ class SwitchSoul(GameUi, SwitchSoulAssets):
         :return:
         """
         self.ui_get_current_page()
-        self.ui_goto(page_shikigami_records)
+        self.ui_goto_page(page_shikigami_records)
 
         if isinstance(target, str):
             try:
@@ -191,7 +191,7 @@ class SwitchSoul(GameUi, SwitchSoulAssets):
         :return:
         """
         self.ui_get_current_page()
-        self.ui_goto(page_shikigami_records)
+        self.ui_goto_page(page_shikigami_records)
         if isinstance(groupName, str) and isinstance(teamName, str):
             self.click_preset()
             self.switch_soul_by_name(groupName, teamName)

@@ -26,8 +26,7 @@ class ScriptTask(SwitchSoul, GeneralBattle):
         goto_delegate_folder2 = "./tasks/ActivityCommon/gotoDelegate2"
         goto_delegate_folder3 = "./tasks/ActivityCommon/gotoDelegate3"
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         self.goto_delegate(self._load_image_template(goto_delegate_folder1), over_img)
         logger.hr("已进入灵视界面", 1)

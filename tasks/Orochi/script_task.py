@@ -105,7 +105,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
         config: Orochi = self.config.orochi
         if not self.is_in_battle(True):
             self.ui_get_current_page()
-            self.ui_goto(page_main)
+            self.ui_goto_page(page_main)
             if config.orochi_config.soul_buff_enable:
                 self.open_buff()
                 self.soul(is_open=True)
@@ -197,7 +197,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
     def run_leader(self, layer):
         logger.info('Start run leader')
         self.ui_get_current_page()
-        self.ui_goto(page_soul_zones)
+        self.ui_goto_page(page_soul_zones)
         self.orochi_enter()
         self.check_layer(layer)
         self.check_lock(self.config.orochi.general_battle_config.lock_team_enable)
@@ -280,7 +280,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
             pass
 
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         return success
 
@@ -353,14 +353,14 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
                 pass
 
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         return success
 
     def run_alone(self, layer):
         logger.info('Start run alone')
         self.ui_get_current_page()
-        self.ui_goto(page_soul_zones)
+        self.ui_goto_page(page_soul_zones)
         self.orochi_enter()
         self.check_layer(layer)
         self.check_lock(self.config.orochi.general_battle_config.lock_team_enable)
@@ -409,7 +409,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
                 continue
 
         self.ui_current = page_soul_zones
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
     def is_room_dead(self) -> bool:
         # 如果在探索界面或者是出现在组队界面，那就是可能房间死了

@@ -35,7 +35,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
         self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute, seconds=limit_time.second)
 
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         config: FallenSun = self.config.fallen_sun
 
         success = True
@@ -101,7 +101,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
     def run_leader(self):
         logger.info('Start run leader')
         self.ui_get_current_page()
-        self.ui_goto(page_soul_zones)
+        self.ui_goto_page(page_soul_zones)
         self.fallen_sun_enter()
         layer = self.config.fallen_sun.fallen_sun_config.layer
         self.check_layer(layer)
@@ -188,7 +188,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
             pass
 
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         if not success:
             return False
@@ -197,7 +197,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
     def run_member(self):
         logger.info('Start run member')
         self.ui_get_current_page()
-        # self.ui_goto(page_soul_zones)
+        # self.ui_goto_page(page_soul_zones)
         # self.fallen_sun_enter()
         # self.check_lock(self.config.fallen_sun.general_battle_config.lock_team_enable)
 
@@ -243,13 +243,13 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
 
 
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         return True
 
     def run_alone(self):
         logger.info('Start run alone')
         self.ui_get_current_page()
-        self.ui_goto(page_soul_zones)
+        self.ui_goto_page(page_soul_zones)
         self.fallen_sun_enter()
         layer = self.config.fallen_sun.fallen_sun_config.layer
         self.check_layer(layer)
@@ -296,7 +296,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
                 continue
 
         self.ui_current = page_soul_zones
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
 
 

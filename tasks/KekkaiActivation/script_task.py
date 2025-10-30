@@ -26,7 +26,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
     def run(self):
         con = self.config.kekkai_activation.activation_config
         self.ui_get_current_page()
-        self.ui_goto(page_realm)
+        self.ui_goto_page(page_realm)
 
         # 在寮的主界面 检查是否有收取体力或者是收取寮资金
         # self.check_guild_ap_or_assets()

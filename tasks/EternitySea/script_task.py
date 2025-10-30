@@ -43,7 +43,7 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, Eternity
         self._two_teams_switch_sous(self._task_config.switch_soul_config_1)
         self._two_teams_switch_sous(self._task_config.switch_soul_config_2)
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         match self._task_config.eternity_sea_config.user_status:
             case UserStatus.LEADER: success = self.run_leader()
             case UserStatus.MEMBER: success = self.run_member()
@@ -138,7 +138,7 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, Eternity
             pass
 
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         if not success:
             return False
@@ -189,7 +189,7 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, Eternity
                 pass
 
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         return True
 
 
@@ -270,11 +270,11 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, Eternity
 
     def _navigate_to_soul_zones(self) -> None:
         self.ui_get_current_page()
-        self.ui_goto(page_soul_zones)
+        self.ui_goto_page(page_soul_zones)
 
     def _navigate_to_game_page(self, destination: Page) -> None:
         self.ui_get_current_page()
-        self.ui_goto(destination)
+        self.ui_goto_page(destination)
 
     @property
     def _task_config(self) -> EternitySea:

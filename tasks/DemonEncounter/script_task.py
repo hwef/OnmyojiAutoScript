@@ -45,11 +45,11 @@ class ScriptTask(GeneralBattle, DemonEncounterAssets, SwitchSoul):
         soul_config = self.config.demon_encounter.demon_soul_config
         best_soul_config = self.config.demon_encounter.best_demon_soul_config
         if soul_config.enable or best_soul_config.enable:
-            self.ui_goto(page_shikigami_records)
+            self.ui_goto_page(page_shikigami_records)
             self.checkout_soul()
 
         self.ui_get_current_page()
-        self.ui_goto(page_demon_encounter)
+        self.ui_goto_page(page_demon_encounter)
         self.execute_lantern()
         if self.config.demon_encounter.switch_soul.enable_boss:
             self.execute_boss()

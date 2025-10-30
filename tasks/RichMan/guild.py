@@ -21,7 +21,7 @@ class Guild(Buy, GameUi, RichManAssets):
             return
         logger.hr('Start guild', 1)
         self.ui_get_current_page()
-        self.ui_goto(page_guild)
+        self.ui_goto_page(page_guild)
         while 1:
             self.screenshot()
             if self.appear(self.I_GUILD_CLOSE_RED):

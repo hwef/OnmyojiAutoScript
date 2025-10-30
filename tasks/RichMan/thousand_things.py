@@ -24,7 +24,7 @@ class ThousandThings(GameUi, RichManAssets):
             logger.info('Thousand Things is disabled')
             return
         self.ui_get_current_page()
-        self.ui_goto(page_travel)
+        self.ui_goto_page(page_travel)
 
         # 唤妖借出 获得灯币
         self.share_shishen()

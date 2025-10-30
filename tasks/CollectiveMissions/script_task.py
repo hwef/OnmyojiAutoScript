@@ -72,7 +72,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
                     self.save_image(wait_time=0, push_flag=True, content=f'⚠️{target_1.value} 材料不足')
 
         self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         # 设置任务结束
         self.next_run_task()
 
@@ -98,7 +98,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
                     break
 
             self.ui_get_current_page()
-            self.ui_goto(page_main)
+            self.ui_goto_page(page_main)
             # 设置任务结束
             self.next_run_task()
         else:
@@ -106,7 +106,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
 
     def goto_cm_main(self):
         self.ui_get_current_page()
-        self.ui_goto(page_guild)
+        self.ui_goto_page(page_guild)
         time.sleep(1)
         self.ui_click(self.I_CM_SHRINE, self.I_CM_CM)
         self.ui_click(self.I_CM_CM, self.I_CM_RECORDS)
