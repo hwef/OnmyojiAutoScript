@@ -93,12 +93,10 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             if not self.grown_goto_utilize():
                 logger.info('Utilize failed, exit')
             # 开始执行寄养
-            if self.run_utilize(con.select_friend_list, con.shikigami_class, con.shikigami_order):
-                # 进入寮结界
-                self.ui_get_current_page()
-                self.ui_goto(page_realm)
-            else:
-                self.back_realm()
+            self.run_utilize(con.select_friend_list, con.shikigami_class, con.shikigami_order)
+            # 进入寮结界
+            self.ui_get_current_page()
+            self.ui_goto(page_realm)
 
     def check_max_lv(self, shikigami_class: ShikigamiClass = ShikigamiClass.N):
         """
@@ -121,17 +119,9 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         #     self.switch_shikigami_class(shikigami_class)
         #     self.set_shikigami(shikigami_order=7, stop_image=self.I_RS_NO_ADD)
 
-        # 回到结界界面
-        while 1:
-            self.screenshot()
-
-            if self.appear(self.I_REALM_SHIN) and self.appear(self.I_SHI_GROWN):
-                self.screenshot()
-                if not self.appear(self.I_REALM_SHIN):
-                    continue
-                break
-            if self.appear_then_click(self.I_UI_BACK_BLUE, interval=2.5):
-                continue
+        # 进入寮结界
+        self.ui_get_current_page()
+        self.ui_goto(page_realm)
 
     def check_guild_ap_or_assets(self, ap_enable: bool = True, assets_enable: bool = True) -> bool:
         """
@@ -181,21 +171,6 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                     logger.info('appear_click reward success')
                     click_ap = True
                     timer_check.reset()
-                continue
-
-    def goto_realm(self):
-        """
-        从寮的主界面进入寮结界
-        :return:
-        """
-        while 1:
-            self.screenshot()
-            if self.appear(self.I_REALM_SHIN):
-                break
-            if self.appear(self.I_SHI_DEFENSE):
-                break
-
-            if self.appear_then_click(self.I_GUILD_REALM, interval=1):
                 continue
 
     def check_box_ap_or_exp(self, ap_enable: bool = True, exp_enable: bool = True, exp_waste: bool = True) -> bool:
@@ -701,37 +676,6 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
         # logger.info(f'识别成功: 卡类型: {card_type}, 数值: {value}')
         return card_type, value
-
-    def back_guild(self):
-        """
-        回到寮的界面
-        :return:
-        """
-        while 1:
-            self.screenshot()
-
-            if self.appear(self.I_GUILD_INFO):
-                break
-            if self.appear(self.I_GUILD_REALM):
-                break
-
-            if self.appear_then_click(self.I_UI_BACK_RED, interval=1):
-                continue
-            if self.appear_then_click(self.I_UI_BACK_BLUE, interval=1):
-                continue
-
-    def back_realm(self):
-        # 回到寮结界
-        while 1:
-            self.screenshot()
-            if self.appear(self.I_REALM_SHIN):
-                break
-            if self.appear(self.I_SHI_DEFENSE):
-                break
-            if self.appear_then_click(self.I_UI_BACK_RED, interval=1):
-                continue
-            if self.appear_then_click(self.I_UI_BACK_BLUE, interval=1):
-                continue
 
 
 if __name__ == "__main__":
