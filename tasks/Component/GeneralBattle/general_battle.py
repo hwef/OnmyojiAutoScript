@@ -232,6 +232,7 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
             if self.appear_then_click(self.I_REWARD_STATISTICS, action=action_click, interval=1):
                 continue
             if self.appear(self.I_SOUL_FULL_ENSURE):
+                self.save_image(image_type=True, wait_time=0)
                 self.push_notify("御魂溢出")
                 self.appear_then_click(self.I_SOUL_FULL_ENSURE)
                 self.set_next_run(task='SoulsTidy', target=datetime.now())
