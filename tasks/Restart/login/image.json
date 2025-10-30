@@ -22,8 +22,8 @@
     "imageName": "login_login_red_close.png",
     "roiFront": "800,0,480,290",
     "roiBack": "800,0,480,290",
-    "method": "Template matching mask",
-    "threshold": 0.8,
+    "method": "Template matching",
+    "threshold": 0.7,
     "description": "description"
   },
   {
