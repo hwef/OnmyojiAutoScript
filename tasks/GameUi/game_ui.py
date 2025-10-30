@@ -231,8 +231,11 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
         return False
 
     def ui_goto_page(self, page: Page, confirm_wait=0, skip_first_screenshot=True, timeout: int = 60):
+        """
+        前往指定page，自动调用获取当前页面方法，其他参数同ui_goto
+        """
         self.ui_get_current_page()
-        self.ui_goto_page(page, confirm_wait, skip_first_screenshot, timeout)
+        self.ui_goto(page, confirm_wait, skip_first_screenshot, timeout)
 
     def ui_button_interval_reset(self, button):
         """
@@ -418,5 +421,4 @@ if __name__ == '__main__':
 
     c = Config('oas2')
     game = GameUi(config=c)
-    game.ui_get_current_page()
-    game.ui_goto(page_main)
+    game.ui_goto_page(page_main)

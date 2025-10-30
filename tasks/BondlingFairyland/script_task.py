@@ -201,7 +201,6 @@ class ScriptTask(GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, Bondlin
 
     def run_member(self):
         logger.hr('Start run member', 2)
-        self.ui_get_current_page()
         # 开始等待队长拉人
         wait_time = self.config.bondling_fairyland.invite_config.wait_time
         wait_timer = Timer(wait_time.minute * 60)

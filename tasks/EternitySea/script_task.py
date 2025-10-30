@@ -144,7 +144,6 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul, Eternity
 
     def run_member(self):
         logger.info('Start run member')
-        self.ui_get_current_page()
 
         # 进入战斗流程
         self.device.stuck_record_add('BATTLE_STATUS_S')

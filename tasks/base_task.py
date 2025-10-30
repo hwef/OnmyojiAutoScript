@@ -292,8 +292,7 @@ class BaseTask(BaseTaskParent):
             from tasks.GameUi.game_ui import GameUi
             from tasks.GameUi.page import page_main
             GameUi = GameUi(self.config)
-            GameUi.ui_get_current_page()
-            GameUi.ui_goto(page_main)
+            GameUi.ui_goto_page(page_main)
             raise TaskEnd
 
     def get_requests(self, url):

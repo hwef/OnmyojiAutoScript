@@ -283,7 +283,6 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
 
     def run_member(self):
         logger.info('Start run member')
-        self.ui_get_current_page()
 
         # 开始等待队长拉人
         wait_time = self.config.orochi.invite_config.wait_time
