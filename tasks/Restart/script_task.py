@@ -1,16 +1,12 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from datetime import datetime
 
-from tasks.Restart.config_scheduler import Scheduler
-from tasks.Restart.login import LoginHandler
-from tasks.Restart.assets import RestartAssets
-from tasks.base_task import BaseTask, Time
 from datetime import datetime, time
-
+from module.exception import TaskEnd
 from module.logger import logger
-from module.exception import TaskEnd, RequestHumanTakeover
+from tasks.Restart.login import LoginHandler
+from tasks.base_task import Time
 
 
 class ScriptTask(LoginHandler):
@@ -93,7 +89,6 @@ class ScriptTask(LoginHandler):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
     config = Config('wy')
     s = ScriptTask(config)

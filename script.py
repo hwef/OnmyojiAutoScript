@@ -22,7 +22,6 @@ from module.server.i18n import I18n
 from multiprocessing.queues import Queue
 from pathlib import Path
 from threading import Thread
-from typing import Callable
 
 
 class Script:
@@ -262,22 +261,15 @@ class Script:
             self.config.task_call('Restart')
             return True
         except Exception as e:
-            # 特别处理OpenCV模板匹配异常
-            if isinstance(e, cv2.error) and "Assertion failed" in str(e) and "corr.rows <= img.rows" in str(e):
-                logger.error(f"模板匹配失败: 模板尺寸大于目标图像尺寸")
-                logger.error(f"详细错误: {str(e)}")
-                error_type = "TemplateMatchError"
-            else:
-                error_type = type(e).__name__  # 获取异常类型名称
-
-            result = False
-            if isinstance(e, (GameWaitTooLongError, GameTooManyClickError, GamePageUnknownError, GameStuckError, GameBugError, FileNotFoundError)):
+            error_type = type(e).__name__  # 获取异常类型名称
+            logger.error(e, exc_info=True)
+            if isinstance(e, (cv2.error, GameWaitTooLongError, GameTooManyClickError, GamePageUnknownError, GameStuckError, GameBugError, FileNotFoundError)):
                 logger.error(e)
                 logger.warning(f'{error_type}, Game will be restarted in 10 seconds')
                 self.save_error_log(task=command, error_type=error_type)
                 time.sleep(10)
                 self.config.task_call('Restart')
-                return result
+                return False
             elif isinstance(e, ScriptError):
                 logger.critical(e)
             elif isinstance(e, RequestHumanTakeover):
@@ -286,14 +278,15 @@ class Script:
                     return False
                 logger.error(e)
                 logger.critical(e)
-                result = 'exit'
+                self.save_error_log(task=command, error_type=error_type)
+                return 'exit'
             elif isinstance(e, SwitchAccountError):
                 error_type = str(e)
                 logger.warning(error_type)
             else:
                 logger.exception(e)
             self.save_error_log(task=command, error_type=error_type)
-            return result
+            return False
 
     def loop(self):
         """
