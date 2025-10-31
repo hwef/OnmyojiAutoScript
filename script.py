@@ -27,10 +27,8 @@ from typing import Callable
 
 class Script:
     def __init__(self, config_name: str = 'oas') -> None:
-        self.team_running = False
         self.server = None
         self.state_queue: Queue = None
-        self.gui_update_task: Callable = None  # 回调函数, gui进程注册当每次config更新任务的时候更新gui的信息
         self.config_name = config_name
         self.failure_record = {}
         # 运行loop的线程
@@ -77,25 +75,24 @@ class Script:
         logger.debug('[清理] config 清理工作已完成')
         DeviceManager.reset_device()
 
-    def init_server(self, port: int) -> int:
+    def start_server(self, port: int) -> bool:
         """
-        初始化zerorpc服务，返回端口号
-        :return:
+        初始化并启动zerorpc服务
+        :param port: 端口号
+        :return: 启动成功返回True，失败返回False
         """
-        self.server = zerorpc.Server(self)
         try:
+            self.server = zerorpc.Server(self)
             self.server.bind(f'tcp://127.0.0.1:{port}')
-            return port
-        except zmq.error.ZMQError:
-            logger.error(f"Ocr server cannot bind on port {port}")
+            logger.info(f"ZeroRPC服务初始化成功，绑定端口: {port}")
+            self.server.run()
+            return True
+        except zmq.error.ZMQError as e:
+            logger.error(f"ZeroRPC服务无法绑定到端口 {port}: {e}")
             return False
-
-    def run_server(self) -> None:
-        """
-        启动zerorpc服务
-        :return:
-        """
-        self.server.run()
+        except Exception as e:
+            logger.error(f"ZeroRPC服务启动失败: {e}")
+            return False
 
     def save_error_log(self, task='taskname', error_type='Error'):
         """
@@ -119,8 +116,8 @@ class Script:
             error_log_path = f'{error_path_base}.log'
             error_image_path = f'{error_path_base}.png'
             Path(folder).mkdir(parents=True, exist_ok=True)
-            logger.info(f"保存错误日志到: {error_log_path}")
-            logger.info(f"保存错误截图到: {error_image_path}")
+            logger.error(f"错误日志: {error_log_path}")
+            logger.error(f"错误截图: {error_image_path}")
 
             with open(logger.log_file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
