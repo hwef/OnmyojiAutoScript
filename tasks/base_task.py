@@ -302,25 +302,15 @@ class BaseTask(BaseTaskParent):
             logger.info(f"响应内容: {response.text}")
             # 检查请求是否成功
             if response.status_code == 200:
-                # 如果返回的是JSON格式数据
-                try:
-                    json_data = response.json()
-                    logger.info(f"JSON响应: {json_data}")
-                    return json_data
-                except ValueError:
-                    logger.error("响应不是有效的JSON格式")
-                    self.push_notify(title="响应不是有效的JSON格式", content=response.text)
-                    return False
-
+                return response
             else:
                 logger.info(f"请求失败，状态码: {response.status_code}")
                 self.push_notify(title="请求失败", content=f"状态码: {response.status_code}")
-                return False
-
+                return ""
         except requests.exceptions.RequestException as e:
             logger.error(f"请求发生错误: {e}")
             self.push_notify(title="请求发生错误", content=f"{e}")
-            return False
+            return ""
 
     def add_time_to_datetime(self, time_obj: Time, base_time: datetime = None) -> datetime:
         """
@@ -342,7 +332,7 @@ if __name__ == '__main__':
     from module.device.device import Device
 
     c = Config('4399')
-    d = Device(c)
+    # d = Device(c)
     t = BaseTask(c)
     t.next_run_week(4)
     # t.next_run_week(2)
