@@ -121,13 +121,17 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
 
         # 发送请求检查福利寮开启情况
         if cfg.welfare_config.enable_get_requests:
-            json_response = self.get_requests(cfg.welfare_config.get_requests_url)
+            response = self.get_requests(cfg.welfare_config.get_requests_url)
+            json_response = response.json()
+            datetime_now = datetime.now()
             # 解析时间戳并设置创建道馆时间
-            timestamp = json_response['timestamp']
+            timestamp = json_response.get('timestamp')
+            if not timestamp:
+                self.set_next_run(target=datetime_now + timedelta(minutes=3))
+                raise TaskEnd
             # 解析时间戳获取时分秒
             timestamp_time = datetime.fromtimestamp(timestamp)
             logger.info(f"福利道馆创建时间: {timestamp_time}")
-            datetime_now = datetime.now()
             # 检查响应有效性
             if not json_response or not json_response.get('est', False):
                 logger.warning(f"福利道馆未开启: {json_response}")
