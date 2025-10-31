@@ -5,7 +5,6 @@ import time
 
 import cv2
 import inflection
-import json
 import re
 import zerorpc
 import zmq
@@ -14,18 +13,16 @@ from datetime import datetime, timedelta
 from module.base.decorator import del_cached_property
 from module.base.utils import load_module
 from module.config.config import Config
-from module.config.utils import convert_to_underscore
 from module.device.device import Device
 from module.device.device_manager import DeviceManager
+from module.device.emulator_manager import EmulatorManager
 from module.exception import *
 from module.logger import logger, error_path, get_filename
 from module.server.i18n import I18n
 from multiprocessing.queues import Queue
 from pathlib import Path
-from pydantic import ValidationError
 from threading import Thread
 from typing import Callable
-from module.device.emulator_manager import EmulatorManager
 
 
 class Script:
@@ -80,13 +77,25 @@ class Script:
         logger.debug('[清理] config 清理工作已完成')
         DeviceManager.reset_device()
 
-    @cached_property
-    def checker(self):
+    def init_server(self, port: int) -> int:
         """
-        占位函数，在alas中是检查服务器是否正常的
+        初始化zerorpc服务，返回端口号
         :return:
         """
-        return None
+        self.server = zerorpc.Server(self)
+        try:
+            self.server.bind(f'tcp://127.0.0.1:{port}')
+            return port
+        except zmq.error.ZMQError:
+            logger.error(f"Ocr server cannot bind on port {port}")
+            return False
+
+    def run_server(self) -> None:
+        """
+        启动zerorpc服务
+        :return:
+        """
+        self.server.run()
 
     def save_error_log(self, task='taskname', error_type='Error'):
         """
@@ -94,8 +103,7 @@ class Script:
         Save logs to ./log/error/<timestamp>/log.txt
         """
         from module.base.utils import save_image
-        from module.handler.sensitive_info import (handle_sensitive_image,
-                                                   handle_sensitive_logs)
+        from module.handler.sensitive_info import (handle_sensitive_logs)
         if self.config.script.error.save_error:
             # 账号切换任务配置
             con = self.config.switch_account_config.config
@@ -142,163 +150,15 @@ class Script:
                 task = f"{name}▪{I18n.trans_zh_cn(task)}"
             self.config.notifier.send_push(f"❌ {I18n.trans_zh_cn(task)}", error_type, image, error_log_path)
 
-    def init_server(self, port: int) -> int:
-        """
-        初始化zerorpc服务，返回端口号
-        :return:
-        """
-        self.server = zerorpc.Server(self)
-        try:
-            self.server.bind(f'tcp://127.0.0.1:{port}')
-            return port
-        except zmq.error.ZMQError:
-            logger.error(f"Ocr server cannot bind on port {port}")
-            return False
-
-    def run_server(self) -> None:
-        """
-        启动zerorpc服务
-        :return:
-        """
-        self.server.run()
-
-    def gui_args(self, task: str) -> str:
-        """
-        获取给gui显示的参数
-        :return:
-        """
-        return self.config.gui_args(task=task)
-
-    def gui_menu(self) -> str:
-        """
-        获取给gui显示的菜单
-        :return:
-        """
-        return self.config.gui_menu
-
-    def gui_task(self, task: str) -> str:
-        """
-        获取给gui显示的任务 的参数的具体值
-        :return:
-        """
-        return self.config.model.gui_task(task=task)
-
-    def gui_set_task(self, task: str, group: str, argument: str, value) -> bool:
-        """
-        设置给gui显示的任务 的参数的具体值
-        :return:
-        """
-        # 验证参数
-        task = convert_to_underscore(task)
-        group = convert_to_underscore(group)
-        argument = convert_to_underscore(argument)
-        # pandtic验证
-        if isinstance(value, str):
-            if len(value) == 8:
-                try:
-                    value = datetime.strptime(value, '%H:%M:%S').time()
-                except ValueError:
-                    pass
-
-        path = f'{task}.{group}.{argument}'
-        task_object = getattr(self.config.model, task, None)
-        group_object = getattr(task_object, group, None)
-        argument_object = getattr(group_object, argument, None)
-
-        if argument_object is None:
-            logger.error(f'Set arg {task}.{group}.{argument}.{value} failed')
-            return False
-
-        try:
-            setattr(group_object, argument, value)
-            argument_object = getattr(group_object, argument, None)
-            logger.info(f'Set arg {task}.{group}.{argument}.{argument_object}')
-            self.config.save()  # 我是没有想到什么方法可以使得属性改变自动保存的
-            return True
-        except ValidationError as e:
-            logger.error(e)
-            return False
-
-    @zerorpc.stream
-    def gui_mirror_image(self):
-        """
-        获取给gui显示的镜像
-        :return: cv2的对象将 numpy 数组转换为字节串。接下来MsgPack 进行序列化发送方将图像数据转换为字节串
-        """
-        # return msgpack.packb(cv2.imencode('.jpg', self.device.screenshot())[1].tobytes())
-        img = cv2.cvtColor(self.device.screenshot(), cv2.COLOR_RGB2BGR)
-        self.device.stuck_record_clear()
-        ret, buffer = cv2.imencode('.jpg', img)
-        yield buffer.tobytes()
-
-    def _gui_update_tasks(self) -> None:
-        """
-        获取更新任务后 pending waiting 的任务 和 当前的任务的数据。打包给gui显示
-        :return:
-        """
-        data = {}
-        pending = []
-        waiting = []
-        task = {}
-        if self.config.task is not None and self.config.task.next_run < datetime.now():
-            task["name"] = self.config.task.command
-            task["next_run"] = str(self.config.task.next_run)
-        data["task"] = task
-
-        for p in self.config.pending_task[1:]:
-            item = {"name": p.command, "next_run": str(p.next_run)}
-            pending.append(item)
-
-        for w in self.config.waiting_task:
-            item = {"name": w.command, "next_run": str(w.next_run)}
-            waiting.append(item)
-
-        data["pending"] = pending
-        data["waiting"] = waiting
-
-        if self.gui_update_task is not None:
-            self.gui_update_task(data)
-
-    def _gui_set_status(self, status: str) -> None:
-        """
-        设置给gui显示的状态
-        :param status: 可以在gui中显示的状态 有 "Init", "Empty"(不显示), "Run"(运行中), "Error", "Free"(空闲)
-        :return:
-        """
-        data = {"status": status}
-        if self.gui_update_task is not None:
-            self.gui_update_task(data)
-
-    def gui_task_list(self) -> str:
-        """
-        获取给gui显示的任务列表
-        :return:
-        """
-        result = {}
-        for key, value in self.config.model.dict().items():
-            if isinstance(value, str):
-                continue
-            if key == "restart":
-                continue
-            if "scheduler" not in value:
-                continue
-
-            scheduler = value["scheduler"]
-            item = {"enable": scheduler["enable"],
-                    "next_run": str(scheduler["next_run"])}
-            key = self.config.model.type(key)
-            result[key] = item
-        return json.dumps(result)
-
     def wait_until(self, future):
         """
-        Wait until a specific time.
-
-        Args:
-            future (datetime):
-
-        Returns:
-            bool: True if wait finished, False if config changed.
+         等待直到指定的future对象完成
+        参数:
+            future: 需要等待的future对象，应具有done()方法来检查是否完成
+        返回值:
+            无返回值
+        功能说明:
+            该方法会阻塞当前线程，直到传入的future对象完成为止
         """
         future = future + timedelta(seconds=1)
         self.config.start_watching()
@@ -373,6 +233,13 @@ class Script:
         return task.command
 
     def check_wait_until(self, future_time):
+        """
+        检查并等待直到指定时间，如果配置发生变更则重新加载配置
+        参数:
+            future_time: 目标等待时间
+        返回值:
+            bool: 如果正常等待完成返回True，如果检测到配置变更并重新加载则返回False
+        """
         if self.wait_until(future_time):
             return True
         else:
