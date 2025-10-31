@@ -687,6 +687,9 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
                     continue
                 p_num = int(tmp.group())
 
+                # 最少人数随着刷新次数减少
+                if num_fresh >= 20:
+                    con.min_people_num -= num_fresh
                 if p_num < con.min_people_num:
                     self.find_dokan_list.append(f"道馆: {dokan_name},人数: {p_num}")
                     logger.warning(f"道馆: {dokan_name}, 人数:{p_num}少于{con.min_people_num}, 不符合要求")
