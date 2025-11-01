@@ -122,7 +122,7 @@ class EmulatorManager:
             logger.info("所有模拟器已关闭, 关闭OCR服务")
             port = State.deploy_config.OcrServerPort
             process_manager = ProcessManager()
-            process_manager.kill_by_port(port=port)
+            process_manager.stop_process_tree_by_port(port=port)
 
     def app_start(self):
         """

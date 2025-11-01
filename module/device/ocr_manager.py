@@ -26,3 +26,7 @@ def check_ocr_server_process():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         result = sock.connect_ex(('localhost', port))
         return result == 0
+
+
+if __name__ == '__main__':
+    pass
