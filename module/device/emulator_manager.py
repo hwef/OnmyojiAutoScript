@@ -4,15 +4,12 @@
 通过模拟器管理器直接控制模拟器的启动、关闭等操作
 """
 
-import json
-import os
-import subprocess
+from deploy.process import ProcessManager
+from module.device.execute_util import execute_emulator, execute_show_window
 from module.logger import logger
+from module.server.setting import State
 from tasks.Script.config_device import EmulatorWindow
 from tasks.Script.config_device import PackageName
-from module.server.setting import State
-from deploy.process import ProcessManager
-import socket
 
 
 class EmulatorManager:
@@ -36,31 +33,12 @@ class EmulatorManager:
         # 获取模拟器启动启动后窗口操作
         self.emulator_window = config.script.device.emulator_window
 
-    def _execute_cmd(self, command):
-        # logger.info(f'执行命令: {command}')
-        # 隐藏CMD窗口执行命令
-        startupinfo = None
-        if os.name == 'nt':  # Windows系统
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            timeout=10,
-            startupinfo=startupinfo,
-            encoding='utf-8'  # 明确指定编码
-        )
-        emulators_info = json.loads(result.stdout)
-        return emulators_info
-
     def get_emulator_info(self, vmindex):
         """
         获取模拟器信息
         """
         cmd = [self.manager_path, "info", "-v", str(vmindex)]
-        return self._execute_cmd(cmd)
+        return execute_emulator(cmd)
 
     def get_package_name(self):
         """
@@ -78,7 +56,7 @@ class EmulatorManager:
         根据模拟器名称获取索引
         """
         cmd = [self.manager_path, "info", "-v", "all"]
-        result = self._execute_cmd(cmd)
+        result = execute_emulator(cmd)
         try:
             # 处理每个模拟器实例
             for index, emulator in result.items():
@@ -104,7 +82,7 @@ class EmulatorManager:
             show_window = False
 
         cmd = [self.config.script.device.emulatorinfo_path, "control", "-v", self.vmindex, "launch"]
-        result = self.execute(cmd, show_window)
+        result = execute_show_window(cmd, show_window)
         if result:
             logger.info("模拟器开始启动")
         else:
@@ -118,7 +96,7 @@ class EmulatorManager:
             logger.info("无需关闭模拟器")
         else:
             cmd = [self.manager_path, "control", "-v", self.vmindex, "shutdown"]
-            result = self._execute_cmd(cmd)
+            result = execute_emulator(cmd)
             if result:
                 logger.info("模拟器关闭成功")
                 self.stop_ocr_server()
@@ -131,7 +109,7 @@ class EmulatorManager:
         """
         if State.deploy_config.UseOcrServer:
             cmd = [self.manager_path, "info", "-v", "all"]
-            all_emulators_info = self._execute_cmd(cmd)
+            all_emulators_info = execute_emulator(cmd)
 
             for index, emulator_data in all_emulators_info.items():
                 # 跳过非模拟器信息的条目
@@ -152,7 +130,7 @@ class EmulatorManager:
         """
         mode = ["app", "launch"]
         cmd = [self.manager_path, "control", "-v", self.vmindex, *mode, "-pkg", self.package_name]
-        result = self._execute_cmd(cmd)
+        result = execute_emulator(cmd)
         if result:
             logger.info(f"{self.package_name}启动成功")
         else:
@@ -163,7 +141,7 @@ class EmulatorManager:
         关闭游戏
         """
         cmd = [self.manager_path, "control", "-v", self.vmindex, "app", "close", "-pkg", self.package_name]
-        result = self._execute_cmd(cmd)
+        result = execute_emulator(cmd)
         if result:
             logger.info("游戏关闭成功")
         else:
@@ -174,7 +152,7 @@ class EmulatorManager:
         获取游戏状态
         """
         cmd = [self.manager_path, "control", "-v", self.vmindex, "app", "info", "-pkg", self.package_name]
-        result = self._execute_cmd(cmd)
+        result = execute_emulator(cmd)
         if result:
             game_state = result.get("state", None)
             return game_state
@@ -210,7 +188,7 @@ class EmulatorManager:
         隐藏模拟器窗口
         """
         cmd = [self.manager_path, "control", "-v", self.vmindex, "hide_window"]
-        result = self._execute_cmd(cmd)
+        result = execute_emulator(cmd)
         if result:
             logger.info("模拟器窗口已隐藏")
         else:
@@ -221,59 +199,11 @@ class EmulatorManager:
         显示模拟器窗口
         """
         cmd = [self.manager_path, "control", "-v", self.vmindex, "show_window"]
-        result = self._execute_cmd(cmd)
+        result = execute_emulator(cmd)
         if result:
             logger.info("模拟器窗口已显示")
         else:
             logger.error("模拟器窗口显示失败")
-
-    def execute(self, command, show_window=True):
-
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
-        if not show_window:
-            startupinfo.wShowWindow = 0  # SW_MINIMIZE - 不显示窗口
-        else:
-            startupinfo.wShowWindow = 1  # SW_SHOWNORMAL - 正常显示
-        # 添加CREATE_NO_WINDOW标志以防止创建新窗口
-        creationflags = subprocess.CREATE_NO_WINDOW
-
-        # logger.info(f'Execute: {command}')
-        return subprocess.Popen(
-            command,
-            # close_fds=True, 会造成在python进程中出现木木模拟器
-            startupinfo=startupinfo,
-            creationflags=creationflags,
-            # 重定向标准输出和标准错误以防止弹窗
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-        )
-
-    def start_ocr_server(self):
-
-        if State.deploy_config.UseOcrServer:
-            port = State.deploy_config.OcrServerPort
-        else:
-            logger.info("OCR 服务未启用")
-            return
-
-        def is_ocr_server_running(ocr_port):
-            """检测OCR服务器是否已在运行"""
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                result = sock.connect_ex(('localhost', ocr_port))
-                return result == 0
-
-        if is_ocr_server_running(port):
-            logger.info("OCR 服务已运行")
-            return
-
-        # 构建bat文件路径
-        bat_file_path = os.path.join(os.path.dirname(__file__), '..', '..', 'start_OCR.bat')
-        bat_file_path = os.path.abspath(bat_file_path)
-        cmd = [bat_file_path]
-        logger.info(f"启动OCR服务: {cmd}")
-        self.execute(cmd)
 
 
 if __name__ == "__main__":
@@ -282,7 +212,6 @@ if __name__ == "__main__":
     config = Config('4399-2')
     # 创建模拟器管理器实例
     manager = EmulatorManager(config)
-    manager.start_ocr_server()
 
     # # 检查模拟器状态
     # if manager.is_emulator_running():

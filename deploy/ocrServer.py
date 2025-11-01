@@ -9,7 +9,7 @@ from module.server.setting import State
 import socket
 
 
-class OcrServer():
+class OcrServer:
 
     def start_ocr_server(self):
 
