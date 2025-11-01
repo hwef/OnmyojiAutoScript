@@ -90,20 +90,20 @@ class ScriptProcess(ScriptWSManager):
         try:
             while 1:
                 if self.state == ScriptState.INACTIVE:
-                    await sleep(1)
+                    await sleep(0.3)
                     continue
-                await sleep(0.05)
+                await sleep(0.01)
                 try:
                     if not self.log_pipe_out.poll():
-                        await sleep(0.3)
+                        await sleep(0.03)
                         continue
                     log = self.log_pipe_out.recv()
                     if not log:
-                        await sleep(0.5)
+                        await sleep(0.05)
                         continue
                     await self.broadcast_log(log)
                 except EOFError as e:
-                    await sleep(0.5)
+                    await sleep(0.05)
                     logger.warning(f'EOFError: {e}')
                     continue
                 except Exception as e:
@@ -134,7 +134,8 @@ def func(config: str, state_queue: multiprocessing.Queue, log_pipe_in) -> None:
         from script import Script
         script = Script(config_name=config)
         script.state_queue = state_queue
-        logger.hr(f'Script `{config}` is running', 0)
+        logger.hr(f'脚本 【{config}】 启动', 0)
+        logger.info(f'Script {config} is running')
         script.start_loop()
     except SystemExit as e:
         logger.info(f'Script {config} process exit')
