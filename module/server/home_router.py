@@ -1,15 +1,11 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-import json
 from fastapi import APIRouter, Body
-from pathlib import Path
-
-from module.config.utils import write_file
 from module.logger import logger
+from module.server.i18n import I18n
 from module.server.main_manager import MainManager
 from module.server.updater import Updater
-from module.server.i18n import I18n
 
 home_app = APIRouter(
     prefix="/home",
