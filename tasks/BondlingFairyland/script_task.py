@@ -56,7 +56,7 @@ class ScriptTask(GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, Bondlin
                 raise TaskEnd
 
             message = f'契忆数量: {cu} 小于 {MAX_COUNT}, 继续任务'
-            self.push_notify(content=message)
+            logger.info(message)
 
         logger.hr('第二步, 切换御魂', 2)
         # 御魂切换方式一
