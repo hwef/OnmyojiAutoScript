@@ -296,7 +296,7 @@ class Script:
         logger.set_file_logger(self.config_name)
 
         # 重置状态
-        logger.info(f'[准备] 正在重置状态...')
+        # logger.info(f'[准备] 正在重置状态...')
         self.failure_record = {}
         is_first_task = True
         stop_requested = False
@@ -377,19 +377,19 @@ class Script:
     
     def start_loop(self):
         """
-        循环启动控制器
+        启动主循环函数
         """
         # 初始化日志
         logger.set_file_logger(self.config_name)
 
-        logger.info('[启动] 启动循环守护线程')
+        logger.info('[启动] 启动循环线程')
         max_start_loop_count = 3
 
         while self.start_loop_count <= max_start_loop_count:
             # 启动新线程
             self.loop_thread = Thread(target=self.loop)
             self.loop_thread.start()
-            logger.info(f'[线程] 工作线程已启动 | 启动次数: {self.start_loop_count}/{max_start_loop_count}')
+            logger.info(f'[线程] 线程已启动 | 启动次数: {self.start_loop_count}/{max_start_loop_count}')
 
             # 等待线程结束（无限等待，确保线程完成）
             self.loop_thread.join()
