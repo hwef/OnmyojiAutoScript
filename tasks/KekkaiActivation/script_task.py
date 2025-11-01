@@ -12,26 +12,21 @@ from module.atom.image_grid import ImageGrid
 from module.base.utils import point2str
 from module.exception import TaskEnd, GameStuckError
 from module.logger import logger
-from tasks.GameUi.page import page_main, page_realm
+from tasks.GameUi.page import page_realm
 from tasks.KekkaiActivation.assets import KekkaiActivationAssets
 from tasks.KekkaiActivation.config import ActivationConfig
 from tasks.KekkaiActivation.config import CardType
 from tasks.KekkaiUtilize.script_task import ScriptTask as KU
 from tasks.KekkaiUtilize.utils import CardClass
-from tasks.Utils.config_enum import ShikigamiClass
 
 """ 结界挂卡 """
+
+
 class ScriptTask(KU, KekkaiActivationAssets):
 
     def run(self):
         con = self.config.kekkai_activation.activation_config
         self.ui_goto_page(page_realm)
-
-        # 在寮的主界面 检查是否有收取体力或者是收取寮资金
-        # self.check_guild_ap_or_assets()
-
-        # 进入寮结界
-        # self.goto_realm()
 
         if con.exchange_before:
             self.check_max_lv(con.shikigami_class)
@@ -39,15 +34,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
         self.harvest_card()
         # 开始挂卡
         self.run_activation(con)
-        while 1:
-            # 关闭到结界界面
-            self.screenshot()
-            if self.appear(self.I_REALM_SHIN):
-                break
-            if self.appear(self.I_SHI_GROWN):
-                break
-            if self.appear_then_click(self.I_UI_BACK_RED, interval=1):
-                continue
+        self.ui_goto_page(page_realm)
 
         if con.exchange_max:
             self.check_max_lv(con.shikigami_class)
@@ -119,7 +106,7 @@ class ScriptTask(KU, KekkaiActivationAssets):
             if card_status and card_effect:
                 logger.info('Card is using')
                 interval = self.ocr_time()
-                self.set_next_run("KekkaiActivation", success=False, finish=True, target=interval+datetime.now())
+                self.set_next_run("KekkaiActivation", success=False, finish=True, target=interval + datetime.now())
                 return False
             # 如果已经选中这张卡了， 那就激活这张卡
             if card_status and not card_effect:
@@ -249,9 +236,9 @@ class ScriptTask(KU, KekkaiActivationAssets):
                 while 1:
                     self.screenshot()
                     if not self.appear(self.I_A_EMPTY):
-
                         def update_config():
                             self.config.kekkai_activation.activation_config.card_not_found_count = 0
+
                         self.config.safe_save(update_config)
 
                         message = f'✅ 确认挂卡: {rule}'
