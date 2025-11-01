@@ -693,17 +693,22 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
 
                 # 最少人数随着刷新次数减少
                 if num_fresh >= 20:
-                    con.min_people_num -= num_fresh
-                if p_num < con.min_people_num:
-                    self.find_dokan_list.append(f"道馆: {dokan_name},人数: {p_num}")
-                    logger.warning(f"道馆: {dokan_name}, 人数:{p_num}少于{con.min_people_num}, 不符合要求")
+                    min_people = con.min_people_num - num_fresh
+                else:
+                    min_people = con.min_people_num
+
+                if p_num < min_people:
+                    message = f"道馆: {dokan_name}, 人数:{p_num}, 不符合要求人数:{min_people}"
+                    self.find_dokan_list.append(message)
+                    logger.warning(message)
                     self.open_welfare = False
                     continue
 
                 # 如果是要开启福利寮，且此寮人数校验已经通过，直接确认此寮
                 if self.open_welfare:
-                    self.find_dokan_list.append(f"道馆: {dokan_name}, 人数:{p_num}")
-                    self.push_notify(content=f"✅ 开启福利道馆: {dokan_name}, 人数:{p_num}")
+                    message = f"✅ 开启福利道馆: {dokan_name}, 人数:{p_num}, 符合要求人数:{min_people}"
+                    self.find_dokan_list.append(message)
+                    self.push_notify(content=message)
                     return True
 
                 # 获取赏金金额
