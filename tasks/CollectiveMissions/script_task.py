@@ -118,6 +118,7 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
         raise TaskEnd('CollectiveMissions')
 
     def select_gr(self, target):
+        self.device.click_record_clear()
         last_result = None       # 记录上一次的OCR识别结果（初始为None）
         consecutive_count = 0    # 记录连续相同结果的次数（初始为0）
         while True:              # 无限循环（用True更易读）
