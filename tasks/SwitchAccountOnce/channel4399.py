@@ -72,18 +72,19 @@ class ScriptTask(BaseChannelTask):
                     if task.command in set(self.skip_task) | set(self.week_task) | set(self.limit_task):
                         continue
                     self.set_next_run(task=task.command, target=target_time)
+                    # 设置总是运行的任务
+                    self._set_batch_tasks(self.always_run_task, target_time)
             # 限时任务
             case TaskType.limitTask:
                 self._set_batch_tasks(self.limit_task, target_time)
-            # 周任务
+                # 设置总是运行的任务
+                self._set_batch_tasks(self.always_run_task, target_time)
+                # 周任务
             case TaskType.weekTask:
                 self._set_batch_tasks(self.week_task, target_time)
             # 协站50任务
             case TaskType.assist50:
                 self._set_batch_tasks(self.assist50_run_task, target_time)
-
-        # 设置总是运行的任务
-        self._set_batch_tasks(self.always_run_task, target_time)
 
         # 更新数据和通知
         self.update_account_data(con.once_config.accounts_file, current_account_data, index, task_type)
