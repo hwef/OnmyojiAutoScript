@@ -38,6 +38,7 @@ class Shrine(GameUi, RichManAssets):
             self.shrine_white_five()
         if con.white_daruma_four:
             self.shrine_white_four()
+        self.save_image(wait_time=0)
 
     def shrine_check_money(self, mix: int) -> bool:
         self.screenshot()
@@ -49,6 +50,7 @@ class Shrine(GameUi, RichManAssets):
             logger.info('Money is enough')
             return True
         logger.info('Money is not enough')
+        self.push_notify(f"当前御札{current}，不足{mix}")
         return False
 
     def _check_bought(self, target) -> bool:
@@ -130,9 +132,9 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('du')
-    d = Device(c)
-    t = Shrine(c, d)
+    c = Config('mi')
+    # d = Device(c)
+    t = Shrine(c)
 
     # t.shrine_white_four()
     t.execute_shrine(t.config.model.rich_man.shrine)
