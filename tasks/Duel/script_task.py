@@ -149,7 +149,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
             self.set_next_run(task='Duel', success=True, finish=False)
 
         # 调起花合战
-        self.set_next_run(task='TalismanPass', target=datetime.now())
+        # self.set_next_run(task='TalismanPass', target=datetime.now())
         raise TaskEnd('Duel')
 
     def duel_main(self, screenshot=False) -> bool:
@@ -389,7 +389,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
                 break
         while 1:
             self.screenshot()
-            if self.ocr_appear(self.O_D_AUTO, interval=0.4):
+            if self.ocr_appear(self.O_D_AUTO, interval=1):
                 break
             if self.ocr_appear_click(self.O_D_HAND, interval=1):
                 continue
