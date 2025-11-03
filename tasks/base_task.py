@@ -289,10 +289,10 @@ class BaseTask(BaseTaskParent):
             logger.warning(f"结束当前任务: {I18n.trans_zh_cn(current_task)}")
             logger.warning(f"执行优先任务: {I18n.trans_zh_cn(first_priority_task)}")
             # self.push_notify(title=f"执行优先任务: {I18n.trans_zh_cn(first_priority_task)}", content=f"结束当前任务: {I18n.trans_zh_cn(current_task)}")
-            from tasks.GameUi.game_ui import GameUi
-            from tasks.GameUi.page import page_main
-            GameUi = GameUi(self.config)
-            GameUi.ui_goto_page(page_main)
+            # from tasks.GameUi.game_ui import GameUi
+            # from tasks.GameUi.page import page_main
+            # GameUi = GameUi(self.config)
+            # GameUi.ui_goto_page(page_main)
             raise TaskEnd
 
     def get_requests(self, url):
