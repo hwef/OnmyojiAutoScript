@@ -312,18 +312,18 @@ class BaseTask(BaseTaskParent):
             self.push_notify(title="请求发生错误", content=f"{e}")
             return ""
 
-    def add_time_to_datetime(self, time_obj: Time, base_time: datetime = None) -> datetime:
+    def datetime_add_timedelta(self, time_interval: Time, base_time: datetime = None) -> datetime:
         """
         将 Time 类型对象转换为 timedelta 并加到指定的 datetime 对象上
         参数:
         base_time (datetime): 基础时间对象
-        time_obj (Time): Time 类型的时间间隔对象
+        time_interval (Time): Time 类型的时间间隔对象
         返回:
         datetime: 累加后的时间对象
         """
         if base_time is None:
             base_time = datetime.now()
-        time_delta = timedelta(hours=time_obj.hour, minutes=time_obj.minute, seconds=time_obj.second)
+        time_delta = timedelta(hours=time_interval.hour, minutes=time_interval.minute, seconds=time_interval.second)
         return base_time + time_delta
 
 
