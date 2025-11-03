@@ -41,7 +41,7 @@ class ConfigMenu:
                                     'TrueOrochi']
         # 活动的任务
         self.menu["Activity Task"] = ['ActivityCommon', 'ActivityCommon2', 'AutoCake', 'ActivityShikigami', 'MetaDemon', 'FrogBoss', 'FloatParade', 'Quiz', 'KittyShop',
-                                      'NianTrue']
+                                      'NianTrue', 'LBS']
 
         # 账号切换
         self.menu["SwitchAccount"] = ["SwitchAccountConfig", "SwitchAccountOnce", "SwitchAccountLoop"]

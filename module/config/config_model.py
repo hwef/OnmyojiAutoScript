@@ -60,6 +60,7 @@ from tasks.Quiz.config import Quiz
 from tasks.KittyShop.config import KittyShop
 from tasks.NianTrue.config import NianTrue
 from tasks.MainStory.config import MainStory
+from tasks.LBS.config import LBS
 # ----------------------------------------------------------------------------------------------------------------------
 
 # 肝帝专属---------------------------------------------------------------------------------------------------------------
@@ -137,6 +138,7 @@ class ConfigModel(ConfigBase):
     kitty_shop: KittyShop = Field(default_factory=KittyShop)
     nian_true: NianTrue = Field(default_factory=NianTrue)
     main_story: MainStory = Field(default_factory=MainStory)
+    lbs: LBS = Field(default_factory=LBS)
     switch_account_config: SwitchAccountConfig = Field(default_factory=SwitchAccountConfig)
     switch_account_once: SwitchAccountOnce = Field(default_factory=SwitchAccountOnce)
     switch_account_loop: SwitchAccountLoop = Field(default_factory=SwitchAccountLoop)
@@ -459,10 +461,10 @@ class ConfigModel(ConfigBase):
 
 if __name__ == "__main__":
     try:
-        c = ConfigModel("oas1")
+        c = ConfigModel("4399")
     except ValidationError as e:
         print(e)
         c = ConfigModel()
 
-    # c.save()
+    c.save()
     print(c.script_task('Orochi'))
