@@ -23,7 +23,7 @@ from tasks.Utils.config_enum import ShikigamiClass
 
 class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     last_best_index = 99
-    utilize_add_count = 0
+    run_utilize_count = 0
     ap_max_num = 0
     jade_max_num = 0
     first_utilize = True
@@ -63,9 +63,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     def check_utilize_add(self):
         con = self.config.kekkai_utilize.utilize_config
         while 1:
-            self.utilize_add_count += 1
-            if self.utilize_add_count >= 5:
-                logger.warning('没有合适可以蹭的卡, 5分钟后再次执行蹭卡')
+            if self.run_utilize_count >= 2:
                 self.push_notify(content=f"没有合适可以蹭的卡, 5分钟后再次执行蹭卡")
                 self.set_next_run(task='KekkaiUtilize', target=datetime.now() + timedelta(minutes=5))
                 return
@@ -90,6 +88,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 logger.info('Utilize failed, exit')
             # 开始执行寄养
             self.run_utilize(con.select_friend_list, con.shikigami_class, con.shikigami_order)
+            self.run_utilize_count += 1
             # 进入寮结界
             self.ui_goto_page(page_realm)
 
@@ -409,7 +408,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             return False
 
         # 找到卡,重置次数
-        self.utilize_add_count = 0
+        self.run_utilize_count = 0
         logger.info('开始执行进入结界蹭卡流程')
         self.screenshot()
         # 进入结界
