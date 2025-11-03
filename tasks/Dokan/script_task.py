@@ -694,6 +694,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
                 # 最少人数随着刷新次数减少
                 if num_fresh >= 20:
                     min_people = con.min_people_num - num_fresh
+                    min_people = max(min_people, 110)
                 else:
                     min_people = con.min_people_num
 
