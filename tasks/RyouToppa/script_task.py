@@ -225,7 +225,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, RyouToppaAssets):
             return False
         self.wait_until_appear(self.I_TOPPA_RECORD)
         self.screenshot()
-        cu, res, total = self.O_NUMBER.ocr(self.device.image)
+        cu, res, total = self.ocr_result(self.O_NUMBER)
         if cu == 0 and cu + res == total:
             logger.warning(f'Execute round failed, no ticket')
             return False
@@ -352,4 +352,4 @@ if __name__ == "__main__":
     # device = Device(config)
     t = ScriptTask(config)
     # t.attack_area(1)
-    t.battle_wait(False)
+    t.has_ticket()
