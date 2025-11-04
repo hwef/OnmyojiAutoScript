@@ -183,7 +183,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, RyouToppaAssets):
 
     # 执行花合战
     def set_next_run_talismanpass(self):
-        self.set_next_run(task='TalismanPass', target=datetime.now())
+        # self.set_next_run(task='TalismanPass', target=datetime.now())
         raise TaskEnd
 
     def start_ryou_toppa(self):
@@ -325,13 +325,31 @@ class ScriptTask(GeneralBattle, SwitchSoul, RyouToppaAssets):
                     return True
                 continue
 
+    def battle_wait(self, random_click_swipt_enable: bool) -> bool:
+        # 战斗过程 随机点击和滑动 防封
+        logger.info("Start battle process")
+        self.device.stuck_record_clear()
+        self.device.stuck_record_add('BATTLE_STATUS_S')
+        while 1:
+            self.screenshot()
+            if self.appear(self.I_TOPPA_RECORD):
+                return True
+            if self.appear_then_click(self.I_WIN, interval=1):
+                continue
+            if self.appear_then_click(self.I_FALSE, interval=1):
+                continue
+            if self.appear_then_click(self.I_PREPARE_HIGHLIGHT, interval=1):
+                continue
+            if self.appear_then_click(self.I_REWARD, interval=1):
+                continue
+
 
 if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('du')
-    device = Device(config)
-    t = ScriptTask(config, device)
-    t.attack_area(1)
-    t.flush_area_cache()
+    config = Config('MI')
+    # device = Device(config)
+    t = ScriptTask(config)
+    # t.attack_area(1)
+    t.battle_wait(False)
