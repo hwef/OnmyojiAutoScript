@@ -48,7 +48,7 @@
     "itemName": "false",
     "imageName": "gb_false.png",
     "roiFront": "413,124,100,100",
-    "roiBack": "413,124,100,100",
+    "roiBack": "345,56,248,181",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "失败"
