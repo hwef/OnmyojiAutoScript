@@ -398,6 +398,40 @@ class BaseTaskParent(GlobalGameAssets, CostumeBase):
             return True
         return False
 
+    def ocr_result(self, target: RuleOcr, interval: float = None):
+        """
+        执行OCR识别操作
+
+        :param target: RuleOcr对象，包含OCR识别规则和目标信息
+        :param interval: 间隔时间限制，单位为秒，默认为1秒，用于控制相同OCR操作的执行频率
+        :return: OCR识别结果
+        :raises ValueError: 当target不是RuleOcr类型时抛出异常
+        """
+        if not isinstance(target, RuleOcr):
+            raise ValueError('ocr target must be RuleOcr')
+
+        # 处理OCR操作的时间间隔限制
+        if interval:
+            if target.name in self.interval_timer:
+                # 如果传入的限制时间不一样，则替换限制新的传入的时间
+                if self.interval_timer[target.name].limit != interval:
+                    self.interval_timer[target.name] = Timer(interval)
+                # 如果时间还没到达，则等待
+                while not self.interval_timer[target.name].reached():
+                    sleep(0.1)  # 短暂休眠避免过度占用CPU
+            else:
+                # 如果没有限制时间，则创建限制时间
+                self.interval_timer[target.name] = Timer(interval)
+
+        # 执行OCR识别
+        result = target.ocr(self.device.image)
+
+        # 重置计时器
+        if interval:
+            self.interval_timer[target.name].reset()
+
+        return result
+
     def ocr_appear(self, target: RuleOcr, interval: float = None) -> bool:
         """
         ocr识别目标
