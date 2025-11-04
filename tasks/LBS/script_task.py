@@ -15,6 +15,7 @@ from tasks.LBS.assets import LBSAssets
 
 
 class ScriptTask(GameUi, GeneralBattle, LBSAssets):
+    success_count = 0
 
     def run(self):
 
@@ -35,8 +36,8 @@ class ScriptTask(GameUi, GeneralBattle, LBSAssets):
         while 1:
             self.screenshot()
 
-            if self.current_count >= self.limit_count:
-                logger.info('LBS count limit out')
+            if self.success_count >= self.limit_count:
+                logger.info('LBS success count limit out')
                 break
             if datetime.now() - self.start_time >= self.limit_time:
                 logger.info('LBS time limit out')
@@ -56,13 +57,21 @@ class ScriptTask(GameUi, GeneralBattle, LBSAssets):
         logger.info("Start battle process")
         self.device.stuck_record_clear()
         self.device.stuck_record_add('BATTLE_STATUS_S')
+        win_counted = False  # 添加标志，表示是否已计入胜利次数
         while 1:
             self.screenshot()
             if self.appear(self.I_3):
+                logger.info(f'Success count: {self.success_count} / {self.limit_count}')
                 return True
             if self.appear_then_click(self.I_WIN, interval=1):
+                if not win_counted:  # 只有未计入过胜利时才增加计数
+                    self.success_count += 1
+                    win_counted = True
                 continue
-            if self.appear_then_click(self.I_8, interval=1):
+            if self.appear_then_click(self.I_REWARD, interval=1):
+                if not win_counted:  # 只有未计入过胜利时才增加计数
+                    self.success_count += 1
+                    win_counted = True
                 continue
             if self.appear_then_click(self.I_FALSE, threshold=0.8):
                 continue
