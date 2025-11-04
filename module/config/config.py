@@ -1,32 +1,26 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
+from time import sleep
+
 import copy
 import datetime
 import operator
-import threading
-import random
-
-from datetime import datetime, timedelta
 from cached_property import cached_property
-from module.server.i18n import I18n
-from threading import Lock
-
-from module.base.filter import Filter
-from module.config.config_updater import ConfigUpdater
 from module.config.config_manual import ConfigManual
-from module.config.config_watcher import ConfigWatcher
 from module.config.config_menu import ConfigMenu
 from module.config.config_model import ConfigModel
 from module.config.config_state import ConfigState
+from module.config.config_watcher import ConfigWatcher
 from module.config.scheduler import TaskScheduler
 from module.config.utils import *
-from module.notify.notify import Notifier
-from module.notify.pushtg import PushTg
-
 from module.exception import RequestHumanTakeover, ScriptError
 from module.logger import logger
+from module.notify.notify import Notifier
+from module.notify.pushtg import PushTg
+from module.server.i18n import I18n
 from multiprocessing.queues import Queue
+from threading import Lock
 
 
 class Function:
@@ -194,7 +188,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
             except PermissionError as e:
                 if attempt < max_retries - 1:
                     logger.warning(f"保存配置文件权限被拒绝，{retry_delay}秒后重试 (第{attempt + 1}次): {e}")
-                    time.sleep(retry_delay)
+                    sleep(retry_delay)
                     retry_delay *= 2  # 指数退避
                 else:
                     logger.error(f"保存配置文件失败，已重试{max_retries}次仍无法访问: {e}")
