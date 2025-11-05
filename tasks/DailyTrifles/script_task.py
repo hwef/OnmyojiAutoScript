@@ -1,28 +1,24 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-import copy
 from time import sleep
-from datetime import time, datetime, timedelta
 
-from exceptiongroup import catch
-from winerror import NOERROR
-
+import copy
+import re
+from module.base.timer import Timer
+from module.exception import TaskEnd
+from module.logger import logger
+from tasks.Component.GeneralBuff.general_buff import GeneralBuff
+from tasks.Component.Summon.summon import Summon
+from tasks.DailyTrifles.assets import DailyTriflesAssets
+from tasks.DailyTrifles.config import SummonType
+from tasks.DailyTrifles.page import page_store_sign
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_summon, page_guild, page_mall, page_friends
-from tasks.Component.GeneralBuff.general_buff import GeneralBuff
-from tasks.DailyTrifles.config import DailyTriflesConfig
-from tasks.DailyTrifles.assets import DailyTriflesAssets
-from tasks.Component.Summon.summon import Summon
-
-from module.logger import logger
-from module.exception import TaskEnd
-from module.base.timer import Timer
-from tasks.DailyTrifles.config import SummonType
-import re
-
 
 """ 每日琐事 """
+
+
 class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 
     def run(self):
@@ -229,12 +225,14 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
         #     if self.appear_then_click(self.I_ROOM_GIFT, interval=1):
         #         continue
 
-        while 1:
-            self.screenshot()
-            if self.appear(self.I_GIFT_RECOMMEND):
-                break
-            if self.appear_then_click(self.I_ROOM_GIFT, interval=1):
-                continue
+        # while 1:
+        #     self.screenshot()
+        #     if self.appear(self.I_GIFT_RECOMMEND):
+        #         break
+        #     if self.appear_then_click(self.I_ROOM_GIFT, interval=1):
+        #         continue
+
+        self.ui_goto_page(page_store_sign)
         timer = Timer(5)
         timer.start()
         while 1:
@@ -415,7 +413,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 if __name__ == '__main__':
     from module.config.config import Config
 
-    c = Config('4399')
+    c = Config('du')
     t = ScriptTask(c)
 
     t.run_store_sign()
