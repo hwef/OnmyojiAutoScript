@@ -12,7 +12,7 @@ from tasks.Component.GeneralBuff.general_buff import GeneralBuff
 from tasks.Component.Summon.summon import Summon
 from tasks.DailyTrifles.assets import DailyTriflesAssets
 from tasks.DailyTrifles.config import SummonType
-from tasks.DailyTrifles.page import page_store_sign
+from tasks.DailyTrifles.page import page_store_sign, page_mall_special
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_summon, page_guild, page_mall, page_friends
 
@@ -203,9 +203,6 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
         if self.config.daily_trifles.trifles_config.buy_sushi_count > 0:
             self.run_buy_sushi()
 
-        self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_MALL)
-        self.ui_goto_page(page_main)
-
     def run_store_sign(self):
         # timer = Timer(5)
         # while 1:
@@ -260,15 +257,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
     def run_buy_sushi(self):
 
         # 进入Special
-        while 1:
-            from tasks.RichMan.assets import RichManAssets
-            self.screenshot()
-            if self.appear(RichManAssets.I_SIDE_CHECK_SPECIAL):
-                break
-            if self.appear_then_click(RichManAssets.I_MALL_SUNDRY, interval=1):
-                continue
-            if self.appear_then_click(RichManAssets.I_SIDE_SURE_SPECIAL, interval=1):
-                continue
+        self.ui_goto_page(page_mall_special)
 
         def detect_buy_count(base_element) -> (int, int):
             # 返回count,price
@@ -413,7 +402,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 if __name__ == '__main__':
     from module.config.config import Config
 
-    c = Config('du')
+    c = Config('wy')
     t = ScriptTask(c)
 
-    t.run_store_sign()
+    t.run_buy_sushi()
