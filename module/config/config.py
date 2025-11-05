@@ -416,14 +416,11 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         # 如果间隔时间小于等于1天,并且固定时间是9点 则将下次运行时间设置为当前时间加间隔时间
         # 如果间隔时间小于等于1天,并且固定时间是不是9点 则将下次运行时间设置为明天的固定时间
 
-        # 保证线程安全的
-        self.lock_config.acquire()
-        next_run = next_run.replace(microsecond=0)
-        try:
+        # 使用 with 语句确保锁正确释放
+        with self.lock_config:
+            next_run = next_run.replace(microsecond=0)
             scheduler.next_run = next_run
             self.save()
-        finally:
-            self.lock_config.release()
 
         # 广播调度更新
         if next_run <= datetime.now():
