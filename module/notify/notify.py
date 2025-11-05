@@ -246,14 +246,11 @@ class Notifier:
         return msg
 
 
-
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
-    config = Config('oa')
-    device = Device(config)
-    image_path = r"D:\OnmyojiAutoScript\ljxun\log\backup\2025-04-09 星期三\error\DU 2025-04-09 20时40分15.png"
-    log_path = r"D:\OnmyojiAutoScript\ljxun\log\backup\2025-04-09 星期三\error\DU 2025-04-09 20时40分15.log"
-    config.notifier.send_push(title='AbyssTrials', content='请及时处理', image=image_path, log_path=log_path)
+    config = Config('mi')
+    image_path = "https://frp-off.com:27102/log/error/GameTooManyClickError/KekkaiUtilize/DU/DU 2025-11-05 上午 10点36分22.png"
+    log_path = r"https://frp-off.com:27102/log/error/GameTooManyClickError/KekkaiUtilize/DU/DU 2025-11-05 上午 10点36分22.log"
+    config.notifier.push(title='AbyssTrials', content=f"<a href='{image_path}'>image_path</a><br/><a href='{log_path}'>log_path</a>", image=image_path, log_path=log_path)
     # config.notifier.send_push(title='Dokan', content='Dokan，请及时处理')
