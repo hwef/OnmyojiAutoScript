@@ -9,7 +9,7 @@ from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main
 from tasks.TalismanPass.assets import TalismanPassAssets
 from tasks.TalismanPass.config import TalismanConfig, LevelReward
-from tasks.TalismanPass.page import page_daily
+from tasks.TalismanPass.page import page_daily, page_accomplishment
 
 """ 花合战 """
 
@@ -50,8 +50,9 @@ class ScriptTask(GameUi, TalismanPassAssets):
         获取任务完成奖励
         :return:
         """
-        self.ui_click(self.I_ACCOMPLISHMENTS_1, self.I_ACCOMPLISHMENTS_2)
-        timer = Timer(10)
+        self.ui_goto_page(page_accomplishment)
+        # self.ui_click(self.I_ACCOMPLISHMENTS_1, self.I_ACCOMPLISHMENTS_2)
+        timer = Timer(3)
         timer.start()
         while 1:
             self.screenshot()
@@ -170,10 +171,10 @@ if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    c = Config('wy')
+    c = Config('4399')
     # d = Device(c)
     t = ScriptTask(c)
     # t.screenshot()
     # d.image = load_image(r"D:\共享文件夹\Screenshots\花合战\1 (1).png")
     # t.main_goto_daily()
-    t.main_goto_daily()
+    t.get_accomplishment()
