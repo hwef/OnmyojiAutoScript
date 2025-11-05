@@ -101,11 +101,11 @@
   {
     "itemName": "check_daily",
     "imageName": "page_check_daily.png",
-    "roiFront": "38,515,45,62",
-    "roiBack": "1,489,155,127",
+    "roiFront": "102,23,97,36",
+    "roiBack": "20,7,236,74",
     "method": "Template matching",
     "threshold": 0.7,
-    "description": "description"
+    "description": "page_check_daily"
   },
   {
     "itemName": "check_mall",

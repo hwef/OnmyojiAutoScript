@@ -156,11 +156,6 @@ page_main.link(button=G.I_MAIN_GOTO_ONMYODO, destination=page_onmyodo)
 page_friends = Page(G.I_CHECK_FRIENDS)
 page_friends.link(button=G.I_BACK_Y, destination=page_main)
 page_main.link(button=G.I_MAIN_GOTO_FRIENDS, destination=page_friends)
-# 花合战 daily
-page_daily = Page(G.I_CHECK_DAILY)
-# page_daily.additional = [G.O_CLICK_CLOSE_1, G.O_CLICK_CLOSE_2]
-page_daily.link(button=G.I_BACK_Y, destination=page_main)
-page_main.link(button=G.I_MAIN_GOTO_DAILY, destination=page_daily)
 from tasks.DailyTrifles.assets import DailyTriflesAssets
 
 # 商店 mall
