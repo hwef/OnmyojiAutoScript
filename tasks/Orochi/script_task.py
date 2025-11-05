@@ -140,7 +140,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
         # 个人突破
         self.set_next_run(task='RealmRaid', target=datetime_now)
         # 花合战
-        self.set_next_run(task='TalismanPass', target=datetime_now)
+        # self.set_next_run(task='TalismanPass', target=datetime_now)
         # 集体任务
         # self.set_next_run(task='CollectiveMissions', target=datetime_now)
         # 御魂整理
