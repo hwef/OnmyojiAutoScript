@@ -11,6 +11,7 @@ from tasks.Component.GeneralInvite.general_invite import GeneralInvite
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.GameUi.page import page_main, page_kirin, page_netherworld
 from tasks.Hunt.assets import HuntAssets
+from time import sleep
 
 """ 狩猎战 """
 
@@ -108,8 +109,19 @@ class ScriptTask(GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
         swipe_count = 1
         stuck_timer = Timer(240)
         stuck_timer.start()
+        exit_battle_second = self.config.hunt.kirin_config.exit_battle_second
+        exit_battle_timer = Timer(exit_battle_second)
+        if self.kirin_day and exit_battle_second > 0:
+            exit_battle_timer.start()
         while 1:
             self.screenshot()
+            if self.kirin_day and exit_battle_second > 0 and exit_battle_timer.reached():
+                logger.info(f'时间到达 {exit_battle_second}s, 退出战斗')
+                if self.appear_then_click(self.I_EXIT_ENSURE, interval=1):
+                    exit_battle_timer.reset()
+                    continue
+                if self.appear_then_click(self.I_UI_EXIT, interval=1):
+                    continue
             if self.appear(self.I_WIN):
                 logger.info('Battle win')
                 self.ui_click_until_disappear(self.I_WIN)
@@ -120,7 +132,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
                 self.ui_click_until_disappear(self.I_FALSE)
                 return False
             if self.appear(self.I_PREPARE_HIGHLIGHT):
-                if self.appear_then_click(self.I_EXIT_ENSURE):
+                if self.appear_then_click(self.I_EXIT_ENSURE, interval=1):
                     continue
                 if self.appear_then_click(self.I_UI_EXIT, interval=1):
                     continue
@@ -172,11 +184,8 @@ class ScriptTask(GeneralBattle, GeneralInvite, SwitchSoul, HuntAssets):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
-    c = Config('switch')
-    d = Device(c)
-    t = ScriptTask(c, d)
-    t.screenshot()
+    c = Config('4399')
+    t = ScriptTask(c)
 
-    t.run()
+    t.battle_wait(False)
