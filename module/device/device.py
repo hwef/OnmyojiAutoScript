@@ -42,23 +42,23 @@ class Device(EmulatorManager, Screenshot, Control):
                     raise TimeoutError("模拟器启动超时")
                 time.sleep(1)
 
+            if self.emulator_window == EmulatorWindow.front:
+                show_window_by_name(self.handle)
+                logger.info(f'前台显示窗口: {self.handle}')
+            elif self.emulator_window == EmulatorWindow.min:
+                minimize_by_name(self.handle)
+                logger.info(f'最小化窗口: {self.handle}')
+            elif self.emulator_window == EmulatorWindow.background:
+                show_hide_by_name(self.handle)
+                logger.info(f'隐藏窗口: {self.handle}')
+            else:
+                logger.info(f'默认窗口: {self.handle}')
+
         self.screenshot_interval_set()
 
         # Auto-select the fastest screenshot method
         if self.config.script.device.screenshot_method == 'auto':
             self.run_simple_screenshot_benchmark()
-
-        if self.emulator_window == EmulatorWindow.front:
-            show_window_by_name(self.handle)
-            logger.info(f'前台显示窗口: {self.handle}')
-        elif self.emulator_window == EmulatorWindow.min:
-            minimize_by_name(self.handle)
-            logger.info(f'最小化窗口: {self.handle}')
-        elif self.emulator_window == EmulatorWindow.background:
-            show_hide_by_name(self.handle)
-            logger.info(f'隐藏窗口: {self.handle}')
-        else:
-            logger.info(f'默认窗口: {self.handle}')
 
         logger.hr('模拟器状态 True', level=1)
 
