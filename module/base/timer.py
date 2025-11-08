@@ -100,6 +100,14 @@ class Timer:
         self._reach_count = count
 
     def start(self):
+        """
+        启动计时器。
+
+        如果计时器尚未启动，则初始化当前时间和到达次数。
+
+        Returns:
+            self: 返回自身实例，支持链式调用
+        """
         if not self.started():
             self._current = time.time()
             self._reach_count = 0
@@ -107,12 +115,20 @@ class Timer:
         return self
 
     def started(self):
+        """
+        检查计时器是否已启动。
+
+        Returns:
+            bool: 如果计时器已启动返回True，否则返回False
+        """
         return bool(self._current)
 
     def current(self):
         """
+        获取当前经过的时间。
+
         Returns:
-            float
+            float: 自计时器启动以来经过的时间（秒），如果未启动则返回0.0
         """
         if self.started():
             return time.time() - self._current
@@ -121,26 +137,53 @@ class Timer:
 
     def reached(self):
         """
+        检查计时器是否达到限制条件。
+
+        计时器达到限制需要同时满足两个条件：
+        1. 经过的时间超过设定的limit
+        2. 到达次数超过设定的count
+
         Returns:
-            bool
+            bool: 如果达到限制条件返回True，否则返回False
         """
         self._reach_count += 1
         return time.time() - self._current > self.limit and self._reach_count > self.count
 
     def reset(self):
+        """
+        重置计时器。
+
+        将当前时间设为现在，并将到达次数清零。
+
+        Returns:
+            self: 返回自身实例，支持链式调用
+        """
         self._current = time.time()
         self._reach_count = 0
         return self
 
     def clear(self):
+        """
+        清除计时器状态。
+
+        将当前时间设为0，并将到达次数设为预设的count值。
+
+        Returns:
+            self: 返回自身实例，支持链式调用
+        """
         self._current = 0
         self._reach_count = self.count
         return self
 
     def reached_and_reset(self):
         """
+        检查计时器是否达到限制并重置。
+
+        如果计时器达到限制条件，则重置计时器并返回True；
+        否则返回False。
+
         Returns:
-            bool:
+            bool: 如果达到限制条件返回True，否则返回False
         """
         if self.reached():
             self.reset()
@@ -150,15 +193,23 @@ class Timer:
 
     def wait(self):
         """
-        Wait until timer reached.
+        等待直到计时器达到限制时间。
+
+        计算剩余等待时间，如果还有剩余时间则进行睡眠等待。
         """
         diff = self._current + self.limit - time.time()
         if diff > 0:
             time.sleep(diff)
 
     def show(self):
+        """
+        显示计时器信息。
+
+        使用logger输出计时器的字符串表示。
+        """
         from module.logger import logger
         logger.info(str(self))
+
 
     def __str__(self):
         return f'Timer(limit={round(self.current(), 3)}/{self.limit}, count={self._reach_count}/{self.count})'
