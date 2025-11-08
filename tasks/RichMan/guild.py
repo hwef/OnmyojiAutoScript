@@ -7,11 +7,12 @@ import re
 from module.logger import logger
 from module.atom.image import RuleImage
 
-from tasks.GameUi.page import page_main, page_guild
 from tasks.GameUi.game_ui import GameUi
 from tasks.Component.Buy.buy import Buy
 from tasks.RichMan.assets import RichManAssets
 from tasks.RichMan.config import GuildStore
+from tasks.RichMan.page import page_medal_store, page_guid_procurement
+
 
 class Guild(Buy, GameUi, RichManAssets):
 
@@ -20,15 +21,8 @@ class Guild(Buy, GameUi, RichManAssets):
         if not con.enable:
             return
         logger.hr('Start guild', 1)
-        self.ui_goto_page(page_guild)
-        while 1:
-            self.screenshot()
-            if self.appear(self.I_GUILD_CLOSE_RED):
-                break
-            if self.appear_then_click(self.I_GUILD_SHRINE, interval=0.8):
-                continue
-            if self.appear_then_click(self.I_GUILD_STORE, interval=1.1):
-                continue
+        self.ui_goto_page(page_medal_store)
+
         logger.info('Enter guild store success')
         time.sleep(0.5)
 
