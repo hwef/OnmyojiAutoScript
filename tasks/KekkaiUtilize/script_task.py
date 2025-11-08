@@ -45,9 +45,47 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
         # 收取寮资金和体力
         self.recive_guild_ap_or_assets()
+
+        # 抽奖箱
+        self.check_lottery_box()
+
         if not con.utilize_enable:
             self.set_next_run(task='KekkaiUtilize', finish=True, success=True)
         raise TaskEnd
+
+    def check_lottery_box(self):
+        self.ui_goto_page(page_guild)
+        check_timer = Timer(2)
+        check_timer.start()
+        while 1:
+            self.screenshot()
+            if check_timer.reached():
+                logger.info(f'未发现抽奖箱')
+                return
+            if self.appear_then_click(self.I_LOTTERY_BOX, interval=5):
+                time.sleep(3)
+                check_timer.reset()
+                continue
+            if self.appear(self.I_LOTTERY_BOX_PAGE):
+                break
+        while 1:
+            self.screenshot()
+            if self.ui_reward_appear_click():
+                continue
+            # 获得奖励
+            if self.appear(self.I_LOTTERY_CLICK):
+                cu, re, total = self.ocr_result(self.O_LOTTERY_NUMBER)
+                if cu + re == total and cu != 0:
+                    logger.info(f'抽奖次数: [{cu}]')
+                    self.ui_click_until_disappear(self.I_LOTTERY_CLICK, interval=1)
+                    while 1:
+                        self.screenshot()
+                        self.swipe(self.S_SWIPE_LOTTERY_BOX, interval=5)
+                        if self.appear(self.I_LOTTERY_CLICK):
+                            break
+                else:
+                    logger.info(f'没有可以抽奖的次数')
+                    return
 
     def recive_guild_ap_or_assets(self):
         for i in range(1, 5):
@@ -674,12 +712,12 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 if __name__ == "__main__":
     from module.config.config import Config
 
-    c = Config('4399')
+    c = Config('wy')
     t = ScriptTask(c)
-    t.run()
-    for i in range(10):
-        t.perform_swipe_action()
-    t.recive_guild_ap_or_assets()
+    t.check_lottery_box()
+    # for i in range(10):
+    #     t.perform_swipe_action()
+    # t.recive_guild_ap_or_assets()
     # t.check_utilize_add()
     # t.check_card_num('勾玉', 67)
     # t.screenshot()
