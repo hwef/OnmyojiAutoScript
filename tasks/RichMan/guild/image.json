@@ -45,6 +45,15 @@
     "description": "寮内采办page"
   },
   {
+    "itemName": "lottery_box",
+    "imageName": "lottery_box.png",
+    "roiFront": "792,206,73,70",
+    "roiBack": "256,132,712,476",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "同心奖箱"
+  },
+  {
     "itemName": "guild_close_red",
     "imageName": "guild_guild_close_red.png",
     "roiFront": "1029,120,53,57",

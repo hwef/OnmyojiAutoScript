@@ -38,6 +38,12 @@ class GuildStore(BaseModel):
     skin_ticket: int = Field(title='Skin Ticket', default=0, description='skin_ticket_help')
 
 
+class GuildProcurement(BaseModel):
+    # 寮内采办
+    enable: bool = Field(title='Enable', default=False)
+    buy_lottery_box: bool = Field(title='购买同心奖箱', default=False, description='同心奖箱')
+
+
 class Consignment(BaseModel):
     # 寄售屋
     enable: bool = Field(title='Enable', default=False)
@@ -116,6 +122,8 @@ class RichMan(ConfigBase):
     shrine: Shrine = Field(default_factory=Shrine)
     # 功勋商店
     guild_store: GuildStore = Field(default_factory=GuildStore)
+    # 寮内采办
+    guild_procurement: GuildProcurement = Field(default_factory=GuildProcurement)
     # 寄售屋
     consignment: Consignment = Field(default_factory=Consignment)
     # 密卷屋 蛇皮
@@ -128,7 +136,3 @@ class RichMan(ConfigBase):
     friendship_points: FriendshipPoints = Field(default_factory=FriendshipPoints)
     medal_room: MedalRoom = Field(default_factory=MedalRoom)
     charisma: Charisma = Field(default_factory=Charisma)
-
-
-
-

@@ -2,25 +2,23 @@
 # @author runhey
 # github https://github.com/runhey
 import time
+
 import re
-
-from module.logger import logger
 from module.atom.image import RuleImage
-
-from tasks.GameUi.game_ui import GameUi
+from module.logger import logger
 from tasks.Component.Buy.buy import Buy
+from tasks.GameUi.game_ui import GameUi
 from tasks.RichMan.assets import RichManAssets
-from tasks.RichMan.config import GuildStore
 from tasks.RichMan.page import page_medal_store, page_guid_procurement
 
 
 class Guild(Buy, GameUi, RichManAssets):
 
-    def execute_guild(self, con: GuildStore=None):
+    def execute_guild(self, con):
 
         if not con.enable:
             return
-        logger.hr('Start guild', 1)
+        logger.hr('开始 功勋商店', 1)
         self.ui_goto_page(page_medal_store)
 
         logger.info('Enter guild store success')
@@ -101,6 +99,25 @@ class Guild(Buy, GameUi, RichManAssets):
         # 保存截图
         self.save_image()
 
+    def execute_guild_procurement(self, con):
+        if not con.enable:
+            return
+        logger.hr('开始 寮内采办', 1)
+        self.ui_goto_page(page_guid_procurement)
+
+        logger.info('Enter guild procurement success')
+        time.sleep(0.5)
+
+        # 购买同心奖箱
+        if con.buy_lottery_box:
+            item_info = {
+                'name': '同心奖箱',
+                'image': self.I_LOTTERY_BOX,
+                'cost': 0,
+                'buy_method': 'buy_one'
+            }
+            self._guild_item_purchase(item_info)
+
     def check_remain(self, image: RuleImage) -> int:
         self.O_GUILD_REMAIN.roi[0] = image.roi_front[0] - 38
         self.O_GUILD_REMAIN.roi[1] = image.roi_front[1] + 83
@@ -174,13 +191,12 @@ class Guild(Buy, GameUi, RichManAssets):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
     c = Config('du')
     # d = Device(c)
     t = Guild(c)
 
     # t._guild_skin_ticket(5)
-    t.execute_guild(con=c.rich_man.guild_store)
+    t.execute_guild_procurement(con=c.rich_man.guild_procurement)
 
 

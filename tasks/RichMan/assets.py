@@ -21,6 +21,8 @@ class RichManAssets:
 	I_GUILD_STORE_PROCUREMENT = RuleImage(roi_front=(949,423,108,32), roi_back=(949,423,108,32), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_store_procurement.png")
 	# 寮内采办page 
 	I_GUILD_STORE_PROCUREMENT_PAGE = RuleImage(roi_front=(518,61,92,39), roi_back=(518,61,92,39), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_store_procurement_page.png")
+	# 同心奖箱 
+	I_LOTTERY_BOX = RuleImage(roi_front=(792,206,73,70), roi_back=(256,132,712,476), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/lottery_box.png")
 	# description 
 	I_GUILD_CLOSE_RED = RuleImage(roi_front=(1029,120,53,57), roi_back=(1029,120,53,57), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_close_red.png")
 	# 蓝票 

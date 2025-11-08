@@ -26,6 +26,8 @@ class ScriptTask(Mall, Guild, ThousandThings, Shrine):
         self.execute_shrine(con.shrine)
         # 功勋商店
         self.execute_guild(con.guild_store)
+        # 寮内采办
+        self.execute_guild_procurement(con.guild_procurement)
         # 商店
         self.execute_mall()
 
