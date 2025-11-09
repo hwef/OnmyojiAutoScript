@@ -55,19 +55,15 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
     def check_lottery_box(self):
         self.ui_goto_page(page_guild)
-        check_timer = Timer(2)
-        check_timer.start()
         while 1:
             self.screenshot()
-            if check_timer.reached():
+            if self.wait_until_appear_then_click(self.I_LOTTERY_BOX, wait_time=2):
+                if self.wait_until_appear(self.I_LOTTERY_BOX_PAGE, wait_time=5):
+                    break
+            else:
                 logger.info(f'未发现抽奖箱')
                 return
-            if self.appear_then_click(self.I_LOTTERY_BOX, interval=5):
-                time.sleep(3)
-                check_timer.reset()
-                continue
-            if self.appear(self.I_LOTTERY_BOX_PAGE):
-                break
+
         while 1:
             self.screenshot()
             if self.ui_reward_appear_click():
@@ -712,7 +708,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 if __name__ == "__main__":
     from module.config.config import Config
 
-    c = Config('wy')
+    c = Config('4399')
     t = ScriptTask(c)
     t.check_lottery_box()
     # for i in range(10):
