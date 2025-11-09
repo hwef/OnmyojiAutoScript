@@ -195,8 +195,9 @@ class Script:
             should_close_emu = close_emu_delta and wait_duration > close_emu_delta
             should_close_game = close_game_delta and wait_duration > close_game_delta
 
-            is_emulator_running = self.emulator.is_emulator_running()
-
+            # is_emulator_running = self.emulator.is_emulator_running()
+            # 避免模拟器未启动时执行关闭游戏（上面判断日常测试修改配置会导致模拟器关闭，现在改用下面状态判断）
+            is_emulator_running = self.device_status
             # 执行等待策略
             if opt.do_noting:
                 logger.warning("不关闭游戏, 等待下一个任务")
