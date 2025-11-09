@@ -37,7 +37,7 @@ class ScriptTask(SwitchSoul, GeneralBattle):
 
         logger.hr("委派任务结束", 1)
         # 回到庭院
-        self.back_main()
+        self.ui_goto_page(page_main)
         self.set_next_run()
         raise TaskEnd
 
@@ -47,7 +47,7 @@ class ScriptTask(SwitchSoul, GeneralBattle):
         click_count = 1
         while not goto_activity:
             if click_count >= 3:
-                self.back_main()
+                self.ui_goto_page(page_main)
                 self.set_next_run()
                 raise TaskEnd
             self.screenshot()
