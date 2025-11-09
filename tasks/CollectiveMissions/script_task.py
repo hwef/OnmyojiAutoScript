@@ -118,9 +118,9 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
         raise TaskEnd('CollectiveMissions')
 
     def select_gr(self, target):
-        self.device.click_record_clear()
         last_result = None       # 记录上一次的OCR识别结果（初始为None）
         consecutive_count = 0    # 记录连续相同结果的次数（初始为0）
+        total_count = 0
         while True:              # 无限循环（用True更易读）
             self.screenshot()     # 截取当前屏幕
             current_result = self.O_CM_2.ocr(self.device.image)  # 执行OCR识别，获取当前结果
@@ -146,6 +146,11 @@ class ScriptTask(GameUi, CollectiveMissionsAssets):
 
             # 原有逻辑：点击刷新按钮并等待（避免频繁点击）
             if self.appear_then_click(self.I_CM_FLUSH, interval=1):
+                total_count += 1
+                if total_count > 30:
+                    self.save_image(wait_time=0, push_flag=True, content=f'⚠️刷新次数已超过30次,结束任务')
+                    self.next_run_task()
+                self.device.click_record_clear()
                 time.sleep(1)  # 等待页面刷新完成（根据实际加载时间调整）
 
     def _donate_all(self, index: int, target: str, num: int, incomplete_num: int):
