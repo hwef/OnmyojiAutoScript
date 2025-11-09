@@ -19,7 +19,8 @@ from pathlib import Path
 from tasks.ActivityShikigami.assets import ActivityShikigamiAssets
 from tasks.Component.GeneralBattle.assets import GeneralBattleAssets
 from tasks.GameUi.assets import GameUiAssets
-from tasks.GameUi.page import Page, PageRegistry, page_main, random_click
+from tasks.GameUi.page import Page, PageRegistry, page_main
+from tasks.GlobalGame.assets import GlobalGameAssets
 from tasks.Restart.assets import RestartAssets
 from tasks.SixRealms.assets import SixRealmsAssets
 from tasks.base_task import BaseTask
@@ -27,7 +28,8 @@ from tasks.base_task import BaseTask
 
 class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
     ui_current: Page = None
-    ui_close = [GameUiAssets.I_BACK_MALL, GeneralBattleAssets.I_CONFIRM,
+    ui_close = [GeneralBattleAssets.I_EXIT_ENSURE,GlobalGameAssets.I_UI_EXIT,
+                GameUiAssets.I_BACK_MALL, GeneralBattleAssets.I_CONFIRM,
                 BaseTask.I_UI_BACK_RED, BaseTask.I_UI_BACK_YELLOW,
                 GameUiAssets.I_BACK_FRIENDS, GameUiAssets.I_BACK_DAILY,
                 GameUiAssets.I_REALM_RAID_GOTO_EXPLORATION,
@@ -378,47 +380,6 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
         elif isinstance(target, RuleClick):
             operated = self.click(target, interval=interval)
         return operated
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # 下面的这些是一些特殊的页面，需要额外处理
-    # ------------------------------------------------------------------------------------------------------------------
-
-    def main_goto_daily(self):
-        """
-        无法直接一步到花合战，需要先到主页，然后再到花合战
-        :return:
-        """
-        while 1:
-            self.screenshot()
-            if self.appear(self.I_CHECK_DAILY):
-                break
-            if self.appear_then_click(self.I_MAIN_GOTO_DAILY, interval=1):
-                continue
-            if self.ocr_appear_click(self.O_CLICK_CLOSE_1, interval=1):
-                continue
-            if self.ocr_appear_click(self.O_CLICK_CLOSE_2, interval=1):
-                continue
-        logger.info('Page arrive: Daily')
-        time.sleep(1)
-        return
-
-    def back_main(self):
-        # 回到庭院
-        while 1:
-            time.sleep(0.5)
-            self.screenshot()
-            if self.appear(self.I_CHECK_MAIN):
-                break
-            if self.appear_then_click(self.I_EXIT_ENSURE):
-                continue
-            if self.appear_then_click(self.I_UI_BACK_RED, interval=1):
-                continue
-            if self.appear_then_click(self.I_UI_BACK_BLUE, interval=1):
-                continue
-            if self.appear_then_click(self.I_UI_BACK_YELLOW, interval=1):
-                continue
-            if self.appear_then_click(self.I_UI_EXIT, interval=1):
-                continue
 
 
 if __name__ == '__main__':
