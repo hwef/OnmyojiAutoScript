@@ -45,6 +45,10 @@ class LoginHandler(LoginBase, RestartAssets, GeneralBuff):
                 self.set_next_run()
                 raise TaskEnd
 
+            # 4399登录会遇到活动-点击叉号
+            if self.appear_then_click(self.I_LOGIN_CLOSE):
+                logger.info('4399登录会遇到活动-点击叉号')
+                continue
             # 是否继续刚才的战斗？-点击取消
             if self.appear_then_click(self.I_LOGIN_CANCEL_BATTLE):
                 logger.info('是否继续刚才的战斗？-点击取消')

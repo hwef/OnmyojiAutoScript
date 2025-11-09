@@ -97,6 +97,8 @@ class RestartAssets:
 	I_CREATE_ACCOUNT = RuleImage(roi_front=(555,636,169,52), roi_back=(504,614,263,100), threshold=0.8, method="Template matching", file="./tasks/Restart/login/login_create_account.png")
 	# 是否继续刚才的战斗？-点击取消 
 	I_LOGIN_CANCEL_BATTLE = RuleImage(roi_front=(465,386,143,76), roi_back=(465,386,143,76), threshold=0.8, method="Template matching", file="./tasks/Restart/login/login_login_cancel_battle.png")
+	# 4399登录会遇到活动-点击叉号 
+	I_LOGIN_CLOSE = RuleImage(roi_front=(621,562,40,41), roi_back=(621,562,40,41), threshold=0.8, method="Template matching mask", file="./tasks/Restart/login/login_close.png")
 
 
 	# Ocr Rule Assets
