@@ -10,7 +10,7 @@ from module.exception import TaskEnd
 from module.logger import logger
 from tasks.Component.GeneralBattle.general_battle import GeneralBattle
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
-from tasks.GameUi.page import page_guild
+from tasks.GameUi.page import page_guild, page_main
 from tasks.GameUi.page import page_secret_zones
 from tasks.GuildBanquet.assets import GuildBanquetAssets
 from tasks.Secret.assets import SecretAssets
@@ -48,7 +48,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAssets):
 
         self.ui_goto_page(page_guild)
 
-        wait_timer = Timer(230)
+        wait_timer = Timer(30)
         wait_timer.start()
         wait_count = 0
         self.device.stuck_record_add('BATTLE_STATUS_S')
@@ -160,12 +160,13 @@ class ScriptTask(GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAssets):
                 break
             if self.appear(self.I_PREPARE_HIGHLIGHT):
                 self.run_general_battle()
+                continue
             if self.appear_then_click(self.I_SE_FIRE, interval=1):
                 continue
             if self.appear_then_click(self.I_SE_FIRE_BZ, interval=1):
                 continue
         # 回到庭院
-        self.back_main()
+        self.ui_goto_page(page_main)
 
     def check_runtime(self) -> bool:
         """
@@ -244,9 +245,9 @@ class ScriptTask(GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAssets):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
+    # from module.device.device import Device
     c = Config('du')
-    d = Device(c)
-    t = ScriptTask(c, d)
+    # d = Device(c)
+    t = ScriptTask(c)
     t.goto_sercet_hc()
 
