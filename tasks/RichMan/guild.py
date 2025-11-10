@@ -18,7 +18,7 @@ class Guild(Buy, GameUi, RichManAssets):
 
         if not con.enable:
             return
-        logger.hr('开始 功勋商店', 1)
+        logger.hr('功勋商店', 1)
         self.ui_goto_page(page_medal_store)
 
         logger.info('Enter guild store success')
@@ -158,8 +158,30 @@ class Guild(Buy, GameUi, RichManAssets):
         if cost > 0 and not self.buy_check_money(self.O_GUILD_TOTAL, cost):
             return False
 
+        swipe_down = True
+        swipe_count = 0
+        while 1:
+            self.screenshot()
+            # 匹配物品图标
+            result = image.match(self.device.image)
+            if result:
+                break
+            if swipe_count >= 3:
+                result = False
+                break
+            # 功勋商店 购买皮肤券 现在问题是皮肤券作为下滑判断标志,下滑过程中roi_front[1]发生了变化,
+            # 导致后续识别本周剩余数量位置偏差,现在解决方案是创建一个相同属性的I_GUILD_SKIN_CHECK 来作为判断标志
+            if self.appear(self.I_GUILD_SKIN_CHECK):
+                swipe_down = False
+                swipe_count += 1
+            if self.appear(self.I_LIAOBAO):
+                swipe_down = True
+            if swipe_down and self.swipe(self.S_GUILD_STORE_DOWN, interval=1.5, duration=1, wait_up_time=1):
+                continue
+            if not swipe_down and self.swipe(self.S_GUILD_STORE_UP, interval=1.5, duration=1, wait_up_time=1):
+                continue
+
         # 匹配物品图标
-        result = image.match(self.device.image)
         if not result:
             logger.warning(f'未识别到{name}')
             self.save_image(wait_time=0, image_type=True, push_flag=True, content=f'未识别到{name}')
@@ -195,9 +217,10 @@ class Guild(Buy, GameUi, RichManAssets):
 if __name__ == '__main__':
     from module.config.config import Config
 
-    c = Config('mi')
+    c = Config('du')
     # d = Device(c)
     t = Guild(c)
 
     # t._guild_skin_ticket(5)
-    t.execute_guild_procurement(con=c.rich_man.guild_procurement)
+    # t.execute_guild_procurement(con=c.rich_man.guild_procurement)
+    t.execute_guild(c.rich_man.guild_store)

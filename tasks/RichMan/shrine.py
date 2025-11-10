@@ -14,7 +14,7 @@ from tasks.RichMan.config import Shrine as ConfigShrine
 class Shrine(GameUi, RichManAssets):
 
     def execute_shrine(self, con: ConfigShrine):
-        logger.hr('Start Shrine')
+        logger.hr('神龛')
         if not con.enable:
             logger.info('Shrine is disabled')
             return
