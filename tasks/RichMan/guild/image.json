@@ -54,6 +54,15 @@
     "description": "同心奖箱"
   },
   {
+    "itemName": "lottery_box_buy",
+    "imageName": "lottery_box_buy.png",
+    "roiFront": "552,506,169,56",
+    "roiBack": "552,506,169,56",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "同心奖箱购买"
+  },
+  {
     "itemName": "guild_close_red",
     "imageName": "guild_guild_close_red.png",
     "roiFront": "1029,120,53,57",

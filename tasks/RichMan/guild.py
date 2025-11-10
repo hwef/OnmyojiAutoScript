@@ -33,7 +33,7 @@ class Guild(Buy, GameUi, RichManAssets):
                 'buy_method': 'buy_more'
             }
             self._guild_item_purchase(item_info)
-    
+
         # 风铃
         if con.guild_fl:
             item_info = {
@@ -44,7 +44,7 @@ class Guild(Buy, GameUi, RichManAssets):
                 'double_buy': True
             }
             self._guild_item_purchase(item_info)
-    
+
         # 经验手札
         if con.guild_fl:  # 注意：这里可能是个bug，应该检查 guild_exp
             item_info = {
@@ -54,7 +54,7 @@ class Guild(Buy, GameUi, RichManAssets):
                 'buy_method': 'buy_more'
             }
             self._guild_item_purchase(item_info)
-    
+
         # 御魂
         if con.guild_yuhun:
             item_info = {
@@ -64,7 +64,7 @@ class Guild(Buy, GameUi, RichManAssets):
                 'buy_method': 'buy_more'
             }
             self._guild_item_purchase(item_info)
-    
+
         # 蓝票
         if con.mystery_amulet:
             item_info = {
@@ -74,7 +74,7 @@ class Guild(Buy, GameUi, RichManAssets):
                 'buy_method': 'buy_more'
             }
             self._guild_item_purchase(item_info)
-    
+
         # 黑碎
         if con.black_daruma_scrap:
             item_info = {
@@ -86,7 +86,7 @@ class Guild(Buy, GameUi, RichManAssets):
                 'confirm_image': self.I_GUILD_BUY_SCRAP
             }
             self._guild_item_purchase(item_info)
-    
+
         # 皮肤券
         if con.skin_ticket and con.skin_ticket > 0:
             item_info = {
@@ -114,7 +114,8 @@ class Guild(Buy, GameUi, RichManAssets):
                 'name': '同心奖箱',
                 'image': self.I_LOTTERY_BOX,
                 'cost': 0,
-                'buy_method': 'buy_one'
+                'buy_method': 'buy_lottery_box',
+                'check_image': self.I_LOTTERY_BOX_BUY
             }
             self._guild_item_purchase(item_info)
 
@@ -175,6 +176,9 @@ class Guild(Buy, GameUi, RichManAssets):
             for _ in range(buy_count):
                 self.buy_one(image, check_image, confirm_image)
                 time.sleep(0.5)
+        elif buy_method == 'buy_lottery_box':
+            self.buy_lottery_box(image, check_image, confirm_image)
+            time.sleep(0.5)
         else:
             for _ in range(buy_count):
                 self.buy_more(image)
@@ -186,17 +190,14 @@ class Guild(Buy, GameUi, RichManAssets):
             self.buy_more(image)
             time.sleep(0.5)
         return True
-        
 
 
 if __name__ == '__main__':
     from module.config.config import Config
 
-    c = Config('du')
+    c = Config('mi')
     # d = Device(c)
     t = Guild(c)
 
     # t._guild_skin_ticket(5)
     t.execute_guild_procurement(con=c.rich_man.guild_procurement)
-
-
