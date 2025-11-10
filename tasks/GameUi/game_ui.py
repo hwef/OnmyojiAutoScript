@@ -28,7 +28,7 @@ from tasks.base_task import BaseTask
 
 class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
     ui_current: Page = None
-    ui_close = [GeneralBattleAssets.I_EXIT_ENSURE,GlobalGameAssets.I_UI_EXIT,
+    ui_close = [GeneralBattleAssets.I_EXIT_ENSURE, GeneralBattleAssets.I_EXIT_ENSURE1, GlobalGameAssets.I_UI_EXIT,
                 GameUiAssets.I_BACK_MALL, GeneralBattleAssets.I_CONFIRM,
                 BaseTask.I_UI_BACK_RED, BaseTask.I_UI_BACK_YELLOW,
                 GameUiAssets.I_BACK_FRIENDS, GameUiAssets.I_BACK_DAILY,
@@ -385,6 +385,6 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
 if __name__ == '__main__':
     from module.config.config import Config
 
-    c = Config('oas2')
+    c = Config('du')
     game = GameUi(config=c)
     game.ui_goto_page(page_main)
