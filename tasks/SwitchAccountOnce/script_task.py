@@ -33,11 +33,11 @@ class ScriptTask(BaseChannelTask):
         # ===== 协战任务 =====
         self.run_start(con, TaskType.assist50)
     
-        # ===== 周任务 =====
-        self.run_start(con, TaskType.weekTask)
-    
         # ===== 限时任务 =====
         self.run_start(con, TaskType.limitTask)
+
+        # ===== 周任务 =====
+        self.run_start(con, TaskType.weekTask)
 
         # 所有角色任务均已完成
         self.set_wait_task_time()

@@ -75,8 +75,6 @@ class ScriptTask(BaseChannelTask):
             # 限时任务
             case TaskType.limitTask:
                 self._set_batch_tasks(self.limit_task, target_time)
-                # 设置总是运行的任务
-                self._set_batch_tasks(self.always_run_task, target_time)
                 # 周任务
             case TaskType.weekTask:
                 self._set_batch_tasks(self.week_task, target_time)
