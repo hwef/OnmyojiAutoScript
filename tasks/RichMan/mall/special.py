@@ -17,6 +17,7 @@ from tasks.RichMan.config import SpecialRoom
 class Special(Buy, MallNavbar):
 
     def execute_special(self, con: SpecialRoom = None):
+        logger.hr('特殊商店', 2)
         if not con:
             con = self.config.rich_man.special_room
         if not con.enable:
@@ -52,13 +53,12 @@ class Special(Buy, MallNavbar):
             if self.swipe(self.S_SP_DOWN, interval=2):
                 time.sleep(2)
 
-
     def _special_totom(self, totem_pass: bool):
         """
         购买御灵，要求必须下滑出现御灵
         :return:
         """
-        logger.hr('Buy totem', 3)
+        logger.hr('购买御灵券', 3)
         if not totem_pass:
             logger.info('Buy totem is disabled')
             return
@@ -187,11 +187,9 @@ class Special(Buy, MallNavbar):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
-    c = Config('mi')
-    d = Device(c)
-    t = Special(c, d)
+    c = Config('wy')
+    t = Special(c)
     t.screenshot()
 
     t.execute_special()
