@@ -10,9 +10,10 @@ from pathlib import Path
 from module.base.decorator import cached_property
 from module.logger import logger
 from module.base.utils import is_approx_rectangle
+from module.atom.base_atom import BaseAtom
 
 
-class RuleImage:
+class RuleImage(BaseAtom):
 
     def __init__(self, roi_front: tuple, roi_back: tuple, method: str, threshold: float, file: str) -> None:
         """
@@ -23,6 +24,7 @@ class RuleImage:
         :param threshold: 阈值  0.8
         :param file: 相对路径, 带后缀
         """
+        super().__init__()
         self._match_init = False  # 这个是给后面的 等待图片稳定
         self._image = None  # 这个是匹配的目标
         self._kp = None  #
@@ -416,14 +418,6 @@ class RuleImage:
             filtered_matches = [matches[i] for i in indices]
             return filtered_matches
         return matches
-
-    def coord(self) -> tuple:
-        """
-        获取roi_front的随机的点击的坐标
-        :return:
-        """
-        x, y, w, h = self.roi_front
-        return x + np.random.randint(0, w), y + np.random.randint(0, h)
 
     def coord_more(self) -> tuple:
         """

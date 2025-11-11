@@ -1,14 +1,11 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-
 import numpy as np
+
 import cv2
-
-from module.ocr.base_ocr import BaseCor, OcrMode, OcrMethod
+from module.ocr.base_ocr import OcrMode
 from module.ocr.sub_ocr import Full, Single, Digit, DigitCounter, Duration, Quantity
-from module.logger import logger
-
 
 
 class RuleOcr(Digit, DigitCounter, Duration, Single, Full, Quantity):
@@ -16,44 +13,64 @@ class RuleOcr(Digit, DigitCounter, Duration, Single, Full, Quantity):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-
     def after_process(self, result):
         match self.mode:
-            case OcrMode.FULL: return Full.after_process(self, result)
-            case OcrMode.SINGLE: return Single.after_process(self, result)
-            case OcrMode.DIGIT: return Digit.after_process(self, result)
-            case OcrMode.DIGITCOUNTER: return DigitCounter.after_process(self, result)
-            case OcrMode.DURATION: return Duration.after_process(self, result)
-            case OcrMode.QUANTITY: return Quantity.after_process(self, result)
-            case _: return result
+            case OcrMode.FULL:
+                return Full.after_process(self, result)
+            case OcrMode.SINGLE:
+                return Single.after_process(self, result)
+            case OcrMode.DIGIT:
+                return Digit.after_process(self, result)
+            case OcrMode.DIGITCOUNTER:
+                return DigitCounter.after_process(self, result)
+            case OcrMode.DURATION:
+                return Duration.after_process(self, result)
+            case OcrMode.QUANTITY:
+                return Quantity.after_process(self, result)
+            case _:
+                return result
 
     def ocr(self, image, keyword=None, return_score=False):
 
         match self.mode:
-            case OcrMode.FULL: return Full.ocr_full(self, image, keyword)
-            case OcrMode.SINGLE: return Single.ocr_single(self, image)
-            case OcrMode.DIGIT: return Digit.ocr_digit(self, image, return_score)
-            case OcrMode.DIGITCOUNTER: return DigitCounter.ocr_digit_counter(self, image)
-            case OcrMode.DURATION: return Duration.ocr_duration(self, image)
-            case OcrMode.QUANTITY: return Quantity.ocr_quantity(self, image)
-            case _: return None
+            case OcrMode.FULL:
+                return Full.ocr_full(self, image, keyword)
+            case OcrMode.SINGLE:
+                return Single.ocr_single(self, image)
+            case OcrMode.DIGIT:
+                return Digit.ocr_digit(self, image, return_score)
+            case OcrMode.DIGITCOUNTER:
+                return DigitCounter.ocr_digit_counter(self, image)
+            case OcrMode.DURATION:
+                return Duration.ocr_duration(self, image)
+            case OcrMode.QUANTITY:
+                return Quantity.ocr_quantity(self, image)
+            case _:
+                return None
 
     def coord(self) -> tuple:
         """
         获取一个区域，随机返回一个坐标
         :return:
         """
-        area = None
-        if self.mode == OcrMode.FULL:
-            area = self.area
-        else:
-            area = self.roi
-
         x, y, w, h = self.area
-        x = np.random.randint(x, x + w)
-        y = np.random.randint(y, y + h)
-        return x, y
+        # 使用正态分布生成坐标，均值为中心点
+        # 这样可以确保大约99.7%的点落在区域内
+        center_x = x + w // 2
+        center_y = y + h // 2
+        # 标准差 σ（控制分布范围，通常取 ROI 宽度/高度的 1/4 ~ 1/2）
+        sigma_x = w / 4  # 可调整，比如 w/3, w/2
+        sigma_y = h / 4  # 可调整，比如 h/3, h/2
 
+        # 生成正态分布的随机坐标（但限制在 ROI 范围内）
+        while True:
+            # 生成正态分布的 x 和 y（均值=中心点，标准差=σ）
+            rand_x = int(np.random.normal(center_x, sigma_x))
+            rand_y = int(np.random.normal(center_y, sigma_y))
+
+            # 确保坐标在 ROI 范围内 [x, x+w] × [y, y+h]
+            if x <= rand_x <= x + w and y <= rand_y <= y + h:
+                return rand_x, rand_y
 
 
 if __name__ == "__main__":
@@ -71,4 +88,3 @@ if __name__ == "__main__":
                                 keyword="", name="mall_resource_6")
     image = cv2.imread(r"E:\2025-01-16225353.png")
     print(O_MALL_RESOURCE_5.ocr_quantity(image))
-
