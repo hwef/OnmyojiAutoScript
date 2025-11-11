@@ -1,12 +1,10 @@
 import random
-
 import traceback
 from module.atom.click import RuleClick
-from tasks.GlobalGame.assets import GlobalGameAssets as GGA
 from tasks.GameUi.assets import GameUiAssets as G
+from tasks.GlobalGame.assets import GlobalGameAssets as GGA
 from tasks.KekkaiUtilize.assets import KekkaiUtilizeAssets
 from tasks.Restart.assets import RestartAssets
-from tasks.base_task import BaseTask as BT
 from tasks.RyouToppa.assets import RyouToppaAssets
 
 
