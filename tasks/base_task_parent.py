@@ -257,6 +257,22 @@ class BaseTaskParent(GlobalGameAssets, CostumeBase):
         else:
             return False
 
+    def wait_until_appear_then_click_center(self,
+                                            target: RuleImage,
+                                            wait_time: int = None) -> bool:
+        """
+        等待直到出现目标，然后点击中心
+        :param target:
+        :param wait_time:
+        :return:
+        """
+        if self.wait_until_appear(target, wait_time=wait_time):
+            x, y = target.coord_center()
+            self.device.click(x=x, y=y, control_name=target.name)
+            return True
+        else:
+            return False
+
     def wait_until_disappear(self, target: RuleImage) -> None:
         while 1:
             self.screenshot()
@@ -641,6 +657,7 @@ class BaseTaskParent(GlobalGameAssets, CostumeBase):
         参数:
         target_day (int): 目标运行的日，取值1到7代表周一到周日，默认为1（周一）。
         """
+
         def convert_week_to_number(week_day: Week) -> int:
             """
             将 Week 枚举转换为对应的数字
@@ -666,7 +683,7 @@ class BaseTaskParent(GlobalGameAssets, CostumeBase):
 
         today = datetime.today()
         current_weekday = today.weekday()  # 周一为0，周日为6
-        target = target_day - 1    # 将输入1-7转换为0-6
+        target = target_day - 1  # 将输入1-7转换为0-6
         days_diff = (target - current_weekday) % 7 or 7
 
         TaskName = self.config.task.command
@@ -797,4 +814,3 @@ class BaseTaskParent(GlobalGameAssets, CostumeBase):
         默认情况下可以什么都不做，或者给出一个提示。
         """
         logger.warning(f"[BaseTaskParent] push_notify 被调用，但未在子类中具体实现。内容：{content}, 标题：{title}")
-

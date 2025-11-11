@@ -49,7 +49,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
         self.screenshot()
         self.O_SA_LOGIN_FORM_SVR_NAME.keyword = svrName
         # 4399登录会遇到活动-点击叉号
-        if self.wait_until_appear_then_click(RestartAssets.I_LOGIN_CLOSE, wait_time=1):
+        if self.wait_until_appear_then_click_center(RestartAssets.I_LOGIN_CLOSE, wait_time=1):
             logger.info('4399登录会遇到活动-点击叉号')
         self.ui_click(self.C_SA_LOGIN_FORM_SWITCH_SVR_BTN, self.I_SA_CHECK_SELECT_SVR_1, 1.5)
         # 展开底部角色列表,显示角色所属服务器
@@ -116,7 +116,7 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
         """
         logger.info(f"[角色] 开始寻找角色: [{characterName}]")
         # 4399登录会遇到活动-点击叉号
-        if self.wait_until_appear_then_click(RestartAssets.I_LOGIN_CLOSE, wait_time=1):
+        if self.wait_until_appear_then_click_center(RestartAssets.I_LOGIN_CLOSE, wait_time=1):
             logger.info('4399登录会遇到活动-点击叉号')
         self.ui_click(self.C_SA_LOGIN_FORM_SWITCH_SVR_BTN, self.I_SA_CHECK_SELECT_SVR_1)
         # 展开底部角色列表,显示角色所属服务器
