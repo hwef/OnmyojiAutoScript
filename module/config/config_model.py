@@ -5,6 +5,7 @@ from typing import Dict, Any
 
 import re
 import inflection
+from time import sleep
 
 from pathlib import Path
 from pydantic import BaseModel, ValidationError, Field
@@ -218,7 +219,24 @@ class ConfigModel(ConfigBase):
         :return:
         """
         filepath = Path.cwd() / "config" / f"{config_name}.json"
-        write_file(filepath, data)
+
+        max_retries = 3
+        retry_delay = 1
+        for attempt in range(max_retries):
+            try:
+                write_file(filepath, data)
+                return
+            except PermissionError as e:
+                if attempt < max_retries - 1:
+                    logger.warning(f"保存配置文件权限被拒绝，{retry_delay}秒后重试 (第{attempt + 1}次): {e}")
+                    sleep(retry_delay)
+                    retry_delay *= 2  # 指数退避
+                else:
+                    logger.error(f"保存配置文件失败，已重试{max_retries}次仍无法访问: {e}")
+                    raise
+            except Exception as e:
+                logger.error(f"保存配置文件时发生未知错误: {e}")
+                raise
 
     def gui_args(self, task: str) -> str:
         """

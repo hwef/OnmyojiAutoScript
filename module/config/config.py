@@ -1,7 +1,6 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from time import sleep
 
 import copy
 import datetime
@@ -178,24 +177,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         :return:
         """
         # logger.info(f'save config {self.config_name}')
-        max_retries = 3
-        retry_delay = 1
-
-        for attempt in range(max_retries):
-            try:
-                self.model.write_json(self.config_name, self.model.dict())
-                return
-            except PermissionError as e:
-                if attempt < max_retries - 1:
-                    logger.warning(f"保存配置文件权限被拒绝，{retry_delay}秒后重试 (第{attempt + 1}次): {e}")
-                    sleep(retry_delay)
-                    retry_delay *= 2  # 指数退避
-                else:
-                    logger.error(f"保存配置文件失败，已重试{max_retries}次仍无法访问: {e}")
-                    raise
-            except Exception as e:
-                logger.error(f"保存配置文件时发生未知错误: {e}")
-                raise
+        self.model.write_json(self.config_name, self.model.dict())
 
     def update_scheduler(self) -> None:
         """
