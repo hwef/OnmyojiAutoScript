@@ -445,9 +445,6 @@ class ScriptTask(GeneralInvite, GeneralRoom, BondlingBattle, SwitchSoul, Bondlin
             if not self.in_catch_ui():
                 continue
 
-            # 判断是否有更高优先级任务，去执行新任务
-            self._check_first_priority_task()
-
             # 检查是否有盘子
             if not check_plate_number():
                 logger.warning(f'No plate number, exit')
