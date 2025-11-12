@@ -130,11 +130,14 @@ class BaseTask(BaseTaskParent):
 
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
 
-            # 设置保存图像的文件夹
-            WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms',
-                          'TrueOrochi']
+            # 设置保存图像的文件夹 - 使用类属性或配置中的weekly task列表
+            if not hasattr(self, '_weekly_task_cache'):
+                from module.config.config_menu import ConfigMenu
+                self._weekly_task_cache = ConfigMenu().menu["Weekly Task"]
+                print(isinstance(self._weekly_task_cache, list))
+
             path = f"{I18n.trans_zh_cn(task_name)}/{self.config.config_name.upper()}"
-            if task_name in WeeklyTask:
+            if task_name in self._weekly_task_cache:
                 folder_name = f'{week_path}/{path}'
             else:
                 folder_name = f'{log_path}/{path}'
@@ -288,11 +291,6 @@ class BaseTask(BaseTaskParent):
         if first_priority_task != current_task:
             logger.warning(f"结束当前任务: {I18n.trans_zh_cn(current_task)}")
             logger.warning(f"执行优先任务: {I18n.trans_zh_cn(first_priority_task)}")
-            # self.push_notify(title=f"执行优先任务: {I18n.trans_zh_cn(first_priority_task)}", content=f"结束当前任务: {I18n.trans_zh_cn(current_task)}")
-            # from tasks.GameUi.game_ui import GameUi
-            # from tasks.GameUi.page import page_main
-            # GameUi = GameUi(self.config)
-            # GameUi.ui_goto_page(page_main)
             raise TaskEnd
 
     def get_requests(self, url):
@@ -329,16 +327,17 @@ class BaseTask(BaseTaskParent):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
-    c = Config('4399')
-    # d = Device(c)
+    c = Config('du')
     t = BaseTask(c)
-    t.next_run_week(4)
+    # t.next_run_week(4)
     # t.next_run_week(2)
     # t.push_notify("123456", "123456",1)
     # t.next_run_week(c.duel.switch_week.next_week_day)
-    # t.save_image(push_flag=True, content='成功保存截图')
+    # t.save_image(task_name="Duel", push_flag=True, content='成功保存截图')
+    # t.save_image(task_name="Orochi", push_flag=True, content='成功保存截图')
+    # t.save_image(task_name="TrueOrochi", push_flag=True, content='成功保存截图')
+    # t.save_image(task_name="RichMan", push_flag=True, content='成功保存截图')
     # I_E_AUTO_ROTATE_OFF = RuleImage(roi_front=(108,650,150,46), roi_back=(108,650,150,46), threshold=0.85, method="Template matching", file="./tasks/Exploration/res/res_e_auto_rotate_off.png")
     # t.appear_rgb(I_E_AUTO_ROTATE_OFF)
 
