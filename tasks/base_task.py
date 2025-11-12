@@ -279,8 +279,8 @@ class BaseTask(BaseTaskParent):
             )
             image_templates.append(image_rule)
 
-        logger.info(f"加载图片模板集合: {image_templates}")
-        logger.info(f"加载图片模板数量: {len(image_templates)}")
+        logger.info(f"加载模板: {image_templates}")
+        logger.info(f"加载数量: {len(image_templates)}")
         return image_templates
 
     def _check_first_priority_task(self):

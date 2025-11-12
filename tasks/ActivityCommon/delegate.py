@@ -13,7 +13,7 @@ from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.GameUi.page import page_main
 from tasks.Restart.assets import RestartAssets
 
-""" 活动通用委派 """
+""" 委派 """
 
 
 class ScriptTask(SwitchSoul, GeneralBattle):

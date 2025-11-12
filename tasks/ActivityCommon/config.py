@@ -25,6 +25,7 @@ class ActivityCommonConfig(BaseModel):
     # 结束后激活 御魂清理
     active_souls_clean: bool = Field(default=False, description='active_souls_clean_help')
     each_limit_second: int = Field(default=0, description='每场战斗限制秒数（0秒代表不限制)')
+    enable_check_first_priority_task: bool = Field(default=False, description='是否判断更高优先级任务需要执行')
 
 
 class ActivityCommon(ConfigBase):
