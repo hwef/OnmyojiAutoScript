@@ -707,7 +707,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
 
                 # 如果是要开启福利寮，且此寮人数校验已经通过，直接确认此寮
                 if self.open_welfare:
-                    message = f"✅ 开启福利道馆: {dokan_name}, 人数:{p_num}, 符合要求人数:{min_people}"
+                    message = f"✅ 开启福利道馆: {dokan_name}, 人数:{p_num}, 刷新次数:{num_fresh}"
                     self.find_dokan_list.append(message)
                     self.push_notify(content=message)
                     return True
