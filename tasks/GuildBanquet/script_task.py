@@ -48,7 +48,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, GuildBanquetAssets, SecretAssets):
 
         self.ui_goto_page(page_guild)
 
-        wait_timer = Timer(30)
+        wait_timer = Timer(230)
         wait_timer.start()
         wait_count = 0
         self.device.stuck_record_add('BATTLE_STATUS_S')
