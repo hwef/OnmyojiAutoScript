@@ -137,6 +137,12 @@ class RuleImage(BaseAtom):
         """
         if roi is None:
             x, y, w, h = self.roi_back
+            # 全方向扩展5像素，但不超过屏幕尺寸720x1280
+            x = max(0, x - 5)           # 向左扩展5像素，但不能小于0
+            y = max(0, y - 5)           # 向上扩展5像素，但不能小于0
+            w = min(1280 - x, w + 10)    # 增加10像素宽度（左右各5像素）
+            h = min(720 - y, h + 10)   # 增加10像素高度（上下各5像素）
+            self.roi_back = (x, y, w, h)  # 将扩展后的值重新赋值回去
         else:
             x, y, w, h = roi
         x, y, w, h = int(x), int(y), int(w), int(h)
