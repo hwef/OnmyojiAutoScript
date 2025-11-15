@@ -96,7 +96,7 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
         :param skip_first_screenshot:
         :return:
         """
-        logger.info("UI get current page")
+        # logger.info("UI get current page")
 
         @run_once
         def app_check():
@@ -124,7 +124,7 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
                 if not page.check_button:
                     continue
                 if self.ui_page_appear(page=page, interval=None):
-                    logger.attr("UI", page.name)
+                    logger.attr("Current page", page.name)
                     self.ui_current = page
                     return page
             # Try to close unknown page
@@ -136,8 +136,8 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
             # wait to ui
             sleep(0.3)
             app_check()
-            minicap_check()
-            rotation_check()
+            # minicap_check()
+            # rotation_check()
         # Unknown page, need manual switching
         logger.warning("Unknown ui page")
         logger.attr("EMULATOR__SCREENSHOT_METHOD", self.config.script.device.screenshot_method)
@@ -156,7 +156,7 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
             skip_first_screenshot:
         :return: find destination page or timeout reached
         """
-        logger.hr(f"UI goto {destination}")
+        logger.attr("UI go_to page", destination)
         # 初始化
         timeout_timer = Timer(timeout).start()
         confirm_timer = Timer(confirm_wait, count=int(confirm_wait // 0.5)).start()
@@ -176,9 +176,9 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
                 self.ui_get_current_page(skip_first_screenshot)
                 continue
             skip_first_screenshot = False
-            logger.info(f"Current page: {self.ui_current}")
+            # logger.attr(f"Current page", self.ui_current)
             show_paths: str = ' -> '.join([p.name for p in path])
-            logger.info(f"{show_paths}")
+            logger.attr("Path", show_paths)
             # 遍历路径
             found = self._execute_path(path, timeout_timer)
             if not found:
@@ -246,7 +246,7 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
         timer = Timer(None).start()
         for close in self.ui_close:
             if self.appear_then_click(close, interval=1.5):
-                logger.warning('Trying to switch to supported page')
+                # logger.warning('Trying to switch to supported page')
                 logger.info(f'[{timer.current():.1f}s]Click {close} on {self.ui_current} success')
                 return True
         return False
@@ -271,7 +271,7 @@ class GameUi(BaseTask, GameUiAssets, GeneralBattleAssets):
                     logger.info(f'Page arrived {current_page}')
                 break
             next_page = path[i + 1]
-            logger.info(f'Page switch: {current_page} -> {next_page}')
+            logger.attr('Page switch', f'{current_page} -> {next_page}')
             # 获取页面跳转操作
             button = current_page.links.get(next_page)
             if not button:
