@@ -55,7 +55,7 @@ page_summon = Page(G.I_CHECK_SUMMON)
 page_summon.link(button=G.I_SUMMON_GOTO_MAIN, destination=page_main)
 page_main.link(button=G.I_MAIN_GOTO_SUMMON, destination=page_summon)
 # 探索exploration
-page_exploration = Page(G.I_CHECK_EXPLORATION)
+page_exploration = Page(G.I_EXPLORATION_GOTO_AWAKE_ZONE)
 page_exploration.link(button=G.I_BACK_BLUE, destination=page_main)
 page_main.link(button=G.I_MAIN_GOTO_EXPLORATION, destination=page_exploration)
 # 町中town
