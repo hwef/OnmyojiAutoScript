@@ -138,11 +138,10 @@ class RuleImage(BaseAtom):
         if roi is None:
             x, y, w, h = self.roi_back
             # 全方向扩展5像素，但不超过屏幕尺寸720x1280
-            x = max(0, x - 5)           # 向左扩展5像素，但不能小于0
-            y = max(0, y - 5)           # 向上扩展5像素，但不能小于0
-            w = min(1280 - x, w + 10)    # 增加10像素宽度（左右各5像素）
-            h = min(720 - y, h + 10)   # 增加10像素高度（上下各5像素）
-            self.roi_back = (x, y, w, h)  # 将扩展后的值重新赋值回去
+            x = max(0, x - 5)               # 向左扩展5像素，但不能小于0
+            y = max(0, y - 5)               # 向上扩展5像素，但不能小于0
+            w = min(1280 - x, w + 10)       # 增加10像素宽度（左右各5像素）
+            h = min(720 - y, h + 10)        # 增加10像素高度（上下各5像素）
         else:
             x, y, w, h = roi
         x, y, w, h = int(x), int(y), int(w), int(h)
@@ -171,8 +170,7 @@ class RuleImage(BaseAtom):
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)  # 最小匹配度，最大匹配度，最小匹配度的坐标，最大匹配度的坐标
         # logger.attr(self.name, max_val)
         if max_val > threshold:
-            self.roi_front[0] = max_loc[0] + self.roi_back[0]
-            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            self.update_roi(max_loc)
             # logger.attr(self.name, self.roi_front)
             return True
         else:
@@ -215,8 +213,7 @@ class RuleImage(BaseAtom):
         # 根据阈值判断匹配结果
         if max_val > threshold:
             # 更新ROI坐标
-            self.roi_front[0] = max_loc[0] + self.roi_back[0]
-            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            self.update_roi(max_loc)
             # logger.attr(self.name, self.roi_front)
             return True
         else:
@@ -245,8 +242,7 @@ class RuleImage(BaseAtom):
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)  # 最小匹配度，最大匹配度，最小匹配度的坐标，最大匹配度的坐标
         logger.attr(self.name, max_val)
         if max_val > threshold:
-            self.roi_front[0] = max_loc[0] + self.roi_back[0]
-            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            self.update_roi(max_loc)
             logger.attr(self.name, self.roi_front)
             return True, max_val
         else:
@@ -292,12 +288,16 @@ class RuleImage(BaseAtom):
         # 根据阈值判断匹配结果
         if max_val > threshold:
             # 更新ROI坐标
-            self.roi_front[0] = max_loc[0] + self.roi_back[0]
-            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            self.update_roi(max_loc)
             logger.attr(self.name, self.roi_front)
             return True, max_val
         else:
             return False, max_val
+
+    def update_roi(self, max_loc):
+        # 更新ROI坐标
+        self.roi_front[0] = max_loc[0] + self.roi_back[0] - 5
+        self.roi_front[1] = max_loc[1] + self.roi_back[1] - 5
 
     def match_first(self, image: np.array, threshold: float = None) -> bool:
         """
@@ -358,8 +358,7 @@ class RuleImage(BaseAtom):
         # 根据阈值判断匹配结果
         if max_val > threshold:
             # 更新ROI坐标
-            self.roi_front[0] = max_loc[0] + self.roi_back[0]
-            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            self.update_roi(max_loc)
             return True
         else:
             return False

@@ -26,8 +26,6 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
     play_count = 0
 
     def run(self):
-        # 使用ONNXOCR
-        # OCR_MODEL.switch_to_onnx()
 
         con = self.config.wanted_quests
         if con.switch_soul.enable:
