@@ -16,6 +16,7 @@ from tasks.Utils.config_enum import DemonClass
 class Scales(Buy, MallNavbar):
 
     def execute_scales(self, con: ScalesConfig = None):
+        logger.hr('蛇皮商店', 2)
         if not con:
             con = self.config.rich_man.scales
         if not con.enable:
@@ -119,7 +120,7 @@ class Scales(Buy, MallNavbar):
             if self.appear(self.I_SCA_SIX_STAR):
                 logger.info('Scales buy success')
                 time.sleep(2)
-                self.save_image(task_name='ScalesSea', wait_time=1, image_type=False)
+                self.save_image(task_name='每周任务/ScalesSea', wait_time=1, image_type=False)
                 while 1:
                     self.screenshot()
                     if not self.appear(self.I_SCA_SIX_STAR) and self.appear(self.I_SCA_PICTURE_BOOK, interval=1):
@@ -139,7 +140,7 @@ class Scales(Buy, MallNavbar):
                 result = targe.test_match(self.device.image)
                 logger.info(f'[{targe.name}]: {result}')
                 if result:
-                    self.save_image(task_name='ScalesSea', wait_time=0.5, image_type=False)
+                    self.save_image(task_name='每周任务/ScalesSea', wait_time=0.5, image_type=False)
                     front0 = targe.roi_front[0]
                     # 962 595 229
                     if front0 < 300:
@@ -153,7 +154,7 @@ class Scales(Buy, MallNavbar):
                         break
             if not result:
                 # 如果御魂都没找到选第一个
-                self.save_image(task_name='ScalesSea', wait_time=0.5, image_type=False)
+                self.save_image(task_name='每周任务/ScalesSea', wait_time=0.5, image_type=False)
                 self.appear_then_click(self.I_SCA_SELECT_1, interval=1.6)
 
     def _scales_orochi(self, buy_number: int):

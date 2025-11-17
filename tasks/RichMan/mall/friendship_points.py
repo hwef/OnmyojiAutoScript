@@ -11,9 +11,11 @@ from tasks.RichMan.mall.special import Special
 from tasks.RichMan.config import FriendshipPoints as FriendshipPointsConfig
 import re
 
+
 class FriendshipPoints(Special):
 
     def execute_friendship(self, con: FriendshipPointsConfig = None):
+        logger.hr('友情点商店', 2)
         if not con:
             con = self.config.rich_man.friendship_points
         if not con.enable:
@@ -27,13 +29,14 @@ class FriendshipPoints(Special):
                               money_ocr=self.O_MALL_RESOURCE_5, buy_money=1000)
         if con.red_daruma != 0:
             self.buy_mall_more(buy_button=self.I_FS_RED, remain_number=False, money_ocr=self.O_MALL_RESOURCE_5,
-                                 buy_number=con.red_daruma, buy_max=99, buy_money=150)
+                               buy_number=con.red_daruma, buy_max=99, buy_money=150)
         if con.broken_amulet != 0:
             self.buy_mall_more(buy_button=self.I_FS_BROKEN, remain_number=False, money_ocr=self.O_MALL_RESOURCE_5,
-                                 buy_number=con.broken_amulet, buy_max=99, buy_money=100)
+                               buy_number=con.broken_amulet, buy_max=99, buy_money=100)
         self.save_image()
 
-    def buy_mall_one(self, buy_button: RuleImage, buy_check: RuleImage, remain_number: bool, money_ocr: RuleOcr, buy_money: int):
+    def buy_mall_one(self, buy_button: RuleImage, buy_check: RuleImage, remain_number: bool, money_ocr: RuleOcr,
+                     buy_money: int):
         """
         针对只能买一个的
         :param buy_button:
@@ -45,12 +48,12 @@ class FriendshipPoints(Special):
         logger.hr(buy_button.name, 3)
         self.screenshot()
         # 检查是否出现了购买按钮
-        logger.info(f'before buy_button.roi_front: [{buy_button.roi_front}]')
-        result = buy_button.test_match(self.device.image)
-        logger.info(f'after buy_button.roi_front: [{buy_button.roi_front}]')
+        logger.info(f'before buy_button.roi_front: {buy_button.roi_front}')
+        result = buy_button.match(self.device.image)
         if not result:
-            logger.warning(f'Buy button test_match result [{result}]')
+            logger.warning(f'未匹配到目标: [{buy_button}]')
             return
+        logger.info(f'after buy_button.roi_front: {buy_button.roi_front}')
         if not self.appear_rgb(buy_button, difference=10):
             logger.warning('Buy button is not appear')
             return False
@@ -78,7 +81,7 @@ class FriendshipPoints(Special):
         return self.buy_one(buy_button, buy_check)
 
     def buy_mall_more(self, buy_button: RuleImage, remain_number: bool, money_ocr: RuleOcr,
-                       buy_number: int, buy_max: int, buy_money: int):
+                      buy_number: int, buy_max: int, buy_money: int):
         """
         针对可以买多个的
         :param money_ocr:  检查钱的第几个
@@ -95,12 +98,12 @@ class FriendshipPoints(Special):
             return
         self.screenshot()
         # 检查是否出现了购买按钮
-        logger.info(f'before buy_button.roi_front: [{buy_button.roi_front}]')
+        logger.info(f'before buy_button.roi_front: {buy_button.roi_front}')
         result = buy_button.test_match(self.device.image)
-        logger.info(f'after buy_button.roi_front: [{buy_button.roi_front}]')
         if not result:
-            logger.warning(f'Buy button test_match result [{result}]')
+            logger.warning(f'未匹配到目标: [{buy_button}]')
             return
+        logger.info(f'after buy_button.roi_front: {buy_button.roi_front}')
         if not self.appear_rgb(buy_button, difference=10):
             logger.warning('Buy button is not appear')
             return
@@ -150,13 +153,10 @@ class FriendshipPoints(Special):
             time.sleep(0.5)
 
 
-
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
     c = Config('test')
-    d = Device(c)
-    t = FriendshipPoints(c, d)
+    t = FriendshipPoints(c)
 
     t.execute_friendship()

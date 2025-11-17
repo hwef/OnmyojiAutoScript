@@ -19,6 +19,8 @@ from tasks.Component.GeneralInvite.general_invite import GeneralInvite
 from tasks.Component.GeneralInvite.config_invite import InviteConfig, InviteNumber, FindMode
 
 """神秘商店"""
+
+
 class ScriptTask(FriendshipPoints, MysteryShopAssets, GeneralInvite):
 
     def run(self):
@@ -38,7 +40,6 @@ class ScriptTask(FriendshipPoints, MysteryShopAssets, GeneralInvite):
         self.shop_reward()
         logger.info('Exit MysteryShop')
         self.back_mall()
-
 
         self.next_time(True)
 
@@ -79,8 +80,6 @@ class ScriptTask(FriendshipPoints, MysteryShopAssets, GeneralInvite):
 
         logger.info('Switch to next friend')
         return True
-
-
 
     def run_shop(self, shop_config: ShopConfig = None):
         """
@@ -144,6 +143,7 @@ class ScriptTask(FriendshipPoints, MysteryShopAssets, GeneralInvite):
         :param name:
         :return:
         """
+
         def select(name: str) -> bool:
             selected = False
             sleep(1)
@@ -224,12 +224,10 @@ class ScriptTask(FriendshipPoints, MysteryShopAssets, GeneralInvite):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
+
     c = Config('du')
-    d = Device(c)
-    t = ScriptTask(c, d)
+    t = ScriptTask(c)
     t.screenshot()
 
     # t.run_shop(t.config.mystery_shop.shop_config)
     t.run()
-
