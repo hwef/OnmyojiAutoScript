@@ -117,7 +117,7 @@ class GameUiAssets:
 	# description 
 	I_CHECK_DUEL = RuleImage(roi_front=(110,10,64,38), roi_back=(79,1,110,74), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_duel.png")
 	# description 
-	I_CHECK_DEMON_ENCOUNTER = RuleImage(roi_front=(26,658,42,43), roi_back=(2,619,100,100), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_demon_encounter.png")
+	I_CHECK_DEMON_ENCOUNTER = RuleImage(roi_front=(544,15,81,39), roi_back=(544,15,81,39), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_demon_encounter.png")
 	# description 
 	I_CHECK_NETHERWORLD = RuleImage(roi_front=(575,30,46,25), roi_back=(553,1,81,68), threshold=0.7, method="Template matching", file="./tasks/GameUi/page/page_check_netherworld.png")
 	# description 

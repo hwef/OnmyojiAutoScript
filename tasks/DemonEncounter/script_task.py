@@ -441,7 +441,7 @@ class ScriptTask(GeneralBattle, DemonEncounterAssets, SwitchSoul):
         config = self.con
         while 1:
             self.screenshot()
-            if not self.appear(self.I_DE_LOCATION):
+            if self.appear(self.I_PREPARE_HIGHLIGHT):
                 logger.info('Battle Start')
                 break
             if self.appear(self.I_DE_SMALL_FIRE):
@@ -465,8 +465,8 @@ class ScriptTask(GeneralBattle, DemonEncounterAssets, SwitchSoul):
         config = self.con
         while 1:
             self.screenshot()
-            if not self.appear(self.I_DE_LOCATION):
-                logger.info('Battle Start')
+            if self.appear(self.I_PREPARE_HIGHLIGHT):
+                logger.info('realm Battle Start')
                 break
             if self.appear(self.I_BOSS_FIRE) or self.appear(self.I_BEST_BOSS_FIRE):
                 self.appear_then_click(self.I_UI_BACK_RED)
@@ -585,7 +585,7 @@ class ScriptTask(GeneralBattle, DemonEncounterAssets, SwitchSoul):
 if __name__ == '__main__':
     from module.config.config import Config
 
-    c = Config('4399')
+    c = Config('wy')
     t = ScriptTask(c)
 
     t.run()
