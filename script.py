@@ -263,7 +263,6 @@ class Script:
             return True
         except Exception as e:
             error_type = type(e).__name__  # 获取异常类型名称
-            logger.error(e, exc_info=True)
             if isinstance(e, (cv2.error, GameWaitTooLongError, GameTooManyClickError, GamePageUnknownError, GameStuckError, GameBugError, FileNotFoundError)):
                 logger.error(e)
                 logger.warning(f'{error_type}, Game will be restarted in 10 seconds')
@@ -286,6 +285,7 @@ class Script:
                 logger.warning(error_type)
             else:
                 logger.exception(e)
+            logger.error(e, exc_info=True)
             self.save_error_log(task=command, error_type=error_type)
             return False
 
