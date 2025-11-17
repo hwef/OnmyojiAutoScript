@@ -352,16 +352,16 @@ class ScriptTask(GeneralBattle, DemonEncounterAssets, SwitchSoul):
         while 1:
             self.screenshot()
             if self.appear(self.I_BLUE_PIAO):
-                if self.click(self.I_JADE_50):
-                    logger.info('50 勾玉购买蓝票')
-                    continue
-            if self.appear(self.I_SUSHI_100):
-                if self.click(self.I_JADE_50):
+                self.click(self.I_JADE_50)
+                logger.info('50 勾玉购买蓝票')
+                continue
+            if self.config.demon_encounter.switch_soul.enable_100ap:
+                if self.appear(self.I_SUSHI_100):
+                    self.click(self.I_JADE_50)
                     logger.info('50 勾玉购买体力')
                     continue
-            if not self.appear(self.I_BLUE_PIAO) and not self.appear(self.I_SUSHI_100):
-                if self.appear_then_click(self.I_DE_FIND, interval=2.5):
-                    break
+            self.ui_click_until_smt_disappear(self.I_DE_FIND, self.I_JADE_50)
+            break
 
     def _mail(self, target_click):
         # 答题
@@ -584,11 +584,9 @@ class ScriptTask(GeneralBattle, DemonEncounterAssets, SwitchSoul):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
-    c = Config('mi')
-    d = Device(c)
-    t = ScriptTask(c, d)
+    c = Config('4399')
+    t = ScriptTask(c)
 
     t.run()
     # t.battle_wait(True)
