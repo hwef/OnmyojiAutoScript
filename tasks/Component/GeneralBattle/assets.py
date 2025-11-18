@@ -25,6 +25,13 @@ class GeneralBattleAssets:
 	C_REWARD_3 = RuleClick(roi_front=(1092,156,168,387), roi_back=(1092,156,168,387), name="reward_3")
 
 
+	# Image Rule Assets
+	# 自动（代表战斗中） 
+	I_IN_BATTLE_AUTO = RuleImage(roi_front=(35,648,55,29), roi_back=(35,648,55,29), threshold=0.65, method="Template matching mask", file="./tasks/Component/GeneralBattle/battle/auto_battle.png")
+	# 鬼火（代表战斗中） 
+	I_IN_BATTLE_FIRE = RuleImage(roi_front=(262,689,27,24), roi_back=(262,689,27,24), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/battle/battle_fire.png")
+
+
 	# Click Rule Assets
 	# 预设队伍1 
 	C_PRESET_TEAM_1 = RuleClick(roi_front=(196,234,464,114), roi_back=(196,234,464,114), name="preset_team_1")
