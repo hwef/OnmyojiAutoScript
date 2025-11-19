@@ -310,7 +310,7 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         if not con_scrolls.scrolls_enable:
             return
         self.screenshot()
-        if self.appear(self.I_E_EXPLORATION_CLICK) and self.appear(self.I_EXP_CREATE_TEAM):
+        if self.appear(self.I_E_EXPLORATION_CLICK) or self.appear(self.I_EXP_CREATE_TEAM):
             cu, res, total = self.O_REALM_RAID_NUMBER1.ocr(self.device.image)
         else:
             cu, res, total = self.O_REALM_RAID_NUMBER.ocr(self.device.image)
@@ -441,11 +441,9 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
 
 if __name__ == "__main__":
     from module.config.config import Config
-    from module.device.device import Device
 
     config = Config('oas1')
-    device = Device(config)
-    t = BaseExploration(config, device)
+    t = BaseExploration(config)
     t.screenshot()
 
     # IMAGE_FILE = r"C:\Users\萌萌哒\Desktop\QQ20240818-163854.png"

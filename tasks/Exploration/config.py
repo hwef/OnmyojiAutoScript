@@ -87,6 +87,7 @@ class ExplorationConfig(BaseModel):
     buff_exp_100_click: bool = Field(default=False)
 
     atuo_rotate_on: bool = Field(default=True, description='是否开启自动轮换')
+    enable_hard_mode: bool = Field(default=True, description='是否困难模式')
 
     user_status: UserStatus = Field(default=UserStatus.ALONE, description='user_status_help_')
     # current_exploration_count: int = Field(title='探索次数', default='7', description='默认探索7次')

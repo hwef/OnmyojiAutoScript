@@ -131,6 +131,10 @@ class ExplorationAssets:
 	I_SMALL_HARD = RuleImage(roi_front=(437,215,66,33), roi_back=(437,215,66,33), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/small_hard.png")
 	# 大图标困难-就是困难模式 
 	I_BIG_HARD = RuleImage(roi_front=(437,215,66,33), roi_back=(437,215,66,33), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/big_hard.png")
+	# 大图标普通-就是普通模式 
+	I_BIG_EASY = RuleImage(roi_front=(296,200,83,58), roi_back=(296,200,83,58), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/big_easy.png")
+	# 小图标普通-就是困难模式 
+	I_SMALL_EASY = RuleImage(roi_front=(307,208,63,42), roi_back=(307,208,63,42), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/small_easy.png")
 
 
 	# Long Click Rule Assets

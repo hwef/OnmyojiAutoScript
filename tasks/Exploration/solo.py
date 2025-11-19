@@ -1,19 +1,15 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from time import sleep
 from cached_property import cached_property
-
-from module.logger import logger
-from module.base.timer import Timer
+from datetime import datetime
 from module.exception import TaskEnd
-
-from tasks.Component.GeneralInvite.config_invite import InviteConfig, InviteNumber, FindMode
-from tasks.Exploration.base import BaseExploration, UpType, Scene
-from tasks.Exploration.config import ChooseRarity, AutoRotate, UserStatus
-from module.atom.image_grid import ImageGrid
+from module.logger import logger
+from tasks.Component.GeneralInvite.config_invite import InviteConfig, InviteNumber
+from tasks.Exploration.base import BaseExploration, Scene
+from tasks.Exploration.config import AutoRotate, UserStatus
 from tasks.Exploration.config import ExplorationLevel
-from datetime import timedelta, datetime
+
 
 class SoloExploration(BaseExploration):
     INVITE_FLAG_OFF = (157, 109, 83)
@@ -65,7 +61,10 @@ class SoloExploration(BaseExploration):
                 if self.check_exit():
                     break
                 if open_expect_level:
-                    self.ui_click(self.I_SMALL_HARD, stop=self.I_BIG_HARD)
+                    if self.config.exploration.exploration_config.enable_hard_mode:
+                        self.ui_click(self.I_SMALL_HARD, stop=self.I_BIG_HARD)
+                    else:
+                        self.ui_click(self.I_SMALL_EASY, stop=self.I_BIG_EASY)
                     self.ui_click(self.I_E_EXPLORATION_CLICK, stop=self.I_E_SETTINGS_BUTTON)
                 else:
                     self.appear_then_click(self.I_UI_BACK_RED)
@@ -511,10 +510,8 @@ class ScriptTask(SoloExploration):
 
 if __name__ == "__main__":
     from module.config.config import Config
-    from module.device.device import Device
 
-    config = Config('1')
-    device = Device(config)
-    t = ScriptTask(config, device)
+    config = Config('4399')
+    t = ScriptTask(config)
     t.run()
 
