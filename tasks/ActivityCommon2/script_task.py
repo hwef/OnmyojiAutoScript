@@ -27,7 +27,7 @@ class ScriptTask(ActivityCommonScriptTask):
 if __name__ == '__main__':
     from module.config.config import Config
 
-    c = Config('4399')
+    c = Config('du')
     t = ScriptTask(c)
 
     t.run()

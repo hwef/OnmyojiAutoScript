@@ -6,6 +6,7 @@ import os
 import random
 from datetime import datetime, timedelta, time
 from module.atom.image import RuleImage
+from module.atom.ocr import RuleOcr
 from module.base.timer import Timer
 from module.exception import TaskEnd
 from module.logger import logger
@@ -48,7 +49,6 @@ class ScriptTask(SwitchSoul, GeneralBattle):
         self.run_activity(config, goto_activity_templates, battle_templates, challenge)
 
     def run_activity(self, config, goto_challenge_templates, battle_templates, challenge) -> None:
-
         # 切换御魂
         if config.switch_soul_config.enable:
             self.run_switch_soul(config.switch_soul_config.switch_group_team)
@@ -61,7 +61,7 @@ class ScriptTask(SwitchSoul, GeneralBattle):
         self.goto_challenge(goto_challenge_templates)
 
         # 开始战斗
-        battle_result = self.start_battle(config.activity_common_config, battle_templates, challenge)
+        battle_result = self.start_battle(config, battle_templates, challenge)
 
         # 回到庭院
         self.ui_goto_page(page_main)
@@ -75,6 +75,21 @@ class ScriptTask(SwitchSoul, GeneralBattle):
         else:
             self.set_next_run(task=self.config.task.command, finish=True, success=True)
         raise TaskEnd
+
+    def check_battle(self, config):
+        con = config.check_battle_config
+        roi = tuple(map(int, con.ocr_number_roi.split(',')))
+        mode = con.ocr_number_mode
+        limit_ocr_number = con.limit_ocr_number
+        O_NUMBER = RuleOcr(roi=roi, area=roi, mode=mode, method="Default", keyword="", name="number")
+
+        if mode == "DigitCounter":
+            cu, res, total = self.ocr_result(O_NUMBER)
+            if limit_ocr_number != 0:
+                if cu >= limit_ocr_number and cu + res == total and total > 0:
+                    self.push_notify(content=f"限制数量[{limit_ocr_number}]已达到: {cu}/{total}")
+                    self.set_next_run(task=self.config.task.command, target=datetime.now() + timedelta(minutes=10))
+                    raise TaskEnd
 
     def goto_challenge(self, goto_challenge_templates):
         # 进入挑战界面
@@ -98,16 +113,16 @@ class ScriptTask(SwitchSoul, GeneralBattle):
 
     def start_battle(self, config, battle_templates, challenge):
 
-        limit_time = config.limit_time
-        enable = config.enable
+        limit_time = config.activity_common_config.limit_time
+        enable = config.activity_common_config.enable
         each_limit_second = 0
         if enable:
             # 限制次数
-            self.limit_count = config.limit_count
+            self.limit_count = config.activity_common_config.limit_count
             # 限制时间
             self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute, seconds=limit_time.second)
             # 每场战斗限制秒数
-            each_limit_second = config.each_limit_second
+            each_limit_second = config.activity_common_config.each_limit_second
 
         # 开始战斗
         logger.hr("开始战斗")
@@ -152,8 +167,11 @@ class ScriptTask(SwitchSoul, GeneralBattle):
                     self.screenshot()
                     if self.appear(challenge):
                         # 判断是否有更高优先级任务，去执行新任务
-                        if config.enable_check_first_priority_task:
+                        if config.activity_common_config.enable_check_first_priority_task:
                             self._check_first_priority_task()
+                        if config.check_battle_config.enable:
+                            if self.check_battle(config):
+                                return True
                         if over_task:
                             return True
                         if enable:
@@ -199,5 +217,7 @@ if __name__ == '__main__':
 
     c = Config('du')
     t = ScriptTask(c)
+    t.screenshot()
+    t.check_battle(c.activity_common_2)
 
-    t.run()
+    # t.run()
