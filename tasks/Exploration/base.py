@@ -305,6 +305,16 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             return self.I_NORMAL_BATTLE_BUTTON
         return None
 
+    def check_boss_number(self, con_scrolls):
+        if con_scrolls.check_boss_num:
+            cu, res, total = self.O_CHECK_BOSS_NUM.ocr(self.device.image)
+            message = f"当前鬼王掉落数量: {cu} / {total} 剩余: {res}"
+            logger.info(message)
+            if cu + res == total and cu == 50 and total == 50:
+                self.push_notify(message)
+                self.set_next_run()
+                raise TaskEnd
+
     def activate_realm_raid(self, con_scrolls, con) -> None:
         # 判断是否开启突破票检测
         if not con_scrolls.scrolls_enable:
@@ -314,6 +324,7 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             cu, res, total = self.O_REALM_RAID_NUMBER1.ocr(self.device.image)
         else:
             cu, res, total = self.O_REALM_RAID_NUMBER.ocr(self.device.image)
+
         # 判断突破票数量
 
         # 添加校验：只有当总值等于30时才认为是突破券数量
@@ -438,6 +449,7 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
 
         # 默认向下滑动（目标章节在下方）
         return False
+
 
 if __name__ == "__main__":
     from module.config.config import Config
