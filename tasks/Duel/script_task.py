@@ -81,8 +81,10 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
                 continue
             if self.appear_then_click(self.I_DUEL_CANCEL, interval=0.6):
                 continue
-            if not self.duel_main():
+            if not self.appear(self.I_CHECK_DUEL):
                 continue
+            # if not self.duel_main():
+            #     continue
 
             # 判断是否有更高优先级任务，去执行新任务
             self._check_first_priority_task()
@@ -627,10 +629,8 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
-    c = Config('s4399')
-    d = Device(c)
-    t = ScriptTask(c, d)
+    c = Config('du')
+    t = ScriptTask(c)
 
     t.run()
