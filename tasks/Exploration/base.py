@@ -412,6 +412,10 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         return True
 
     def get_box(self):
+        if self.appear(self.I_TREASURE_BOX_CLICK):
+            # 宝箱
+            logger.info('Treasure box appear, get it.')
+            self.ui_click_until_disappear(self.I_TREASURE_BOX_CLICK)
         if self.appear(self.I_MAP_BOX_CLICK):
             logger.info('Map box appear, get it.')
             # 地图宝箱
@@ -424,11 +428,6 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
                     x, y = self.I_MAP_BOX_CLICK.coord_center()
                     self.device.click(x=x, y=y, control_name=self.I_MAP_BOX_CLICK.name)
                     time.sleep(0.5)
-
-        if self.appear(self.I_TREASURE_BOX_CLICK):
-            # 宝箱
-            logger.info('Treasure box appear, get it.')
-            self.ui_click_until_disappear(self.I_TREASURE_BOX_CLICK)
 
     def _should_swipe_up(self, current_levels, target_level):
         """
