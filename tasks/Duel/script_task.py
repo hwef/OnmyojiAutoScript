@@ -81,6 +81,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
                 continue
             if self.appear_then_click(self.I_DUEL_CANCEL, interval=0.6):
                 continue
+            self.ui_goto_page(page_duel)
             if not self.appear(self.I_CHECK_DUEL):
                 continue
             # if not self.duel_main():
