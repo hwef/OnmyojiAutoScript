@@ -133,6 +133,9 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             results = self.O_E_EXPLORATION_LEVEL_NUMBER.detect_and_ocr(self.device.image)
             text1 = [result.ocr_text for result in results]
             logger.info(f"当前章节: {text1}")
+            if not text1:
+                self.ui_click_until_disappear(self.I_UI_BACK_RED)
+                continue
             logger.info(f"目标章节: {goal_level}")
 
             # 判断目标章节与当前章节的相对位置
@@ -410,9 +413,18 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
 
     def get_box(self):
         if self.appear(self.I_MAP_BOX_CLICK):
+            logger.info('Map box appear, get it.')
             # 地图宝箱
-            logger.info('Treasure box appear, get it.')
-            self.ui_click_until_disappear(self.I_MAP_BOX_CLICK)
+            while 1:
+                self.screenshot()
+                if not self.appear(self.I_MAP_BOX_CLICK):
+                    break
+                if self.appear(self.I_MAP_BOX_CLICK):
+                    # self.save_image(image_type=True, push_flag=True, wait_time=0)
+                    x, y = self.I_MAP_BOX_CLICK.coord_center()
+                    self.device.click(x=x, y=y, control_name=self.I_MAP_BOX_CLICK.name)
+                    time.sleep(0.5)
+
         if self.appear(self.I_TREASURE_BOX_CLICK):
             # 宝箱
             logger.info('Treasure box appear, get it.')
