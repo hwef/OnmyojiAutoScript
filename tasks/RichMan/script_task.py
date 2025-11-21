@@ -1,21 +1,17 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-from time import sleep
-from datetime import time, datetime, timedelta
 
-from module.logger import logger
 from module.exception import TaskEnd
-
-
-from tasks.RichMan.assets import RichManAssets
 from tasks.RichMan.config import RichMan
-from tasks.RichMan.mall.mall import Mall
 from tasks.RichMan.guild import Guild
+from tasks.RichMan.mall.mall import Mall
 from tasks.RichMan.shrine import Shrine
 from tasks.RichMan.thousand_things import ThousandThings
 
 """大富翁"""
+
+
 class ScriptTask(Mall, Guild, ThousandThings, Shrine):
 
     def run(self):
@@ -26,6 +22,8 @@ class ScriptTask(Mall, Guild, ThousandThings, Shrine):
         self.execute_shrine(con.shrine)
         # 功勋商店
         self.execute_guild(con.guild_store)
+        # 寮内采办
+        self.execute_guild_procurement(con.guild_procurement)
         # 商店
         self.execute_mall()
 
@@ -36,26 +34,11 @@ class ScriptTask(Mall, Guild, ThousandThings, Shrine):
         raise TaskEnd('RichMan')
 
 
-
-
-
-
-
-
-
-
-
-
-
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
+
     c = Config('du')
-    d = Device(c)
-    t = ScriptTask(c, d)
+    t = ScriptTask(c)
 
     # t.run()
     t.execute_mall()
-
-
-

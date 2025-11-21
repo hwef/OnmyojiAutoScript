@@ -23,18 +23,15 @@ from tasks.Utils.config_enum import ShikigamiClass
 
 class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
     last_best_index = 99
-    utilize_add_count = 0
+    run_utilize_count = 0
     ap_max_num = 0
     jade_max_num = 0
     first_utilize = True
 
     def run(self):
         con = self.config.kekkai_utilize.utilize_config
-        self.ui_get_current_page()
-        self.ui_goto(page_realm)
+        self.ui_goto_page(page_realm)
 
-        # 进入寮结界
-        # self.goto_realm()
         # 育成界面去蹭卡
         if con.utilize_enable:
             self.check_utilize_add()
@@ -48,28 +45,59 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
 
         # 收取寮资金和体力
         self.recive_guild_ap_or_assets()
+
+        # 抽奖箱
+        self.check_lottery_box()
+
         if not con.utilize_enable:
             self.set_next_run(task='KekkaiUtilize', finish=True, success=True)
         raise TaskEnd
 
+    def check_lottery_box(self):
+        self.ui_goto_page(page_guild)
+        while 1:
+            self.screenshot()
+            if self.wait_until_appear_then_click(self.I_LOTTERY_BOX, wait_time=2):
+                if self.wait_until_appear(self.I_LOTTERY_BOX_PAGE, wait_time=5):
+                    break
+            else:
+                logger.info(f'未发现抽奖箱')
+                return
+
+        while 1:
+            self.screenshot()
+            if self.ui_reward_appear_click():
+                continue
+            # 获得奖励
+            if self.appear(self.I_LOTTERY_CLICK):
+                cu, re, total = self.ocr_result(self.O_LOTTERY_NUMBER)
+                if cu + re == total and cu != 0:
+                    logger.info(f'抽奖次数: [{cu}]')
+                    self.ui_click_until_disappear(self.I_LOTTERY_CLICK, interval=1)
+                    while 1:
+                        self.screenshot()
+                        self.swipe(self.S_SWIPE_LOTTERY_BOX, interval=5)
+                        if self.appear(self.I_LOTTERY_CLICK):
+                            break
+                else:
+                    logger.info(f'没有可以抽奖的次数')
+                    return
+
     def recive_guild_ap_or_assets(self):
         for i in range(1, 5):
-            self.ui_get_current_page()
-            self.ui_goto(page_guild)
+            self.ui_goto_page(page_guild)
             # 在寮的主界面 检查是否有收取体力或者是收取寮资金
             if self.check_guild_ap_or_assets():
                 logger.warning(f'第[{i}]次检查寮收获,成功')
                 return
             else:
                 logger.warning(f'第[{i}]次检查寮收获寮收获,失败')
-                self.ui_goto(page_main)
+                self.ui_goto_page(page_main)
 
     def check_utilize_add(self):
         con = self.config.kekkai_utilize.utilize_config
         while 1:
-            self.utilize_add_count += 1
-            if self.utilize_add_count >= 5:
-                logger.warning('没有合适可以蹭的卡, 5分钟后再次执行蹭卡')
+            if self.run_utilize_count >= 2:
                 self.push_notify(content=f"没有合适可以蹭的卡, 5分钟后再次执行蹭卡")
                 self.set_next_run(task='KekkaiUtilize', target=datetime.now() + timedelta(minutes=5))
                 return
@@ -94,9 +122,9 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
                 logger.info('Utilize failed, exit')
             # 开始执行寄养
             self.run_utilize(con.select_friend_list, con.shikigami_class, con.shikigami_order)
+            self.run_utilize_count += 1
             # 进入寮结界
-            self.ui_get_current_page()
-            self.ui_goto(page_realm)
+            self.ui_goto_page(page_realm)
 
     def check_max_lv(self, shikigami_class: ShikigamiClass = ShikigamiClass.N):
         """
@@ -119,17 +147,8 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
         #     self.switch_shikigami_class(shikigami_class)
         #     self.set_shikigami(shikigami_order=7, stop_image=self.I_RS_NO_ADD)
 
-        # 回到结界界面
-        while 1:
-            self.screenshot()
-
-            if self.appear(self.I_REALM_SHIN) and self.appear(self.I_SHI_GROWN):
-                self.screenshot()
-                if not self.appear(self.I_REALM_SHIN):
-                    continue
-                break
-            if self.appear_then_click(self.I_UI_BACK_BLUE, interval=2.5):
-                continue
+        # 进入寮结界
+        self.ui_goto_page(page_realm)
 
     def check_guild_ap_or_assets(self, ap_enable: bool = True, assets_enable: bool = True) -> bool:
         """
@@ -423,7 +442,7 @@ class ScriptTask(GameUi, ReplaceShikigami, KekkaiUtilizeAssets):
             return False
 
         # 找到卡,重置次数
-        self.utilize_add_count = 0
+        self.run_utilize_count = 0
         logger.info('开始执行进入结界蹭卡流程')
         self.screenshot()
         # 进入结界
@@ -691,10 +710,10 @@ if __name__ == "__main__":
 
     c = Config('4399')
     t = ScriptTask(c)
-    t.run()
-    for i in range(10):
-        t.perform_swipe_action()
-    t.recive_guild_ap_or_assets()
+    t.check_lottery_box()
+    # for i in range(10):
+    #     t.perform_swipe_action()
+    # t.recive_guild_ap_or_assets()
     # t.check_utilize_add()
     # t.check_card_num('勾玉', 67)
     # t.screenshot()

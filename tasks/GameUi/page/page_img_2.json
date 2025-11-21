@@ -83,8 +83,8 @@
   {
     "itemName": "check_demon_encounter",
     "imageName": "page_check_demon_encounter.png",
-    "roiFront": "26,658,42,43",
-    "roiBack": "2,619,100,100",
+    "roiFront": "544,15,81,39",
+    "roiBack": "544,15,81,39",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "description"

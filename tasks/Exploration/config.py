@@ -79,6 +79,8 @@ class Scrolls(BaseModel):
     scrolls_enable: bool = Field(title='绘卷模式', default=False, description='绘卷模式')
     scrolls_cd: Time = Field(title='间隔时间', default=Time(hour=0, minute=30, second=0), description='间隔时间')
     scrolls_threshold: int = Field(title='突破票数量', default=25, description='突破票数量，超过打突破')
+    check_boss_num: bool = Field(title='超鬼王掉落', default=True, description='检查超鬼王掉落')
+
 
 class ExplorationConfig(BaseModel):
     buff_gold_50_click: bool = Field(default=False)
@@ -87,6 +89,7 @@ class ExplorationConfig(BaseModel):
     buff_exp_100_click: bool = Field(default=False)
 
     atuo_rotate_on: bool = Field(default=True, description='是否开启自动轮换')
+    enable_hard_mode: bool = Field(default=True, description='是否困难模式')
 
     user_status: UserStatus = Field(default=UserStatus.ALONE, description='user_status_help_')
     # current_exploration_count: int = Field(title='探索次数', default='7', description='默认探索7次')

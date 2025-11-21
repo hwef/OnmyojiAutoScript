@@ -48,7 +48,7 @@
     "itemName": "false",
     "imageName": "gb_false.png",
     "roiFront": "413,124,100,100",
-    "roiBack": "413,124,100,100",
+    "roiBack": "345,56,248,181",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "失败"
@@ -245,8 +245,8 @@
   {
     "itemName": "soul_full_ensure",
     "imageName": "gb_exit_ensure.png",
-    "roiFront": "573,388,35,63",
-    "roiBack": "573,388,35,63",
+    "roiFront": "573,388,135,63",
+    "roiBack": "573,388,135,63",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "御魂溢出确认"

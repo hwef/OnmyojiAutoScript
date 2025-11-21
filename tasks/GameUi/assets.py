@@ -117,7 +117,7 @@ class GameUiAssets:
 	# description 
 	I_CHECK_DUEL = RuleImage(roi_front=(110,10,64,38), roi_back=(79,1,110,74), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_duel.png")
 	# description 
-	I_CHECK_DEMON_ENCOUNTER = RuleImage(roi_front=(26,658,42,43), roi_back=(2,619,100,100), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_demon_encounter.png")
+	I_CHECK_DEMON_ENCOUNTER = RuleImage(roi_front=(544,15,81,39), roi_back=(544,15,81,39), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_demon_encounter.png")
 	# description 
 	I_CHECK_NETHERWORLD = RuleImage(roi_front=(575,30,46,25), roi_back=(553,1,81,68), threshold=0.7, method="Template matching", file="./tasks/GameUi/page/page_check_netherworld.png")
 	# description 
@@ -161,8 +161,8 @@ class GameUiAssets:
 	I_CHECK_ONMYODO = RuleImage(roi_front=(1166,117,84,547), roi_back=(1166,117,84,547), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_onmyodo.png")
 	# page_check_friends 
 	I_CHECK_FRIENDS = RuleImage(roi_front=(594,50,146,31), roi_back=(519,10,290,120), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_friends.png")
-	# description 
-	I_CHECK_DAILY = RuleImage(roi_front=(38,515,45,62), roi_back=(1,489,155,127), threshold=0.7, method="Template matching", file="./tasks/GameUi/page/page_check_daily.png")
+	# page_check_daily 
+	I_CHECK_DAILY = RuleImage(roi_front=(102,23,97,36), roi_back=(20,7,236,74), threshold=0.7, method="Template matching", file="./tasks/GameUi/page/page_check_daily.png")
 	# description 
 	I_CHECK_MALL = RuleImage(roi_front=(239,502,100,100), roi_back=(239,502,100,100), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_check_mall.png")
 	# description 

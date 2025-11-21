@@ -15,7 +15,52 @@
     "roiBack": "651,420,212,180",
     "method": "Template matching",
     "threshold": 0.8,
-    "description": "功勋商店"
+    "description": "神社界面-功勋商店"
+  },
+  {
+    "itemName": "guild_store_page",
+    "imageName": "guild_guild_store_page.png",
+    "roiFront": "518,61,92,39",
+    "roiBack": "518,61,92,39",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "功勋商店page"
+  },
+  {
+    "itemName": "guild_store_procurement",
+    "imageName": "guild_guild_store_procurement.png",
+    "roiFront": "949,423,108,32",
+    "roiBack": "949,423,108,32",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "寮内采办"
+  },
+  {
+    "itemName": "guild_store_procurement_page",
+    "imageName": "guild_guild_store_procurement_page.png",
+    "roiFront": "518,61,92,39",
+    "roiBack": "518,61,92,39",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "寮内采办page"
+  },
+  {
+    "itemName": "lottery_box",
+    "imageName": "lottery_box.png",
+    "roiFront": "792,206,73,70",
+    "roiBack": "256,132,712,476",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "同心奖箱"
+  },
+  {
+    "itemName": "lottery_box_buy",
+    "imageName": "lottery_box_buy.png",
+    "roiFront": "552,506,169,56",
+    "roiBack": "552,506,169,56",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "同心奖箱购买"
   },
   {
     "itemName": "guild_close_red",

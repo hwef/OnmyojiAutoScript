@@ -13,8 +13,18 @@ class RichManAssets:
 	# Image Rule Assets
 	# 神社 
 	I_GUILD_SHRINE = RuleImage(roi_front=(869,623,64,62), roi_back=(869,623,64,62), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_shrine.png")
-	# 功勋商店 
+	# 神社界面-功勋商店 
 	I_GUILD_STORE = RuleImage(roi_front=(651,420,212,161), roi_back=(651,420,212,180), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_store.png")
+	# 功勋商店page 
+	I_GUILD_STORE_PAGE = RuleImage(roi_front=(518,61,92,39), roi_back=(518,61,92,39), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_store_page.png")
+	# 寮内采办 
+	I_GUILD_STORE_PROCUREMENT = RuleImage(roi_front=(949,423,108,32), roi_back=(949,423,108,32), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_store_procurement.png")
+	# 寮内采办page 
+	I_GUILD_STORE_PROCUREMENT_PAGE = RuleImage(roi_front=(518,61,92,39), roi_back=(518,61,92,39), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_store_procurement_page.png")
+	# 同心奖箱 
+	I_LOTTERY_BOX = RuleImage(roi_front=(792,206,73,70), roi_back=(256,132,712,476), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/lottery_box.png")
+	# 同心奖箱购买 
+	I_LOTTERY_BOX_BUY = RuleImage(roi_front=(552,506,169,56), roi_back=(552,506,169,56), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/lottery_box_buy.png")
 	# description 
 	I_GUILD_CLOSE_RED = RuleImage(roi_front=(1029,120,53,57), roi_back=(1029,120,53,57), threshold=0.8, method="Template matching", file="./tasks/RichMan/guild/guild_guild_close_red.png")
 	# 蓝票 
@@ -55,8 +65,10 @@ class RichManAssets:
 
 
 	# Swipe Rule Assets
-	# description 
-	S_GUILD_STORE = RuleSwipe(roi_front=(807,460,46,35), roi_back=(720,214,90,34), mode="default", name="guild_store")
+	# 页面往下滑动 
+	S_GUILD_STORE_DOWN = RuleSwipe(roi_front=(807,460,46,35), roi_back=(720,214,90,34), mode="default", name="guild_store_down")
+	# 页面往上滑动 
+	S_GUILD_STORE_UP = RuleSwipe(roi_front=(720,214,90,34), roi_back=(807,460,46,35), mode="default", name="guild_store_up")
 
 
 	# Image Rule Assets
@@ -203,7 +215,7 @@ class RichManAssets:
 	# 勋章 
 	I_SIDE_SURE_MEDAL = RuleImage(roi_front=(1190,375,39,62), roi_back=(1156,352,99,113), threshold=0.7, method="Template matching", file="./tasks/RichMan/mall/navbar/navbar_side_sure_medal.png")
 	# 勋章 
-	I_SIDE_CHECK_MEDAL = RuleImage(roi_front=(665,6,40,44), roi_back=(453,1,476,58), threshold=0.7, method="Template matching", file="./tasks/RichMan/mall/navbar/navbar_side_check_medal.png")
+	I_SIDE_CHECK_MEDAL = RuleImage(roi_front=(665,6,40,44), roi_back=(453,1,400,58), threshold=0.7, method="Template matching", file="./tasks/RichMan/mall/navbar/navbar_side_check_medal.png")
 	# 魅力值 
 	I_SIDE_SURE_CHARISMA = RuleImage(roi_front=(1181,467,59,58), roi_back=(1158,445,101,106), threshold=0.7, method="Template matching", file="./tasks/RichMan/mall/navbar/navbar_side_sure_charisma.png")
 	# 魅力值 

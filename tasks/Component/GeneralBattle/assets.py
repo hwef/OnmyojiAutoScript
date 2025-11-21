@@ -25,6 +25,13 @@ class GeneralBattleAssets:
 	C_REWARD_3 = RuleClick(roi_front=(1092,156,168,387), roi_back=(1092,156,168,387), name="reward_3")
 
 
+	# Image Rule Assets
+	# 自动（代表战斗中） 
+	I_IN_BATTLE_AUTO = RuleImage(roi_front=(35,648,55,29), roi_back=(35,648,55,29), threshold=0.65, method="Template matching mask", file="./tasks/Component/GeneralBattle/battle/auto_battle.png")
+	# 鬼火（代表战斗中） 
+	I_IN_BATTLE_FIRE = RuleImage(roi_front=(262,689,27,24), roi_back=(262,689,27,24), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/battle/battle_fire.png")
+
+
 	# Click Rule Assets
 	# 预设队伍1 
 	C_PRESET_TEAM_1 = RuleClick(roi_front=(196,234,464,114), roi_back=(196,234,464,114), name="preset_team_1")
@@ -76,7 +83,7 @@ class GeneralBattleAssets:
 	# 准备但是界面还未加载这个时候是黑色的 
 	I_PREPARE_DARK = RuleImage(roi_front=(1131,538,100,100), roi_back=(1131,538,100,100), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_prepare_dark.png")
 	# 失败 
-	I_FALSE = RuleImage(roi_front=(413,124,100,100), roi_back=(413,124,100,100), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_false.png")
+	I_FALSE = RuleImage(roi_front=(413,124,100,100), roi_back=(345,56,248,181), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_false.png")
 	# 确认预设的队伍 
 	I_PRESET_ENSURE = RuleImage(roi_front=(352,643,141,50), roi_back=(305,625,236,83), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_preset_ensure.png")
 	# 选择buff 
@@ -120,7 +127,7 @@ class GeneralBattleAssets:
 	# description 
 	I_PRESENT_LESS_THAN_5 = RuleImage(roi_front=(222,648,418,43), roi_back=(222,648,418,43), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_present_less_than_5.png")
 	# 御魂溢出确认 
-	I_SOUL_FULL_ENSURE = RuleImage(roi_front=(573,388,35,63), roi_back=(573,388,35,63), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_exit_ensure.png")
+	I_SOUL_FULL_ENSURE = RuleImage(roi_front=(573,388,135,63), roi_back=(573,388,135,63), threshold=0.8, method="Template matching", file="./tasks/Component/GeneralBattle/gb/gb_exit_ensure.png")
 	# 结算时左下角统计图标 
 	I_REWARD_STATISTICS = RuleImage(roi_front=(51,629,54,59), roi_back=(17,305,643,389), threshold=0.7, method="Template matching mask", file="./tasks/Component/GeneralBattle/gb/gb_reward_statistics.png")
 	# 新版本的预设图案带数字 

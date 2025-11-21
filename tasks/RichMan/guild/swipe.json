@@ -1,9 +1,16 @@
 [
   {
-    "itemName": "guild_store",
+    "itemName": "guild_store_down",
     "roiFront": "807,460,46,35",
     "roiBack": "720,214,90,34",
     "mode": "default",
-    "description": "description"
+    "description": "页面往下滑动"
+  },
+  {
+    "itemName": "guild_store_up",
+    "roiFront": "720,214,90,34",
+    "roiBack": "807,460,46,35",
+    "mode": "default",
+    "description": "页面往上滑动"
   }
 ]

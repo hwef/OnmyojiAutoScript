@@ -75,6 +75,7 @@ class ScriptTask(BaseChannelTask):
             # 限时任务
             case TaskType.limitTask:
                 self._set_batch_tasks(self.limit_task, target_time)
+                self._set_batch_tasks(self.always_run_task, target_time)
             # 周任务
             case TaskType.weekTask:
                 self._set_batch_tasks(self.week_task, target_time)
@@ -82,9 +83,15 @@ class ScriptTask(BaseChannelTask):
             case TaskType.assist50:
                 self._set_batch_tasks(self.assist50_run_task, target_time)
 
-        # 设置总是运行的任务
-        self._set_batch_tasks(self.always_run_task, target_time)
-
         # 更新数据和通知
         self.update_account_data(con.once_config.accounts_file, current_account_data, index, task_type)
         # self.push_notify(content=f"{self.account_info} [{self.task_type_name}]创建")
+
+
+if __name__ == '__main__':
+    from module.config.config import Config
+
+    config = Config('4399')
+
+    config.get_next()
+    print(config.waiting_task)

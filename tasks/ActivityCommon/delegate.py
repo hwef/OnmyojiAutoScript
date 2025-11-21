@@ -13,7 +13,7 @@ from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.GameUi.page import page_main
 from tasks.Restart.assets import RestartAssets
 
-""" 活动通用委派 """
+""" 委派 """
 
 
 class ScriptTask(SwitchSoul, GeneralBattle):
@@ -26,8 +26,7 @@ class ScriptTask(SwitchSoul, GeneralBattle):
         goto_delegate_folder2 = "./tasks/ActivityCommon/gotoDelegate2"
         goto_delegate_folder3 = "./tasks/ActivityCommon/gotoDelegate3"
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         self.goto_delegate(self._load_image_template(goto_delegate_folder1), over_img)
         logger.hr("已进入灵视界面", 1)
@@ -38,7 +37,7 @@ class ScriptTask(SwitchSoul, GeneralBattle):
 
         logger.hr("委派任务结束", 1)
         # 回到庭院
-        self.back_main()
+        self.ui_goto_page(page_main)
         self.set_next_run()
         raise TaskEnd
 
@@ -48,7 +47,7 @@ class ScriptTask(SwitchSoul, GeneralBattle):
         click_count = 1
         while not goto_activity:
             if click_count >= 3:
-                self.back_main()
+                self.ui_goto_page(page_main)
                 self.set_next_run()
                 raise TaskEnd
             self.screenshot()

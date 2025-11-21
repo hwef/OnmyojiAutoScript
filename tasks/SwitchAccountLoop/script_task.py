@@ -80,11 +80,12 @@ class ScriptTask(GameUi):
 
             logger.info(f"[角色] {account_info}, 切换完成")
             loop_tasks = current_account_data.get("loop_tasks").split(",")
-            for loop_task in loop_tasks:
-                self.set_next_run(task=loop_task, target=datetime.now())
+            if loop_tasks != ['']:  # 只有非空任务才执行
+                for loop_task in loop_tasks:
+                    self.set_next_run(task=loop_task, target=datetime.now())
             # 本次任务设置下次运行时间
             task_loop_interval = con.loop_config.task_loop_interval
-            self.set_next_run(target=self.add_time_to_datetime(task_loop_interval))
+            self.set_next_run(target=self.datetime_add_timedelta(task_loop_interval))
 
             self.BaseChannelTask.update_account_data(con.loop_config.accounts_file, current_account_data, index, task_type, None)
             raise TaskEnd

@@ -26,8 +26,6 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
     play_count = 0
 
     def run(self):
-        # 使用ONNXOCR
-        # OCR_MODEL.switch_to_onnx()
 
         con = self.config.wanted_quests
         if con.switch_soul.enable:
@@ -133,8 +131,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
         :return:
         """
         self.play_count += 1
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         done_timer = Timer(5)
         if self.play_count >= 3:
             return False
@@ -168,7 +165,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
             else:
                 self.invite_five()
         self.ui_click_until_disappear(self.I_UI_BACK_RED)
-        self.ui_goto(page_exploration)
+        self.ui_goto_page(page_exploration)
         return True
 
     def execute_mission(self, ocr, num_want: int, num_challenge: int, flag=False):

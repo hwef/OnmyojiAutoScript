@@ -56,11 +56,20 @@
   {
     "itemName": "d_auto_entry",
     "imageName": "duel_d_auto_entry.png",
-    "roiFront": "42,133,66,62",
-    "roiBack": "20,119,115,111",
+    "roiFront": "30,123,44,47",
+    "roiBack": "30,123,44,47",
     "method": "Template matching",
     "threshold": 0.8,
     "description": "自动上阵"
+  },
+  {
+    "itemName": "d_auto_cancel",
+    "imageName": "duel_d_auto_cancel.png",
+    "roiFront": "30,123,44,47",
+    "roiBack": "30,123,44,47",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "取消自动上阵"
   },
   {
     "itemName": "d_hand",

@@ -73,9 +73,8 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         elif self.appear(self.I_BUFF_1):
             scene = Scene.UNKNOWN
             log_message = "在庭院中"
-            self.ui_get_current_page()
             # 探索页面
-            self.ui_goto(page_exploration)
+            self.ui_goto_page(page_exploration)
         else:
             log_message = "未知"
 
@@ -98,8 +97,7 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         # 开启加成
         con = self.config.exploration.exploration_config
         if con.buff_gold_50_click or con.buff_gold_100_click or con.buff_exp_50_click or con.buff_exp_100_click:
-            self.ui_get_current_page()
-            self.ui_goto(page_main)
+            self.ui_goto_page(page_main)
             self.open_buff()
             if con.buff_gold_50_click:
                 self.gold_50()
@@ -113,8 +111,7 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
 
     def post_process(self):
         self.wait_until_stable(self.I_UI_BACK_RED)
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         con = self._config.exploration_config
         if con.buff_gold_50_click or con.buff_gold_100_click or con.buff_exp_50_click or con.buff_exp_100_click:
             self.open_buff()
@@ -136,6 +133,9 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             results = self.O_E_EXPLORATION_LEVEL_NUMBER.detect_and_ocr(self.device.image)
             text1 = [result.ocr_text for result in results]
             logger.info(f"当前章节: {text1}")
+            if not text1:
+                self.ui_click_until_disappear(self.I_UI_BACK_RED)
+                continue
             logger.info(f"目标章节: {goal_level}")
 
             # 判断目标章节与当前章节的相对位置
@@ -308,15 +308,26 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             return self.I_NORMAL_BATTLE_BUTTON
         return None
 
+    def check_boss_number(self, con_scrolls):
+        if con_scrolls.check_boss_num:
+            cu, res, total = self.O_CHECK_BOSS_NUM.ocr(self.device.image)
+            message = f"当前鬼王掉落数量: {cu} / {total} 剩余: {res}"
+            logger.info(message)
+            if cu + res == total and cu == 50 and total == 50:
+                self.push_notify(message)
+                self.set_next_run()
+                raise TaskEnd
+
     def activate_realm_raid(self, con_scrolls, con) -> None:
         # 判断是否开启突破票检测
         if not con_scrolls.scrolls_enable:
             return
         self.screenshot()
-        if self.appear(self.I_E_EXPLORATION_CLICK) and self.appear(self.I_EXP_CREATE_TEAM):
+        if self.appear(self.I_E_EXPLORATION_CLICK) or self.appear(self.I_EXP_CREATE_TEAM):
             cu, res, total = self.O_REALM_RAID_NUMBER1.ocr(self.device.image)
         else:
             cu, res, total = self.O_REALM_RAID_NUMBER.ocr(self.device.image)
+
         # 判断突破票数量
 
         # 添加校验：只有当总值等于30时才认为是突破券数量
@@ -334,7 +345,7 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
             self.ui_click_until_disappear(self.I_UI_CANCEL)
         if self.appear(self.I_UI_CANCEL_SAMLL):
             self.ui_click_until_disappear(self.I_UI_CANCEL_SAMLL)
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         if con.buff_gold_50_click or con.buff_gold_100_click or con.buff_exp_50_click or con.buff_exp_100_click:
             self.open_buff()
             self.gold_50(is_open=False)
@@ -401,14 +412,22 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         return True
 
     def get_box(self):
-        if self.appear(self.I_MAP_BOX_CLICK):
-            # 地图宝箱
-            logger.info('Treasure box appear, get it.')
-            self.ui_click_until_disappear(self.I_MAP_BOX_CLICK)
         if self.appear(self.I_TREASURE_BOX_CLICK):
             # 宝箱
             logger.info('Treasure box appear, get it.')
             self.ui_click_until_disappear(self.I_TREASURE_BOX_CLICK)
+        if self.appear(self.I_MAP_BOX_CLICK):
+            logger.info('Map box appear, get it.')
+            # 地图宝箱
+            while 1:
+                self.screenshot()
+                if not self.appear(self.I_MAP_BOX_CLICK):
+                    break
+                if self.appear(self.I_MAP_BOX_CLICK):
+                    # self.save_image(image_type=True, push_flag=True, wait_time=0)
+                    x, y = self.I_MAP_BOX_CLICK.coord_center()
+                    self.device.click(x=x, y=y, control_name=self.I_MAP_BOX_CLICK.name)
+                    time.sleep(0.5)
 
     def _should_swipe_up(self, current_levels, target_level):
         """
@@ -442,13 +461,12 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         # 默认向下滑动（目标章节在下方）
         return False
 
+
 if __name__ == "__main__":
     from module.config.config import Config
-    from module.device.device import Device
 
     config = Config('oas1')
-    device = Device(config)
-    t = BaseExploration(config, device)
+    t = BaseExploration(config)
     t.screenshot()
 
     # IMAGE_FILE = r"C:\Users\萌萌哒\Desktop\QQ20240818-163854.png"

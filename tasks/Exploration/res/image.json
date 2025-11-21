@@ -194,7 +194,7 @@
     "roiFront": "33,476,70,49",
     "roiBack": "2,130,135,406",
     "method": "Template matching",
-    "threshold": 0.6,
+    "threshold": 0.8,
     "description": "宝箱"
   },
   {
@@ -203,7 +203,7 @@
     "roiFront": "680,203,100,100",
     "roiBack": "192,46,822,551",
     "method": "Template matching",
-    "threshold": 0.6,
+    "threshold": 0.8,
     "description": "地图宝箱"
   },
   {
@@ -259,5 +259,23 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "大图标困难-就是困难模式"
+  },
+  {
+    "itemName": "big_easy",
+    "imageName": "big_easy.png",
+    "roiFront": "296,200,83,58",
+    "roiBack": "296,200,83,58",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "大图标普通-就是普通模式"
+  },
+  {
+    "itemName": "small_easy",
+    "imageName": "small_easy.png",
+    "roiFront": "307,208,63,42",
+    "roiBack": "307,208,63,42",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "小图标普通-就是困难模式"
   }
 ]

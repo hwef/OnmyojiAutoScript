@@ -104,8 +104,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
 
         config: Orochi = self.config.orochi
         if not self.is_in_battle(True):
-            self.ui_get_current_page()
-            self.ui_goto(page_main)
+            self.ui_goto_page(page_main)
             if config.orochi_config.soul_buff_enable:
                 self.open_buff()
                 self.soul(is_open=True)
@@ -141,7 +140,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
         # 个人突破
         self.set_next_run(task='RealmRaid', target=datetime_now)
         # 花合战
-        self.set_next_run(task='TalismanPass', target=datetime_now)
+        # self.set_next_run(task='TalismanPass', target=datetime_now)
         # 集体任务
         # self.set_next_run(task='CollectiveMissions', target=datetime_now)
         # 御魂整理
@@ -196,8 +195,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
 
     def run_leader(self, layer):
         logger.info('Start run leader')
-        self.ui_get_current_page()
-        self.ui_goto(page_soul_zones)
+        self.ui_goto_page(page_soul_zones)
         self.orochi_enter()
         self.check_layer(layer)
         self.check_lock(self.config.orochi.general_battle_config.lock_team_enable)
@@ -279,14 +277,12 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
         if self.exit_team():
             pass
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         return success
 
     def run_member(self):
         logger.info('Start run member')
-        self.ui_get_current_page()
 
         # 开始等待队长拉人
         wait_time = self.config.orochi.invite_config.wait_time
@@ -352,15 +348,13 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
             if self.exit_battle():
                 pass
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         return success
 
     def run_alone(self, layer):
         logger.info('Start run alone')
-        self.ui_get_current_page()
-        self.ui_goto(page_soul_zones)
+        self.ui_goto_page(page_soul_zones)
         self.orochi_enter()
         self.check_layer(layer)
         self.check_lock(self.config.orochi.general_battle_config.lock_team_enable)
@@ -409,7 +403,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
                 continue
 
         self.ui_current = page_soul_zones
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
     def is_room_dead(self) -> bool:
         # 如果在探索界面或者是出现在组队界面，那就是可能房间死了

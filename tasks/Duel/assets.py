@@ -71,7 +71,9 @@ class DuelAssets:
 	# 预选点击确认 
 	I_D_CONFIRM = RuleImage(roi_front=(1097,517,139,156), roi_back=(1097,517,139,156), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/duel_d_confirm.png")
 	# 自动上阵 
-	I_D_AUTO_ENTRY = RuleImage(roi_front=(42,133,66,62), roi_back=(20,119,115,111), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/duel_d_auto_entry.png")
+	I_D_AUTO_ENTRY = RuleImage(roi_front=(30,123,44,47), roi_back=(30,123,44,47), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/duel_d_auto_entry.png")
+	# 取消自动上阵 
+	I_D_AUTO_CANCEL = RuleImage(roi_front=(30,123,44,47), roi_back=(30,123,44,47), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/duel_d_auto_cancel.png")
 	# 手动，弃用 
 	I_D_HAND = RuleImage(roi_front=(34,635,55,55), roi_back=(34,635,55,55), threshold=0.8, method="Template matching", file="./tasks/Duel/duel/duel_d_hand.png")
 	# 主界面的感叹号 
@@ -112,9 +114,9 @@ class DuelAssets:
 
 	# Ocr Rule Assets
 	# 荣誉 
-	O_D_HONOR = RuleOcr(roi=(699,562,131,31), area=(699,562,131,31), mode="DigitCounter", method="Default", keyword="", name="d_honor")
+	O_D_HONOR = RuleOcr(roi=(235,648,105,24), area=(235,648,105,24), mode="DigitCounter", method="Default", keyword="", name="d_honor")
 	# 分数 
-	O_D_SCORE = RuleOcr(roi=(701,509,61,33), area=(701,509,61,33), mode="Digit", method="Default", keyword="", name="d_score")
+	O_D_SCORE = RuleOcr(roi=(606,487,45,22), area=(606,487,45,22), mode="Digit", method="Default", keyword="", name="d_score")
 	# 名士星星数 
 	O_D_CELEB_STAR = RuleOcr(roi=(625,454,77,37), area=(625,454,77,37), mode="Digit", method="Default", keyword="", name="d_celeb_star")
 	# 手动 

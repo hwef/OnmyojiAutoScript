@@ -17,6 +17,7 @@ from tasks.RichMan.config import SpecialRoom
 class Special(Buy, MallNavbar):
 
     def execute_special(self, con: SpecialRoom = None):
+        logger.hr('特殊商店', 2)
         if not con:
             con = self.config.rich_man.special_room
         if not con.enable:
@@ -52,13 +53,12 @@ class Special(Buy, MallNavbar):
             if self.swipe(self.S_SP_DOWN, interval=2):
                 time.sleep(2)
 
-
     def _special_totom(self, totem_pass: bool):
         """
         购买御灵，要求必须下滑出现御灵
         :return:
         """
-        logger.hr('Buy totem', 3)
+        logger.hr('购买御灵券', 3)
         if not totem_pass:
             logger.info('Buy totem is disabled')
             return
@@ -168,7 +168,9 @@ class Special(Buy, MallNavbar):
         result = result.replace('？', '2').replace('?', '2').replace(';', '：').replace('火', '次').replace('教', '数')
         result = result.replace('刺', '剩').replace('利', '剩')
         try:
-            if '：' in result or ':' in result:
+            if result == '售馨':
+                result = 0
+            elif '：' in result or ':' in result:
                 result = re.findall(r'剩余购买次数[:：](\d+)', result)[0]
                 result = int(result)
             else:
@@ -176,22 +178,19 @@ class Special(Buy, MallNavbar):
                 result = int(result)
         except:
             result = 0
-        logger.info(f'Remain [{result}]')
-        if result == 0:
             logger.info(f'图片的ROI是: {target.roi_front}')
             logger.info(f'上中点是：{upper_midpoint}')
             logger.info(f'数字的ROI是: {self.O_SP_RES_NUMBER.roi}')
             self.save_image(wait_time=0, image_type=True,push_flag=True,content=f"{target}剩余数量为0")
+        logger.info(f'Remain number is [{result}]')
         return result
 
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
-    c = Config('mi')
-    d = Device(c)
-    t = Special(c, d)
+    c = Config('wy')
+    t = Special(c)
     t.screenshot()
 
     t.execute_special()

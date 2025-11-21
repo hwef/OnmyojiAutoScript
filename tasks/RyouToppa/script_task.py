@@ -91,8 +91,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, RyouToppaAssets):
         if ryou_config.switch_soul_config.enable_switch_by_name:
             self.run_switch_soul_by_name(ryou_config.switch_soul_config.group_name, ryou_config.switch_soul_config.team_name)
 
-        self.ui_get_current_page()
-        self.ui_goto(page_kekkai_toppa)
+        self.ui_goto_page(page_kekkai_toppa)
         ryou_toppa_start_flag = True
         ryou_toppa_success_penetration = False
         ryou_toppa_admin_flag = False
@@ -184,7 +183,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, RyouToppaAssets):
 
     # 执行花合战
     def set_next_run_talismanpass(self):
-        self.set_next_run(task='TalismanPass', target=datetime.now())
+        # self.set_next_run(task='TalismanPass', target=datetime.now())
         raise TaskEnd
 
     def start_ryou_toppa(self):
@@ -226,7 +225,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, RyouToppaAssets):
             return False
         self.wait_until_appear(self.I_TOPPA_RECORD)
         self.screenshot()
-        cu, res, total = self.O_NUMBER.ocr(self.device.image)
+        cu, res, total = self.ocr_result(self.O_NUMBER)
         if cu == 0 and cu + res == total:
             logger.warning(f'Execute round failed, no ticket')
             return False
@@ -326,13 +325,31 @@ class ScriptTask(GeneralBattle, SwitchSoul, RyouToppaAssets):
                     return True
                 continue
 
+    def battle_wait(self, random_click_swipt_enable: bool) -> bool:
+        # 战斗过程 随机点击和滑动 防封
+        logger.info("Start battle process")
+        self.device.stuck_record_clear()
+        self.device.stuck_record_add('BATTLE_STATUS_S')
+        while 1:
+            self.screenshot()
+            if self.appear(self.I_TOPPA_RECORD):
+                return True
+            if self.appear_then_click(self.I_WIN, interval=1):
+                continue
+            if self.appear_then_click(self.I_FALSE, interval=1):
+                continue
+            if self.appear_then_click(self.I_PREPARE_HIGHLIGHT, interval=1):
+                continue
+            if self.appear_then_click(self.I_REWARD, interval=1):
+                continue
+
 
 if __name__ == "__main__":
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('du')
-    device = Device(config)
-    t = ScriptTask(config, device)
-    t.attack_area(1)
-    t.flush_area_cache()
+    config = Config('MI')
+    # device = Device(config)
+    t = ScriptTask(config)
+    # t.attack_area(1)
+    t.has_ticket()

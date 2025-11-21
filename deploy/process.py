@@ -146,6 +146,36 @@ class ProcessManager(DeployConfig):
         else:
             logger.warning(f'Failed to kill process tree with PID {pid}')
 
+    def stop_process_tree_by_port(self, port=None):
+        """
+        通过端口停止主进程及其所有子进程
+        """
+        import psutil
+        import signal
+
+        # 查找占用指定端口的主进程
+        for proc in psutil.process_iter(['pid', 'name']):
+            try:
+                for conn in proc.net_connections():
+                    if conn.laddr.port == port:
+                        # 先停止所有子进程
+                        children = proc.children(recursive=True)
+                        for child in children:
+                            try:
+                                child.send_signal(signal.SIGTERM)
+                            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                                continue
+
+                        # 再停止主进程
+                        proc.send_signal(signal.SIGTERM)
+                        logger.info(f"[ProcessManager] Stopped process tree on port {port} (PID: {proc.pid})")
+                        return True
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                continue
+
+        logger.info(f"[ProcessManager] No process found running on port {port}")
+        return False
+
     def process_kill_by_serverName(self, server_name=None):
         if not server_name:
             server_name = 'server.py'
@@ -158,10 +188,17 @@ class ProcessManager(DeployConfig):
         logger.hr(f'Kill  Port  {port}', 0)
         self.kill_by_port(port)
 
+    def process_stop_by_port(self, port=None):
+        if not port:
+            port = int(State.deploy_config.WebuiPort) or 22270
+        logger.hr(f'Stop  Port  {port}', 0)
+        self.stop_process_tree_by_port(port)
+
     def process_kill(self):
-        self.process_kill_by_port()
+        # self.process_kill_by_port()
         # self.process_kill_by_serverName()
         # self.kill_by_name("pythonw.exe")
+        self.process_stop_by_port()
 
 
 if __name__ == '__main__':

@@ -118,7 +118,7 @@ class ScriptTask(BaseActivity, SwitchSoul, ActivityShikigamiAssets):
                 # 活动主界面或副界面, 进入最终爬塔界面
                 case game.page_climb_act | game.page_climb_act_2:
                     self.switch_soul(self.conf.switch_soul_config)
-                    # self.ui_goto(game.page_climb_act_buff)
+                    # self.ui_goto_page(game.page_climb_act_buff)
                     self.goto_act()
                 # buff界面, 进入最终爬塔界面
                 case game.page_climb_act_buff:
@@ -272,7 +272,7 @@ class ScriptTask(BaseActivity, SwitchSoul, ActivityShikigamiAssets):
         enable_switch = getattr(conf, f"enable_switch_{self.climb_type}", False)
         enable_by_name = getattr(conf, f"enable_switch_{self.climb_type}_by_name", False)
         if enable_switch or enable_by_name:
-            self.ui_goto(game.page_shikigami_records)
+            self.ui_goto_page(game.page_shikigami_records)
         if enable_by_name:
             group, team = getattr(conf, f"{self.climb_type}_group_team_name").split(",")
             self.run_switch_soul_by_name(group, team)
@@ -443,7 +443,7 @@ class ScriptTask(BaseActivity, SwitchSoul, ActivityShikigamiAssets):
         :return:
         """
         logger.hr("Enter Shikigami", 2)
-        self.ui_goto(game.page_climb_act)
+        self.ui_goto_page(game.page_climb_act)
 
     def main_home(self) -> bool:
         """
@@ -452,10 +452,10 @@ class ScriptTask(BaseActivity, SwitchSoul, ActivityShikigamiAssets):
         """
         logger.hr("Exit Shikigami", 2)
         self.ui_get_current_page(False)
-        self.ui_goto(game.page_main)
+        self.ui_goto_page(game.page_main)
 
     def goto_act(self, timeout: int = 45):
-        self.ui_goto(self.page_map[self.climb_type], timeout=timeout)
+        self.ui_goto_page(self.page_map[self.climb_type], timeout=timeout)
 
     def random_reward_click(self, exclude_click: list = None, click_now: bool = True) -> RuleClick:
         """

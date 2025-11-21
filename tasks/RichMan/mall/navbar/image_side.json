@@ -66,7 +66,7 @@
     "itemName": "side_check_medal",
     "imageName": "navbar_side_check_medal.png",
     "roiFront": "665,6,40,44",
-    "roiBack": "453,1,476,58",
+    "roiBack": "453,1,400,58",
     "method": "Template matching",
     "threshold": 0.7,
     "description": "勋章"

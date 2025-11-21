@@ -14,6 +14,7 @@ from module.base.timer import Timer
 from tasks.base_task import BaseTask
 from tasks.Component.Buy.assets import BuyAssets
 
+
 class Buy(BaseTask, BuyAssets):
 
     def buy_one(self, start_click: Union[RuleImage, RuleOcr, RuleClick],
@@ -190,6 +191,33 @@ class Buy(BaseTask, BuyAssets):
         logger.info('Money is not enough')
         return False
 
+    def buy_lottery_box(self, start_click: Union[RuleImage, RuleOcr, RuleClick],
+                        check_image: RuleImage, check_image2: RuleImage = None):
+        """
+        购买一个物品
+        :param check_image: 购买确认时候的图片
+        :param check_image2: 购买确认时候的图片
+        :param start_click: 开始点击
+        :return:
+        """
+        while 1:
+            self.screenshot()
+
+            if self.appear(check_image):
+                break
+            if check_image2:
+                if self.appear(check_image2):
+                    break
+            if isinstance(start_click, RuleImage):
+                if self.appear_then_click(start_click, interval=1):
+                    continue
+            elif isinstance(start_click, RuleOcr):
+                if self.ocr_appear_click(start_click, interval=1):
+                    continue
+            elif isinstance(start_click, RuleClick):
+                if self.click(start_click, interval=1):
+                    continue
+        self.ui_click_until_disappear(check_image, interval=2)
 
 
 if __name__ == '__main__':
@@ -197,6 +225,5 @@ if __name__ == '__main__':
     from module.device.device import Device
 
     c = Config('du')
-    d = Device(c)
-    t = Buy(c, d)
-
+    # d = Device(c)
+    t = Buy(c)

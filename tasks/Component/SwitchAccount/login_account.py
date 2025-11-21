@@ -1,7 +1,7 @@
-import math
 import time
 
 import cv2
+import random
 from module.atom.click import RuleClick
 from module.atom.gif import RuleGif
 from module.atom.image import RuleImage
@@ -9,8 +9,9 @@ from module.atom.ocr import RuleOcr
 from module.logger import logger
 from tasks.Component.SwitchAccount.assets import SwitchAccountAssets
 from tasks.Component.SwitchAccount.switch_account_config import AccountInfo
+from tasks.Restart.assets import RestartAssets
 from tasks.base_task import BaseTask
-import random
+
 
 class LoginAccount(BaseTask, SwitchAccountAssets):
 
@@ -47,6 +48,9 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
         """
         self.screenshot()
         self.O_SA_LOGIN_FORM_SVR_NAME.keyword = svrName
+        # 4399登录会遇到活动-点击叉号
+        if self.wait_until_appear_then_click_center(RestartAssets.I_LOGIN_CLOSE, wait_time=1):
+            logger.info('4399登录会遇到活动-点击叉号')
         self.ui_click(self.C_SA_LOGIN_FORM_SWITCH_SVR_BTN, self.I_SA_CHECK_SELECT_SVR_1, 1.5)
         # 展开底部角色列表,显示角色所属服务器
         self.screenshot()
@@ -111,6 +115,9 @@ class LoginAccount(BaseTask, SwitchAccountAssets):
         @rtype:
         """
         logger.info(f"[角色] 开始寻找角色: [{characterName}]")
+        # 4399登录会遇到活动-点击叉号
+        if self.wait_until_appear_then_click_center(RestartAssets.I_LOGIN_CLOSE, wait_time=1):
+            logger.info('4399登录会遇到活动-点击叉号')
         self.ui_click(self.C_SA_LOGIN_FORM_SWITCH_SVR_BTN, self.I_SA_CHECK_SELECT_SVR_1)
         # 展开底部角色列表,显示角色所属服务器
         self.screenshot()

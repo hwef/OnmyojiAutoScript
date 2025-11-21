@@ -10,16 +10,21 @@ from tasks.Component.config_base import ConfigBase, TimeDelta
 from tasks.Component.GeneralBattle.config_general_battle import GeneralBattleConfig
 from tasks.Utils.config_enum import ShikigamiClass
 
+
 class BestDemonBossSelect(BaseModel):
     enable: bool = Field(
         default=False,
         description="是否开启极封魔",
     )
     best_demon_kiryou_select: bool = Field(title='Best Kiryou Select', default=False, description='极鬼灵歌姬是否开启')
-    best_demon_shinkirou_select: bool = Field(title='Best Shinkirou Select', default=False, description='极蜃气楼是否开启')
-    best_demon_tsuchigumo_select: bool = Field(title='Best Tsuchigumo Select', default=False, description='极土蜘蛛是否开启')
-    best_demon_gashadokuro_select: bool = Field(title='Best Gashadokuro Select', default=False, description='极荒骷髅是否开启')
+    best_demon_shinkirou_select: bool = Field(title='Best Shinkirou Select', default=False,
+                                              description='极蜃气楼是否开启')
+    best_demon_tsuchigumo_select: bool = Field(title='Best Tsuchigumo Select', default=False,
+                                               description='极土蜘蛛是否开启')
+    best_demon_gashadokuro_select: bool = Field(title='Best Gashadokuro Select', default=False,
+                                                description='极荒骷髅是否开启')
     best_demon_namazu_select: bool = Field(title='Best Namazu Select', default=False, description='极地震鲇是否开启')
+
 
 # 不同封魔boss的御魂配置
 class DemonConfig(BaseModel):
@@ -45,6 +50,7 @@ class DemonConfig(BaseModel):
     # 周日 夜荒魂
     demon_nightly_aramitama: str = Field(default="group,team", description="夜荒魂御魂")
 
+
 # 不同极封魔boss的御魂配置
 class BestDemonConfig(BaseModel):
     enable: bool = Field(
@@ -65,14 +71,18 @@ class BestDemonConfig(BaseModel):
     # 周五 极地震鲇
     best_demon_namazu: str = Field(default="group,team", description="极地震鲇御魂")
 
+
 class UtilizeScheduler(Scheduler):
     priority: int = Field(default=2, description='priority_help')
+
 
 class SwitchSoulConfig(BaseModel):
     enable: bool = Field(default=True, description='enable_help')
     switch_group_team: str = Field(default='-1,-1', description='switch_group_team_help')
+    enable_100ap: bool = Field(default=False, description='是否勾玉换取100体力')
     enable_four: bool = Field(default=True, description='是否查看四个灯笼')
     enable_boss: bool = Field(default=True, description='是否进行BOSS战斗')
+
 
 class DemonEncounter(ConfigBase):
     scheduler: UtilizeScheduler = Field(default_factory=UtilizeScheduler)

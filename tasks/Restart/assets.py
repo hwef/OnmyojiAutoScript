@@ -72,7 +72,7 @@ class RestartAssets:
 	# 庭院卷轴关闭 
 	I_LOGIN_SCROOLL_CLOSE = RuleImage(roi_front=(1181,634,28,39), roi_back=(1162,595,77,112), threshold=0.7, method="Template matching", file="./tasks/Restart/login/login_login_scrooll_close.png")
 	# description 
-	I_LOGIN_RED_CLOSE = RuleImage(roi_front=(800,0,480,290), roi_back=(800,0,480,290), threshold=0.8, method="Template matching mask", file="./tasks/Restart/login/login_login_red_close.png")
+	I_LOGIN_RED_CLOSE = RuleImage(roi_front=(800,0,480,290), roi_back=(800,0,480,290), threshold=0.7, method="Template matching", file="./tasks/Restart/login/login_login_red_close.png")
 	# description 
 	I_LOGIN_YELLOW_CLOSE = RuleImage(roi_front=(29,17,46,44), roi_back=(0,0,94,86), threshold=0.8, method="Template matching", file="./tasks/Restart/login/login_login_yellow_close.png")
 	# 用于判断是否出现登录选区的 
@@ -97,6 +97,8 @@ class RestartAssets:
 	I_CREATE_ACCOUNT = RuleImage(roi_front=(555,636,169,52), roi_back=(504,614,263,100), threshold=0.8, method="Template matching", file="./tasks/Restart/login/login_create_account.png")
 	# 是否继续刚才的战斗？-点击取消 
 	I_LOGIN_CANCEL_BATTLE = RuleImage(roi_front=(465,386,143,76), roi_back=(465,386,143,76), threshold=0.8, method="Template matching", file="./tasks/Restart/login/login_login_cancel_battle.png")
+	# 4399登录会遇到活动-点击叉号 
+	I_LOGIN_CLOSE = RuleImage(roi_front=(621,562,40,41), roi_back=(621,562,40,41), threshold=0.8, method="Template matching mask", file="./tasks/Restart/login/login_close.png")
 
 
 	# Ocr Rule Assets

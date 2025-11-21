@@ -34,8 +34,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
         self.limit_count: int = limit_count
         self.limit_time: timedelta = timedelta(hours=limit_time.hour, minutes=limit_time.minute, seconds=limit_time.second)
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         config: FallenSun = self.config.fallen_sun
 
         success = True
@@ -97,11 +96,9 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
                 if self.appear_then_click(self.I_FALLEN_SUN_LOCK, interval=1):
                     continue
 
-
     def run_leader(self):
         logger.info('Start run leader')
-        self.ui_get_current_page()
-        self.ui_goto(page_soul_zones)
+        self.ui_goto_page(page_soul_zones)
         self.fallen_sun_enter()
         layer = self.config.fallen_sun.fallen_sun_config.layer
         self.check_layer(layer)
@@ -187,8 +184,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
         if self.exit_team():
             pass
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         if not success:
             return False
@@ -196,10 +192,6 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
 
     def run_member(self):
         logger.info('Start run member')
-        self.ui_get_current_page()
-        # self.ui_goto(page_soul_zones)
-        # self.fallen_sun_enter()
-        # self.check_lock(self.config.fallen_sun.general_battle_config.lock_team_enable)
 
         # 进入战斗流程
         self.device.stuck_record_add('BATTLE_STATUS_S')
@@ -241,15 +233,12 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
             if self.exit_battle():
                 pass
 
-
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         return True
 
     def run_alone(self):
         logger.info('Start run alone')
-        self.ui_get_current_page()
-        self.ui_goto(page_soul_zones)
+        self.ui_goto_page(page_soul_zones)
         self.fallen_sun_enter()
         layer = self.config.fallen_sun.fallen_sun_config.layer
         self.check_layer(layer)
@@ -296,7 +285,7 @@ class ScriptTask(GeneralBattle, GeneralInvite, GeneralBuff, GeneralRoom, SwitchS
                 continue
 
         self.ui_current = page_soul_zones
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
 
 

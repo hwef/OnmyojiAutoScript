@@ -16,6 +16,7 @@ from tasks.RichMan.config import HonorRoom
 class Honor(Special):
 
     def execute_honor(self, con: HonorRoom = None):
+        logger.hr('荣誉商店', 2)
         if not con:
             con = self.config.rich_man.honor_room
         if not con.enable:

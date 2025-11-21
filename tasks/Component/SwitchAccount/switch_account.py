@@ -38,7 +38,7 @@ class SwitchAccount(LoginAccount, ExitGame, GameUi, SwitchAccountAssets):
         curPage = self.ui_get_current_page()
 
         if curPage != page_login and curPage != page_main:
-            self.ui_goto(page_main)
+            self.ui_goto_page(page_main)
             curPage = self.ui_get_current_page()
         if curPage == page_main:
             self.exitGame()
@@ -56,7 +56,7 @@ class SwitchAccount(LoginAccount, ExitGame, GameUi, SwitchAccountAssets):
 
 
 if __name__ == '__main__':
-    config = Config('oas1')
+    config = Config('4399')
     device = Device(config)
     account_list = [
         # AccountInfo(account="178****7164", account_alias="178****7164", apple_or_android=True, character="浙沥沥、下雨", svr="全球国际区"),

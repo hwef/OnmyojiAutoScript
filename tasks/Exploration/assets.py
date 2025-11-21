@@ -116,9 +116,9 @@ class ExplorationAssets:
 	# description 
 	I_E_EXIT_CONFIRM = RuleImage(roi_front=(694,380,163,49), roi_back=(694,380,163,49), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/res_e_exit_confirm.png")
 	# 宝箱 
-	I_TREASURE_BOX_CLICK = RuleImage(roi_front=(33,476,70,49), roi_back=(2,130,135,406), threshold=0.6, method="Template matching", file="./tasks/Exploration/res/res_treasure_box_click.png")
+	I_TREASURE_BOX_CLICK = RuleImage(roi_front=(33,476,70,49), roi_back=(2,130,135,406), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/res_treasure_box_click.png")
 	# 地图宝箱 
-	I_MAP_BOX_CLICK = RuleImage(roi_front=(680,203,100,100), roi_back=(192,46,822,551), threshold=0.6, method="Template matching", file="./tasks/Exploration/res/res_treasure_box_click.png")
+	I_MAP_BOX_CLICK = RuleImage(roi_front=(680,203,100,100), roi_back=(192,46,822,551), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/res_treasure_box_click.png")
 	# 困28滚动到最后 
 	I_SWIPE_END = RuleImage(roi_front=(994,234,119,100), roi_back=(968,196,311,165), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/res_swipe_end.png")
 	# 队伍的表情标志 
@@ -131,6 +131,10 @@ class ExplorationAssets:
 	I_SMALL_HARD = RuleImage(roi_front=(437,215,66,33), roi_back=(437,215,66,33), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/small_hard.png")
 	# 大图标困难-就是困难模式 
 	I_BIG_HARD = RuleImage(roi_front=(437,215,66,33), roi_back=(437,215,66,33), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/big_hard.png")
+	# 大图标普通-就是普通模式 
+	I_BIG_EASY = RuleImage(roi_front=(296,200,83,58), roi_back=(296,200,83,58), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/big_easy.png")
+	# 小图标普通-就是困难模式 
+	I_SMALL_EASY = RuleImage(roi_front=(307,208,63,42), roi_back=(307,208,63,42), threshold=0.8, method="Template matching", file="./tasks/Exploration/res/small_easy.png")
 
 
 	# Long Click Rule Assets
@@ -153,6 +157,8 @@ class ExplorationAssets:
 	O_REALM_RAID_NUMBER = RuleOcr(roi=(739,11,78,37), area=(739,11,78,37), mode="DigitCounter", method="Default", keyword="", name="realm_raid_number")
 	# （点出困难28时候）探索右上角 突破卷的数量 
 	O_REALM_RAID_NUMBER1 = RuleOcr(roi=(936,10,82,36), area=(936,10,82,36), mode="DigitCounter", method="Default", keyword="", name="realm_raid_number1")
+	# 检查超鬼王掉落 
+	O_CHECK_BOSS_NUM = RuleOcr(roi=(347,14,77,31), area=(347,14,77,31), mode="DigitCounter", method="Default", keyword="", name="check_boss_num")
 
 
 	# Swipe Rule Assets

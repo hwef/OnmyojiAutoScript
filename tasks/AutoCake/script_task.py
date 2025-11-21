@@ -29,8 +29,7 @@ class ScriptTask(SwitchSoul, GeneralBattle,  AutoCakeAssets, ActivityShikigamiAs
                 config.switch_soul_config.team_name
             )
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         # 进入活动
         self.home_main()
@@ -40,8 +39,7 @@ class ScriptTask(SwitchSoul, GeneralBattle,  AutoCakeAssets, ActivityShikigamiAs
         self.push_notify(content="战斗结束！")
 
         # 回到庭院
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
         if config.auto_cake_config.active_souls_clean:
             self.set_next_run(task='SoulsTidy', success=False, finish=False, target=datetime.now())

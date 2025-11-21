@@ -15,8 +15,7 @@ from tasks.Pets.config import PetsConfig
 class ScriptTask(OrochiScriptTask, PetsAssets):
 
     def run(self):
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         con: PetsConfig = self.config.pets.pets_config
         # 进入宠物小屋
         while 1:
@@ -59,8 +58,7 @@ class ScriptTask(OrochiScriptTask, PetsAssets):
             # 换上真蛇御魂
             self.run_switch_soul(self.config.true_orochi.switch_soul.switch_group_team)
 
-        self.ui_get_current_page()
-        self.ui_goto(page_soul_zones)
+        self.ui_goto_page(page_soul_zones)
         self.orochi_enter()
 
         self.check_layer(Layer.TEN)

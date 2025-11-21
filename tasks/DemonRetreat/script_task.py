@@ -55,7 +55,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssShadowsAsse
             logger.warning("Failed to enter demon retreat")
             if self.appear_then_click(self.I_DEMON_BACK_CHECK, interval=1):
                 pass
-            self.goto_main()
             self.set_next_run(task='DemonRetreat', finish=False, server=True, success=False)
             raise TaskEnd
 
@@ -80,9 +79,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssShadowsAsse
                 if self.appear_then_click(self.I_DEMON_BACK_CHECK, interval=1):
                     break
 
-        # 保持好习惯，一个任务结束了就返回到庭院，方便下一任务的开始
-        self.goto_main()
-
         # 设置下次运行时间
         if success:
             logger.info(f"The next time the demon retreat is next Saturday")
@@ -96,9 +92,8 @@ class ScriptTask(GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssShadowsAsse
         进入首领退治
         """
         cfg: DemonRetreat = self.config.demon_retreat
-        self.ui_get_current_page()
         logger.info("Entering demon_retreat")
-        self.ui_goto(page_guild)
+        self.ui_goto_page(page_guild)
 
         goto_demon_retreat_num = 0
         while 1:
@@ -255,18 +250,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DemonRetreatAssets, AbyssShadowsAsse
                 stuck_timer = None
                 self.device.stuck_record_clear()
                 self.device.stuck_record_add('BATTLE_STATUS_S')
-
-
-    def goto_main(self):
-        ''' 保持好习惯，一个任务结束了就返回庭院，方便下一任务的开始或者是出错重启
-        '''
-        self.ui_get_current_page()
-        logger.info("Exiting DemonRetreat")
-        self.ui_goto(page_main)
-
-
-
-
 
 
 if __name__ == '__main__':

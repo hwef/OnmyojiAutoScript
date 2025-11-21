@@ -1,0 +1,92 @@
+[
+  {
+    "itemName": "flush",
+    "imageName": "flush.png",
+    "roiFront": "1189,243,31,30",
+    "roiBack": "1163,138,82,404",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "flush"
+  },
+  {
+    "itemName": "1",
+    "imageName": "1.png",
+    "roiFront": "1189,243,31,30",
+    "roiBack": "1163,138,82,404",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "1"
+  },
+  {
+    "itemName": "2",
+    "imageName": "2.png",
+    "roiFront": "1130,570,64,58",
+    "roiBack": "1130,570,64,58",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "2"
+  },
+  {
+    "itemName": "3",
+    "imageName": "3.png",
+    "roiFront": "963,492,39,34",
+    "roiBack": "963,492,39,34",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "3"
+  },
+  {
+    "itemName": "4",
+    "imageName": "4.png",
+    "roiFront": "598,493,79,35",
+    "roiBack": "598,493,79,35",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "4"
+  },
+  {
+    "itemName": "5",
+    "imageName": "5.png",
+    "roiFront": "1196,617,54,45",
+    "roiBack": "1196,617,54,45",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "5"
+  },
+  {
+    "itemName": "6",
+    "imageName": "6.png",
+    "roiFront": "1149,562,63,45",
+    "roiBack": "1149,562,63,45",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "6"
+  },
+  {
+    "itemName": "7",
+    "imageName": "7.png",
+    "roiFront": "463,98,61,63",
+    "roiBack": "463,98,61,63",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "7"
+  },
+  {
+    "itemName": "8",
+    "imageName": "8.png",
+    "roiFront": "611,521,54,56",
+    "roiBack": "611,521,54,56",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "8"
+  },
+  {
+    "itemName": "9",
+    "imageName": "9.png",
+    "roiFront": "589,454,95,39",
+    "roiBack": "589,454,95,39",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "9"
+  }
+]

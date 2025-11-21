@@ -257,6 +257,22 @@ class BaseTaskParent(GlobalGameAssets, CostumeBase):
         else:
             return False
 
+    def wait_until_appear_then_click_center(self,
+                                            target: RuleImage,
+                                            wait_time: int = None) -> bool:
+        """
+        等待直到出现目标，然后点击中心
+        :param target:
+        :param wait_time:
+        :return:
+        """
+        if self.wait_until_appear(target, wait_time=wait_time):
+            x, y = target.coord_center()
+            self.device.click(x=x, y=y, control_name=target.name)
+            return True
+        else:
+            return False
+
     def wait_until_disappear(self, target: RuleImage) -> None:
         while 1:
             self.screenshot()
@@ -332,6 +348,48 @@ class BaseTaskParent(GlobalGameAssets, CostumeBase):
                 logger.info(f'Wait_animate_stable({rule}) timeout')
                 break
 
+    def wait_until_pos_stable(self, target: RuleImage, stable_time: float = 0.3, timeout: float = 2,
+                              threshold: float = None, skip_first_screenshot: bool = True) -> bool:
+        """
+        等待直到在同一位置稳定出现
+        :param skip_first_screenshot:
+        :param threshold: target匹配阈值
+        :param target: 目标图像
+        :param stable_time: 判断是否稳定的时间
+        :param timeout: 等待稳定的超时时间
+        :return: timer时间内稳定出现则返回True, 否则False
+        """
+        logger.info(f'Wait until {target.name} position stable')
+        timeout_timer = Timer(timeout).start()
+        stable_timer = Timer(stable_time).start()
+        pre_roi_front, cur_roi_front = None, None
+        origin_roi_back = target.roi_back
+        while not timeout_timer.reached():
+            self.maybe_screenshot(skip_first_screenshot)
+            skip_first_screenshot = False
+            # 当前页面能够匹配到target
+            if target.match(self.device.image, threshold=threshold):
+                cur_roi_front = target.roi_front
+                logger.info(f'Current:{cur_roi_front}, pre:{pre_roi_front}')
+                target.roi_back = pre_roi_front
+                # 上一次匹配到的位置还能匹配到target
+                if pre_roi_front is not None and target.match(self.device.image, threshold=threshold):
+                    # 到达稳定时间
+                    if stable_timer.reached():
+                        logger.info(f'{target.name} position has stabilized')
+                        target.roi_back = origin_roi_back
+                        return True
+                else:
+                    stable_timer.reset()  # 上一次匹配到的位置这次匹配不到了, 重置定时器
+            else:
+                stable_timer.reset()  # 当前页面都匹配不到, 重置定时器
+            # 记录这一次的target位置
+            pre_roi_front = cur_roi_front
+            # 还原target的匹配区域
+            target.roi_back = origin_roi_back
+        logger.warning(f'Wait until pos stable({target}) timeout')
+        return False
+
     def swipe(self, swipe: RuleSwipe, interval: float = None, duration: float = 0.1, wait_up_time=0) -> None:
         """
 
@@ -398,6 +456,40 @@ class BaseTaskParent(GlobalGameAssets, CostumeBase):
             return True
         return False
 
+    def ocr_result(self, target: RuleOcr, interval: float = None):
+        """
+        执行OCR识别操作
+
+        :param target: RuleOcr对象，包含OCR识别规则和目标信息
+        :param interval: 间隔时间限制，单位为秒，默认为1秒，用于控制相同OCR操作的执行频率
+        :return: OCR识别结果
+        :raises ValueError: 当target不是RuleOcr类型时抛出异常
+        """
+        if not isinstance(target, RuleOcr):
+            raise ValueError('ocr target must be RuleOcr')
+
+        # 处理OCR操作的时间间隔限制
+        if interval:
+            if target.name in self.interval_timer:
+                # 如果传入的限制时间不一样，则替换限制新的传入的时间
+                if self.interval_timer[target.name].limit != interval:
+                    self.interval_timer[target.name] = Timer(interval)
+                # 如果时间还没到达，则等待
+                while not self.interval_timer[target.name].reached():
+                    sleep(0.1)  # 短暂休眠避免过度占用CPU
+            else:
+                # 如果没有限制时间，则创建限制时间
+                self.interval_timer[target.name] = Timer(interval)
+
+        # 执行OCR识别
+        result = target.ocr(self.device.image)
+
+        # 重置计时器
+        if interval:
+            self.interval_timer[target.name].reset()
+
+        return result
+
     def ocr_appear(self, target: RuleOcr, interval: float = None) -> bool:
         """
         ocr识别目标
@@ -438,7 +530,7 @@ class BaseTaskParent(GlobalGameAssets, CostumeBase):
             case OcrMode.DURATION:
                 appear = result == target.parse_time(target.keyword)
 
-        if interval and appear:
+        if interval:
             self.interval_timer[target.name].reset()
 
         return appear
@@ -565,6 +657,7 @@ class BaseTaskParent(GlobalGameAssets, CostumeBase):
         参数:
         target_day (int): 目标运行的日，取值1到7代表周一到周日，默认为1（周一）。
         """
+
         def convert_week_to_number(week_day: Week) -> int:
             """
             将 Week 枚举转换为对应的数字
@@ -590,7 +683,7 @@ class BaseTaskParent(GlobalGameAssets, CostumeBase):
 
         today = datetime.today()
         current_weekday = today.weekday()  # 周一为0，周日为6
-        target = target_day - 1    # 将输入1-7转换为0-6
+        target = target_day - 1  # 将输入1-7转换为0-6
         days_diff = (target - current_weekday) % 7 or 7
 
         TaskName = self.config.task.command
@@ -721,4 +814,3 @@ class BaseTaskParent(GlobalGameAssets, CostumeBase):
         默认情况下可以什么都不做，或者给出一个提示。
         """
         logger.warning(f"[BaseTaskParent] push_notify 被调用，但未在子类中具体实现。内容：{content}, 标题：{title}")
-

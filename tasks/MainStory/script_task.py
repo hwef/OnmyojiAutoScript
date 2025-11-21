@@ -40,8 +40,7 @@ class ScriptTask(GeneralBattle, GameUi, MainStoryAssets):
         # self.do_run()
 
     def do_run(self):
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         # self.I_THREE_POINTS.method = 'Binarize matching'
         # self.I_THREE_POINTS_2.method = 'Binarize matching'
         # self.I_QUESTION_DIALOGUE.method = 'Binarize matching'
@@ -119,8 +118,7 @@ class ScriptTask(GeneralBattle, GameUi, MainStoryAssets):
                         self.click(self.C_RIGHT_CLICK, interval=5)
                     sleep(2)
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         self.set_next_run(task='MainStory', success=True, finish=True)
         raise TaskEnd
 

@@ -130,11 +130,14 @@ class BaseTask(BaseTaskParent):
 
             image = cv2.cvtColor(self.device.image, cv2.COLOR_BGR2RGB)
 
-            # 设置保存图像的文件夹
-            WeeklyTask = ['Duel', 'RichMan', 'ScalesSea', 'Secret', 'WeeklyTrifles', 'EternitySea', 'SixRealms',
-                          'TrueOrochi']
+            # 设置保存图像的文件夹 - 使用类属性或配置中的weekly task列表
+            if not hasattr(self, '_weekly_task_cache'):
+                from module.config.config_menu import ConfigMenu
+                self._weekly_task_cache = ConfigMenu().menu["Weekly Task"]
+                print(isinstance(self._weekly_task_cache, list))
+
             path = f"{I18n.trans_zh_cn(task_name)}/{self.config.config_name.upper()}"
-            if task_name in WeeklyTask:
+            if task_name in self._weekly_task_cache:
                 folder_name = f'{week_path}/{path}'
             else:
                 folder_name = f'{log_path}/{path}'
@@ -276,8 +279,8 @@ class BaseTask(BaseTaskParent):
             )
             image_templates.append(image_rule)
 
-        logger.info(f"加载图片模板集合: {image_templates}")
-        logger.info(f"加载图片模板数量: {len(image_templates)}")
+        logger.info(f"加载模板: {image_templates}")
+        logger.info(f"加载数量: {len(image_templates)}")
         return image_templates
 
     def _check_first_priority_task(self):
@@ -288,12 +291,6 @@ class BaseTask(BaseTaskParent):
         if first_priority_task != current_task:
             logger.warning(f"结束当前任务: {I18n.trans_zh_cn(current_task)}")
             logger.warning(f"执行优先任务: {I18n.trans_zh_cn(first_priority_task)}")
-            # self.push_notify(title=f"执行优先任务: {I18n.trans_zh_cn(first_priority_task)}", content=f"结束当前任务: {I18n.trans_zh_cn(current_task)}")
-            from tasks.GameUi.game_ui import GameUi
-            from tasks.GameUi.page import page_main
-            GameUi = GameUi(self.config)
-            GameUi.ui_get_current_page()
-            GameUi.ui_goto(page_main)
             raise TaskEnd
 
     def get_requests(self, url):
@@ -303,53 +300,44 @@ class BaseTask(BaseTaskParent):
             logger.info(f"响应内容: {response.text}")
             # 检查请求是否成功
             if response.status_code == 200:
-                # 如果返回的是JSON格式数据
-                try:
-                    json_data = response.json()
-                    logger.info(f"JSON响应: {json_data}")
-                    return json_data
-                except ValueError:
-                    logger.error("响应不是有效的JSON格式")
-                    self.push_notify(title="响应不是有效的JSON格式", content=response.text)
-                    return False
-
+                return response
             else:
                 logger.info(f"请求失败，状态码: {response.status_code}")
                 self.push_notify(title="请求失败", content=f"状态码: {response.status_code}")
-                return False
-
+                return ""
         except requests.exceptions.RequestException as e:
             logger.error(f"请求发生错误: {e}")
             self.push_notify(title="请求发生错误", content=f"{e}")
-            return False
+            return ""
 
-    def add_time_to_datetime(self, time_obj: Time, base_time: datetime = None) -> datetime:
+    def datetime_add_timedelta(self, time_interval: Time, base_time: datetime = None) -> datetime:
         """
         将 Time 类型对象转换为 timedelta 并加到指定的 datetime 对象上
         参数:
         base_time (datetime): 基础时间对象
-        time_obj (Time): Time 类型的时间间隔对象
+        time_interval (Time): Time 类型的时间间隔对象
         返回:
         datetime: 累加后的时间对象
         """
         if base_time is None:
             base_time = datetime.now()
-        time_delta = timedelta(hours=time_obj.hour, minutes=time_obj.minute, seconds=time_obj.second)
+        time_delta = timedelta(hours=time_interval.hour, minutes=time_interval.minute, seconds=time_interval.second)
         return base_time + time_delta
 
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
-    c = Config('4399')
-    d = Device(c)
+    c = Config('du')
     t = BaseTask(c)
-    t.next_run_week(4)
+    # t.next_run_week(4)
     # t.next_run_week(2)
     # t.push_notify("123456", "123456",1)
     # t.next_run_week(c.duel.switch_week.next_week_day)
-    # t.save_image(push_flag=True, content='成功保存截图')
+    # t.save_image(task_name="Duel", push_flag=True, content='成功保存截图')
+    # t.save_image(task_name="Orochi", push_flag=True, content='成功保存截图')
+    # t.save_image(task_name="TrueOrochi", push_flag=True, content='成功保存截图')
+    # t.save_image(task_name="RichMan", push_flag=True, content='成功保存截图')
     # I_E_AUTO_ROTATE_OFF = RuleImage(roi_front=(108,650,150,46), roi_back=(108,650,150,46), threshold=0.85, method="Template matching", file="./tasks/Exploration/res/res_e_auto_rotate_off.png")
     # t.appear_rgb(I_E_AUTO_ROTATE_OFF)
 

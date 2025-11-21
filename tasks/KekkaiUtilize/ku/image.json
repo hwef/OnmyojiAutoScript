@@ -40,7 +40,7 @@
     "imageName": "ku_guild_ap.png",
     "roiFront": "483,314,22,22",
     "roiBack": "6,137,1215,363",
-    "method": "Template matching mask",
+    "method": "Template matching",
     "threshold": 0.8,
     "description": "寮体力"
   },
@@ -49,7 +49,7 @@
     "imageName": "ku_guild_assets.png",
     "roiFront": "315,311,23,28",
     "roiBack": "6,137,1215,363",
-    "method": "Template matching mask",
+    "method": "Template matching",
     "threshold": 0.8,
     "description": "寮资金"
   },

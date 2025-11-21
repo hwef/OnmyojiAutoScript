@@ -121,13 +121,17 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
 
         # 发送请求检查福利寮开启情况
         if cfg.welfare_config.enable_get_requests:
-            json_response = self.get_requests(cfg.welfare_config.get_requests_url)
+            response = self.get_requests(cfg.welfare_config.get_requests_url)
+            json_response = response.json()
+            datetime_now = datetime.now()
             # 解析时间戳并设置创建道馆时间
-            timestamp = json_response['timestamp']
+            timestamp = json_response.get('timestamp')
+            if not timestamp:
+                self.set_next_run(target=datetime_now + timedelta(minutes=3))
+                raise TaskEnd
             # 解析时间戳获取时分秒
             timestamp_time = datetime.fromtimestamp(timestamp)
             logger.info(f"福利道馆创建时间: {timestamp_time}")
-            datetime_now = datetime.now()
             # 检查响应有效性
             if not json_response or not json_response.get('est', False):
                 logger.warning(f"福利道馆未开启: {json_response}")
@@ -495,8 +499,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
             return True
 
         # 进入选择寮界面
-        self.ui_get_current_page()
-        self.ui_goto(page_guild)
+        self.ui_goto_page(page_guild)
 
         while 1:
             self.screenshot()
@@ -520,7 +523,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
 
         if '挑战成功' in dokan_status_str or '0次' in dokan_status_str:
             self.dokan_battle_number = 0
-            self.goto_main()
             # self.check_current_weekday(True)
             if self.create_doukan_time:
                 self.set_next_run(target=self.create_doukan_time)
@@ -549,7 +551,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
                 time.sleep(wait_time)
                 if self.goto_dokan_num >= 15:
                     logger.info(f"寮成员{self.goto_dokan_num}次未进入道馆, 结束任务!")
-                    self.goto_main()
                     # self.check_current_weekday(True)
                     if self.create_doukan_time:
                         self.set_next_run(target=self.create_doukan_time)
@@ -690,16 +691,25 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
                     continue
                 p_num = int(tmp.group())
 
-                if p_num < con.min_people_num:
-                    self.find_dokan_list.append(f"道馆: {dokan_name},人数: {p_num}")
-                    logger.warning(f"道馆: {dokan_name}, 人数:{p_num}少于{con.min_people_num}, 不符合要求")
+                # 最少人数随着刷新次数减少
+                if num_fresh >= 20:
+                    min_people = con.min_people_num - num_fresh
+                    min_people = max(min_people, 110)
+                else:
+                    min_people = con.min_people_num
+
+                if p_num < min_people:
+                    message = f"道馆: {dokan_name}, 人数:{p_num}, 不符合要求人数:{min_people}"
+                    self.find_dokan_list.append(message)
+                    logger.warning(message)
                     self.open_welfare = False
                     continue
 
                 # 如果是要开启福利寮，且此寮人数校验已经通过，直接确认此寮
                 if self.open_welfare:
-                    self.find_dokan_list.append(f"道馆: {dokan_name}, 人数:{p_num}")
-                    self.push_notify(content=f"✅ 开启福利道馆: {dokan_name}, 人数:{p_num}")
+                    message = f"✅ 开启福利道馆: {dokan_name}, 人数:{p_num}, 刷新次数:{num_fresh}"
+                    self.find_dokan_list.append(message)
+                    self.push_notify(content=message)
                     return True
 
                 # 获取赏金金额
@@ -832,20 +842,6 @@ class ScriptTask(GeneralBattle, SwitchSoul, DokanAssets, RichManAssets):
             logger.info(f"Item {i}: {item}")
             i += 1
         self.find_dokan_list = []
-
-    def goto_main(self):
-        while 1:
-            self.screenshot()
-            if self.appear_then_click(GeneralBattle.I_EXIT, interval=1):
-                continue
-            # 点了后EXIT后，可能无确认框
-            if self.appear_then_click(self.I_RYOU_DOKAN_EXIT_ENSURE, interval=1):
-                continue
-            if self.appear(self.I_FANGSHOU, interval=1):
-                break
-
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
 
     def appear_rgb(self, target, image=None, difference: int = 10):
         """

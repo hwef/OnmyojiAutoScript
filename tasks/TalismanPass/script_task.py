@@ -9,6 +9,7 @@ from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main
 from tasks.TalismanPass.assets import TalismanPassAssets
 from tasks.TalismanPass.config import TalismanConfig, LevelReward
+from tasks.TalismanPass.page import page_daily, page_accomplishment
 
 """ 花合战 """
 
@@ -16,10 +17,9 @@ from tasks.TalismanPass.config import TalismanConfig, LevelReward
 class ScriptTask(GameUi, TalismanPassAssets):
 
     def run(self):
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
-        self.main_goto_daily()
+        # self.main_goto_daily()
         con: TalismanConfig = self.config.talisman_pass.talisman
+        self.ui_goto_page(page_daily)
 
         # 收取全部奖励
         if self.in_task():
@@ -30,8 +30,6 @@ class ScriptTask(GameUi, TalismanPassAssets):
         if con.get_accomplishments:
             self.get_accomplishment()
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
         self.set_next_run(task='TalismanPass', success=True, finish=True)
         raise TaskEnd('TalismanPass')
 
@@ -52,8 +50,9 @@ class ScriptTask(GameUi, TalismanPassAssets):
         获取任务完成奖励
         :return:
         """
-        self.ui_click(self.I_ACCOMPLISHMENTS_1, self.I_ACCOMPLISHMENTS_2)
-        timer = Timer(10)
+        self.ui_goto_page(page_accomplishment)
+        # self.ui_click(self.I_ACCOMPLISHMENTS_1, self.I_ACCOMPLISHMENTS_2)
+        timer = Timer(3)
         timer.start()
         while 1:
             self.screenshot()
@@ -114,7 +113,7 @@ class ScriptTask(GameUi, TalismanPassAssets):
         判断是否在任务的界面
         :return:
         """
-        timer = Timer(5)
+        timer = Timer(3)
         timer.start()
         while 1:
             self.screenshot()
@@ -131,6 +130,8 @@ class ScriptTask(GameUi, TalismanPassAssets):
         无法直接一步到花合战，需要先到主页，然后再到花合战
         :return:
         """
+        self.ui_goto_page(page_main)
+
         while 1:
             self.screenshot()
             if self.appear(self.I_CHECK_DAILY):
@@ -171,7 +172,7 @@ if __name__ == '__main__':
     from module.device.device import Device
 
     c = Config('4399')
-    d = Device(c)
+    # d = Device(c)
     t = ScriptTask(c)
     # t.screenshot()
     # d.image = load_image(r"D:\共享文件夹\Screenshots\花合战\1 (1).png")

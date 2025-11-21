@@ -3,12 +3,10 @@
 # 脚本进程
 # github https://github.com/runhey
 import multiprocessing
-import queue
-from asyncio import CancelledError, sleep
+from asyncio import QueueEmpty, CancelledError, sleep
 from enum import Enum
 from module.logger import logger
 from module.server.script_websocket import ScriptWSManager
-from test.test_asyncgen import asyncio
 
 
 class ScriptState(int, Enum):
@@ -61,51 +59,57 @@ class ScriptProcess(ScriptWSManager):
 
     async def coroutine_broadcast_state(self):
         try:
-            while True:
+            while 1:
                 if self.state == ScriptState.INACTIVE:
                     await sleep(1)
                     continue
+                await sleep(0.1)
                 try:
-                    # 使用短超时的阻塞获取，避免频繁轮询
-                    data = await asyncio.get_event_loop().run_in_executor(
-                        None, self.state_queue.get, True, 1
-                    )
-                    if data:
-                        if 'state' in data and data['state'] == ScriptState.WARNING:
-                            self.state = ScriptState.WARNING
-                        await self.broadcast_state(data)
-
-                except queue.Empty:
-                    # 超时继续循环，保持响应性
+                    if self.state_queue.empty():
+                        await sleep(1)
+                        continue
+                    data = self.state_queue.get_nowait()
+                    if not data:
+                        await sleep(0.5)
+                        continue
+                    if 'state' in data and data['state'] == ScriptState.WARNING:
+                        self.state = ScriptState.WARNING
+                    await self.broadcast_state(data)
+                except QueueEmpty as e:
+                    logger.warning(f'QueueEmpty: {e}')
+                    await sleep(0.5)
                     continue
                 except Exception as e:
                     logger.error(f'Error: {e}')
-
-        except CancelledError:
+                    continue
+        except CancelledError as e:
             logger.warning(f'{self.config_name} state coroutine is cancelled')
             return
 
     async def coroutine_broadcast_log(self):
         try:
-            while True:
+            while 1:
                 if self.state == ScriptState.INACTIVE:
-                    await sleep(0.5)
+                    await sleep(0.3)
                     continue
+                await sleep(0.01)
                 try:
-                    # 使用短超时的阻塞获取，避免频繁轮询
-                    log = await asyncio.get_event_loop().run_in_executor(
-                        None, self.log_pipe_out.recv
-                    )
-                    if log:
-                        await self.broadcast_log(log)
-
-                except queue.Empty:
-                    # 超时继续循环，保持响应性
+                    if not self.log_pipe_out.poll():
+                        await sleep(0.03)
+                        continue
+                    log = self.log_pipe_out.recv()
+                    if not log:
+                        await sleep(0.05)
+                        continue
+                    await self.broadcast_log(log)
+                except EOFError as e:
+                    await sleep(0.05)
+                    logger.warning(f'EOFError: {e}')
                     continue
                 except Exception as e:
                     logger.error(f'Log Error: {e}')
-
-        except CancelledError:
+                    continue
+        except CancelledError as e:
             logger.warning(f'{self.config_name} log coroutine is cancelled')
             return
 
@@ -130,6 +134,7 @@ def func(config: str, state_queue: multiprocessing.Queue, log_pipe_in) -> None:
         from script import Script
         script = Script(config_name=config)
         script.state_queue = state_queue
+        logger.hr(f'脚本 【{config}】 启动', 0)
         logger.info(f'Script {config} is running')
         script.start_loop()
     except SystemExit as e:

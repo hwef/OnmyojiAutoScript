@@ -1,0 +1,20 @@
+[
+  {
+    "itemName": "in_battle_auto",
+    "imageName": "auto_battle.png",
+    "roiFront": "35,648,55,29",
+    "roiBack": "35,648,55,29",
+    "method": "Template matching mask",
+    "threshold": 0.65,
+    "description": "自动（代表战斗中）"
+  },
+  {
+    "itemName": "in_battle_fire",
+    "imageName": "battle_fire.png",
+    "roiFront": "262,689,27,24",
+    "roiBack": "262,689,27,24",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "鬼火（代表战斗中）"
+  }
+]

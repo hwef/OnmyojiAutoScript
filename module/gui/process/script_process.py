@@ -24,8 +24,6 @@ class ScriptProcess(Process):
         self.update_queue = update_queue
         self.daemon = True  # 设置为守护进程，主进程结束，子进程也结束
 
-
-
     @property
     def alive(self) -> bool:
         """
@@ -44,9 +42,8 @@ class ScriptProcess(Process):
             from script import Script
             script = Script(config_name=self.config)
             script.gui_update_task = self.update_tasks
-            script.init_server(self.port)
-            script.run_server()
-        except:
+            script.start_server(self.port)
+        except Exception:
             logger.exception(f'run script {self.config} error')
             self.config.notifier.push(title=self.config_name, content=f'run script {self.config} error')
             raise
@@ -78,10 +75,9 @@ class ScriptProcess(Process):
             from module.logger import set_file_logger, set_func_logger
             set_file_logger(name=self.config)
             set_func_logger(self.log_queue.put)
-        except:
+        except Exception as e:
             logger.exception(f'start log error')
             raise
-
 
     def update_tasks(self, data) -> None:
         """
@@ -91,4 +87,3 @@ class ScriptProcess(Process):
         msg = {self.config: data}
         self.update_queue.put(msg)
         logger.info(f'Update tasks {self.config}')
-

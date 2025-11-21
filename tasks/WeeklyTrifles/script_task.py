@@ -66,8 +66,7 @@ class ScriptTask(GameUi, GeneralBattle, WeeklyTriflesAssets):
         :return:
         """
         logger.hr('Share collect')
-        self.ui_get_current_page()
-        self.ui_goto(page_collection)
+        self.ui_goto_page(page_collection)
         # 一路进去
         while 1:
             self.screenshot()
@@ -135,8 +134,7 @@ class ScriptTask(GameUi, GeneralBattle, WeeklyTriflesAssets):
                     continue
             logger.info('Back to boss')
         logger.hr('Share area boss')
-        self.ui_get_current_page()
-        self.ui_goto(page_area_boss)
+        self.ui_goto_page(page_area_boss)
 
         # 一路进去
         obtained = False
@@ -172,8 +170,7 @@ class ScriptTask(GameUi, GeneralBattle, WeeklyTriflesAssets):
         :return:
         """
         logger.hr('Share secret')
-        self.ui_get_current_page()
-        self.ui_goto(page_secret_zones)
+        self.ui_goto_page(page_secret_zones)
         # 一路进去
         while 1:
             self.screenshot()
@@ -223,8 +220,7 @@ class ScriptTask(GameUi, GeneralBattle, WeeklyTriflesAssets):
             logger.info('Exit broken amulet')
 
         logger.hr('Broken amulet')
-        self.ui_get_current_page()
-        self.ui_goto(page_summon)
+        self.ui_goto_page(page_summon)
         self.screenshot()
         number = self.O_BA_AMOUNT_1.ocr(self.device.image)
         if number == 0:

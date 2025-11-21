@@ -21,7 +21,7 @@ class ConfigManual:
         > CollectiveMissions
         > Delegation > Hyakkiyakou
         > MysteryShop > Duel > MetaDemon > FrogBoss > FloatParade > Quiz > KittyShop > AutoCake
-        > TalismanPass > MainStory
+        > TalismanPass > MainStory > LBS
         > SwitchAccountLoop
         > SwitchAccountOnce
         """

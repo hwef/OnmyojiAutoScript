@@ -20,9 +20,9 @@ class KekkaiUtilizeAssets:
 	# 神灶 
 	I_GUILD_SHIRNE = RuleImage(roi_front=(872,624,60,62), roi_back=(872,624,60,62), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_shirne.png")
 	# 寮体力 
-	I_GUILD_AP = RuleImage(roi_front=(483,314,22,22), roi_back=(6,137,1215,363), threshold=0.8, method="Template matching mask", file="./tasks/KekkaiUtilize/ku/ku_guild_ap.png")
+	I_GUILD_AP = RuleImage(roi_front=(483,314,22,22), roi_back=(6,137,1215,363), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_ap.png")
 	# 寮资金 
-	I_GUILD_ASSETS = RuleImage(roi_front=(315,311,23,28), roi_back=(6,137,1215,363), threshold=0.8, method="Template matching mask", file="./tasks/KekkaiUtilize/ku/ku_guild_assets.png")
+	I_GUILD_ASSETS = RuleImage(roi_front=(315,311,23,28), roi_back=(6,137,1215,363), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_assets.png")
 	# 领取寮资金 
 	I_GUILD_ASSETS_RECEIVE = RuleImage(roi_front=(565,426,144,63), roi_back=(565,426,144,63), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/ku/ku_guild_assets_receive.png")
 	# 收起的寮活动横幅 
@@ -34,6 +34,25 @@ class KekkaiUtilizeAssets:
 	# Swipe Rule Assets
 	# 移动寻找寮体力 
 	S_GUILD_FIND_AP = RuleSwipe(roi_front=(420,546,40,40), roi_back=(8,546,40,40), mode="default", name="guild_find_ap")
+
+
+	# Image Rule Assets
+	# lottery_box 
+	I_LOTTERY_BOX = RuleImage(roi_front=(489,317,20,17), roi_back=(6,137,1215,363), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/lottery_box/lottery_box.png")
+	# lottery_box_page 
+	I_LOTTERY_BOX_PAGE = RuleImage(roi_front=(119,21,95,39), roi_back=(119,21,95,39), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/lottery_box/lottery_box_page.png")
+	# lottery_click 
+	I_LOTTERY_CLICK = RuleImage(roi_front=(785,520,60,81), roi_back=(785,520,60,81), threshold=0.8, method="Template matching", file="./tasks/KekkaiUtilize/lottery_box/lottery_click.png")
+
+
+	# Ocr Rule Assets
+	# 抽奖次数 
+	O_LOTTERY_NUMBER = RuleOcr(roi=(847,614,59,23), area=(847,614,59,23), mode="DigitCounter", method="Default", keyword="", name="lottery_number")
+
+
+	# Swipe Rule Assets
+	# description 
+	S_SWIPE_LOTTERY_BOX = RuleSwipe(roi_front=(745,180,51,232), roi_back=(745,400,51,232), mode="default", name="swipe_lottery_box")
 
 
 	# Image Rule Assets

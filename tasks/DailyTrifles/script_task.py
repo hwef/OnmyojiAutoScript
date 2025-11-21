@@ -1,28 +1,24 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-import copy
 from time import sleep
-from datetime import time, datetime, timedelta
 
-from exceptiongroup import catch
-from winerror import NOERROR
-
+import copy
+import re
+from module.base.timer import Timer
+from module.exception import TaskEnd
+from module.logger import logger
+from tasks.Component.GeneralBuff.general_buff import GeneralBuff
+from tasks.Component.Summon.summon import Summon
+from tasks.DailyTrifles.assets import DailyTriflesAssets
+from tasks.DailyTrifles.config import SummonType
+from tasks.DailyTrifles.page import page_store_sign, page_mall_special
 from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_main, page_summon, page_guild, page_mall, page_friends
-from tasks.Component.GeneralBuff.general_buff import GeneralBuff
-from tasks.DailyTrifles.config import DailyTriflesConfig
-from tasks.DailyTrifles.assets import DailyTriflesAssets
-from tasks.Component.Summon.summon import Summon
-
-from module.logger import logger
-from module.exception import TaskEnd
-from module.base.timer import Timer
-from tasks.DailyTrifles.config import SummonType
-import re
-
 
 """ 每日琐事 """
+
+
 class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 
     def run(self):
@@ -51,8 +47,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
         raise TaskEnd('DailyTrifles')
 
     def run_one_summon(self):
-        self.ui_get_current_page()
-        self.ui_goto(page_summon)
+        self.ui_goto_page(page_summon)
         if self.config.daily_trifles.trifles_config.summon_type == SummonType.default:
             self.summon_one()
         elif self.config.daily_trifles.trifles_config.summon_type == SummonType.recall:
@@ -72,8 +67,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 
             for i in range(len(list)):
                 sleep(1)
-                self.ui_get_current_page()
-                self.ui_goto(page_summon)
+                self.ui_goto_page(page_summon)
                 self.appear_then_click(self.I_UI_BACK_RED, interval=1)
                 x, y = list[i].coord()
                 self.device.click(x, y)
@@ -142,8 +136,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
         pass
 
     def run_luck_msg(self):
-        self.ui_get_current_page()
-        self.ui_goto(page_friends)
+        self.ui_goto_page(page_friends)
         while 1:
             self.screenshot()
             if self.appear(self.I_LUCK_TITLE):
@@ -173,8 +166,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
         self.ui_click(self.I_UI_BACK_RED, self.I_CHECK_MAIN)
 
     def run_friend_love(self):
-        self.ui_get_current_page()
-        self.ui_goto(page_friends)
+        self.ui_goto_page(page_friends)
         while 1:
             self.screenshot()
             if self.appear(self.I_L_LOVE):
@@ -204,17 +196,12 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
         self.ui_click(self.I_UI_BACK_RED, self.I_CHECK_MAIN)
 
     def run_store(self):
-        self.ui_get_current_page()
-        self.ui_goto(page_mall, confirm_wait=3)
+        self.ui_goto_page(page_mall, confirm_wait=3)
 
         if self.config.daily_trifles.trifles_config.store_sign:
             self.run_store_sign()
         if self.config.daily_trifles.trifles_config.buy_sushi_count > 0:
             self.run_buy_sushi()
-
-        self.ui_click(self.I_UI_BACK_YELLOW, self.I_CHECK_MALL)
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
 
     def run_store_sign(self):
         # timer = Timer(5)
@@ -235,12 +222,14 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
         #     if self.appear_then_click(self.I_ROOM_GIFT, interval=1):
         #         continue
 
-        while 1:
-            self.screenshot()
-            if self.appear(self.I_GIFT_RECOMMEND):
-                break
-            if self.appear_then_click(self.I_ROOM_GIFT, interval=1):
-                continue
+        # while 1:
+        #     self.screenshot()
+        #     if self.appear(self.I_GIFT_RECOMMEND):
+        #         break
+        #     if self.appear_then_click(self.I_ROOM_GIFT, interval=1):
+        #         continue
+
+        self.ui_goto_page(page_store_sign)
         timer = Timer(5)
         timer.start()
         while 1:
@@ -268,15 +257,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
     def run_buy_sushi(self):
 
         # 进入Special
-        while 1:
-            from tasks.RichMan.assets import RichManAssets
-            self.screenshot()
-            if self.appear(RichManAssets.I_SIDE_CHECK_SPECIAL):
-                break
-            if self.appear_then_click(RichManAssets.I_MALL_SUNDRY, interval=1):
-                continue
-            if self.appear_then_click(RichManAssets.I_SIDE_SURE_SPECIAL, interval=1):
-                continue
+        self.ui_goto_page(page_mall_special)
 
         def detect_buy_count(base_element) -> (int, int):
             # 返回count,price
@@ -325,8 +306,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
         return
 
     def run_recruit_members(self):
-        self.ui_get_current_page()
-        self.ui_goto(page_guild)
+        self.ui_goto_page(page_guild)
         flush_count = 0
         timer = Timer(5)
         timer.start()
@@ -379,8 +359,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
             logger.info('Exit broken amulet')
 
         logger.hr('Broken amulet')
-        self.ui_get_current_page()
-        self.ui_goto(page_summon)
+        self.ui_goto_page(page_summon)
         self.screenshot()
         number = self.O_BA_AMOUNT_1.ocr(self.device.image)
         if number == 0:
@@ -423,7 +402,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 if __name__ == '__main__':
     from module.config.config import Config
 
-    c = Config('4399')
+    c = Config('wy')
     t = ScriptTask(c)
 
-    t.run_store_sign()
+    t.run_buy_sushi()

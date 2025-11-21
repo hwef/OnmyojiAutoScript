@@ -24,8 +24,7 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul):
         # 加成
         conf_buff = conf.tako_config
         if conf_buff.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_main)
+            self.ui_goto_page(page_main)
             self.open_buff()
             if conf_buff.buff_gold_50_click:
                 self.gold_50()
@@ -38,8 +37,7 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul):
             self.close_buff()
 
         # 进入
-        self.ui_get_current_page()
-        self.ui_goto(page_team)
+        self.ui_goto_page(page_team)
         if 5 <= self.start_time.weekday() <= 6:
             # 周末
             self.check_zones('喷怒的石距')
@@ -75,11 +73,9 @@ class ScriptTask(GeneralBattle, GeneralRoom, GeneralInvite, SwitchSoul):
         :return:
         """
         conf_buff = self.config.tako.tako_config
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         if conf_buff.enable:
-            self.ui_get_current_page()
-            self.ui_goto(page_main)
+            self.ui_goto_page(page_main)
             self.open_buff()
             if conf_buff.buff_gold_50_click:
                 self.gold_50(False)

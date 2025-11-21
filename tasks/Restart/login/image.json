@@ -22,8 +22,8 @@
     "imageName": "login_login_red_close.png",
     "roiFront": "800,0,480,290",
     "roiBack": "800,0,480,290",
-    "method": "Template matching mask",
-    "threshold": 0.8,
+    "method": "Template matching",
+    "threshold": 0.7,
     "description": "description"
   },
   {
@@ -133,5 +133,14 @@
     "method": "Template matching",
     "threshold": 0.8,
     "description": "是否继续刚才的战斗？-点击取消"
+  },
+  {
+    "itemName": "login_close",
+    "imageName": "login_close.png",
+    "roiFront": "621,562,40,41",
+    "roiBack": "621,562,40,41",
+    "method": "Template matching mask",
+    "threshold": 0.8,
+    "description": "4399登录会遇到活动-点击叉号"
   }
 ]

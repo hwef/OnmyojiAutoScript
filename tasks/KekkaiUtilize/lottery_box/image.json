@@ -1,0 +1,29 @@
+[
+  {
+    "itemName": "lottery_box",
+    "imageName": "lottery_box.png",
+    "roiFront": "489,317,20,17",
+    "roiBack": "6,137,1215,363",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "lottery_box"
+  },
+  {
+    "itemName": "lottery_box_page",
+    "imageName": "lottery_box_page.png",
+    "roiFront": "119,21,95,39",
+    "roiBack": "119,21,95,39",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "lottery_box_page"
+  },
+  {
+    "itemName": "lottery_click",
+    "imageName": "lottery_click.png",
+    "roiFront": "785,520,60,81",
+    "roiBack": "785,520,60,81",
+    "method": "Template matching",
+    "threshold": 0.8,
+    "description": "lottery_click"
+  }
+]

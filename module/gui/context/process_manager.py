@@ -47,8 +47,6 @@ def is_port_in_use(ip, port) -> bool:
         return False
 
 
-
-
 class ProcessManager(QObject):
     """
     进程管理
@@ -78,8 +76,6 @@ class ProcessManager(QObject):
         self.start_update_tasks()  # 启动更新线程
 
         # self.event_loop = asyncio.get_event_loop()  # 事件循环
-
-
 
     @Slot()
     def create_all(self) -> None:
@@ -150,7 +146,6 @@ class ProcessManager(QObject):
         if config in self.processes:
             if not self.processes[config].is_alive():  # 如果进程已经死亡，那么就重新启动
                 logger.info(f'{config} process is dead, restart it')
-
 
             self.processes[config].terminate()  # 强制结束进程
             if self.ports[config] is None:
@@ -342,14 +337,9 @@ class ProcessManager(QObject):
             height, width, _ = image.shape
             image_qt = QImage(image.data, width, height, QImage.Format_RGB888).rgbSwapped()
             return image_qt
-
-
-
         else:
             logger.info(f'Script {config} is not running')
             return None
-
-
 
     @Slot(str, result="QString")
     def gui_task_list(self, config: str) -> str:
@@ -359,9 +349,6 @@ class ProcessManager(QObject):
         else:
             logger.info(f'Script {config} is not running')
             return None
-
-
-
 
     def start_log(self, config_name: str) -> Queue:
         """
@@ -376,7 +363,6 @@ class ProcessManager(QObject):
 
         if config_name not in self.log_queue:
             self.log_queue[config_name] = self.manager.Queue()
-
 
         if config_name not in self.log_thread:
             self.log_thread[config_name] = Thread(target=self.log_thread_func, args=(config_name,), daemon=True)
@@ -476,4 +462,3 @@ class ProcessManager(QObject):
             self.processes[config].stop()
         else:
             logger.info(f'Script {config} is not running')
-

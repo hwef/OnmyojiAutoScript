@@ -19,8 +19,7 @@ class ScriptTask(GameUi, SoulsTidyAssets):
     click_num = 0
 
     def run(self):
-        self.ui_get_current_page()
-        self.ui_goto(page_shikigami_records)
+        self.ui_goto_page(page_shikigami_records)
         con = self.config.souls_tidy
 
         # 进入到御魂的主界面
@@ -36,8 +35,7 @@ class ScriptTask(GameUi, SoulsTidyAssets):
         # 退回到式神录
         self.back_records()
 
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         self.set_next_run(task='SoulsTidy', success=True, finish=False)
         raise TaskEnd('SoulsTidy')
 

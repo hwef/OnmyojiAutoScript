@@ -10,9 +10,10 @@ from pathlib import Path
 from module.base.decorator import cached_property
 from module.logger import logger
 from module.base.utils import is_approx_rectangle
+from module.atom.base_atom import BaseAtom
 
 
-class RuleImage:
+class RuleImage(BaseAtom):
 
     def __init__(self, roi_front: tuple, roi_back: tuple, method: str, threshold: float, file: str) -> None:
         """
@@ -23,6 +24,7 @@ class RuleImage:
         :param threshold: 阈值  0.8
         :param file: 相对路径, 带后缀
         """
+        super().__init__()
         self._match_init = False  # 这个是给后面的 等待图片稳定
         self._image = None  # 这个是匹配的目标
         self._kp = None  #
@@ -135,6 +137,11 @@ class RuleImage:
         """
         if roi is None:
             x, y, w, h = self.roi_back
+            # 全方向扩展5像素，但不超过屏幕尺寸720x1280
+            x = max(0, x - 5)               # 向左扩展5像素，但不能小于0
+            y = max(0, y - 5)               # 向上扩展5像素，但不能小于0
+            w = min(1280 - x, w + 10)       # 增加10像素宽度（左右各5像素）
+            h = min(720 - y, h + 10)        # 增加10像素高度（上下各5像素）
         else:
             x, y, w, h = roi
         x, y, w, h = int(x), int(y), int(w), int(h)
@@ -163,8 +170,7 @@ class RuleImage:
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)  # 最小匹配度，最大匹配度，最小匹配度的坐标，最大匹配度的坐标
         # logger.attr(self.name, max_val)
         if max_val > threshold:
-            self.roi_front[0] = max_loc[0] + self.roi_back[0]
-            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            self.update_roi(max_loc)
             # logger.attr(self.name, self.roi_front)
             return True
         else:
@@ -207,8 +213,7 @@ class RuleImage:
         # 根据阈值判断匹配结果
         if max_val > threshold:
             # 更新ROI坐标
-            self.roi_front[0] = max_loc[0] + self.roi_back[0]
-            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            self.update_roi(max_loc)
             # logger.attr(self.name, self.roi_front)
             return True
         else:
@@ -237,8 +242,7 @@ class RuleImage:
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)  # 最小匹配度，最大匹配度，最小匹配度的坐标，最大匹配度的坐标
         logger.attr(self.name, max_val)
         if max_val > threshold:
-            self.roi_front[0] = max_loc[0] + self.roi_back[0]
-            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            self.update_roi(max_loc)
             logger.attr(self.name, self.roi_front)
             return True, max_val
         else:
@@ -268,6 +272,9 @@ class RuleImage:
 
         # 执行模板匹配
         if mask is not None:
+            # cv2.imwrite("source_debug.png", cv2.cvtColor(source, cv2.COLOR_RGB2BGR))
+            # cv2.imwrite("template_debug.png", cv2.cvtColor(template, cv2.COLOR_RGB2BGR))
+            # cv2.imwrite("mask_debug.png", mask)
             res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
         else:
             res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
@@ -277,16 +284,20 @@ class RuleImage:
         if not np.isfinite(max_val):
             # logger.warning(f"匹配结果无效 {self.name}: {max_val}")
             # 处理无效值情况
-            return False
+            return False, max_val
         # 根据阈值判断匹配结果
         if max_val > threshold:
             # 更新ROI坐标
-            self.roi_front[0] = max_loc[0] + self.roi_back[0]
-            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            self.update_roi(max_loc)
             logger.attr(self.name, self.roi_front)
             return True, max_val
         else:
             return False, max_val
+
+    def update_roi(self, max_loc):
+        # 更新ROI坐标
+        self.roi_front[0] = max_loc[0] + self.roi_back[0] - 5
+        self.roi_front[1] = max_loc[1] + self.roi_back[1] - 5
 
     def match_first(self, image: np.array, threshold: float = None) -> bool:
         """
@@ -347,8 +358,7 @@ class RuleImage:
         # 根据阈值判断匹配结果
         if max_val > threshold:
             # 更新ROI坐标
-            self.roi_front[0] = max_loc[0] + self.roi_back[0]
-            self.roi_front[1] = max_loc[1] + self.roi_back[1]
+            self.update_roi(max_loc)
             return True
         else:
             return False
@@ -413,14 +423,6 @@ class RuleImage:
             filtered_matches = [matches[i] for i in indices]
             return filtered_matches
         return matches
-
-    def coord(self) -> tuple:
-        """
-        获取roi_front的随机的点击的坐标
-        :return:
-        """
-        x, y, w, h = self.roi_front
-        return x + np.random.randint(0, w), y + np.random.randint(0, h)
 
     def coord_more(self) -> tuple:
         """

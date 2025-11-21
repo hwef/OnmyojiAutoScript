@@ -45,11 +45,10 @@ class ScriptTask(GeneralBattle, DemonEncounterAssets, SwitchSoul):
         soul_config = self.config.demon_encounter.demon_soul_config
         best_soul_config = self.config.demon_encounter.best_demon_soul_config
         if soul_config.enable or best_soul_config.enable:
-            self.ui_goto(page_shikigami_records)
+            self.ui_goto_page(page_shikigami_records)
             self.checkout_soul()
 
-        self.ui_get_current_page()
-        self.ui_goto(page_demon_encounter)
+        self.ui_goto_page(page_demon_encounter)
         self.execute_lantern()
         if self.config.demon_encounter.switch_soul.enable_boss:
             self.execute_boss()
@@ -353,16 +352,16 @@ class ScriptTask(GeneralBattle, DemonEncounterAssets, SwitchSoul):
         while 1:
             self.screenshot()
             if self.appear(self.I_BLUE_PIAO):
-                if self.click(self.I_JADE_50):
-                    logger.info('50 勾玉购买蓝票')
-                    continue
-            if self.appear(self.I_SUSHI_100):
-                if self.click(self.I_JADE_50):
+                self.click(self.I_JADE_50)
+                logger.info('50 勾玉购买蓝票')
+                continue
+            if self.config.demon_encounter.switch_soul.enable_100ap:
+                if self.appear(self.I_SUSHI_100):
+                    self.click(self.I_JADE_50)
                     logger.info('50 勾玉购买体力')
                     continue
-            if not self.appear(self.I_BLUE_PIAO) and not self.appear(self.I_SUSHI_100):
-                if self.appear_then_click(self.I_DE_FIND, interval=2.5):
-                    break
+            self.ui_click_until_smt_disappear(self.I_DE_FIND, self.I_JADE_50)
+            break
 
     def _mail(self, target_click):
         # 答题
@@ -442,7 +441,7 @@ class ScriptTask(GeneralBattle, DemonEncounterAssets, SwitchSoul):
         config = self.con
         while 1:
             self.screenshot()
-            if not self.appear(self.I_DE_LOCATION):
+            if self.appear(self.I_PREPARE_HIGHLIGHT):
                 logger.info('Battle Start')
                 break
             if self.appear(self.I_DE_SMALL_FIRE):
@@ -466,8 +465,8 @@ class ScriptTask(GeneralBattle, DemonEncounterAssets, SwitchSoul):
         config = self.con
         while 1:
             self.screenshot()
-            if not self.appear(self.I_DE_LOCATION):
-                logger.info('Battle Start')
+            if self.appear(self.I_PREPARE_HIGHLIGHT):
+                logger.info('realm Battle Start')
                 break
             if self.appear(self.I_BOSS_FIRE) or self.appear(self.I_BEST_BOSS_FIRE):
                 self.appear_then_click(self.I_UI_BACK_RED)
@@ -585,11 +584,9 @@ class ScriptTask(GeneralBattle, DemonEncounterAssets, SwitchSoul):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
-    c = Config('mi')
-    d = Device(c)
-    t = ScriptTask(c, d)
+    c = Config('wy')
+    t = ScriptTask(c)
 
     t.run()
     # t.battle_wait(True)

@@ -1,12 +1,10 @@
 import random
-
 import traceback
 from module.atom.click import RuleClick
-from tasks.GlobalGame.assets import GlobalGameAssets as GGA
 from tasks.GameUi.assets import GameUiAssets as G
+from tasks.GlobalGame.assets import GlobalGameAssets as GGA
 from tasks.KekkaiUtilize.assets import KekkaiUtilizeAssets
 from tasks.Restart.assets import RestartAssets
-from tasks.base_task import BaseTask as BT
 from tasks.RyouToppa.assets import RyouToppaAssets
 
 
@@ -57,7 +55,7 @@ page_summon = Page(G.I_CHECK_SUMMON)
 page_summon.link(button=G.I_SUMMON_GOTO_MAIN, destination=page_main)
 page_main.link(button=G.I_MAIN_GOTO_SUMMON, destination=page_summon)
 # 探索exploration
-page_exploration = Page(G.I_CHECK_EXPLORATION)
+page_exploration = Page(G.I_EXPLORATION_GOTO_AWAKE_ZONE)
 page_exploration.link(button=G.I_BACK_BLUE, destination=page_main)
 page_main.link(button=G.I_MAIN_GOTO_EXPLORATION, destination=page_exploration)
 # 町中town
@@ -156,11 +154,6 @@ page_main.link(button=G.I_MAIN_GOTO_ONMYODO, destination=page_onmyodo)
 page_friends = Page(G.I_CHECK_FRIENDS)
 page_friends.link(button=G.I_BACK_Y, destination=page_main)
 page_main.link(button=G.I_MAIN_GOTO_FRIENDS, destination=page_friends)
-# 花合战 daily
-page_daily = Page(G.I_CHECK_DAILY)
-# page_daily.additional = [G.O_CLICK_CLOSE_1, G.O_CLICK_CLOSE_2]
-page_daily.link(button=G.I_BACK_Y, destination=page_main)
-page_main.link(button=G.I_MAIN_GOTO_DAILY, destination=page_daily)
 from tasks.DailyTrifles.assets import DailyTriflesAssets
 
 # 商店 mall

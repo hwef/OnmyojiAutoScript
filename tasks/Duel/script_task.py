@@ -47,8 +47,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
 
         # 切换阴阳师
         if con.switch_enabled:
-            self.ui_get_current_page()
-            self.ui_goto(page_main)
+            self.ui_goto_page(page_main)
             # 清明
             if con.switch_onmyoji == Onmyoji.Qm:
                 self.switch_kagura(con, self.C_QM_ZHAN, self.I_QM_ZHAN)
@@ -65,8 +64,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
             elif con.switch_onmyoji == Onmyoji.Ylg:
                 self.switch_yorimitsu()
 
-        self.ui_get_current_page()
-        self.ui_goto(page_duel)
+        self.ui_goto_page(page_duel)
         # 切换御魂
         if con.switch_all_soul:
             self.switch_all_soul()
@@ -83,8 +81,11 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
                 continue
             if self.appear_then_click(self.I_DUEL_CANCEL, interval=0.6):
                 continue
-            if not self.duel_main():
+            self.ui_goto_page(page_duel)
+            if not self.appear(self.I_CHECK_DUEL):
                 continue
+            # if not self.duel_main():
+            #     continue
 
             # 判断是否有更高优先级任务，去执行新任务
             self._check_first_priority_task()
@@ -151,7 +152,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
             self.set_next_run(task='Duel', success=True, finish=False)
 
         # 调起花合战
-        self.set_next_run(task='TalismanPass', target=datetime.now())
+        # self.set_next_run(task='TalismanPass', target=datetime.now())
         raise TaskEnd('Duel')
 
     def duel_main(self, screenshot=False) -> bool:
@@ -220,8 +221,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
                 click_count += 1
                 continue
         logger.info(f'切换阴阳师{con.switch_onmyoji}')
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
     def switch_yorimitsu(self):
         click_count = 0  # 计数
@@ -245,8 +245,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
                 click_count += 1
                 continue
         logger.info('切换英杰源赖光')
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
 
     def check_honor(self) -> bool:
         """
@@ -393,7 +392,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
                 break
         while 1:
             self.screenshot()
-            if self.ocr_appear(self.O_D_AUTO, interval=0.4):
+            if self.ocr_appear(self.O_D_AUTO, interval=1):
                 break
             if self.ocr_appear_click(self.O_D_HAND, interval=1):
                 continue
@@ -631,10 +630,8 @@ class ScriptTask(GeneralBattle, SwitchSoul, DuelAssets):
 
 if __name__ == '__main__':
     from module.config.config import Config
-    from module.device.device import Device
 
-    c = Config('s4399')
-    d = Device(c)
-    t = ScriptTask(c, d)
+    c = Config('du')
+    t = ScriptTask(c)
 
     t.run()

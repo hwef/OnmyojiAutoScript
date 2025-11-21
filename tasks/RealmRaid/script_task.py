@@ -107,8 +107,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, RealmRaidAssets):
         if con.switch_soul_config.enable_switch_by_name:
             self.run_switch_soul_by_name(con.switch_soul_config.group_name, con.switch_soul_config.team_name)
 
-        self.ui_get_current_page()
-        self.ui_goto(page_realm_raid)
+        self.ui_goto_page(page_realm_raid)
 
         # 有呱太活动的时候第一次进入还会 出现一个弹窗
         self.screenshot()
@@ -214,8 +213,7 @@ class ScriptTask(GeneralBattle, SwitchSoul, RealmRaidAssets):
                 break
 
         self.ui_click(self.I_BACK_RED, self.I_CHECK_EXPLORATION)
-        self.ui_get_current_page()
-        self.ui_goto(page_main)
+        self.ui_goto_page(page_main)
         self.set_next_run(task='RealmRaid', success=success, finish=True)
         raise TaskEnd
 

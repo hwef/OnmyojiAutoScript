@@ -1,32 +1,25 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
+
 import copy
 import datetime
 import operator
-import threading
-import random
-
-from datetime import datetime, timedelta
 from cached_property import cached_property
-from module.server.i18n import I18n
-from threading import Lock
-
-from module.base.filter import Filter
-from module.config.config_updater import ConfigUpdater
 from module.config.config_manual import ConfigManual
-from module.config.config_watcher import ConfigWatcher
 from module.config.config_menu import ConfigMenu
 from module.config.config_model import ConfigModel
 from module.config.config_state import ConfigState
+from module.config.config_watcher import ConfigWatcher
 from module.config.scheduler import TaskScheduler
 from module.config.utils import *
-from module.notify.notify import Notifier
-from module.notify.pushtg import PushTg
-
 from module.exception import RequestHumanTakeover, ScriptError
 from module.logger import logger
+from module.notify.notify import Notifier
+from module.notify.pushtg import PushTg
+from module.server.i18n import I18n
 from multiprocessing.queues import Queue
+from threading import Lock
 
 
 class Function:
@@ -184,24 +177,7 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         :return:
         """
         # logger.info(f'save config {self.config_name}')
-        max_retries = 3
-        retry_delay = 1
-
-        for attempt in range(max_retries):
-            try:
-                self.model.write_json(self.config_name, self.model.dict())
-                return
-            except PermissionError as e:
-                if attempt < max_retries - 1:
-                    logger.warning(f"保存配置文件权限被拒绝，{retry_delay}秒后重试 (第{attempt + 1}次): {e}")
-                    time.sleep(retry_delay)
-                    retry_delay *= 2  # 指数退避
-                else:
-                    logger.error(f"保存配置文件失败，已重试{max_retries}次仍无法访问: {e}")
-                    raise
-            except Exception as e:
-                logger.error(f"保存配置文件时发生未知错误: {e}")
-                raise
+        self.model.write_json(self.config_name, self.model.dict())
 
     def update_scheduler(self) -> None:
         """
@@ -422,14 +398,11 @@ class Config(ConfigState, ConfigManual, ConfigWatcher, ConfigMenu):
         # 如果间隔时间小于等于1天,并且固定时间是9点 则将下次运行时间设置为当前时间加间隔时间
         # 如果间隔时间小于等于1天,并且固定时间是不是9点 则将下次运行时间设置为明天的固定时间
 
-        # 保证线程安全的
-        self.lock_config.acquire()
-        next_run = next_run.replace(microsecond=0)
-        try:
+        # 使用 with 语句确保锁正确释放
+        with self.lock_config:
+            next_run = next_run.replace(microsecond=0)
             scheduler.next_run = next_run
             self.save()
-        finally:
-            self.lock_config.release()
 
         # 广播调度更新
         if next_run <= datetime.now():
