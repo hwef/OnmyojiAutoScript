@@ -93,11 +93,13 @@ class BaseExploration(GeneralBattle, GeneralRoom, GeneralInvite, ReplaceShikigam
         if explorationConfig.switch_soul_config.enable_switch_by_name:
             self.run_switch_soul_by_name(explorationConfig.switch_soul_config.group_name,
                                          explorationConfig.switch_soul_config.team_name)
-
+        # 修复 没有打开Buff时会被卡在当前的界面
+        self.ui_get_current_page()
+        self.ui_goto_page(page_main)
         # 开启加成
         con = self.config.exploration.exploration_config
         if con.buff_gold_50_click or con.buff_gold_100_click or con.buff_exp_50_click or con.buff_exp_100_click:
-            self.ui_goto_page(page_main)
+            # self.ui_goto_page(page_main)
             self.open_buff()
             if con.buff_gold_50_click:
                 self.gold_50()

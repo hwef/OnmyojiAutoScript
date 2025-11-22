@@ -128,7 +128,7 @@ class SoloExploration(BaseExploration):
             #
             elif scene == Scene.BATTLE_PREPARE or scene == Scene.BATTLE_FIGHTING:
                 self.check_take_over_battle(is_screenshot=False, config=self._config.general_battle_config)
-
+    # region not use
     # def run_leader(self):
     #     logger.hr('leader')
     #     explore_init = False
@@ -453,7 +453,7 @@ class SoloExploration(BaseExploration):
     #         return False
     #
     #     return True
-
+    #　endregion 
     def get_next_exploration_level(self):
         """
         获取下一个探索章节
