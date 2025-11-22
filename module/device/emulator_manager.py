@@ -55,8 +55,35 @@ class EmulatorManager:
         """
         根据模拟器名称获取索引
         """
+        # 处理auto情况，默认使用第一个模拟器
+        if handle == "auto":
+            logger.info("使用自动模式，尝试获取第一个可用的模拟器")
+            cmd = [self.manager_path, "info", "-v", "all"]
+            result = execute_emulator(cmd)
+            if result is None:
+                logger.error("无法获取模拟器列表")
+                return None
+                
+            try:
+                # 直接使用返回的模拟器信息
+                if result.get("is_process_started", False):
+                    index = result.get("index", "0")
+                    logger.info(f"找到运行的模拟器: 索引{index}")
+                    return str(index)
+                else:
+                    logger.warning("没有运行的模拟器")
+                    return None
+                    
+            except Exception as e:
+                logger.error(f'自动获取模拟器索引时出错: {e}')
+                return None
+        
+        # 处理指定模拟器名称的情况
         cmd = [self.manager_path, "info", "-v", "all"]
         result = execute_emulator(cmd)
+        if result is None:
+            return None
+            
         try:
             # 处理每个模拟器实例
             for index, emulator in result.items():
