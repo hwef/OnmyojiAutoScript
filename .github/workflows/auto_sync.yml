@@ -1,0 +1,50 @@
+name: Auto Sync from Origin
+
+on:
+  # 每天UTC时间0点自动同步
+  schedule:
+    - cron: '0 0 * * *'
+  # 允许手动触发
+  workflow_dispatch:
+  # 当有push到run_now_origin分支时触发
+  push:
+    branches:
+      - run_now_origin
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: run_now_origin
+
+      - name: Setup Git
+        run: |
+          git config --local user.email "sync-bot@example.com"
+          git config --local user.name "Sync Bot"
+
+      - name: Add origin remote
+        run: git remote add upstream https://github.com/ljxun/OnmyojiAutoScript.git
+
+      - name: Fetch latest from origin
+        run: git fetch upstream
+
+      - name: Merge origin/run_now into run_now_origin
+        run: |
+          git checkout run_now_origin
+          git merge upstream/run_now --no-edit
+
+      - name: Push changes to run_now_origin
+        run: git push origin run_now_origin
+
+      - name: Update myoas/run_now
+        run: |
+          # 切换到run_now分支
+          git checkout -b run_now
+          # 合并run_now_origin的更新
+          git merge run_now_origin --no-edit
+          # 推送到myoas远程仓库
+          git push myoas run_now
