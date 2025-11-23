@@ -26,8 +26,21 @@ def enlarge_canvas(image):
     Enlarge image into a square fill with black background. In the structure of PaddleOCR,
     image with w:h=1:1 is the best while 3:1 rectangles takes three times as long.
     Also enlarge into the integer multiple of 32 cause PaddleOCR will downscale images to 1/32.
+    
+    修改：对于长或宽有一边不到320的图像，将短边padding到320
     """
     height, width = image.shape[:2]
+    
+    # 对于长或宽有一边不到320的图像，将短边padding到320  
+    if width < 320 or height < 320:
+        target_width = max(width, 320)
+        target_height = max(height, 320)
+        border = (0, target_height - height, 0, target_width - width)
+        if sum(border) > 0:
+            image = cv2.copyMakeBorder(image, *border, borderType=cv2.BORDER_CONSTANT, value=(0, 0, 0))
+        return image
+    
+    # 对于大图像，保持原有逻辑
     length = int(max(width, height) // 32 * 32 + 32)
     border = (0, length - height, 0, length - width)
     if sum(border) > 0:
