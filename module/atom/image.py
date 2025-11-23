@@ -11,6 +11,7 @@ from module.base.decorator import cached_property
 from module.logger import logger
 from module.base.utils import is_approx_rectangle
 from module.atom.base_atom import BaseAtom
+from module.atom.template_match import match_template
 
 
 class RuleImage(BaseAtom):
@@ -166,8 +167,7 @@ class RuleImage(BaseAtom):
 
         source = self.corp(image)
         mat = self.image
-        res = cv2.matchTemplate(source, mat, cv2.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)  # 最小匹配度，最大匹配度，最小匹配度的坐标，最大匹配度的坐标
+        max_val, max_loc, _ = match_template(source, mat, min_confidence=threshold)
         # logger.attr(self.name, max_val)
         if max_val > threshold:
             self.update_roi(max_loc)
@@ -200,11 +200,10 @@ class RuleImage(BaseAtom):
 
         # 执行模板匹配
         if mask is not None:
-            res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
+            max_val, max_loc, _ = match_template(source, template, min_confidence=threshold, mask=mask)
         else:
-            res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
+            max_val, max_loc, _ = match_template(source, template, min_confidence=threshold)
 
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
         # logger.attr(self.name, max_val)
         if not np.isfinite(max_val):
             # logger.warning(f"匹配结果无效 {self.name}: {max_val}")
@@ -238,8 +237,7 @@ class RuleImage(BaseAtom):
 
         source = self.corp(image)
         mat = self.image
-        res = cv2.matchTemplate(source, mat, cv2.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)  # 最小匹配度，最大匹配度，最小匹配度的坐标，最大匹配度的坐标
+        max_val, max_loc, _ = match_template(source, mat, min_confidence=threshold)
         logger.attr(self.name, max_val)
         if max_val > threshold:
             self.update_roi(max_loc)
@@ -275,11 +273,10 @@ class RuleImage(BaseAtom):
             # cv2.imwrite("source_debug.png", cv2.cvtColor(source, cv2.COLOR_RGB2BGR))
             # cv2.imwrite("template_debug.png", cv2.cvtColor(template, cv2.COLOR_RGB2BGR))
             # cv2.imwrite("mask_debug.png", mask)
-            res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
+            max_val, max_loc, _ = match_template(source, template, min_confidence=threshold, mask=mask)
         else:
-            res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
+            max_val, max_loc, _ = match_template(source, template, min_confidence=threshold)
 
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
         logger.attr(self.name, max_val)
         if not np.isfinite(max_val):
             # logger.warning(f"匹配结果无效 {self.name}: {max_val}")
@@ -315,17 +312,16 @@ class RuleImage(BaseAtom):
 
         source = self.corp(image)
         mat = self.image
-        res = cv2.matchTemplate(source, mat, cv2.TM_CCOEFF_NORMED)
-        # 获取所有超过阈值的坐标
-        loc = np.where(res >= threshold)
-        if loc[0].size == 0:  # 无匹配
+        # 使用多目标匹配获取所有匹配结果
+        matches, _ = match_template(source, mat, min_confidence=threshold, multi_target=True)
+        if not matches:  # 无匹配
             return False
 
         # 直接取 y 最小的点（即最顶部）
-        top_loc = loc[0]
+        top_match = min(matches, key=lambda m: m[1][1])
         # 更新 ROI（根据需求调整）
-        self.roi_front[0] = top_loc[0] + self.roi_back[0]
-        self.roi_front[1] = top_loc[1] + self.roi_back[1]
+        self.roi_front[0] = top_match[1][0] + self.roi_back[0]
+        self.roi_front[1] = top_match[1][1] + self.roi_back[1]
 
         return True
 
@@ -352,8 +348,7 @@ class RuleImage(BaseAtom):
             template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
 
         # 执行模板匹配
-        res = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+        max_val, max_loc, _ = match_template(source, template, min_confidence=threshold)
         # logger.attr(self.name, max_val)
         # 根据阈值判断匹配结果
         if max_val > threshold:
@@ -379,14 +374,12 @@ class RuleImage(BaseAtom):
             raise Exception(f"unknown method {self.method}")
         source = self.corp(image)
         mat = self.image
-        results = cv2.matchTemplate(source, mat, cv2.TM_CCOEFF_NORMED)
-        locations = np.where(results >= threshold)
+        matches_list, _ = match_template(source, mat, min_confidence=threshold, multi_target=True)
         matches = []
-        for pt in zip(*locations[::-1]):  # (x, y) coordinates
-            score = results[pt[1], pt[0]]
+        for score, loc in matches_list:
             # 得分, x, y, w, h
-            x = self.roi_back[0] + pt[0]
-            y = self.roi_back[1] + pt[1]
+            x = self.roi_back[0] + loc[0]
+            y = self.roi_back[1] + loc[1]
             matches.append((score, x, y, mat.shape[1], mat.shape[0]))
         return matches
 
@@ -406,14 +399,12 @@ class RuleImage(BaseAtom):
             raise Exception(f"unknown method {self.method}")
         source = self.corp(image)
         mat = self.image
-        results = cv2.matchTemplate(source, mat, cv2.TM_CCOEFF_NORMED)
-        locations = np.where(results >= threshold)
+        matches_list, _ = match_template(source, mat, min_confidence=threshold, multi_target=True)
         matches = []
-        for pt in zip(*locations[::-1]):  # (x, y) coordinates
-            score = results[pt[1], pt[0]]
+        for score, loc in matches_list:
             # 得分, x, y, w, h
-            x = self.roi_back[0] + pt[0]
-            y = self.roi_back[1] + pt[1]
+            x = self.roi_back[0] + loc[0]
+            y = self.roi_back[1] + loc[1]
             matches.append((score, x, y, mat.shape[1], mat.shape[0]))
         if len(matches) > 0:
             scores = np.array([m[0] for m in matches])
