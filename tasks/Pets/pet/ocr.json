@@ -1,8 +1,8 @@
 [
   {
     "itemName": "pet_feed_ap",
-    "roiFront": "730,527,57,33",
-    "roiBack": "730,527,57,33",
+    "roiFront": "819,537,57,33",
+    "roiBack": "819,537,57,33",
     "mode": "Digit",
     "method": "Default",
     "keyword": "",
