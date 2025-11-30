@@ -238,7 +238,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
                 return
             self.reject_invite()
             self.screenshot()
-            if self.ocr_appear(self.O_STORE_FREE_SIGN):
+            if self.appear(self.I_GIFT_SIGN):
                 break
             if self.appear_then_click(self.I_GIFT_RECOMMEND, interval=1):
                 continue
@@ -246,12 +246,12 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
         sleep(1)  # 等个动画
         self.reject_invite()
         self.screenshot()
-        if not self.ocr_appear(self.O_STORE_FREE_SIGN):
+        if not self.appear(self.I_GIFT_SIGN):
             logger.warning('There is no gift sign')
             self.save_image(content="未发现每日签到", push_flag=True, wait_time=0, image_type=True)
             return
 
-        if self.ui_get_reward(self.O_STORE_FREE_SIGN, click_interval=2.5):
+        if self.ui_get_reward(self.I_GIFT_SIGN, click_interval=2.5):
             logger.info('Get reward of gift sign')
 
     def run_buy_sushi(self):
@@ -402,7 +402,7 @@ class ScriptTask(GameUi, Summon, DailyTriflesAssets, GeneralBuff):
 if __name__ == '__main__':
     from module.config.config import Config
 
-    c = Config('wy')
+    c = Config('4399')
     t = ScriptTask(c)
 
-    t.run_buy_sushi()
+    t.run_store_sign()

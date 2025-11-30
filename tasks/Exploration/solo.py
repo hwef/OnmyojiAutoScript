@@ -46,9 +46,9 @@ class SoloExploration(BaseExploration):
 
             #
             if scene == Scene.WORLD:
-                self.check_boss_number(self._config.scrolls)
                 # 宝箱
                 self.get_box()
+                self.check_boss_number(self._config.scrolls)
                 if self.check_exit():
                     break
                 # 打开指定的章节：
