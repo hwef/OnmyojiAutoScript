@@ -279,7 +279,5 @@ console.bat
 /config/*
 /assets_extract.py
 
-module/device/emulator_manager.py
 autorun.bat
-module/device/emulator_manager.py
 my_start.py
