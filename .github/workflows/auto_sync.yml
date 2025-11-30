@@ -25,6 +25,9 @@ jobs:
         run: |
           git config --local user.email "sync-bot@example.com"
           git config --local user.name "Sync Bot"
+          # 设置GitHub认证
+          git config --local credential.helper 'store --file=.git-credentials'
+          echo "https://${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com" > .git-credentials
 
       - name: Add origin remote
         run: git remote add upstream https://github.com/ljxun/OnmyojiAutoScript.git
@@ -39,6 +42,9 @@ jobs:
 
       - name: Push changes to run_now_origin
         run: git push origin run_now_origin
+
+      - name: Add myoas remote
+        run: git remote add myoas https://github.com/hwef/OnmyojiAutoScript.git
 
       - name: Update myoas/run_now
         run: |
