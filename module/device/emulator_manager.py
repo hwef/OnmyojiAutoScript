@@ -10,6 +10,7 @@ from module.logger import logger
 from module.server.setting import State
 from tasks.Script.config_device import EmulatorWindow
 from tasks.Script.config_device import PackageName
+import adbutils
 
 
 class EmulatorManager:
@@ -178,13 +179,21 @@ class EmulatorManager:
         """
         获取游戏状态
         """
-        cmd = [self.manager_path, "control", "-v", self.vmindex, "app", "info", "-pkg", self.package_name]
-        result = execute_emulator(cmd)
-        if result:
-            game_state = result.get("state", None)
-            return game_state
-        else:
-            logger.error(f"获取游戏状态失败 {result}")
+        try:
+            # 使用adbutils连接到模拟器
+            adb = adbutils.AdbClient()
+            device = adb.device(self.serial)
+            
+            # 执行ADB命令获取当前运行的应用
+            output = device.shell("dumpsys window windows")
+            
+            # 检查目标包名是否在输出中
+            if self.package_name in output:
+                return "running"
+            else:
+                return "stopped"
+        except Exception as e:
+            logger.error(f"获取应用状态时出错: {e}")
             return None
 
     def is_app_running(self):
